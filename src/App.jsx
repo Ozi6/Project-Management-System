@@ -4,12 +4,14 @@ import viteLogo from '/vite.svg';
 import './App.css';
 import Sidebar from './frontend/Sidebar';
 import TopBar from './frontend/TopBar';
+import Dragable from './frontend/Dragable';
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
+      <Dragable />
       <TopBar />
       <Sidebar />
       <div className="content">
