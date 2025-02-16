@@ -1,49 +1,47 @@
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 50px;
-    height: 100vh;
-    background-color: #333;
-    transition: width 0.3s ease;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .sidebar.open {
-    width: 200px;
-  }
-  
-  .sidebar-content {
-    color: white;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .toggle-button {
-    position: absolute;
-    top: 50%;
-    right: -25px;
-    transform: translateY(-50%);
-    background-color: #444;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .toggle-button:hover {
-    background-color: #888;
-  }
-  
-  .toggle-button:focus {
-    outline: none;
-  }
-  
+  position: fixed;
+  top: 50px;
+  left: 0;
+  width: 50px;
+  height: calc(100vh - 50px);
+  background-color: #333;
+  transition: width 0.3s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  width: 200px;
+}
+
+.sidebar-content {
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.toggle-button {
+  position: absolute;
+  right: -25px;
+  transform: translateY(-50%);
+  background-color: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #888;
+}
+
+.toggle-button:focus {
+  outline: none;
+}
