@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
-import Sidebar from '../frontend/Sidebar';
-import TopBar from '../frontend/TopBar';
-import Dragable from '../frontend/Dragable';
+import Sidebar from '../components/Sidebar';
+import TopBar from '../components/TopBar';
+import Dragable from '../components/Dragable';
 
 const projects = [
     { id: 1, name: "a" },

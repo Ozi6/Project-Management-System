@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import Sidebar from '../frontend/Sidebar';
-import TopBar from '../frontend/TopBar';
-import ProjectCard from '../frontend/Components/ProjectCard'
+import Sidebar from '../components/Sidebar';
+import TopBar from '../components/TopBar';
+import ProjectCard from '../components/ProjectCard'
 
 const projects = [  //using this because we dont have a db yet.
     { id: 1, name: "DAG", owner: "Ozan NURCAN", role: "Developer", teamSize: 3, progress: 50 },
@@ -17,7 +17,7 @@ function AllProjects()
             <Sidebar />
             <div>
                 <h1>All Projects</h1>
-                {/*proje kartlarý*/}
+                {/*proje kartlarï¿½*/}
                 <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
                     {projects.map((project) => (
                         <ProjectCard
