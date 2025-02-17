@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = () =>
+{
   const [isOpen, setIsOpen] = useState(false);
   const [buttonTop, setButtonTop] = useState(0);
-  const toggleSidebar = () => {
+    const toggleSidebar = () =>
+    {
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
-    const updateButtonPosition = () => {
+    useEffect(() =>
+    {
+      const updateButtonPosition = () =>
+      {
       const sidebarHeight = document.querySelector('.sidebar')?.offsetHeight || 0;
       setButtonTop(sidebarHeight / 2);
     };

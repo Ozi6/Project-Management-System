@@ -1,0 +1,68 @@
+.project-card-link
+{
+    text-decoration: none;
+    color: inherit;
+}
+
+.project-card
+{
+    background-color: #222;
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease-in-out;
+}
+
+.project-card:hover
+{
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.card-header
+{
+    background-color: white;
+    color: black;
+    padding: 10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.project-name
+{
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.card-body
+{
+    padding: 10px;
+}
+
+.project-info,
+.project-role,
+.project-team
+{
+    margin: 5px 0;
+}
+
+.progress-bar
+{
+    background-color: #444;
+    border-radius: 5px;
+    height: 10px;
+    width: 100%;
+    margin-top: 10px;
+    position: relative;
+}
+
+.progress-fill
+{
+    background-color: #4caf50;
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s ease-in-out;
+}
