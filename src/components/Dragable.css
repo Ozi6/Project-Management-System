@@ -1,29 +1,35 @@
 .container {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
     margin: 20px;
-    position: relative; /* To position the draggable box */
+    position: relative; /* to position the draggable box */
+    padding-top:5%;
 }
 
-.draggable-box {
+.task { /*task box*/
     width: 100px;
     height: 100px;
-    background-color: rgb(255, 255, 255); /* Default color, can be replaced with background-image */
-    background-image: url('https://static.wikia.nocookie.net/roblox/images/3/35/Manface.png'); /* Replace with your image URL */
-    background-size: cover; /* Make the image cover the box */
-    background-position: center; /* Center the image inside the box */
+
+    background-color: rgb(255, 255, 255); 
+    background-image: url('https://static.wikia.nocookie.net/roblox/images/3/35/Manface.png'); /* Epic imaj */
+    background-size: cover; 
+    background-position: center; 
+
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+
     cursor: pointer;
     border: 2px solid #0056b3;
     position: absolute;
 }
 
-.drop-box {
-    width: 200px;
+.drop-area { /*where we drop the task box it is a bigger box*/
+    width: 200px; 
     height: 200px;
+
     border: 2px dashed #0056b3;
     display: flex;
     justify-content: center;
@@ -32,5 +38,9 @@
 }
 
 .dragging {
-    opacity: 0.5; /* Optional: Make the draggable box semi-transparent while dragging */
+    opacity: 0.5; /*when dragging the task box will be a bit transparent*/
+}
+
+button{
+    position: relative; /*so that the add button also moves along the drop zones*/
 }

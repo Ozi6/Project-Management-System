@@ -1,91 +1,101 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './Dragable.css';
 
 const Dragable = () => {
-    const [dragging, setDragging] = useState(false);
-    const [boxPosition, setBoxPosition] = useState({ left: -200, top: 0 }); // Global position for the box
-    const [dropAreas, setDropAreas] = useState([
-        { id: "dropArea1", left: 0 }, // Initial drop area with left position
+    const [dragging, setDragging] = useState(false); //at the beginning the ddragging is off
+    const [taskPosition, setTaskPosition] = useState({ left: -200, top: 0 }); //this is the test task box gonna need changes
+    const [dropAreas, setDropAreas] = useState([ //drop areas where we will be storing tasks
+        { id: "dropArea1", left: 0 },
     ]);
 
     const handleDragStart = (e) => {
         setDragging(true);
-        e.dataTransfer.setData("text", e.target.id); // Set the dragged box ID
+        e.dataTransfer.setData("text", e.target.id); //sets the id of the task box
     };
 
     const handleDragOver = (e) => {
-        e.preventDefault(); // Allow dropping
+        e.preventDefault(); //by preventing the default we allow the dropping
     };
 
     const handleDrop = (e, dropAreaId) => {
         e.preventDefault();
 
-        // Get the container's position (relative to the page)
+        //containers pos
         const container = document.querySelector(".container");
         const containerRect = container.getBoundingClientRect();
 
-        // Get the drop area position based on the dropAreaId
+        //by getting the id od drop area we get the pos of the drop area pos
         const dropArea = document.getElementById(dropAreaId).getBoundingClientRect();
-        const draggedBoxId = e.dataTransfer.getData("text");
-        const draggedBox = document.getElementById(draggedBoxId);
+        const draggedTaskId = e.dataTransfer.getData("text");
+        const draggedTask = document.getElementById(draggedTaskId);
 
-        // Calculate the position of the dropped box relative to the drop area
-        const offsetX = (dropArea.width / 2) - (draggedBox.offsetWidth / 2);
-        const offsetY = (dropArea.height / 2) - (draggedBox.offsetHeight / 2);
+        // pos of the dropped task basically rn at the top but 
+        const offsetX = (dropArea.width / 2) - (draggedTask.offsetWidth / 2);
+        const offsetY = (dropArea.height / 2) - (draggedTask.offsetHeight);
 
-        // Adjust for the container offset relative to the page
+        //continer offset relative to the page
         const containerOffsetX = dropArea.left - containerRect.left;
         const containerOffsetY = dropArea.top - containerRect.top;
 
-        // Update the box position state for the specific drop area
-        setBoxPosition({
+        //update the task pos
+        setTaskPosition({
             left: containerOffsetX + offsetX,
             top: containerOffsetY + offsetY
         });
 
-        draggedBox.style.position = "absolute";
-        draggedBox.style.left = `${containerOffsetX + offsetX}px`;
-        draggedBox.style.top = `${containerOffsetY + offsetY}px`;
+        draggedTask.style.position = 'absolute';
+        draggedTask.style.left = `${containerOffsetX + offsetX}px`;
+        draggedTask.style.top = `${containerOffsetY + offsetY}px`;
     };
 
     const addDropArea = () => {
-        // Calculate new position for the next drop area
-        const newDropAreaLeft = dropAreas.length * 150; // 150px apart
+        //positinoning the new drop area's pos
+        const col = 3;
+        const gap = 200; //this should be wid and height of the drop box STC
+
+        const newDropAreaLeft = (dropAreas.length%col) * gap;
+        const newDropAreaTop = Math.floor(dropAreas.length/col) * gap;
+
         const newDropAreaId = `dropArea${dropAreas.length + 1}`;
 
-        // Add the new drop area to the state
-        setDropAreas([...dropAreas, { id: newDropAreaId, left: newDropAreaLeft }]);
+        // adding the new drop area to the state
+        setDropAreas([...dropAreas, { id: newDropAreaId, left: newDropAreaLeft, top: newDropAreaTop}]);
     };
 
     return (
         <div className="container">
-            {/* Draggable Box */}
+            {/*task box*/}
             <div
                 id="dragBox"
-                className={`draggable-box ${dragging ? "dragging" : ""}`}
+                className={`task ${dragging ? "dragging" : ""}`}
                 draggable
                 onDragStart={handleDragStart}
-                style={{ left: `${boxPosition.left}px`, top: `${boxPosition.top}px`, position: 'absolute' }}
+                style={{ left: `${taskPosition.left}px`, top: `${taskPosition.top}px`, position: 'absolute' }}
             >
                 Drag Me
             </div>
 
-            {/* Existing Drop Areas */}
+            {/*drop areas*/}
             {dropAreas.map((dropArea) => (
                 <div
                     key={dropArea.id}
                     id={dropArea.id}
-                    className="drop-box"
+                    className="drop-area"
                     onDragOver={handleDragOver}
                     onDrop={(e) => handleDrop(e, dropArea.id)} // Handle drop for each drop area
-                    style={{ left: `${dropArea.left}px`, top: `0px` }}
+                    style={{ left: `${dropArea.left}px`, top: `${dropArea.top}px` }}
                 >
                     Drop Here {dropArea.id}
                 </div>
             ))}
-
-            {/* Button to Add Drop Area */}
-            <button onClick={addDropArea}>Add Drop Area</button>
+            
+            {/*add button*/}
+            <button onClick={addDropArea}
+            style={{
+                width: '200px',
+                height: '200px'
+            }}
+            >Add Drop Area</button>
         </div>
     );
 };
