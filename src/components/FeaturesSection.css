@@ -1,0 +1,33 @@
+/* src/components/FeaturesSection.css */
+.features {
+    padding: 60px 20px;
+    text-align: center;
+    background-color: #ffffff;
+  }
+  
+  .features h2 {
+    font-size: 36px;
+    color: #172b4d;
+    margin-bottom: 40px;
+  }
+  
+  .features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+  
+  .feature {
+    max-width: 300px;
+  }
+  
+  .feature h3 {
+    font-size: 24px;
+    color: #172b4d;
+    margin-bottom: 16px;
+  }
+  
+  .feature p {
+    font-size: 16px;
+    color: #5e6c84;
+  }
