@@ -1,0 +1,199 @@
+/* Main Layout */
+.dashboard-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f3f4f6;
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 250px;
+    background-color: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar-header {
+    padding: 16px;
+  }
+  
+  .sidebar-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #1f2937;
+  }
+  
+  .sidebar-nav {
+    margin-top: 16px;
+  }
+  
+  .nav-button {
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #4b5563;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  
+  .nav-button:hover {
+    background-color: #f9fafb;
+  }
+  
+  .nav-button.active {
+    background-color: #eff6ff;
+    color: #2563eb;
+  }
+  
+  .nav-icon {
+    margin-right: 12px;
+    height: 20px;
+    width: 20px;
+  }
+  
+  /* Main Content Area */
+  .main-content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .page-header {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-container {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .new-project-button {
+    background-color: #2563eb;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .new-project-button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  .button-icon {
+    margin-right: 8px;
+    height: 20px;
+    width: 20px;
+  }
+  
+  /* Main Area */
+  .main-area {
+    padding: 24px;
+  }
+  
+  /* Project Grid */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+  }
+  
+  @media (min-width: 768px) {
+    .project-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .project-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  /* Project Cards */
+  .project-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+  }
+  
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  
+  .project-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+  
+  .status-badge {
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 14px;
+  }
+  
+  .status-completed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-in-progress {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .progress-container {
+    margin-bottom: 16px;
+  }
+  
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .progress-label, .progress-value {
+    font-size: 14px;
+    color: #4b5563;
+  }
+  
+  .progress-bar-bg {
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    height: 8px;
+  }
+  
+  .progress-bar-fill {
+    background-color: #2563eb;
+    border-radius: 9999px;
+    height: 8px;
+  }
+  
+  .project-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #4b5563;
+  }
