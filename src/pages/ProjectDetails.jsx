@@ -1,32 +1,20 @@
+import React from "react";
 import { useParams } from "react-router-dom";
-import Sidebar from '../components/Sidebar';
-import TopBar from '../components/TopBar';
-import Dragable from '../components/Dragable';
+import { Link } from "react-router-dom";
 
-const projects = [
-    { id: 1, name: "a" },
-    { id: 2, name: "b" }
-];
 
-function ProjectDetails() {
-    const { id } = useParams();
-    const project = projects.find((p) => p.id.toString() === id);
 
-    return (
-        <>
-            <Dragable />
-            <TopBar />
-            <Sidebar />
-            <div>
-                <h1>Project Details</h1>
-                {project ? (
-                    <p>Showing details for project: {project.name}</p>
-                ) : (
-                    <p>Project not found</p>
-                )}
-            </div>
-        </>
-    );
-}
+const ProjectDetails = () => {
+  const { id } = useParams();
+
+  return (
+    
+    <div className="p-6">
+      <h1 className="text-3xl font-bold">Project Details</h1>
+      <p className="text-gray-600 mt-2">Project ID: {id}</p>
+      <Link to="/projects" className="text-blue-500 mt-4 block">← Back to Projects</Link>
+    </div>
+  );
+};
 
 export default ProjectDetails;
