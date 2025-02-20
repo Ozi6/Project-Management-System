@@ -1,35 +1,48 @@
-import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
-import "./ProjectCard.css";
+import { useNavigate } from "react-router-dom";
 
-function ProjectCard({ id, name, owner, role, teamSize, progress }) {
+const ProjectCard = ({ id, name, owner, role, progress, status, dueDate }) =>
+{
+    const navigate = useNavigate();
+
     return(
-        <Link to={`/project/${id}`} className="project-card-link">
-            <div className="project-card">
-                <div className="card-header">
-                    <h2 className="project-name">{name}</h2>
-                </div>
-                <div className="card-body">
-                    <p className="project-info"><strong>Owner:</strong> {owner}</p>
-                    <p className="project-role"><strong>Role:</strong> {role}</p>
-                    <p className="project-team"><strong>Team Size:</strong> {teamSize}</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{width:`${progress}%`}}></div>
-                    </div>
+        <div
+            className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg hover:scale-105 transition-all duration-200"
+            onClick={() => navigate(`/project/${id}`)}>
+            <div className="bg-blue-500 rounded-lg p-2 mb-4">
+                <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-gray-100">{name}</h3>
+                    <span
+                        className={`px-3 py-1 rounded-full text-sm ${status === "Completed" ? "bg-green-100 text-green-800" : "bg-blue-300 text-blue-900"}`}>
+                        {status}
+                    </span>
                 </div>
             </div>
-        </Link>
+            <div className="mb-4">
+                <p className="text-sm text-gray-600">
+                    <span className="font-medium">{owner}</span>
+                </p>
+                <p className="text-sm text-gray-600">
+                    <span className="font-medium">Your Role:</span> {role}
+                </p>
+            </div>
+            <div className="mb-4">
+                <div className="flex justify-between mb-2">
+                    <span className="text-sm text-gray-600">Progress</span>
+                    <span className="text-sm text-gray-600">{progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                        className="bg-blue-600 rounded-full h-2"
+                        style={{ width: `${progress}%` }}
+                    ></div>
+                </div>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600">
+                <span>Due Date:</span>
+                <span>{dueDate}</span>
+            </div>
+        </div>
     );
-}
-
-ProjectCard.propTypes =
-{
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    owner: PropTypes.string.isRequired,
-    role: PropTypes.string.isRequired,
-    teamSize: PropTypes.number.isRequired,
-    progress: PropTypes.number.isRequired
 };
 
 export default ProjectCard;
