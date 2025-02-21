@@ -31,7 +31,7 @@ function AnimatedRoutes()
     return(
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
-                <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>} />
+                <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
             </Routes>
