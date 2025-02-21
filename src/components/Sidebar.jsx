@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Layout, KanbanSquare, Users, Calendar, Settings, PieChart } from "lucide-react";
 import './Sidebar.css';
 
@@ -38,10 +39,10 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
     return(
         <div className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-content">
-                <div className="p-4 flex items-center space-x-2">
+                <Link to="/" className="p-4 flex items-center space-x-2 no-underline hover:bg-gray-50 transition-colors duration-200">
                     <Layout className="h-8 w-8 text-gray-600" />
-                    <h1 className="text-2xl font-bold text-gray-800 project-hub-text">Project Hub</h1>
-                </div>
+                    <h1 className="text-4xl font-bold text-blue-600 logo">PlanWise</h1>
+                </Link>
                 <nav className="mt-4">
                     {navItems.map((item) => {
                         const Icon = item.icon;
