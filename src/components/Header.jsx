@@ -5,9 +5,20 @@ import logo from '../assets/logo2.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 
+import ResourcesDropdown from './ResourcesDropdown';
+import ResourcesContent from './ResourcesContent';
+
 const Header = ({ title, action }) => {
     const location = useLocation();
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [activeDropdown, setActiveDropdown] = useState(null); // 'features' or 'resources' or null
+
+    const handleDropdownToggle = (dropdownName) => {
+        if (activeDropdown === dropdownName) {
+            setActiveDropdown(null);
+        } else {
+            setActiveDropdown(dropdownName);
+        }
+    };
 
     const renderHeaderContent = () => {
         if (['/login', '/signup', '/'].includes(location.pathname)) {
@@ -15,14 +26,42 @@ const Header = ({ title, action }) => {
                 <div className="flex-1 flex justify-between items-center">
                     <div className="flex items-center gap-8">
                         <FeaturesDropdown 
-                            isOpen={isDropdownOpen} 
-                            setIsOpen={setIsDropdownOpen}
+                            isOpen={activeDropdown === 'features'}
+                            onClick={() => handleDropdownToggle('features')}
                         />
+                        <ResourcesDropdown 
+                            isOpen={activeDropdown === 'resources'}
+                            onClick={() => handleDropdownToggle('resources')}
+                        />
+                        <Link 
+                            to="/solutions" 
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Solutions
+                        </Link>
+                        <Link 
+                            to="/enterprise" 
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Enterprise
+                        </Link>
+                        <Link 
+                            to="/pricing" 
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Pricing
+                        </Link>
                     </div>
-                    <nav className="flex items-center gap-4">
+                    <nav className="flex items-center gap-6">
+                        <Link 
+                            to="/contact" 
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Contact Sales
+                        </Link>
                         <Link 
                             to="/login" 
-                            className="text-gray-600 text-lg hover:text-blue-600 transition-colors duration-200"
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
                         >
                             Log In
                         </Link>
@@ -31,7 +70,7 @@ const Header = ({ title, action }) => {
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 
                             transition-colors duration-200 text-lg font-semibold"
                         >
-                            Sign Up
+                            Start Free
                         </Link>
                     </nav>
                 </div>
@@ -67,10 +106,20 @@ const Header = ({ title, action }) => {
                 </Link>
                 {renderHeaderContent()}
             </header>
-            <AnimatePresence>
-                {isDropdownOpen && (
+            <AnimatePresence mode="wait">
+                {activeDropdown && (
                     <div className="absolute top-full left-0 right-0 z-40">
-                        <FeaturesContent isOpen={isDropdownOpen} />
+                        {activeDropdown === 'features' ? (
+                            <FeaturesContent 
+                                isOpen={true}
+                                setIsOpen={() => setActiveDropdown(null)}
+                            />
+                        ) : (
+                            <ResourcesContent 
+                                isOpen={true}
+                                setIsOpen={() => setActiveDropdown(null)}
+                            />
+                        )}
                     </div>
                 )}
             </AnimatePresence>
