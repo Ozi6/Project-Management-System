@@ -14,38 +14,65 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
     }, [isOpen]);
 
     const container = {
-        hidden: { opacity: 0, y: -10 },
+        hidden: { 
+            opacity: 0,
+            height: 0,
+            y: -20
+        },
         show: {
             opacity: 1,
+            height: "auto",
             y: 0,
             transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-                staggerChildren: 0.05
+                height: {
+                    duration: 0.4,
+                    ease: "easeOut"
+                },
+                opacity: {
+                    duration: 0.3,
+                    delay: 0.1
+                },
+                y: {
+                    duration: 0.4,
+                    ease: "easeOut"
+                },
+                staggerChildren: 0.2,
+                delayChildren: 0.3
             }
         },
         exit: {
             opacity: 0,
-            y: -10,
+            height: 0,
+            y: -20,
             transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
-                duration: 0.2
+                height: {
+                    duration: 0.3,
+                    ease: "easeInOut"
+                },
+                opacity: {
+                    duration: 0.2
+                },
+                y: {
+                    duration: 0.3,
+                    ease: "easeInOut"
+                }
             }
         }
     };
 
     const item = {
-        hidden: { opacity: 0, y: 10 },
+        hidden: { 
+            opacity: 0,
+            y: 20,
+            scale: 0.95
+        },
         show: { 
-            opacity: 1, 
+            opacity: 1,
             y: 0,
+            scale: 1,
             transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 30
+                duration: 0.5,
+                ease: "easeOut"
             }
         }
     };
@@ -55,21 +82,21 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
         show: { 
             opacity: 1,
             transition: {
-                duration: 0.15,
+                duration: 0.4,
                 ease: "easeOut"
             }
         },
         exit: { 
             opacity: 0,
             transition: {
-                duration: 0.15,
-                ease: "easeIn"
+                duration: 0.3,
+                ease: "easeInOut"
             }
         }
     };
 
     return (
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
             {isOpen && (
                 <>
                     <motion.div
@@ -78,7 +105,7 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
                         animate="show"
                         exit="exit"
                         onClick={() => setIsOpen(false)}
-                        className="fixed inset-0 bg-black/20 backdrop-blur-[2px] z-30"
+                        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
                     />
                     
                     <motion.div
@@ -93,23 +120,39 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
                                 {/* Feature items */}
                                 <motion.div 
                                     variants={item}
-                                    className="feature-item hover:bg-gray-50 p-4 rounded-lg transition-colors duration-200"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
+                                    className="feature-item p-4 rounded-lg transition-all duration-200"
+                                    whileHover={{ 
+                                        scale: 1.03, 
+                                        backgroundColor: "rgb(249 250 251)",
+                                        transition: { duration: 0.2 }
+                                    }}
+                                    whileTap={{ scale: 0.97 }}
                                 >
                                     <h3 className="text-lg font-semibold text-gray-900">Project Management</h3>
                                     <p className="text-gray-600 mt-1">Efficiently manage your projects with our intuitive tools.</p>
                                 </motion.div>
                                 <motion.div 
                                     variants={item}
-                                    className="feature-item hover:bg-gray-50 p-4 rounded-lg transition-colors duration-200"
+                                    className="feature-item p-4 rounded-lg transition-all duration-200"
+                                    whileHover={{ 
+                                        scale: 1.03, 
+                                        backgroundColor: "rgb(249 250 251)",
+                                        transition: { duration: 0.2 }
+                                    }}
+                                    whileTap={{ scale: 0.97 }}
                                 >
                                     <h3 className="text-lg font-semibold text-gray-900">Team Collaboration</h3>
                                     <p className="text-gray-600 mt-1">Work seamlessly with your team members in real-time.</p>
                                 </motion.div>
                                 <motion.div 
                                     variants={item}
-                                    className="feature-item hover:bg-gray-50 p-4 rounded-lg transition-colors duration-200"
+                                    className="feature-item p-4 rounded-lg transition-all duration-200"
+                                    whileHover={{ 
+                                        scale: 1.03, 
+                                        backgroundColor: "rgb(249 250 251)",
+                                        transition: { duration: 0.2 }
+                                    }}
+                                    whileTap={{ scale: 0.97 }}
                                 >
                                     <h3 className="text-lg font-semibold text-gray-900">Task Tracking</h3>
                                     <p className="text-gray-600 mt-1">Keep track of all your tasks and deadlines in one place.</p>
