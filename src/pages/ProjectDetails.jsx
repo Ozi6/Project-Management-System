@@ -5,13 +5,14 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import TaskList from "../components/TaskList";
 
-const ProjectDetails = () => {
+const ProjectDetails = () =>
+{
     const { id } = useParams();
     const [columns, setColumns] = useState([]);
     const [containerWidth, setContainerWidth] = useState(0);
 
-    // Initial task lists
-    const initialColumns = [
+    const initialColumns =
+    [
         [
             { title: "A", tagColor: "#8b5cf6" },
             { title: "F", tagColor: "#8b5cf6" },
@@ -42,18 +43,40 @@ const ProjectDetails = () => {
     {
         const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));
 
-        if(possibleColumns === columns.length)
+        if (possibleColumns === columns.length)
             return;
 
-        const allTasks = columns.flat();
+        let newColumns;
 
-        const newColumns = Array.from({ length: possibleColumns }, () => []);
-        allTasks.forEach((task, index) =>
+        if(possibleColumns < columns.length)
         {
-            const columnIndex = index % possibleColumns;
-            newColumns[columnIndex].push(task);
-        });
-
+            const columnsCopy = columns.slice(0, -1);
+            const tasksToDistribute = columns[columns.length - 1];
+            newColumns = [...columnsCopy];
+            tasksToDistribute.forEach((task) =>
+            {
+                let shortestColumnIndex = 0;
+                for(let i = 1; i < newColumns.length; i++)
+                {
+                    if (newColumns[i].length < newColumns[shortestColumnIndex].length)
+                    {
+                        shortestColumnIndex = i;
+                    }
+                }
+                newColumns[shortestColumnIndex].push(task);
+            });
+        }
+        else
+        {
+            const columnsCopy = [...columns];
+            const allTasks = columnsCopy.flat();
+            newColumns = Array.from({ length: possibleColumns }, () => []);
+            allTasks.forEach((task, index) =>
+            {
+                const columnIndex = index % possibleColumns;
+                newColumns[columnIndex].push(task);
+            });
+        }
         setColumns(newColumns);
     };
 
@@ -71,19 +94,19 @@ const ProjectDetails = () => {
 
         handleResize();
         window.addEventListener("resize", handleResize);
-        return() => window.removeEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     },[columns]);
 
     useEffect(() =>
     {
-        setColumns(initialColumns);
+        setColumns([...initialColumns]);
     },[]);
 
     return(
         <div className="flex h-screen">
-            <Sidebar />
+            <Sidebar/>
             <div className="flex flex-col flex-1">
-                <Header />
+                <Header/>
                 <div className="p-6">
                     <h1 className="text-3xl font-bold">Project Details</h1>
                     <p className="text-gray-600 mt-2">Project ID: {id}</p>
@@ -94,20 +117,20 @@ const ProjectDetails = () => {
                         id="columns-container"
                         className="flex flex-wrap gap-4 mt-6">
                         {
-                            columns.map((tasks, columnIndex) => (
-                                <div
-                                    key={columnIndex}
-                                    className="flex flex-col gap-4 flex-1 min-w-[220px]">
-                                    {
-                                        tasks.map((task, taskIndex) =>(
-                                        <TaskList
-                                            key={taskIndex}
-                                            title={task.title}
-                                            tagColor={task.tagColor}/>
-                                        ))
-                                    }
-                                </div>
+                        columns.map((tasks, columnIndex) => (
+                        <div
+                            key={columnIndex}
+                            className="flex flex-col gap-4 flex-1 min-w-[220px]">
+                            {
+                                tasks.map((task, taskIndex) => (
+                                    <TaskList
+                                    key={taskIndex}
+                                    title={task.title}
+                                    tagColor={task.tagColor}/>
                             ))
+                            }
+                        </div>
+                        ))
                         }
                     </div>
                 </div>
