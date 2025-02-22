@@ -1,26 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import './Header.css';
+import { motion, AnimatePresence } from 'framer-motion';
+import logo from '../assets/logo2.png';
+import FeaturesDropdown from './FeaturesDropdown';
+import FeaturesContent from './FeaturesContent';
 
-const Header = ({ title, action }) =>
-{
+const Header = ({ title, action }) => {
     const location = useLocation();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const renderHeaderContent = () =>
-    {
-        if (['/login', '/signup', '/'].includes(location.pathname))
-        {
-            return(
+    const renderHeaderContent = () => {
+        if (['/login', '/signup', '/'].includes(location.pathname)) {
+            return (
                 <>
-                    <div className="text-4xl font-bold text-blue-600 logo">PlanWise</div>
-                    <nav className="nav flex space-x-6">
-                        <Link to="/login" className="text-lg text-gray-600 hover:text-blue-600 transition duration-200">Log In</Link>
-                        <Link to="/signup" className="text-lg text-gray-600 hover:text-blue-600 transition duration-200">Sign Up</Link>
+                    <div className="flex items-center gap-8">
+                        <Link to="/" className="flex items-center">
+                            <img 
+                                src={logo} 
+                                alt="PlanWise Logo" 
+                                className="h-[32px] w-auto object-contain"
+                            />
+                        </Link>
+                        <FeaturesDropdown 
+                            isOpen={isDropdownOpen} 
+                            setIsOpen={setIsDropdownOpen}
+                        />
+                    </div>
+                    <nav className="flex gap-4">
+                        <Link 
+                            to="/login" 
+                            className="text-gray-600 text-lg hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Log In
+                        </Link>
+                        <Link 
+                            to="/signup" 
+                            className="text-gray-600 text-lg hover:text-blue-600 transition-colors duration-200"
+                        >
+                            Sign Up
+                        </Link>
                     </nav>
                 </>
             );
         }
-        return(
+        return (
             <div className="p-4 flex justify-between items-center w-full">
                 <h2 className="text-3xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
                     {title}
@@ -37,10 +60,21 @@ const Header = ({ title, action }) =>
             </div>
         );
     };
-    return(
-        <header className={`header ${location.pathname !== '/' ? 'bg-white shadow-lg' : ''}`}>
-            {renderHeaderContent()}
-        </header>
+
+    return (
+        <div className="relative">
+            <motion.header
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 100 }}
+                className="px-5 py-2 flex justify-between items-center w-full box-border h-16 bg-white shadow-sm sticky top-0 z-50"
+            >
+                {renderHeaderContent()}
+            </motion.header>
+            <AnimatePresence>
+                {isDropdownOpen && <FeaturesContent isOpen={isDropdownOpen} />}
+            </AnimatePresence>
+        </div>
     );
 };
 
