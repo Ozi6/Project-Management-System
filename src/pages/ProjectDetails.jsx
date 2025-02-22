@@ -5,62 +5,63 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import TaskList from "../components/TaskList";
 
-const ProjectDetails = () =>
-{
+const ProjectDetails = () => {
     const { id } = useParams();
-    const [responsiveColumns, setResponsiveColumns] = useState([]);
+    const [columns, setColumns] = useState([]);
     const [containerWidth, setContainerWidth] = useState(0);
-    const initialColumns =
-    [
+
+    // Initial task lists
+    const initialColumns = [
         [
-            { title: "Backlog", tagColor: "#8b5cf6" },
-            { title: "Backlog", tagColor: "#8b5cf6" }
+            { title: "A", tagColor: "#8b5cf6" },
+            { title: "F", tagColor: "#8b5cf6" },
+            { title: "K", tagColor: "#8b5cf6" },
         ],
         [
-            { title: "To Do", tagColor: "#f43f5e" },
-            { title: "To Do", tagColor: "#f43f5e" }
+            { title: "B", tagColor: "#f43f5e" },
+            { title: "G", tagColor: "#f43f5e" },
+            { title: "L", tagColor: "#8b5cf6" },
         ],
         [
-            { title: "In Progress", tagColor: "#f97316" },
-            { title: "In Progress", tagColor: "#f97316" }
+            { title: "C", tagColor: "#f97316" },
+            { title: "H", tagColor: "#f97316" },
         ],
         [
-            { title: "Review", tagColor: "#eab308" },
-            { title: "Review", tagColor: "#eab308" }
+            { title: "D", tagColor: "#eab308" },
+            { title: "I", tagColor: "#eab308" },
         ],
         [
-            { title: "Done", tagColor: "#10b981" },
-            { title: "Done", tagColor: "#10b981" }
+            { title: "E", tagColor: "#10b981" },
+            { title: "J", tagColor: "#10b981" },
         ],
-        [
-            { title: "Archived", tagColor: "#6366f1" },
-            { title: "Archived", tagColor: "#6366f1" }
-        ]
     ];
 
-    const MIN_COLUMN_WIDTH = 220;
+    const MIN_COLUMN_WIDTH = 250;
 
     const redistributeTasks = (width) =>
     {
-        const possibleColumns = Math.floor(width / MIN_COLUMN_WIDTH);
-        if(possibleColumns <= 0)
+        const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));
+
+        if(possibleColumns === columns.length)
             return;
-        const allTasks = initialColumns.flat();
-        const tasksPerColumn = Math.ceil(allTasks.length / possibleColumns);
+
+        const allTasks = columns.flat();
+
         const newColumns = Array.from({ length: possibleColumns }, () => []);
         allTasks.forEach((task, index) =>
         {
-            const columnIndex = Math.floor(index / tasksPerColumn);
+            const columnIndex = index % possibleColumns;
             newColumns[columnIndex].push(task);
         });
-        setResponsiveColumns(newColumns);
+
+        setColumns(newColumns);
     };
 
     useEffect(() =>
     {
         const handleResize = () =>
         {
-            const container = document.getElementById('columns-container');
+            const container = document.getElementById("columns-container");
             if(container)
             {
                 setContainerWidth(container.offsetWidth);
@@ -69,15 +70,20 @@ const ProjectDetails = () =>
         };
 
         handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+        window.addEventListener("resize", handleResize);
+        return() => window.removeEventListener("resize", handleResize);
+    },[columns]);
+
+    useEffect(() =>
+    {
+        setColumns(initialColumns);
+    },[]);
 
     return(
         <div className="flex h-screen">
-            <Sidebar/>
+            <Sidebar />
             <div className="flex flex-col flex-1">
-                <Header/>
+                <Header />
                 <div className="p-6">
                     <h1 className="text-3xl font-bold">Project Details</h1>
                     <p className="text-gray-600 mt-2">Project ID: {id}</p>
@@ -87,21 +93,27 @@ const ProjectDetails = () =>
                     <div
                         id="columns-container"
                         className="flex flex-wrap gap-4 mt-6">
-                        {responsiveColumns.map((tasks, columnIndex)=>(
-                            <div
-                                key={columnIndex}
-                                className="flex flex-col gap-4 flex-1 min-w-[220px]">
-                                {tasks.map((task, taskIndex)=>(
-                                    <TaskList
-                                        key={taskIndex}
-                                        title={task.title}
-                                        tagColor={task.tagColor}/>))}
-                            </div>
-                        ))}
+                        {
+                            columns.map((tasks, columnIndex) => (
+                                <div
+                                    key={columnIndex}
+                                    className="flex flex-col gap-4 flex-1 min-w-[220px]">
+                                    {
+                                        tasks.map((task, taskIndex) =>(
+                                        <TaskList
+                                            key={taskIndex}
+                                            title={task.title}
+                                            tagColor={task.tagColor}/>
+                                        ))
+                                    }
+                                </div>
+                            ))
+                        }
                     </div>
                 </div>
             </div>
         </div>
     );
 };
+
 export default ProjectDetails;
