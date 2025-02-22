@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Layout, KanbanSquare, Users, Calendar, Settings, PieChart } from "lucide-react";
 import './Sidebar.css';
 
@@ -36,12 +36,19 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
         { id: 'landingpage', icon: Layout, label: 'Landing Page' }
     ];
 
+    const getCurrentLabel = () => {
+        const currentItem = navItems.find(item => item.id === activeTab);
+        return currentItem ? currentItem.label : 'PlanWise';
+    };
+
     return(
         <div className={`sidebar ${isOpen ? 'open' : ''}`}>
             <div className="sidebar-content">
-                <Link to="/" className="p-4 flex items-center space-x-2 no-underline hover:bg-gray-50 transition-colors duration-200">
+                <Link to="/" className="p-8 flex items-center space-x-2 no-underline hover:bg-gray-50 transition-colors duration-200">
                     <Layout className="h-8 w-8 text-gray-600" />
-                    <h1 className="text-4xl font-bold text-blue-600 logo">PlanWise</h1>
+                    <h1 className="text-2xl font-bold text-blue-600 logo">
+                        {getCurrentLabel()}
+                    </h1>
                 </Link>
                 <nav className="mt-4">
                     {navItems.map((item) => {

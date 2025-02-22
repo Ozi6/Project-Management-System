@@ -1,6 +1,5 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import "tailwindcss";
+
 
 
 /*
@@ -18,4 +17,4 @@ New CSS properties used in this file:
   flex-direction: column;
   min-height: 100vh;
 } */
- 
+

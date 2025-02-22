@@ -24,10 +24,10 @@ const ProjectManagement = () => {
             {/* Header with shadow to create separation */}
             <div className="w-full bg-white shadow-md z-10">
                 <Header
-                    title={activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                    title={<span className="text-xl">Project Management</span>} // Changed from default to text-2xl
                     action={{
                         onClick: handleNewProject,
-                        icon: <Plus className="mr-2 h-5 w-5" />,
+                        icon: <Plus className="mr-2 h-4 w-4" />, // Reduced icon size
                         label: "New Project"
                     }}
                 />
