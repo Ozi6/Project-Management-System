@@ -5,25 +5,12 @@ import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
 import { AnimatePresence } from "framer-motion";
 
-const TaskList = ({ title, tagColor }) =>
+const TaskList = ({ title, tagColor, entries, onAddEntry }) =>
 {
-    const [entries, setEntries] = useState(["Example Entry"]);
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
     const [editableTagColor, setEditableTagColor] = useState(tagColor);
     const [newEntryId, setNewEntryId] = useState(null);
-
-    const addEntry = () =>
-    {
-        const newId = Date.now();
-        setEntries([...entries, `New Entry ${entries.length + 1}`]);
-        setNewEntryId(newId);
-
-        setTimeout(() =>
-        {
-            setNewEntryId(null);
-        }, 300);
-    };
 
     const handleDone = (newTitle, newTagColor) =>
     {
@@ -66,42 +53,42 @@ const TaskList = ({ title, tagColor }) =>
                         className="transition-transform transform hover:scale-150 hover:text-gray-150"/>
                 </div>
                 <div className="flex flex-col gap-2 p-2">
-                {
-                    entries.length > 0 ? (
-                        entries.map((entry, index) => (
+                    {entries.length > 0 ? (entries.map((entry, index) => (
                             <ListEntry
                                 key={`${index}-${entry}`}
                                 text={entry}
-                                isNew={index === entries.length - 1 && newEntryId !== null} />))) : (<p className="text-center text-gray-500">No entries</p>)
-                }
+                                isNew={index === entries.length - 1 && newEntryId !== null}/>))) : (<p className="text-center text-gray-500">No entries</p>)
+                    }
                 </div>
                 <button
-                    onClick={addEntry}
+                    onClick={onAddEntry}
                     className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-blue-600 hover:scale-105">
                     <Plus size={16} /> Add Entry
                 </button>
             </div>
             <AnimatePresence mode="wait">
-                {isEditing && (
-                    <EditCard
+                {
+                    isEditing && (<EditCard
                         title={editableTitle}
                         tagColor={editableTagColor}
                         onDone={handleDone}
-                        onCancel={handleCancel}/>
-                )}
+                            onCancel={handleCancel}/>)
+                }
             </AnimatePresence>
             <style jsx>
             {
                 `
-                @keyframes expand{
-                    from{
+                @keyframes expand {
+                    from {
                         max-height: calc(100% - 3rem);
-                    }to{
+                    }
+                    to {
                         max-height: calc(100% + 3rem);
                     }
                 }
                 `
-            }</style>
+            }
+            </style>
         </div>
     );
 };
@@ -110,6 +97,8 @@ TaskList.propTypes =
 {
     title: PropTypes.string.isRequired,
     tagColor: PropTypes.string.isRequired,
+    entries: PropTypes.array.isRequired,
+    onAddEntry: PropTypes.func.isRequired,
 };
 
 export default TaskList;
