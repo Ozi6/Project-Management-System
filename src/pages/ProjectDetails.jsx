@@ -8,8 +8,6 @@ import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 
 const ProjectDetails = () => {
     const { id } = useParams();
-
-    // Initial data with unique IDs
     const initialColumns = [
         [
             {
@@ -133,7 +131,8 @@ const ProjectDetails = () => {
     const [selectedEntry, setSelectedEntry] = useState(null);
 
     const MIN_COLUMN_WIDTH = 300;
-
+    /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
+    No AI can replicate this, on God on Donda.*/
     const redistributeTasks = (width) =>
     {
         const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));

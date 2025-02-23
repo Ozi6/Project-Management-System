@@ -4,14 +4,16 @@ import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
 
-const ListEntry = ({ text, isNew, isSelected, onClick }) => {
+const ListEntry = ({ text, isNew, isSelected, onClick }) =>
+{
     const [checked, setChecked] = useState(false);
 
-    const handleClick = () => {
-        onClick(); // Notify parent of click
+    const handleClick = () =>
+    {
+        onClick();
     };
 
-    return (
+    return(
         <div className="relative">
             <div
                 onClick={handleClick}
@@ -83,14 +85,16 @@ const ListEntry = ({ text, isNew, isSelected, onClick }) => {
     );
 };
 
-ListEntry.propTypes = {
+ListEntry.propTypes =
+{
     text: PropTypes.string.isRequired,
     isNew: PropTypes.bool,
     isSelected: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
 };
 
-ListEntry.defaultProps = {
+ListEntry.defaultProps =
+{
     isNew: false,
 };
 
