@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import logo from '../assets/logo2.png';
+import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 
@@ -39,12 +39,7 @@ const Header = ({ title, action }) => {
                         >
                             Solutions
                         </Link>
-                        <Link 
-                            to="/enterprise" 
-                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                        >
-                            Enterprise
-                        </Link>
+                        
                         <Link 
                             to="/pricing" 
                             className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
@@ -96,12 +91,12 @@ const Header = ({ title, action }) => {
 
     return (
         <div className="relative">
-            <header className="px-5 py-2 flex items-center w-full box-border h-16 bg-white shadow-sm sticky top-0 z-50">
+            <header className="px-6 py-2 flex items-center w-full box-border h-16 bg-white shadow-sm sticky top-0 z-50">
                 <Link to="/" className="flex items-center mr-8">
                     <img 
                         src={logo} 
                         alt="PlanWise Logo" 
-                        className="h-[32px] w-auto object-contain"
+                        className="h-[40px] w-auto object-contain" // Even larger at 48px
                     />
                 </Link>
                 {renderHeaderContent()}

@@ -5,6 +5,9 @@ import Homepage from "./pages/Homepage";
 import AllProjects from "./pages/AllProjects";
 import ProjectDetails from "./pages/ProjectDetails";
 import ProjectManagement from "./pages/ProjectManagement";
+import ProjectManagementFeature from "./pages/features/ProjectManagement";
+import TeamCollaboration from "./pages/features/TeamCollaboration";
+import TaskTracking from "./pages/features/TaskTracking";
 import "./App.css";
 
 function PageWrapper({ children }){
@@ -34,6 +37,17 @@ function AnimatedRoutes()
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
+                
+                {/* Feature Routes */}
+                <Route path="/features/project-management" element={
+                    <PageWrapper><ProjectManagementFeature /></PageWrapper>
+                } />
+                <Route path="/features/team-collaboration" element={
+                    <PageWrapper><TeamCollaboration /></PageWrapper>
+                } />
+                <Route path="/features/task-tracking" element={
+                    <PageWrapper><TaskTracking /></PageWrapper>
+                } />
             </Routes>
         </AnimatePresence>
     );

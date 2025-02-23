@@ -1,7 +1,30 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { LayoutGrid, Users, CheckSquare } from 'lucide-react';
 
 const FeaturesContent = ({ isOpen, setIsOpen }) => {
+    const features = [
+        {
+            title: "Project Management",
+            description: "Efficiently manage your projects with our intuitive tools.",
+            icon: LayoutGrid,
+            link: "/features/project-management"
+        },
+        {
+            title: "Team Collaboration",
+            description: "Work seamlessly with your team members in real-time.",
+            icon: Users,
+            link: "/features/team-collaboration"
+        },
+        {
+            title: "Task Tracking",
+            description: "Keep track of all your tasks and deadlines in one place.",
+            icon: CheckSquare,
+            link: "/features/task-tracking"
+        }
+    ];
+
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = 'hidden';
@@ -117,46 +140,32 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
                     >
                         <div className="max-w-7xl mx-auto px-4 py-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                {/* Feature items */}
-                                <motion.div 
-                                    variants={item}
-                                    className="feature-item p-4 rounded-lg transition-all duration-200"
-                                    whileHover={{ 
-                                        scale: 1.03, 
-                                        backgroundColor: "rgb(249 250 251)",
-                                        transition: { duration: 0.2 }
-                                    }}
-                                    whileTap={{ scale: 0.97 }}
-                                >
-                                    <h3 className="text-lg font-semibold text-gray-900">Project Management</h3>
-                                    <p className="text-gray-600 mt-1">Efficiently manage your projects with our intuitive tools.</p>
-                                </motion.div>
-                                <motion.div 
-                                    variants={item}
-                                    className="feature-item p-4 rounded-lg transition-all duration-200"
-                                    whileHover={{ 
-                                        scale: 1.03, 
-                                        backgroundColor: "rgb(249 250 251)",
-                                        transition: { duration: 0.2 }
-                                    }}
-                                    whileTap={{ scale: 0.97 }}
-                                >
-                                    <h3 className="text-lg font-semibold text-gray-900">Team Collaboration</h3>
-                                    <p className="text-gray-600 mt-1">Work seamlessly with your team members in real-time.</p>
-                                </motion.div>
-                                <motion.div 
-                                    variants={item}
-                                    className="feature-item p-4 rounded-lg transition-all duration-200"
-                                    whileHover={{ 
-                                        scale: 1.03, 
-                                        backgroundColor: "rgb(249 250 251)",
-                                        transition: { duration: 0.2 }
-                                    }}
-                                    whileTap={{ scale: 0.97 }}
-                                >
-                                    <h3 className="text-lg font-semibold text-gray-900">Task Tracking</h3>
-                                    <p className="text-gray-600 mt-1">Keep track of all your tasks and deadlines in one place.</p>
-                                </motion.div>
+                                {features.map((feature, index) => (
+                                    <Link 
+                                        to={feature.link} 
+                                        key={index}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <motion.div 
+                                            variants={item}
+                                            className="feature-item p-6 rounded-lg transition-all duration-200"
+                                            whileHover={{ 
+                                                scale: 1.03, 
+                                                backgroundColor: "rgb(249 250 251)",
+                                                transition: { duration: 0.2 }
+                                            }}
+                                            whileTap={{ scale: 0.97 }}
+                                        >
+                                            <feature.icon className="h-8 w-8 text-blue-600 mb-4" />
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                {feature.title}
+                                            </h3>
+                                            <p className="text-gray-600 mt-1">
+                                                {feature.description}
+                                            </p>
+                                        </motion.div>
+                                    </Link>
+                                ))}
                             </div>
                         </div>
                     </motion.div>

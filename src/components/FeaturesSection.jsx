@@ -1,14 +1,18 @@
 // src/components/FeaturesSection.jsx
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   CheckSquare, Users, Layout, 
   Clock, Shield, Zap,
   BarChart2, Globe, MessageSquare,
-  Calendar, FileText, Settings
+  ChevronLeft, ChevronRight
 } from 'lucide-react';
-import './FeaturesSection.css';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
+// Remove this line: import './FeaturesSection.css';
 
 const FeaturesSection = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const featuresPerView = 3;
+
   const features = [
     {
       icon: CheckSquare,
@@ -57,21 +61,129 @@ const FeaturesSection = () => {
     }
   ];
 
+  const sponsors = [
+    { id: 1, name: 'Spotify', logo: '/logos/spotify.svg' },
+    { id: 2, name: 'Slack', logo: '/logos/slack.svg' },
+    { id: 3, name: 'Microsoft', logo: '/logos/microsoft.svg' },
+    { id: 4, name: 'Google', logo: '/logos/google.svg' },
+    { id: 5, name: 'Adobe', logo: '/logos/adobe.svg' },
+    { id: 6, name: 'Netflix', logo: '/logos/netflix.svg' },
+    { id: 7, name: 'Amazon', logo: '/logos/amazon.svg' },
+    { id: 8, name: 'Meta', logo: '/logos/meta.svg' }
+  ];
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) => 
+      prev + featuresPerView >= features.length ? 0 : prev + featuresPerView
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) => 
+      prev - featuresPerView < 0 ? features.length - featuresPerView : prev - featuresPerView
+    );
+  };
+
+  const ScrollingLogos = () => {
+    return (
+      <div className="relative overflow-hidden py-16 bg-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-white mb-12">
+            Trusted by Industry Leaders
+          </h2>
+          <ScrollVelocity baseVelocity={2}>
+            <div className="flex gap-16 items-center">
+              {[...sponsors, ...sponsors].map((sponsor, index) => (
+                <div
+                  key={`${sponsor.id}-${index}`}
+                  className="flex-shrink-0 w-40 h-20 bg-white/10 rounded-xl p-4 
+                  flex items-center justify-center group transition-all duration-300 
+                  hover:bg-white/20"
+                >
+                  <img 
+                    src={sponsor.logo} 
+                    alt={`${sponsor.name} logo`}
+                    className="w-full h-full object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300 
+                    filter brightness-0 invert" // This makes the logos white
+                  />
+                </div>
+              ))}
+            </div>
+          </ScrollVelocity>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
-      <section className="features py-16 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12 text-white">Why Choose PlanWise?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div 
+      <section className="py-16 px-5 text-center bg-white">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl font-bold text-gray-900 mb-10">
+            Why Choose PlanWise?
+          </h2>
+          
+          <div className="relative overflow-hidden px-16">
+            {/* Navigation Buttons */}
+            <button
+              onClick={prevSlide}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 z-10 hover:scale-110"
+            >
+              <ChevronLeft className="h-8 w-8 text-gray-600" /> {/* Increased arrow size */}
+            </button>
+            
+            <motion.div
+              className="flex gap-8"
+              animate={{
+                x: `-${currentIndex * (100 / featuresPerView)}%`
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 150,
+                damping: 20
+              }}
+            >
+              {features.map((feature, index) => (
+                <motion.div
+                  key={index}
+                  className="flex-shrink-0 w-[calc(33.333%-1rem)] flex flex-col items-center text-center 
+                    p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                >
+                  <feature.icon className="h-12 w-12 text-blue-600 mb-6" />
+                  <h3 className="text-2xl font-bold mb-4 text-gray-900">
+                    {feature.title}
+                  </h3>
+                  <p className="text-lg text-gray-600">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <button
+              onClick={nextSlide}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-gray-50 transition-all duration-200 z-10 hover:scale-110"
+            >
+              <ChevronRight className="h-8 w-8 text-gray-600" />
+            </button>
+          </div>
+
+          {/* Dots indicator */}
+          <div className="flex justify-center gap-2 mt-8">
+            {Array.from({ length: Math.ceil(features.length / featuresPerView) }).map((_, index) => (
+              <button
                 key={index}
-                className="feature bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
-              >
-                <feature.icon className="h-8 w-8 text-blue-600 mb-4" />
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
-                <p className="text-gray-800">{feature.description}</p>
-              </div>
+                onClick={() => setCurrentIndex(index * featuresPerView)}
+                className={`h-2 rounded-full transition-all duration-200 ${
+                  Math.floor(currentIndex / featuresPerView) === index 
+                    ? 'w-8 bg-blue-600' 
+                    : 'w-2 bg-gray-400'
+                }`}
+              />
             ))}
           </div>
         </div>

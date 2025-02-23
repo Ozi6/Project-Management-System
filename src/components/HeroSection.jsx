@@ -41,11 +41,11 @@ const HeroSection = () => {
             {/* Stats Section */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
               <div>
-                <h3 className="text-3xl font-bold text-green-500">24/7</h3>
-                <p className="text-gray-300">Support</p>
+                <h3 className="text-3xl font-bold text-green-500">Manage Projects 24/7</h3>
+                <p className="text-gray-300">Stay on Track, Anytime</p>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-green-500">100%/</h3>
+                <h3 className="text-3xl font-bold text-green-500">100%</h3>
                 <p className="text-gray-300">Secure</p>
               </div>
               <div>
