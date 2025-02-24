@@ -5,33 +5,40 @@ import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
 import { AnimatePresence } from "framer-motion";
 
-const TaskList = ({ title, tagColor, entries, onAddEntry, isSelected, onClick, onEditCardOpen }) =>
+const TaskList = (
+{
+    title,
+    tagColor,
+    entries,
+    onAddEntry,
+    listId,
+    categoryId, // Add categoryId prop
+    selectedEntryId,
+    onSelectEntry,
+    onEditCardOpen
+}) =>
 {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
     const [editableTagColor, setEditableTagColor] = useState(tagColor);
     const [newEntryId, setNewEntryId] = useState(null);
 
-    const handleDone = (newTitle, newTagColor) =>
-    {
+    const handleDone = (newTitle, newTagColor) => {
         setEditableTitle(newTitle);
         setEditableTagColor(newTagColor);
         setIsEditing(false);
     };
 
-    const handleCancel = () =>
-    {
+    const handleCancel = () => {
         setIsEditing(false);
     };
 
-    const handleEditCardOpen = () =>
-    {
+    const handleEditCardOpen = () => {
         setIsEditing(true);
         onEditCardOpen();
     };
 
-    const getLuminance = (color) =>
-    {
+    const getLuminance = (color) => {
         const rgb = color.match(/\w\w/g).map((x) => parseInt(x, 16));
         const [r, g, b] = rgb;
         const a = [r, g, b]
@@ -43,7 +50,7 @@ const TaskList = ({ title, tagColor, entries, onAddEntry, isSelected, onClick, o
     const luminance = getLuminance(editableTagColor.replace("#", ""));
     const textColor = luminance < 0.5 ? "white" : "black";
 
-    return(
+    return (
         <div className="relative">
             <div
                 className={`bg-gray-100 rounded-lg shadow-md p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
@@ -55,23 +62,29 @@ const TaskList = ({ title, tagColor, entries, onAddEntry, isSelected, onClick, o
                     <Settings
                         size={18}
                         cursor="pointer"
-                        onClick={handleEditCardOpen} // Use the new handler
+                        onClick={handleEditCardOpen}
                         className="transition-transform transform hover:scale-150 hover:text-gray-150" />
                 </div>
                 <div className="flex flex-col gap-2 p-2">
-                {
-                    entries.length > 0 ? (
-                    entries.map((entry, index) => (
-                        <ListEntry
-                            key={`${index}-${entry}`}
-                            text={entry}
-                            isNew={index === entries.length - 1 && newEntryId !== null}
-                            isSelected={isSelected}
-                            onClick={onClick}/>))) : (<p className="text-center text-gray-500">No entries</p>)
-                }
+                    {
+                        entries.length > 0 ? (
+                            entries.map((entry, index) =>
+                            {
+                                const entryId = `cat-${categoryId}-list-${listId}-entry-${index}`;
+                                return(
+                                    <ListEntry
+                                        key={entryId}
+                                        entryId={entryId}
+                                        text={entry}
+                                        isNew={index === entries.length - 1 && newEntryId !== null}
+                                        isSelected={selectedEntryId === entryId}
+                                        onClick={onSelectEntry}/>
+                                );
+                            })) : (<p className="text-center text-gray-500">No entries</p>)
+                    }
                 </div>
                 <button
-                    onClick={onAddEntry}
+                    onClick={() => onAddEntry(listId)}
                     className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-blue-600 hover:scale-105">
                     <Plus size={16} /> Add Entry
                 </button>
@@ -82,17 +95,16 @@ const TaskList = ({ title, tagColor, entries, onAddEntry, isSelected, onClick, o
                         title={editableTitle}
                         tagColor={editableTagColor}
                         onDone={handleDone}
-                        onCancel={handleCancel}
-                    />
+                        onCancel={handleCancel}/>
                 )}
             </AnimatePresence>
             <style jsx>
                 {`
-                @keyframes expand {
-                    from {
+                @keyframes expand
+                {
+                    from{
                         max-height: calc(100% - 3rem);
-                    }
-                    to {
+                    }to{
                         max-height: calc(100% + 3rem);
                     }
                 }
@@ -108,8 +120,10 @@ TaskList.propTypes =
     tagColor: PropTypes.string.isRequired,
     entries: PropTypes.array.isRequired,
     onAddEntry: PropTypes.func.isRequired,
-    isSelected: PropTypes.bool.isRequired,
-    onClick: PropTypes.func.isRequired,
+    listId: PropTypes.string.isRequired,
+    categoryId: PropTypes.string.isRequired,
+    selectedEntryId: PropTypes.string,
+    onSelectEntry: PropTypes.func.isRequired,
     onEditCardOpen: PropTypes.func.isRequired,
 };
 

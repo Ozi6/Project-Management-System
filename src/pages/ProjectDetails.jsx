@@ -6,7 +6,8 @@ import Header from "../components/Header";
 import Categorizer from "../components/Categorizer";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 
-const ProjectDetails = () => {
+const ProjectDetails = () =>
+{
     const { id } = useParams();
     const initialColumns = [
         [
@@ -128,7 +129,7 @@ const ProjectDetails = () => {
 
     const [columns, setColumns] = useState(initialColumns);
     const [containerWidth, setContainerWidth] = useState(0);
-    const [selectedEntry, setSelectedEntry] = useState(null);
+    const [selectedEntryId, setSelectedEntryId] = useState(null);
 
     const MIN_COLUMN_WIDTH = 300;
     /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
@@ -137,34 +138,40 @@ const ProjectDetails = () => {
     {
         const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));
 
-        if (possibleColumns === columns.length)
+        if(possibleColumns === columns.length)
             return;
 
         let newColumns;
 
-        if (possibleColumns < columns.length) {
+        if(possibleColumns < columns.length)
+        {
             const columnsCopy = columns.slice(0, -1);
             const tasksToDistribute = columns[columns.length - 1];
             newColumns = [...columnsCopy];
-            tasksToDistribute.forEach((task) => {
+            tasksToDistribute.forEach((task) =>
+            {
                 let shortestColumnIndex = 0;
-                for (let i = 1; i < newColumns.length; i++) {
-                    if (newColumns[i].length < newColumns[shortestColumnIndex].length) {
+                for(let i = 1; i < newColumns.length; i++)
+                {
+                    if(newColumns[i].length < newColumns[shortestColumnIndex].length)
                         shortestColumnIndex = i;
-                    }
                 }
                 newColumns[shortestColumnIndex].push(task);
             });
             setColumns(newColumns);
-        } else {
+        }
+        else
+        {
             const copyColumns = columns.map(col => [...col]);
             copyColumns.push([]);
             const totalTasks = columns.reduce((sum, col) => sum + col.length, 0);
             const tasksPerColumn = Math.floor(totalTasks / copyColumns.length);
             let currentColIndex = columns.length - 1;
 
-            for (let i = columns.length - 2; i >= 0; i--) {
-                if (columns[i].length > columns[currentColIndex].length) {
+            for(let i = columns.length - 2; i >= 0; i--)
+            {
+                if(columns[i].length > columns[currentColIndex].length)
+                {
                     currentColIndex = i;
                     break;
                 }
@@ -173,34 +180,47 @@ const ProjectDetails = () => {
             let tasksToMove = tasksPerColumn;
             let currentTaskIndex;
 
-            while (tasksToMove > 0) {
-                while (currentColIndex >= 0 && copyColumns[currentColIndex].length === 0) {
+            while(tasksToMove > 0)
+            {
+                while(currentColIndex >= 0 && copyColumns[currentColIndex].length === 0)
+                {
                     currentColIndex--;
-                    if (currentColIndex < 0) currentColIndex = columns.length - 1;
+                    if(currentColIndex < 0)
+                        currentColIndex = columns.length - 1;
                 }
                 currentTaskIndex = copyColumns[currentColIndex].length - 1;
-                if (currentTaskIndex >= 0) {
+                if(currentTaskIndex >= 0)
+                {
                     const task = copyColumns[currentColIndex].pop();
                     copyColumns[copyColumns.length - 1].unshift(task);
                     tasksToMove--;
                 }
                 currentColIndex--;
-                if (currentColIndex < 0) currentColIndex = columns.length - 1;
+                if(currentColIndex < 0)
+                    currentColIndex = columns.length - 1;
             }
             setColumns(copyColumns);
         }
     };
 
-    const addEntry = (columnIndex, taskIndex) => {
+    const addEntry = (columnIndex, taskIndex, listId) =>
+    {
         const newColumns = [...columns];
-        const newEntry = `New Entry ${newColumns[columnIndex][taskIndex].taskLists[0].entries.length + 1}`;
-        newColumns[columnIndex][taskIndex].taskLists[0].entries.push(newEntry);
-        setColumns(newColumns);
+        const category = newColumns[columnIndex][taskIndex];
+        const taskList = category.taskLists.find((list) => list.id === listId);
+        if(taskList)
+        {
+            const newEntry = `New Entry ${taskList.entries.length + 1}`;
+            taskList.entries.push(newEntry);
+            setColumns(newColumns);
+        }
     };
 
-    const addList = (columnIndex, taskIndex) => {
+    const addList = (columnIndex, taskIndex) =>
+    {
         const newColumns = [...columns];
-        const newList = {
+        const newList =
+        {
             id: uuidv4(),
             title: `Task List ${newColumns[columnIndex][taskIndex].taskLists.length + 1}`,
             tagColor: newColumns[columnIndex][taskIndex].tagColor,
@@ -210,19 +230,23 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
-    const handleEntryClick = (columnIndex, taskIndex) => {
-        const entryId = `${columnIndex}-${taskIndex}`;
-        setSelectedEntry(selectedEntry === entryId ? null : entryId);
+    const onSelectEntry = (entryId) =>
+    {
+        setSelectedEntryId(entryId === selectedEntryId ? null : entryId);
     };
 
-    const resetSelectedEntry = () => {
-        setSelectedEntry(null);
+    const resetSelectedEntry = () =>
+    {
+        setSelectedEntryId(null);
     };
 
-    useEffect(() => {
-        const handleResize = () => {
+    useEffect(() =>
+    {
+        const handleResize = () =>
+        {
             const container = document.getElementById("columns-container");
-            if (container) {
+            if(container)
+            {
                 setContainerWidth(container.offsetWidth);
                 redistributeTasks(container.offsetWidth);
             }
@@ -231,9 +255,9 @@ const ProjectDetails = () => {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [columns]);
+    },[columns]);
 
-    return (
+    return(
         <div className="flex h-screen">
             <Sidebar />
             <div className="flex flex-col flex-1">
@@ -247,25 +271,30 @@ const ProjectDetails = () => {
                     <div
                         id="columns-container"
                         className="flex flex-wrap gap-4 mt-6">
-                        {columns.map((tasks, columnIndex) => (
+                        {
+                            columns.map((tasks, columnIndex) => (
                             <div
                                 key={columnIndex}
                                 className="flex flex-col gap-4 flex-1 min-w-72">
-                                {tasks.map((task, taskIndex) => (
-                                    <Categorizer
-                                        key={task.id} // Use category ID as key
+                                {
+                                    tasks.map((task, taskIndex) => (
+                                        <Categorizer
+                                        key={task.id}
+                                        columnIndex={columnIndex}
+                                        taskIndex={taskIndex}
+                                        categoryId={task.id}
                                         title={task.title}
                                         tagColor={task.tagColor}
                                         taskLists={task.taskLists}
-                                        isSelected={selectedEntry === `${columnIndex}-${taskIndex}`}
-                                        onAddEntry={() => addEntry(columnIndex, taskIndex)}
-                                        onClick={() => handleEntryClick(columnIndex, taskIndex)}
+                                        selectedEntryId={selectedEntryId}
+                                        onSelectEntry={onSelectEntry}
+                                        onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
                                         onEditCardOpen={resetSelectedEntry}
-                                        onAddList={() => addList(columnIndex, taskIndex)}
-                                    />
-                                ))}
+                                        onAddList={() => addList(columnIndex, taskIndex)}/>))
+                                }
                             </div>
-                        ))}
+                        ))
+                        }
                     </div>
                 </div>
             </div>

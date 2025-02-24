@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { SketchPicker } from "react-color";
 
-const EditCard = ({ title, tagColor, onDone, onCancel, initialYPosition }) =>
+const EditCard = ({ title, tagColor, onDone, onCancel }) =>
 {
     const [editedTitle, setEditedTitle] = useState(title);
     const [editedTagColor, setEditedTagColor] = useState(tagColor);

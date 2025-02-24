@@ -4,13 +4,13 @@ import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
 
-const ListEntry = ({ text, isNew, isSelected, onClick }) =>
+const ListEntry = ({ text, isNew, isSelected, onClick, entryId }) =>
 {
     const [checked, setChecked] = useState(false);
 
     const handleClick = () =>
     {
-        onClick();
+        onClick(entryId);
     };
 
     return(
@@ -26,60 +26,53 @@ const ListEntry = ({ text, isNew, isSelected, onClick }) =>
                         className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 
                             ${checked ? "animate-cross-out" : "animate-uncross-out"}`}></span>
                     <span
-                        className={`transition-all duration-300 ease-out 
+                        className={`transition-all duration-300 ease-out select-none
                             ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
                         {text}
                     </span>
                 </span>
             </div>
-
             <AnimatePresence>
-                {isSelected && <ListEntryPopup onClose={() => onClick()} />}
+                {isSelected && <ListEntryPopup onClose={() => onClick(null)} />}
             </AnimatePresence>
-
             <style jsx>
-                {`
-                @keyframes entryAppear {
-                    0% {
+            {
+                `
+                @keyframes entryAppear
+                {
+                    0%{
                         opacity: 0;
                         transform: translateY(-20px);
-                    }
-                    100% {
+                    }100%{
                         opacity: 1;
                         transform: translateY(0);
                     }
                 }
-
-                @keyframes cross-out {
-                    0% {
+                @keyframes cross-out
+                {
+                    0%{
                         width: 0%;
-                    }
-                    100% {
+                    }100%{
                         width: 100%;
                     }
                 }
-
-                @keyframes uncross-out {
-                    0% {
+                @keyframes uncross-out
+                {
+                    0%{
                         width: 100%;
-                    }
-                    100% {
+                    }100%{
                         width: 0%;
                     }
                 }
-
-                .animate-entryAppear {
+                .animate-entryAppear{
                     animation: entryAppear 0.3s ease-out forwards;
-                }
-
-                .animate-cross-out {
+                }.animate-cross-out{
                     animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-                }
-
-                .animate-uncross-out {
+                }.animate-uncross-out{
                     animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
                 }
-                `}
+                `
+            }
             </style>
         </div>
     );
@@ -91,6 +84,7 @@ ListEntry.propTypes =
     isNew: PropTypes.bool,
     isSelected: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
+    entryId: PropTypes.string.isRequired,
 };
 
 ListEntry.defaultProps =
