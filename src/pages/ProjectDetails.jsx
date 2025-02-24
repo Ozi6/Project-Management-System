@@ -4,10 +4,12 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Categorizer from "../components/Categorizer";
+import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 
 const ProjectDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const initialColumns = [
         [
             {
@@ -244,6 +246,13 @@ const ProjectDetails = () => {
                     <Link to="/projects" className="text-blue-500 mt-4 block">
                         ← Back to Projects
                     </Link>
+                    <button 
+                        onClick={() =>navigate('/project/settings')}
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        Open Settings
+                    </button>
+
                     <div
                         id="columns-container"
                         className="flex flex-wrap gap-4 mt-6">
