@@ -56,11 +56,13 @@ const HeroSection = () => {
           </div>
 
           {/* Right Column - Image/Visual */}
+          {/*src="https://placehold.co/800x600/111827/4F46E5?text=Dashboard+Preview"*/}
           <div className="relative lg:pl-6">
             <div className="relative z-10 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-transparent"></div>
               <img
-                src="https://placehold.co/800x600/111827/4F46E5?text=Dashboard+Preview"
+                
+                src="https://i.pinimg.com/736x/28/bf/9f/28bf9f9ec63f5c16eaa4b5598601fa03.jpg"
                 alt="Project Dashboard"
                 className="w-full h-auto relative z-10"
               />

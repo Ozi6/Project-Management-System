@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import PropTypes from "prop-types";
 import Homepage from "./pages/Homepage";
 import AllProjects from "./pages/AllProjects";
@@ -8,6 +9,7 @@ import ProjectManagement from "./pages/ProjectManagement";
 import ProjectManagementFeature from "./pages/features/ProjectManagement";
 import TeamCollaboration from "./pages/features/TeamCollaboration";
 import TaskTracking from "./pages/features/TaskTracking";
+import ProfilePage from "./pages/ProfilePage";
 import "./App.css";
 
 function PageWrapper({ children }){
@@ -34,9 +36,12 @@ function AnimatedRoutes()
     return(
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
+                
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
+                <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
+
                 
                 {/* Feature Routes */}
                 <Route path="/features/project-management" element={
@@ -58,6 +63,12 @@ function App()
     return(
         <Router>
             <AnimatedRoutes/>
+                <SignedOut>
+                    <SignInButton />
+                </SignedOut>
+                <SignedIn>
+                    <UserButton />
+                </SignedIn>
         </Router>
     );
 }

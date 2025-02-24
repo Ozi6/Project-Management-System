@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
+import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
+
 
 const Header = ({ title, action }) => {
     const location = useLocation();
@@ -39,13 +41,25 @@ const Header = ({ title, action }) => {
                         >
                             Solutions
                         </Link>
-                        
+
+                        {/* just a lil trolling delete that comment and the stuff between a later
                         <Link 
                             to="/pricing" 
                             className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
                         >
                             Pricing
                         </Link>
+                        */}
+
+                        <a 
+                            href="https://www.fortnite.com/item-shop/v-bucks?lang=en-US"  // Your external URL
+                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                            target="_blank"  // Open in a new tab
+                            rel="noopener noreferrer"  // For security reasons when opening in a new tab
+                        >
+                            Pricing
+                        </a>
+                        
                     </div>
                     <nav className="flex items-center gap-6">
                         <Link 
@@ -54,14 +68,24 @@ const Header = ({ title, action }) => {
                         >
                             Contact Sales
                         </Link>
+
+                        <SignedOut>
+                            <SignInButton mode="modal">
+                                <button className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                                    Log In
+                                </button>
+                            </SignInButton>
+                        </SignedOut>
+
+                        {/* When Signed In, Show Profile Picture */}
+                        <SignedIn>
+                            <Link to="/profile">
+                                <UserButton />
+                            </Link>
+                        </SignedIn>
+
                         <Link 
-                            to="/login" 
-                            className="text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                        >
-                            Log In
-                        </Link>
-                        <Link 
-                            to="/signup" 
+                            to="/profile" 
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 
                             transition-colors duration-200 text-lg font-semibold"
                         >
