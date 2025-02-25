@@ -9,6 +9,8 @@ import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
 
+import { dark, neobrutalism, shadesOfPurple } from '@clerk/themes'
+
 
 const Header = ({ title, action }) => {
     const location = useLocation();
@@ -80,7 +82,7 @@ const Header = ({ title, action }) => {
                         {/* When Signed In, Show Profile Picture */}
                         <SignedIn>
                             <Link to="/profile">
-                                <UserButton />
+                                <UserButton/>
                             </Link>
                         </SignedIn>
 
