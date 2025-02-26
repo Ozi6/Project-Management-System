@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
@@ -7,27 +7,31 @@ import ListEntryPopup from "./ListEntryPopup";
 const ListEntry = ({ text, isNew, isSelected, onClick, entryId }) =>
 {
     const [checked, setChecked] = useState(false);
+    const [hasInteracted, setHasInteracted] = useState(false);
 
     const handleClick = () =>
     {
         onClick(entryId);
     };
 
+    const handleCheckboxChange = (newChecked) =>
+    {
+        setChecked(newChecked);
+        setHasInteracted(true);
+    };
+
     return(
         <div className="relative">
             <div
                 onClick={handleClick}
-                className={`p-2 shadow rounded-md border border-gray-300 flex items-center gap-2 transition-all duration-300 ease-out cursor-pointer
-                    ${isNew ? "animate-entryAppear" : ""}
-                    ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}`}>
-                <AnimatedCheckbox checked={checked} onChange={setChecked} />
+                className={`p-2 shadow rounded-md border border-gray-300 flex items-center gap-2 transition-all duration-300 ease-out cursor-pointer ${isNew ? "animate-entryAppear" : ""} ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}`}>
+                <AnimatedCheckbox checked={checked} onChange={handleCheckboxChange} />
                 <span className="relative overflow-hidden">
                     <span
-                        className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 
-                            ${checked ? "animate-cross-out" : "animate-uncross-out"}`}></span>
+                        className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 ${checked ? "animate-cross-out" : (hasInteracted ? "animate-uncross-out" : "w-0")}`}>
+                    </span>
                     <span
-                        className={`transition-all duration-300 ease-out select-none
-                            ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
+                        className={`transition-all duration-300 ease-out select-none ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
                         {text}
                     </span>
                 </span>
@@ -41,27 +45,27 @@ const ListEntry = ({ text, isNew, isSelected, onClick, entryId }) =>
                 @keyframes entryAppear
                 {
                     0%{
-                        opacity: 0;
-                        transform: translateY(-20px);
+                    opacity: 0;
+                    transform: translateY(-20px);
                     }100%{
-                        opacity: 1;
-                        transform: translateY(0);
+                    opacity: 1;
+                    transform: translateY(0);
                     }
                 }
                 @keyframes cross-out
                 {
                     0%{
-                        width: 0%;
+                    width: 0%;
                     }100%{
-                        width: 100%;
+                    width: 100%;
                     }
                 }
                 @keyframes uncross-out
                 {
                     0%{
-                        width: 100%;
+                    width: 100%;
                     }100%{
-                        width: 0%;
+                    width: 0%;
                     }
                 }
                 .animate-entryAppear{

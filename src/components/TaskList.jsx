@@ -23,22 +23,26 @@ const TaskList = (
     const [editableTagColor, setEditableTagColor] = useState(tagColor);
     const [newEntryId, setNewEntryId] = useState(null);
 
-    const handleDone = (newTitle, newTagColor) => {
+    const handleDone = (newTitle, newTagColor) =>
+    {
         setEditableTitle(newTitle);
         setEditableTagColor(newTagColor);
         setIsEditing(false);
     };
 
-    const handleCancel = () => {
+    const handleCancel = () =>
+    {
         setIsEditing(false);
     };
 
-    const handleEditCardOpen = () => {
+    const handleEditCardOpen = () =>
+    {
         setIsEditing(true);
         onEditCardOpen();
     };
 
-    const getLuminance = (color) => {
+    const getLuminance = (color) =>
+    {
         const rgb = color.match(/\w\w/g).map((x) => parseInt(x, 16));
         const [r, g, b] = rgb;
         const a = [r, g, b]
@@ -50,7 +54,7 @@ const TaskList = (
     const luminance = getLuminance(editableTagColor.replace("#", ""));
     const textColor = luminance < 0.5 ? "white" : "black";
 
-    return (
+    return(
         <div className="relative">
             <div
                 className={`bg-gray-100 rounded-lg shadow-md p-2 flex flex-col w-64 transition-all duration-300 ease-in-out

@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import Categorizer from "../components/Categorizer";
+import ToggleButton from "../components/ToggleButton";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 
-const ProjectDetails = () =>
-{
+const ProjectDetails = () => {
     const { id } = useParams();
     const initialColumns = [
         [
@@ -130,15 +130,61 @@ const ProjectDetails = () =>
     const [columns, setColumns] = useState(initialColumns);
     const [containerWidth, setContainerWidth] = useState(0);
     const [selectedEntryId, setSelectedEntryId] = useState(null);
+    const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
+    const [originalColumns, setOriginalColumns] = useState(null);
 
     const MIN_COLUMN_WIDTH = 300;
+
+    const toggleLayout = (isHorizontal) =>
+    {
+        if(!isHorizontal)
+        {
+            if (originalColumns)
+                setColumns(originalColumns);
+        }
+        else
+        {
+            setOriginalColumns(columns);
+
+            const allCategories = columns.flat();
+            const horizontalLayout = allCategories.map(category => [category]);
+            setColumns(horizontalLayout);
+        }
+        setIsHorizontalLayout(isHorizontal);
+    };
+
+    const EnhancedToggleButton = () =>
+    {
+        const [isChecked, setIsChecked] = useState(isHorizontalLayout);
+
+        useEffect(() => {
+            setIsChecked(isHorizontalLayout);
+        },[isHorizontalLayout]);
+
+        const onToggle = () =>
+        {
+            const newState = !isChecked;
+            setIsChecked(newState);
+            toggleLayout(newState);
+        };
+
+        return(
+            <div onClick={onToggle}>
+                <ToggleButton/>
+            </div>
+        );
+    };
+
     /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
     No AI can replicate this, on God on Donda.*/
     const redistributeTasks = (width) =>
     {
+        if (isHorizontalLayout)
+            return;
+
         const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));
 
-        if(possibleColumns === columns.length)
+        if (possibleColumns === columns.length)
             return;
 
         let newColumns;
@@ -151,9 +197,9 @@ const ProjectDetails = () =>
             tasksToDistribute.forEach((task) =>
             {
                 let shortestColumnIndex = 0;
-                for(let i = 1; i < newColumns.length; i++)
+                for (let i = 1; i < newColumns.length; i++)
                 {
-                    if(newColumns[i].length < newColumns[shortestColumnIndex].length)
+                    if (newColumns[i].length < newColumns[shortestColumnIndex].length)
                         shortestColumnIndex = i;
                 }
                 newColumns[shortestColumnIndex].push(task);
@@ -208,8 +254,7 @@ const ProjectDetails = () =>
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
-        if(taskList)
-        {
+        if (taskList) {
             const newEntry = `New Entry ${taskList.entries.length + 1}`;
             taskList.entries.push(newEntry);
             setColumns(newColumns);
@@ -248,52 +293,50 @@ const ProjectDetails = () =>
             if(container)
             {
                 setContainerWidth(container.offsetWidth);
-                redistributeTasks(container.offsetWidth);
+                if(!isHorizontalLayout)
+                    redistributeTasks(container.offsetWidth);
             }
         };
-
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    },[columns]);
+    },[columns, isHorizontalLayout]);
 
     return(
-        <div className="flex h-screen">
-            <Sidebar />
-            <div className="flex flex-col flex-1">
-                <Header />
-                <div className="p-6">
-                    <h1 className="text-3xl font-bold">Project Details</h1>
-                    <p className="text-gray-600 mt-2">Project ID: {id}</p>
-                    <Link to="/projects" className="text-blue-500 mt-4 block">
-                        ← Back to Projects
-                    </Link>
+        <div className="flex flex-col h-screen">
+            <Header/>
+            <div className="flex flex-1">
+                <Sidebar />
+                <div className="flex flex-col flex-1">
+                    <div className="flex items-center justify-between p-4 bg-white shadow-md">
+                        <EnhancedToggleButton />
+                    </div>
                     <div
                         id="columns-container"
-                        className="flex flex-wrap gap-4 mt-6">
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6`}>
                         {
                             columns.map((tasks, columnIndex) => (
-                            <div
-                                key={columnIndex}
-                                className="flex flex-col gap-4 flex-1 min-w-72">
-                                {
-                                    tasks.map((task, taskIndex) => (
-                                        <Categorizer
-                                        key={task.id}
-                                        columnIndex={columnIndex}
-                                        taskIndex={taskIndex}
-                                        categoryId={task.id}
-                                        title={task.title}
-                                        tagColor={task.tagColor}
-                                        taskLists={task.taskLists}
-                                        selectedEntryId={selectedEntryId}
-                                        onSelectEntry={onSelectEntry}
-                                        onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
-                                        onEditCardOpen={resetSelectedEntry}
-                                        onAddList={() => addList(columnIndex, taskIndex)}/>))
-                                }
-                            </div>
-                        ))
+                                <div
+                                    key={columnIndex}
+                                    className={`flex flex-col gap-4 ${isHorizontalLayout ? 'min-w-72 flex-shrink-0' : 'flex-1 min-w-72'}`}>
+                                    {
+                                        tasks.map((task, taskIndex) => (
+                                            <Categorizer
+                                                key={task.id}
+                                                columnIndex={columnIndex}
+                                                taskIndex={taskIndex}
+                                                categoryId={task.id}
+                                                title={task.title}
+                                                tagColor={task.tagColor}
+                                                taskLists={task.taskLists}
+                                                selectedEntryId={selectedEntryId}
+                                                onSelectEntry={onSelectEntry}
+                                                onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
+                                                onEditCardOpen={resetSelectedEntry}
+                                                onAddList={() => addList(columnIndex, taskIndex)} />))
+                                    }
+                                </div>
+                            ))
                         }
                     </div>
                 </div>
