@@ -63,12 +63,6 @@ function App()
     return(
         <Router>
             <AnimatedRoutes/>
-                <SignedOut>
-                    <SignInButton />
-                </SignedOut>
-                <SignedIn>
-                    <UserButton />
-                </SignedIn>
         </Router>
     );
 }
