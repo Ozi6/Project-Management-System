@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Layout, KanbanSquare, Users, Calendar, Settings, PieChart } from "lucide-react";
 
-const Sidebar = ({ activeTab, setActiveTab }) =>
+const SettingsSidebar = ({ activeTab, setActiveTab }) =>
 {
     const [isOpen, setIsOpen] = useState(true);
 
@@ -13,19 +13,14 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
 
     const navItems =
     [
-        { id: 'dashboard', icon: Layout, label: 'Dashboard' },
-        { id: 'projects', icon: KanbanSquare, label: 'Projects' },
-        { id: 'team', icon: Users, label: 'Team' },
-        { id: 'calendar', icon: Calendar, label: 'Calendar' },
-        { id: 'reports', icon: PieChart, label: 'Reports' },
-        { id: 'settings', icon: Settings, label: 'Settings' },
-        { id: 'landingpage', icon: Layout, label: 'Landing Page' }
+        { id: 'general', icon: Layout, label: 'General Settings' },
+        { id: 'advanced', icon: KanbanSquare, label: 'Advanced Settings' },
     ];
 
     const getCurrentLabel = () =>
     {
         const currentItem = navItems.find(item => item.id === activeTab);
-        return currentItem ? currentItem.label : 'PlanWise';
+        return 'PlanWise';
     };
 
     return(
@@ -76,4 +71,4 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
     );
 };
 
-export default Sidebar;
+export default SettingsSidebar;
