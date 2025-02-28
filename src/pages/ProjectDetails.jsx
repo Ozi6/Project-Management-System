@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
+import { v4 as uuidv4 } from "uuid";
+import ViewportHeader from "../components/ViewportHeader";
+import ViewportSidebar from "../components/ViewportSidebar";
 import Categorizer from "../components/Categorizer";
-import ToggleButton from "../components/ToggleButton";
-import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -133,19 +131,15 @@ const ProjectDetails = () => {
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
 
-    const MIN_COLUMN_WIDTH = 300;
+    const MIN_COLUMN_WIDTH = 350;
 
-    const toggleLayout = (isHorizontal) =>
-    {
-        if(!isHorizontal)
-        {
+    const toggleLayout = (isHorizontal) => {
+        if (!isHorizontal) {
             if (originalColumns)
                 setColumns(originalColumns);
         }
-        else
-        {
+        else {
             setOriginalColumns(columns);
-
             const allCategories = columns.flat();
             const horizontalLayout = allCategories.map(category => [category]);
             setColumns(horizontalLayout);
@@ -153,38 +147,17 @@ const ProjectDetails = () => {
         setIsHorizontalLayout(isHorizontal);
     };
 
-    const EnhancedToggleButton = () =>
-    {
-        const [isChecked, setIsChecked] = useState(isHorizontalLayout);
-
-        useEffect(() => {
-            setIsChecked(isHorizontalLayout);
-        },[isHorizontalLayout]);
-
-        const onToggle = () =>
-        {
-            const newState = !isChecked;
-            setIsChecked(newState);
-            toggleLayout(newState);
-        };
-
-        return(
-            <div onClick={onToggle}>
-                <ToggleButton/>
-            </div>
-        );
-    };
 
     /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
     No AI can replicate this, on God on Donda.*/
     const redistributeTasks = (width) =>
     {
-        if (isHorizontalLayout)
+        if(isHorizontalLayout)
             return;
 
         const possibleColumns = Math.max(1, Math.floor(width / MIN_COLUMN_WIDTH));
 
-        if (possibleColumns === columns.length)
+        if(possibleColumns === columns.length)
             return;
 
         let newColumns;
@@ -197,9 +170,9 @@ const ProjectDetails = () => {
             tasksToDistribute.forEach((task) =>
             {
                 let shortestColumnIndex = 0;
-                for (let i = 1; i < newColumns.length; i++)
+                for(let i = 1; i < newColumns.length; i++)
                 {
-                    if (newColumns[i].length < newColumns[shortestColumnIndex].length)
+                    if(newColumns[i].length < newColumns[shortestColumnIndex].length)
                         shortestColumnIndex = i;
                 }
                 newColumns[shortestColumnIndex].push(task);
@@ -216,7 +189,7 @@ const ProjectDetails = () => {
 
             for(let i = columns.length - 2; i >= 0; i--)
             {
-                if(columns[i].length > columns[currentColIndex].length)
+                if (columns[i].length > columns[currentColIndex].length)
                 {
                     currentColIndex = i;
                     break;
@@ -254,7 +227,8 @@ const ProjectDetails = () => {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
-        if (taskList) {
+        if(taskList)
+        {
             const newEntry = `New Entry ${taskList.entries.length + 1}`;
             taskList.entries.push(newEntry);
             setColumns(newColumns);
@@ -285,35 +259,197 @@ const ProjectDetails = () => {
         setSelectedEntryId(null);
     };
 
-    useEffect(() =>
-    {
-        const handleResize = () =>
+    const handleMoveTaskList = (moveData) => {
+        const {
+            sourceListId,
+            sourceCategoryId,
+            targetCategoryId,
+            targetIndex
+        } = moveData;
+        const newColumns = JSON.parse(JSON.stringify(columns));
+        let sourceCategory, sourceColumnIndex, sourceCategoryIndex;
+        let targetCategory, targetColumnIndex, targetCategoryIndex;
+        let sourceListIndex;
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++)
         {
-            const container = document.getElementById("columns-container");
-            if(container)
+            for(let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++)
             {
+                const category = newColumns[colIndex][catIndex];
+                if(category.id === sourceCategoryId)
+                {
+                    sourceCategory = category;
+                    sourceColumnIndex = colIndex;
+                    sourceCategoryIndex = catIndex;
+                    sourceListIndex = sourceCategory.taskLists.findIndex(list => list.id === sourceListId);
+                    if (sourceListIndex !== -1) break outerLoop;
+                }
+            }
+        }
+
+        if(!sourceCategory || sourceListIndex === -1)
+        {
+            console.error('test1');
+            return;
+        }
+
+        outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
+        {
+            for(let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++)
+            {
+                const category = newColumns[colIndex][catIndex];
+                if(category.id === targetCategoryId)
+                {
+                    targetCategory = category;
+                    targetColumnIndex = colIndex;
+                    targetCategoryIndex = catIndex;
+                    break outerLoop;
+                }
+            }
+        }
+
+        if(!targetCategory)
+        {
+            console.error('test2');
+            return;
+        }
+
+        const [movedList] = sourceCategory.taskLists.splice(sourceListIndex, 1);
+
+        let adjustedTargetIndex = targetIndex;
+        if(sourceCategoryId === targetCategoryId && sourceListIndex < targetIndex)
+            adjustedTargetIndex--;
+
+        if (adjustedTargetIndex === -1 || adjustedTargetIndex >= targetCategory.taskLists.length)
+        {
+            targetCategory.taskLists.push(movedList);
+        }
+        else
+        {
+            targetCategory.taskLists.splice(adjustedTargetIndex, 0, movedList);
+        }
+
+        setColumns(newColumns);
+        document.body.classList.remove('dragging');
+
+        if(typeof saveProjectData === 'function')
+        {
+            saveProjectData(newColumns);
+        }
+    };
+
+    const handleMoveEntry = (moveData) =>
+    {
+        const
+            {
+            sourceEntryId,
+            sourceListId,
+            sourceCategoryId,
+            targetListId,
+            targetCategoryId,
+            targetIndex,
+            entryText
+        } = moveData;
+
+        const newColumns = JSON.parse(JSON.stringify(columns));
+
+        const sourceEntryIdParts = sourceEntryId.split('-');
+        const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
+
+        let sourceCategory, sourceList, targetCategory, targetList;
+        let sourceColumnIndex, sourceTaskIndex, targetColumnIndex, targetTaskIndex;
+
+        outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
+        {
+            for(let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++)
+            {
+                const category = newColumns[colIndex][taskIndex];
+                if(category.id === sourceCategoryId)
+                {
+                    sourceCategory = category;
+                    sourceColumnIndex = colIndex;
+                    sourceTaskIndex = taskIndex;
+                    sourceList = category.taskLists.find(list => list.id === sourceListId);
+                    if (sourceList) break outerLoop;
+                }
+            }
+        }
+
+        if(!sourceCategory || !sourceList)
+        {
+            console.error("test1");
+            return;
+        }
+
+        if(targetIndex === -1)
+        {
+            setColumns(newColumns);
+            return;
+        }
+
+        if(targetListId && targetCategoryId)
+        {
+            outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
+            {
+                for(let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++)
+                {
+                    const category = newColumns[colIndex][taskIndex];
+                    if(category.id === targetCategoryId)
+                    {
+                        targetCategory = category;
+                        targetColumnIndex = colIndex;
+                        targetTaskIndex = taskIndex;
+                        targetList = category.taskLists.find(list => list.id === targetListId);
+                        if (targetList) break outerLoop;
+                    }
+                }
+            }
+        }
+
+        if(!targetCategory || !targetList)
+        {
+            console.log("test2");
+            return;
+        }
+
+        const isSameList = sourceListId === targetListId && sourceCategoryId === targetCategoryId;
+        const entryToMove = sourceList.entries[sourceEntryIndex];
+
+        if(isSameList)
+        {
+            sourceList.entries.splice(sourceEntryIndex, 1);
+            sourceList.entries.splice(targetIndex, 0, entryToMove);
+        }
+        else
+        {
+            sourceList.entries.splice(sourceEntryIndex, 1);
+            targetList.entries.splice(targetIndex, 0, entryToMove || entryText);
+        }
+        setColumns(newColumns);
+    };
+
+    useEffect(() => {
+        const handleResize = () => {
+            const container = document.getElementById("columns-container");
+            if (container) {
                 setContainerWidth(container.offsetWidth);
-                if(!isHorizontalLayout)
+                if (!isHorizontalLayout)
                     redistributeTasks(container.offsetWidth);
             }
         };
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    },[columns, isHorizontalLayout]);
+    }, [columns, isHorizontalLayout]);
 
-    return(
+    return (
         <div className="flex flex-col h-screen">
-            <Header/>
+            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} />
             <div className="flex flex-1">
-                <Sidebar />
+                <ViewportSidebar />
                 <div className="flex flex-col flex-1">
-                    <div className="flex items-center justify-between p-4 bg-white shadow-md">
-                        <EnhancedToggleButton />
-                    </div>
                     <div
                         id="columns-container"
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6`}>
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
                         {
                             columns.map((tasks, columnIndex) => (
                                 <div
@@ -333,7 +469,8 @@ const ProjectDetails = () => {
                                                 onSelectEntry={onSelectEntry}
                                                 onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
                                                 onEditCardOpen={resetSelectedEntry}
-                                                onAddList={() => addList(columnIndex, taskIndex)} />))
+                                                onAddList={() => addList(columnIndex, taskIndex)}
+                                                onMoveEntry={handleMoveEntry} />))
                                     }
                                 </div>
                             ))
