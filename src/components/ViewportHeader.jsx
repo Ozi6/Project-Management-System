@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
@@ -8,13 +8,22 @@ import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
-import ToggleButton from './ToggleButton'; // Import the ToggleButton
+import ToggleButton from './ToggleButton';
+import SearchBar from './SearchBar';
+import { useSearch } from '../scripts/SearchContext';
 
 const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
     const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const { performSearch, filterColumns } = useSearch();
+
+    const handleSearch = (term) =>
+    {
+        performSearch(term);
+        filterColumns(columns, term);
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -276,6 +285,9 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
                 </div>
                 {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
                 {renderMobileMenuButton()}
+                <div className="flex-1 max-w-md mx-4">
+                    <SearchBar onSearch={handleSearch} />
+                </div>
             </header>
 
             {/* Mobile menu */}

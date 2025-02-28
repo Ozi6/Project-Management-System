@@ -4,6 +4,16 @@ import { v4 as uuidv4 } from "uuid";
 import ViewportHeader from "../components/ViewportHeader";
 import ViewportSidebar from "../components/ViewportSidebar";
 import Categorizer from "../components/Categorizer";
+import { SearchProvider, useSearch } from '../scripts/SearchContext';
+
+const ProjectDetailsWrapper = () =>
+{
+    return(
+        <SearchProvider>
+            <ProjectDetails/>
+        </SearchProvider>
+    );
+};
 
 const ProjectDetails = () => {
     const { id } = useParams();
@@ -130,10 +140,13 @@ const ProjectDetails = () => {
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
+    const { searchTerm, filteredColumns, filterColumns } = useSearch();
 
     const MIN_COLUMN_WIDTH = 350;
+    const MAX_COLUMN_WIDTH = 450;
 
-    const toggleLayout = (isHorizontal) => {
+    const toggleLayout = (isHorizontal) =>
+    {
         if (!isHorizontal) {
             if (originalColumns)
                 setColumns(originalColumns);
@@ -406,17 +419,30 @@ const ProjectDetails = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, [columns, isHorizontalLayout]);
 
-    return (
+    useEffect(() =>
+    {
+        if(searchTerm)
+            filterColumns(columns, searchTerm);
+    },[columns, searchTerm]);
+
+    const displayColumns = filteredColumns || columns;
+
+    return(
         <div className="flex flex-col h-screen">
             <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} />
             <div className="flex flex-1">
                 <ViewportSidebar />
                 <div className="flex flex-col flex-1">
+                    {searchTerm && filteredColumns && filteredColumns.length === 0 && (
+                        <div className="flex justify-center items-center p-8 text-gray-500">
+                            No results found for "{searchTerm}"
+                        </div>
+                    )}
                     <div
                         id="columns-container"
                         className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
                         {
-                            columns.map((tasks, columnIndex) => (
+                            displayColumns.map((tasks, columnIndex) => (
                                 <div
                                     key={columnIndex}
                                     className={`flex flex-col gap-4 ${isHorizontalLayout ? 'min-w-72 flex-shrink-0' : 'flex-1 min-w-72'}`}>
@@ -448,4 +474,4 @@ const ProjectDetails = () => {
     );
 };
 
-export default ProjectDetails;
+export default ProjectDetailsWrapper;
