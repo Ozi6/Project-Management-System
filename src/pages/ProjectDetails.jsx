@@ -260,23 +260,17 @@ const ProjectDetails = () => {
     };
 
     const handleMoveTaskList = (moveData) => {
-        const {
-            sourceListId,
-            sourceCategoryId,
-            targetCategoryId,
-            targetIndex
-        } = moveData;
+        const { sourceListId, sourceCategoryId, targetCategoryId, targetIndex } = moveData;
         const newColumns = JSON.parse(JSON.stringify(columns));
+
         let sourceCategory, sourceColumnIndex, sourceCategoryIndex;
         let targetCategory, targetColumnIndex, targetCategoryIndex;
         let sourceListIndex;
-        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++)
-        {
-            for(let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++)
-            {
+
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+            for (let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++) {
                 const category = newColumns[colIndex][catIndex];
-                if(category.id === sourceCategoryId)
-                {
+                if (category.id === sourceCategoryId) {
                     sourceCategory = category;
                     sourceColumnIndex = colIndex;
                     sourceCategoryIndex = catIndex;
@@ -286,19 +280,12 @@ const ProjectDetails = () => {
             }
         }
 
-        if(!sourceCategory || sourceListIndex === -1)
-        {
-            console.error('test1');
-            return;
-        }
+        if (!sourceCategory || sourceListIndex === -1) return;
 
-        outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
-        {
-            for(let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++)
-            {
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+            for (let catIndex = 0; catIndex < newColumns[colIndex].length; catIndex++) {
                 const category = newColumns[colIndex][catIndex];
-                if(category.id === targetCategoryId)
-                {
+                if (category.id === targetCategoryId) {
                     targetCategory = category;
                     targetColumnIndex = colIndex;
                     targetCategoryIndex = catIndex;
@@ -307,34 +294,12 @@ const ProjectDetails = () => {
             }
         }
 
-        if(!targetCategory)
-        {
-            console.error('test2');
-            return;
-        }
+        if (!targetCategory) return;
 
         const [movedList] = sourceCategory.taskLists.splice(sourceListIndex, 1);
-
-        let adjustedTargetIndex = targetIndex;
-        if(sourceCategoryId === targetCategoryId && sourceListIndex < targetIndex)
-            adjustedTargetIndex--;
-
-        if (adjustedTargetIndex === -1 || adjustedTargetIndex >= targetCategory.taskLists.length)
-        {
-            targetCategory.taskLists.push(movedList);
-        }
-        else
-        {
-            targetCategory.taskLists.splice(adjustedTargetIndex, 0, movedList);
-        }
+        targetCategory.taskLists.splice(targetIndex, 0, movedList);
 
         setColumns(newColumns);
-        document.body.classList.remove('dragging');
-
-        if(typeof saveProjectData === 'function')
-        {
-            saveProjectData(newColumns);
-        }
     };
 
     const handleMoveEntry = (moveData) =>
@@ -470,7 +435,8 @@ const ProjectDetails = () => {
                                                 onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
                                                 onEditCardOpen={resetSelectedEntry}
                                                 onAddList={() => addList(columnIndex, taskIndex)}
-                                                onMoveEntry={handleMoveEntry} />))
+                                                onMoveEntry={handleMoveEntry}
+                                                onMoveTaskList={handleMoveTaskList}/>))
                                     }
                                 </div>
                             ))

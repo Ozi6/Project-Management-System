@@ -1,6 +1,22 @@
 @import "tailwindcss";
 
+* {
+  user-select: none;
+}
 
+.drop-indicator {
+  height: 4px;
+  background-color: #3b82f6;
+  margin: 4px 0;
+}
+
+.drop-indicator.above {
+  margin-bottom: 8px; /* Added: Extra margin for above indicator */
+}
+
+.drop-indicator.below {
+  margin-top: 8px; /* Added: Extra margin for below indicator */
+}
 
 /*
 New CSS properties used in this file:

@@ -15,7 +15,8 @@ const Categorizer = ({
     onAddEntry,
     onEditCardOpen,
     onAddList,
-    onMoveEntry
+    onMoveEntry,
+    onMoveTaskList
 }) =>
 {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
@@ -26,41 +27,16 @@ const Categorizer = ({
     const mouseOffsetX = useRef(0);
     const mouseOffsetY = useRef(0);
 
-    const handleTaskListDragStart = (listId, listTitle, event) =>
-    {
-        if(window.dragState)
-        {
-            window.dragState.isDraggingList = true;
-            window.dragState.draggedListId = listId;
-            window.dragState.draggedListTitle = listTitle;
-            window.dragState.sourceCategoryId = categoryId;
-        }
-        else
-        {
-            window.dragState =
-            {
-                isDraggingList: true,
-                draggedListId: listId,
-                draggedListTitle: listTitle,
-                sourceCategoryId: categoryId,
-                targetCategoryId: null,
-                targetIndex: null
-            };
-        }
-
-        const rect = event.currentTarget.getBoundingClientRect();
-        mouseOffsetX.current = event.clientX - rect.left;
-        mouseOffsetY.current = event.clientY - rect.top;
-
-        const draggedList = taskLists.find(list => list.id === listId);
-        if(draggedList)
-        {
-            setIsDraggingCategory(true);
-            window.dragState.originalWidth = rect.width;
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.body.classList.add('dragging');
-        }
+    const handleTaskListDragStart = (listId, listTitle, { offsetX, offsetY }) => {
+        setIsDraggingList(true);
+        window.dragState = {
+            isDraggingList: true,
+            draggedListId: listId,
+            draggedListTitle: listTitle,
+            sourceCategoryId: categoryId,
+            offsetX,
+            offsetY
+        };
     };
 
     const handleTaskListDragEnd = () =>

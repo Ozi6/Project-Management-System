@@ -70,8 +70,9 @@ const TaskList = ({
             if(!dragStarted)
             {
                 dragStarted = true;
-                onDragStart(e);
+                onDragStart(e); //listId, title, 
                 document.addEventListener('mousemove', handleMouseMove);
+                //document.body.classList.add('dragging');
             }
         };
 
@@ -105,7 +106,8 @@ const TaskList = ({
 
             if(!dragStarted)
             {
-
+                //document.removeEventListener('mousemove', handleMouseMove);
+                //document.body.classList.remove('dragging');
             }
 
             document.removeEventListener('mouseup', handleMouseUp);
@@ -277,7 +279,7 @@ const TaskList = ({
 
                     if (window.dragState.currentHoverIndex === null && isSourceList)
                     {
-                        
+
                     }
                     else
                     {
@@ -420,8 +422,7 @@ const TaskList = ({
     );
 };
 
-TaskList.propTypes =
-{
+TaskList.propTypes = {
     title: PropTypes.string.isRequired,
     tagColor: PropTypes.string.isRequired,
     entries: PropTypes.array.isRequired,
