@@ -1,29 +1,23 @@
 import { useState } from "react";
 import SettingsSidebar from "../components/SettingsSidebar";
-import ManageMembers from "../components/ManageMembers";
-import ManageAccess from "../components/ManageAccess"
+import AdvancedSettings from "../components/AdvancedSettings";
+import GeneralSettings from "../components/GeneralSettings";
 
 
-const ManageTeams = () => (
-    <div className="p-6">
-        <h2 className="text-xl font-bold mb-4">Manage Teams</h2>
-        <p>Team management options go here...</p>
-    </div>
-);
+
+
 
 const ProjectSettings = () => {
     const [activeTab, setActiveTab] = useState("members");
 
     const renderSettingsContent = () => {
         switch (activeTab) {
-            case "members":
-                return <ManageMembers />;
-            case "access":
-                return <ManageAccess />;
-            case "teams":
-                return <ManageTeams />;
+            case "general":
+                return <GeneralSettings />;
+            case "advanced":
+                return <AdvancedSettings />;
             default:
-                return <div>Select an option from the sidebar</div>;
+                return <GeneralSettings />;
         }
     };
 

@@ -13,9 +13,8 @@ const SettingsSidebar = ({ activeTab, setActiveTab }) =>
 
     const navItems =
     [
-        { id: 'members', icon: Layout, label: 'Manage Members' },
-        { id: 'access', icon: KanbanSquare, label: 'Manage Access' },
-        { id: 'teams', icon: Users, label: 'Manage Teams' },
+        { id: 'general', icon: Layout, label: 'General Settings' },
+        { id: 'advanced', icon: KanbanSquare, label: 'Advanced Settings' },
     ];
 
     const getCurrentLabel = () =>
