@@ -16,11 +16,11 @@ export default function LoginPage() {
       <div className="flex flex-col items-center justify-center flex-grow px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-            <p className="mt-2 text-gray-600">Log in to your PlanWise account</p>
+            <h1 className="text-3xl font-bold text-[#2D5CF2]">Welcome Back</h1>
+            <p className="mt-2 text-[#1E0342]">Log in to your PlanWise account</p>
           </div>
           
-          <div className="bg-white p-8 rounded-lg shadow-md">
+          <div className="w-full bg-[#C4D1FB] p-6 rounded-lg shadow-md">
             <SignIn 
               signUpUrl="/signup"
               redirectUrl="/profile"
