@@ -43,46 +43,37 @@ const AboutUs = () => {
           </div>
         </section>
 
-        {/* Our Story Section */}
+        {/* Our Story Section - Revised without image */}
         <section className="py-16 md:py-24 container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-12 items-center">
-            <motion.div 
-              className="md:w-1/2"
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-3xl font-bold mb-6 text-gray-900">Our Story</h2>
-              <div className="space-y-4 text-gray-700">
-                <p>
-                  PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2022, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
-                </p>
-                <p>
-                  What started as a simple task board has evolved into a full-featured project management platform that helps thousands of teams organize their work effectively. Our approach focuses on visual workflows inspired by Trello but extended with the features teams actually need.
-                </p>
-                <p>
-                  Today, PlanWise is used by organizations of all sizes to manage projects, track tasks, and collaborate seamlessly. We're continuously evolving based on user feedback to create the most effective project management experience possible.
-                </p>
+          <motion.div
+            className="max-w-3xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 text-center">Our Story</h2>
+            <div className="space-y-6 text-lg text-gray-700">
+              <p>
+                PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2022, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
+              </p>
+              <p>
+                What started as a simple task board has evolved into a full-featured project management platform that helps thousands of teams organize their work effectively. Our approach focuses on visual workflows inspired by Trello but extended with the features teams actually need.
+              </p>
+              <p>
+                Today, PlanWise is used by organizations of all sizes to manage projects, track tasks, and collaborate seamlessly. We're continuously evolving based on user feedback to create the most effective project management experience possible.
+              </p>
+              <div className="pt-6 flex justify-center">
+                <motion.div 
+                  className="h-1 w-24 bg-blue-600 rounded-full"
+                  initial={{ width: 0 }}
+                  whileInView={{ width: 96 }}
+                  transition={{ duration: 1 }}
+                  viewport={{ once: true }}
+                ></motion.div>
               </div>
-            </motion.div>
-            <motion.div 
-              className="md:w-1/2"
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-blue-200 rounded-lg transform translate-x-3 translate-y-3"></div>
-                <img 
-                  src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80" 
-                  alt="Team collaborating" 
-                  className="relative rounded-lg shadow-lg w-full h-auto z-10"
-                />
-              </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </section>
 
         {/* Our Values Section */}
@@ -137,77 +128,7 @@ const AboutUs = () => {
           </div>
         </section>
 
-        {/* Team Section - Temporarily Commented Out
-        <section className="py-16 md:py-24 container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-gray-900">Meet Our Team</h2>
-            <p className="text-lg text-gray-700">
-              The passionate people behind PlanWise who are dedicated to making your work life better.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Alex Johnson",
-                role: "Co-Founder & CEO",
-                image: "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80",
-                bio: "Alex combines technical expertise with a passion for user experience. Previously led product teams at major tech companies."
-              },
-              {
-                name: "Sarah Chen",
-                role: "Co-Founder & CTO",
-                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=988&q=80",
-                bio: "Sarah is a full-stack developer with over 10 years of experience building scalable web applications and elegant user interfaces."
-              },
-              {
-                name: "Michael Rodriguez",
-                role: "Head of Customer Success",
-                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80",
-                bio: "Michael ensures that every PlanWise customer gets the most value from our platform through education and support."
-              },
-              {
-                name: "Lisa Park",
-                role: "Lead Designer",
-                image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1061&q=80",
-                bio: "Lisa crafts the intuitive and beautiful user experiences that make PlanWise a joy to use every day."
-              },
-              {
-                name: "David Thompson",
-                role: "Marketing Director",
-                image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=987&q=80",
-                bio: "David leads our marketing efforts, sharing PlanWise's story with the world and helping teams discover better ways to work."
-              },
-              {
-                name: "Aisha Williams",
-                role: "Product Manager",
-                image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=988&q=80",
-                bio: "Aisha translates user feedback into product roadmaps, ensuring PlanWise evolves to meet our users' changing needs."
-              }
-            ].map((member, index) => (
-              <motion.div 
-                key={index}
-                className="bg-white rounded-xl shadow-md overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.5 }}
-                viewport={{ once: true }}
-              >
-                <img 
-                  src={member.image} 
-                  alt={member.name} 
-                  className="w-full h-64 object-cover object-center"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-1 text-gray-900">{member.name}</h3>
-                  <p className="text-blue-600 mb-3">{member.role}</p>
-                  <p className="text-gray-700">{member.bio}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-        */}
+        {/* Team Section remains commented out */}
 
         {/* Testimonials Section */}
         <section className="py-16 md:py-24 bg-blue-50">
@@ -299,7 +220,7 @@ const AboutUs = () => {
                 </div>
               </div>
               <a 
-                href="/login" 
+                href="/signup" 
                 className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
               >
                 Join PlanWise Today
