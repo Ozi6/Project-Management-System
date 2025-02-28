@@ -18,60 +18,60 @@ createRoot(document.getElementById('root')).render(
 
         userButton:{
             elements: {
-                variables: { colorPrimary: '#FF9494' },
+                variables: { colorPrimary: '#9AC8CD' },
                 rootBox: {
-                    backgroundColor: '#FFE3E1', // Set background color if needed
-                    color: '#E57777', // Set the text color (for UserButton label)
-                    padding: '5px 5px', // Optional: add some padding
-                    borderRadius: '200px', // Optional: rounded corners
+                    backgroundColor: '#1E0342', 
+                    color: '#2D5CF2', 
+                    padding: '5px 5px', 
+                    borderRadius: '200px', 
                 },
                 avatarBox: {
                     width: '40px',
                     height: '40px',
                 },
-                userPreview: {color: '#FF9494',},
-                userButtonPopoverActionButtonIcon__manageAccount: {color: '#C06666',},
-                userButtonPopoverActionButton__manageAccount: {color: '#FF9494',},
-                userButtonPopoverActionButtonIcon__signOut: {color: '#C06666',},
-                userButtonPopoverActionButton__signOut: {color: '#FF9494',},
+                userPreview: {color: '#1E0342',},
+                userButtonPopoverActionButtonIcon__manageAccount: {color: '#5C787B',},
+                userButtonPopoverActionButton__manageAccount: {color: '#7BA0A4',},
+                userButtonPopoverActionButtonIcon__signOut: {color: '#5C787B',},
+                userButtonPopoverActionButton__signOut: {color: '#7BA0A4',},
                 dividerRow: {color: '#FF9494',},
           },
         },
 
         signIn: {
           //baseTheme: [undefined],
-          variables: { colorPrimary: '#FF9494' },
+          variables: { colorPrimary: '#2D5CF2' },
           elements: {
-            headerTitle: {color: '#FF9494'},
-            headerSubtitle: {color: '#CC7676'},
+            headerTitle: {color: '#2D5CF2'},
+            headerSubtitle: {color: '#1E0342'},
             formFieldLabelRow:{color: '#E57777'},
             socialButtonsBlockButton: {
-              backgroundColor : '#FFF8FC',
-              color: '#D27979',
+              backgroundColor : '#C4D1FB',
+              color: '#1E0342',
             },
-            input: {color: '#D27979'},
-            footerActionText: {color: '#CC7676'},
-            formFieldLabel: {color: '#CC7676'},
+            input: {color: '#0E46A3'},
+            footerActionText: {color: '#1E0342'},
+            formFieldLabel: {color: '#1E0342'},
             
           },
         },
 
         signUp: {
-          variables: { colorPrimary: '#FF9494' },
+          variables: { colorPrimary: '#2D5CF2' },
           elements: {
-            input: {color: '#D27979'},
+            input: {color: '#1E0342'},
           }
         },
 
         userProfile: {
-          variables: { colorPrimary: '#FF9494' },
-          rootBox : {backgroundColor: '#A35E5E'},
+          variables: { colorPrimary: '#0E46A3' },
+          rootBox : {backgroundColor: '#0E46A3'},
           elements: {
             
-            profilePage: {color: '#A35E5E'},
-            profileSectionItem : {color: '#A35E5E'},
-            userProfile : {color: '#A35E5E'},
-            profilePage__account : {color: '#A35E5E'},
+            profilePage: {color: '#1E0342'},
+            profileSectionItem : {color: '#1E0342'},
+            userProfile : {color: '#1E0342'},
+            profilePage__account : {color: '#1E0342'},
           }
         }
       }}
