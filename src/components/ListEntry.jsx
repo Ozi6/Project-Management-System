@@ -27,9 +27,9 @@ const ListEntry = ({
     const isDragOperation = useRef(false);
 
     const handleClick = (e) =>
-
-        if (!isDragOperation.current)
     {
+        if (!isDragOperation.current)
+        {
             onClick(entryId);
         }
     };
