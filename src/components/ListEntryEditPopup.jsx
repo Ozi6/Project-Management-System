@@ -53,7 +53,7 @@ const ListEntryEditPopup = ({
         }));
     };
 
-    return (
+    return(
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -74,7 +74,7 @@ const ListEntryEditPopup = ({
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 transition-colors"
                     >
-                        <FaTimes />
+                        <FaTimes/>
                     </button>
                 </div>
 

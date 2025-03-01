@@ -8,7 +8,7 @@ import { AnimatePresence } from "framer-motion";
 const TaskList = ({
     title,
     tagColor,
-    entries,
+    entries: initialEntries,
     onAddEntry,
     listId,
     categoryId,
@@ -18,37 +18,38 @@ const TaskList = ({
     onMoveEntry,
     onDragStart,
     onUpdateEntryCheckedStatus
-}) =>
-{
+}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
     const [editableTagColor, setEditableTagColor] = useState(tagColor);
     const [newEntryId, setNewEntryId] = useState(null);
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
+    const [entries, setEntries] = useState(initialEntries); // Manage entries state
     const listRef = useRef(null);
     const headerRef = useRef(null);
 
-    const handleDone = (newTitle, newTagColor) =>
-    {
+    // Update entries when initialEntries prop changes
+    useEffect(() => {
+        setEntries(initialEntries);
+    }, [initialEntries]);
+
+    const handleDone = (newTitle, newTagColor) => {
         setEditableTitle(newTitle);
         setEditableTagColor(newTagColor);
         setIsEditing(false);
     };
 
-    const handleCancel = () =>
-    {
+    const handleCancel = () => {
         setIsEditing(false);
     };
 
-    const handleEditCardOpen = () =>
-    {
+    const handleEditCardOpen = () => {
         setIsEditing(true);
         onEditCardOpen();
     };
 
-    const getLuminance = (color) =>
-    {
+    const getLuminance = (color) => {
         const rgb = color.match(/\w\w/g).map((x) => parseInt(x, 16));
         const [r, g, b] = rgb;
         const a = [r, g, b]
@@ -60,16 +61,13 @@ const TaskList = ({
     const luminance = getLuminance(editableTagColor.replace("#", ""));
     const textColor = luminance < 0.5 ? "white" : "black";
 
-    const handleHeaderMouseDown = (e) =>
-    {
+    const handleHeaderMouseDown = (e) => {
         if (e.button !== 0) return;
 
         let dragStarted = false;
 
-        const startDrag = () =>
-        {
-            if(!dragStarted)
-            {
+        const startDrag = () => {
+            if (!dragStarted) {
                 dragStarted = true;
                 onDragStart(e); //listId, title, 
                 document.addEventListener('mousemove', handleMouseMove);
@@ -77,21 +75,17 @@ const TaskList = ({
             }
         };
 
-        const dragTimeout = setTimeout(() =>
-        {
+        const dragTimeout = setTimeout(() => {
             startDrag();
         }, 150);
 
-        const handleMouseMoveStart = (moveEvent) =>
-        {
-            if(!dragStarted)
-            {
+        const handleMouseMoveStart = (moveEvent) => {
+            if (!dragStarted) {
                 const dx = moveEvent.clientX - e.clientX;
                 const dy = moveEvent.clientY - e.clientY;
                 const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if(distance > 5)
-                {
+                if (distance > 5) {
                     clearTimeout(dragTimeout);
                     startDrag();
                 }
@@ -100,13 +94,11 @@ const TaskList = ({
 
         document.addEventListener('mousemove', handleMouseMoveStart);
 
-        const handleMouseUp = () =>
-        {
+        const handleMouseUp = () => {
             clearTimeout(dragTimeout);
             document.removeEventListener('mousemove', handleMouseMoveStart);
 
-            if(!dragStarted)
-            {
+            if (!dragStarted) {
                 //document.removeEventListener('mousemove', handleMouseMove);
                 //document.body.classList.remove('dragging');
             }
@@ -117,20 +109,15 @@ const TaskList = ({
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleEntryDragStart = (entryId, text) =>
-    {
-        if(window.dragState)
-        {
+    const handleEntryDragStart = (entryId, text) => {
+        if (window.dragState) {
             window.dragState.isDragging = true;
             window.dragState.draggedEntryId = entryId;
             window.dragState.draggedEntryText = text;
             window.dragState.sourceListId = listId;
             window.dragState.sourceCategoryId = categoryId;
-        }
-        else
-        {
-            window.dragState =
-            {
+        } else {
+            window.dragState = {
                 isDragging: true,
                 draggedEntryId: entryId,
                 draggedEntryText: text,
@@ -143,8 +130,7 @@ const TaskList = ({
         }
     };
 
-    const handleEntryDragEnd = () =>
-    {
+    const handleEntryDragEnd = () => {
         if (window.dragState) {
             if (draggedOverIndex !== null) {
                 const sourceEntryId = window.dragState.draggedEntryId;
@@ -172,21 +158,18 @@ const TaskList = ({
         setDragPosition(null);
     };
 
-    const handleMouseMove = (e) =>
-    {
-        if(!window.dragState || !window.dragState.isDragging || !listRef.current)
+    const handleMouseMove = (e) => {
+        if (!window.dragState || !window.dragState.isDragging || !listRef.current)
             return;
 
         const rect = listRef.current.getBoundingClientRect();
-        if(e.clientX >= rect.left &&
+        if (e.clientX >= rect.left &&
             e.clientX <= rect.right &&
             e.clientY >= rect.top &&
-            e.clientY <= rect.bottom)
-        {
+            e.clientY <= rect.bottom) {
             const entryElements = listRef.current.querySelectorAll('.entry-container');
 
-            if (entryElements.length === 0)
-            {
+            if (entryElements.length === 0) {
                 setDraggedOverIndex(0);
                 setDragPosition('below');
 
@@ -200,14 +183,12 @@ const TaskList = ({
             let closestDistance = Infinity;
             let position = 'below';
 
-            entryElements.forEach((el, index) =>
-            {
+            entryElements.forEach((el, index) => {
                 const entryRect = el.getBoundingClientRect();
                 const entryMiddle = entryRect.top + entryRect.height / 2;
                 const distance = Math.abs(e.clientY - entryMiddle);
 
-                if(distance < closestDistance)
-                {
+                if (distance < closestDistance) {
                     closestDistance = distance;
                     closestIndex = index;
                     position = e.clientY < entryMiddle ? 'above' : 'below';
@@ -217,15 +198,13 @@ const TaskList = ({
             const isSameList = window.dragState.sourceListId === listId &&
                 window.dragState.sourceCategoryId === categoryId;
 
-            if(isSameList)
-            {
+            if (isSameList) {
                 const draggedIdParts = window.dragState.draggedEntryId.split('-');
                 const draggedIndex = parseInt(draggedIdParts[draggedIdParts.length - 1]);
 
                 const targetIndex = position === 'below' ? closestIndex + 1 : closestIndex;
 
-                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1)
-                {
+                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1) {
                     setDraggedOverIndex(null);
                     setDragPosition(null);
                     window.dragState.currentHoverListId = listId;
@@ -240,15 +219,12 @@ const TaskList = ({
             window.dragState.currentHoverListId = listId;
             window.dragState.currentHoverCategoryId = categoryId;
             window.dragState.currentHoverIndex = targetIndex;
-        }
-        else
-        {
+        } else {
             setDraggedOverIndex(null);
             setDragPosition(null);
 
-            if(window.dragState.currentHoverListId === listId &&
-                window.dragState.currentHoverCategoryId === categoryId)
-            {
+            if (window.dragState.currentHoverListId === listId &&
+                window.dragState.currentHoverCategoryId === categoryId) {
                 window.dragState.currentHoverListId = null;
                 window.dragState.currentHoverCategoryId = null;
                 window.dragState.currentHoverIndex = null;
@@ -256,20 +232,17 @@ const TaskList = ({
         }
     };
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         document.addEventListener('mousemove', handleMouseMove);
 
         const handleMouseUp = () => {
-            if(window.dragState && window.dragState.isDragging)
-            {
+            if (window.dragState && window.dragState.isDragging) {
                 const isTargetingThisList = window.dragState.currentHoverListId === listId &&
                     window.dragState.currentHoverCategoryId === categoryId;
                 const isSourceList = window.dragState.sourceListId === listId &&
                     window.dragState.sourceCategoryId === categoryId;
 
-                if(isTargetingThisList)
-                {
+                if (isTargetingThisList) {
                     const sourceEntryId = window.dragState.draggedEntryId;
                     const sourceListId = window.dragState.sourceListId;
                     const sourceCategoryId = window.dragState.sourceCategoryId;
@@ -278,20 +251,16 @@ const TaskList = ({
                     const sourceEntryIdParts = sourceEntryId.split('-');
                     const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
 
-                    if (window.dragState.currentHoverIndex === null && isSourceList)
-                    {
-
-                    }
-                    else
-                    {
+                    if (window.dragState.currentHoverIndex === null && isSourceList) {
+                        // Do nothing
+                    } else {
                         let targetIndex = window.dragState.currentHoverIndex;
 
                         if (isSourceList && targetIndex > sourceEntryIndex) {
                             targetIndex -= 1;
                         }
 
-                        if (targetIndex === null)
-                        {
+                        if (targetIndex === null) {
                             targetIndex = entries.length - (isSourceList ? 1 : 0);
                         }
 
@@ -306,15 +275,11 @@ const TaskList = ({
                         });
                     }
                     window.dragState = null;
-                }
-                else if (isSourceList && !window.dragState.currentHoverListId)
-                {
-
+                } else if (isSourceList && !window.dragState.currentHoverListId) {
                     const sourceEntryId = window.dragState.draggedEntryId;
                     const sourceEntryText = window.dragState.draggedEntryText;
 
-                    onMoveEntry(
-                    {
+                    onMoveEntry({
                         sourceEntryId,
                         sourceListId: listId,
                         sourceCategoryId: categoryId,
@@ -332,12 +297,32 @@ const TaskList = ({
 
         document.addEventListener('mouseup', handleMouseUp);
 
-        return () =>
-        {
+        return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
     }, [listId, categoryId, onMoveEntry, entries.length]);
+
+    // Callback to update entry text
+    const handleTextChange = (index, newText) => {
+        const updatedEntries = [...entries];
+        updatedEntries[index].text = newText;
+        setEntries(updatedEntries);
+    };
+
+    // Callback to update entry due date
+    const handleDueDateChange = (index, newDueDate) => {
+        const updatedEntries = [...entries];
+        updatedEntries[index].dueDate = newDueDate;
+        setEntries(updatedEntries);
+    };
+
+    // Callback to update entry warning threshold
+    const handleWarningThresholdChange = (index, newWarningThreshold) => {
+        const updatedEntries = [...entries];
+        updatedEntries[index].warningThreshold = newWarningThreshold;
+        setEntries(updatedEntries);
+    };
 
     return (
         <div className="relative" ref={listRef}>
@@ -374,10 +359,9 @@ const TaskList = ({
                                 <div key={entryId} className="entry-container">
                                     <ListEntry
                                         entryId={entryId}
-                                        text={typeof entry === 'string' ? entry : entry.text}
-                                        checked={typeof entry === 'string' ? false : !!entry.checked}
-                                        onCheckChange={(isChecked) =>
-                                        {
+                                        text={entry.text}
+                                        checked={entry.checked}
+                                        onCheckChange={(isChecked) => {
                                             onUpdateEntryCheckedStatus(listId, index, isChecked);
                                         }}
                                         isNew={index === entries.length - 1 && newEntryId !== null}
@@ -389,6 +373,10 @@ const TaskList = ({
                                         isDraggedOver={showDropIndicator}
                                         dragPosition={dragPosition}
                                         dueDate={entry.dueDate}
+                                        warningThreshold={entry.warningThreshold}
+                                        onTextChange={(newText) => handleTextChange(index, newText)}
+                                        onDueDateChange={(newDueDate) => handleDueDateChange(index, newDueDate)}
+                                        onWarningThresholdChange={(newWarningThreshold) => handleWarningThresholdChange(index, newWarningThreshold)}
                                     />
                                 </div>
                             );

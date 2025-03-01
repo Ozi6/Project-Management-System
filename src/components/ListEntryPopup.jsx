@@ -10,12 +10,14 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign }) => {
         setShowEditPopup(true);
     };
 
-    const handleSaveEdit = (updatedEntry) => {
+    const handleSaveEdit = (updatedEntry) =>
+    {
+        console.log("ListEntryPopup - Passing to parent:", updatedEntry);
         onEdit(updatedEntry);
         setShowEditPopup(false);
     };
 
-    return (
+    return(
         <>
             <motion.div
                 initial={{ opacity: 0, x: 20 }}

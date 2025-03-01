@@ -7,6 +7,8 @@ import { FaExclamationCircle } from "react-icons/fa"; // Import an icon library 
 
 const ListEntry = ({
     text,
+    dueDate,
+    warningThreshold,
     checked,
     onCheckChange,
     onTextChange,
@@ -23,10 +25,7 @@ const ListEntry = ({
     isDragging,
     isDraggedOver,
     dragPosition,
-    dueDate, // For due date
-    warningThreshold = 1 // For warning threshold (default is 1 day)
 }) => {
-    const [setChecked] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
     const entryRef = useRef(null);
@@ -50,24 +49,6 @@ const ListEntry = ({
 
         onCheckChange(newChecked);
         setHasInteracted(true);
-    };
-
-    const handleEdit = (updatedEntry) => {
-        if (updatedEntry.text !== text && onTextChange) {
-            onTextChange(updatedEntry.text);
-        }
-
-        if (checked !== updatedEntry.checked) {
-            onCheckChange(updatedEntry.checked);
-        }
-
-        if (onDueDateChange) {
-            onDueDateChange(updatedEntry.dueDate);
-        }
-
-        if (onWarningThresholdChange) {
-            onWarningThresholdChange(updatedEntry.warningThreshold);
-        }
     };
 
     const handleMouseDown = (e) => {
@@ -218,16 +199,29 @@ const ListEntry = ({
                         onClose={() => onClick(null)}
                         onEdit={(updatedEntry) =>
                         {
+                            console.log("ListEntry received:", updatedEntry);
+                            console.log("Current values - text:", text, "checked:", checked);
                             onCheckChange(updatedEntry.checked);
-                            if (onTextChange)
+
+                            if(updatedEntry.text !== text)
+                            {
+                                console.log("New values - text:", updatedEntry.text);
                                 onTextChange(updatedEntry.text);
-                            if (onDueDateChange)
+                            }
+
+                            if (updatedEntry.dueDate !== dueDate)
+                            {
                                 onDueDateChange(updatedEntry.dueDate);
-                            if (onWarningThresholdChange)
+                            }
+
+                            if (updatedEntry.warningThreshold !== warningThreshold)
+                            {
                                 onWarningThresholdChange(updatedEntry.warningThreshold);
+                            }
+
+                            onClick(null);
                         }}
-                        onDelete={(id) =>
-                        {
+                        onDelete={(id) => {
                             if (onDelete)
                                 onDelete(id);
                             onClick(null);
