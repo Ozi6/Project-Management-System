@@ -16,7 +16,8 @@ const Categorizer = ({
     onEditCardOpen,
     onAddList,
     onMoveEntry,
-    onMoveTaskList
+    onMoveTaskList,
+    onUpdateEntryCheckedStatus
 }) => {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
@@ -26,9 +27,11 @@ const Categorizer = ({
     const mouseOffsetX = useRef(0);
     const mouseOffsetY = useRef(0);
 
-    const handleTaskListDragStart = (listId, listTitle, { offsetX, offsetY }) => {
+    const handleTaskListDragStart = (listId, listTitle, { offsetX, offsetY }) =>
+    {
         setIsDraggingList(true);
-        window.dragState = {
+        window.dragState =
+        {
             isDraggingList: true,
             draggedListId: listId,
             draggedListTitle: listTitle,
@@ -38,9 +41,12 @@ const Categorizer = ({
         };
     };
 
-    const handleTaskListDragEnd = () => {
-        if (window.dragState && window.dragState.isDraggingList) {
-            if (draggedOverIndex !== null) {
+    const handleTaskListDragEnd = () =>
+    {
+        if (window.dragState && window.dragState.isDraggingList)
+        {
+            if (draggedOverIndex !== null)
+            {
                 // Handle drop logic here
             }
         }
@@ -55,8 +61,10 @@ const Categorizer = ({
         window.dragState = null;
     };
 
-    const handleMouseMove = (e) => {
-        if (dragImageRef.current) {
+    const handleMouseMove = (e) =>
+    {
+        if (dragImageRef.current)
+        {
             dragImageRef.current.style.left = `${e.clientX - mouseOffsetX.current}px`;
             dragImageRef.current.style.top = `${e.clientY - mouseOffsetY.current}px`;
         }
@@ -68,9 +76,11 @@ const Categorizer = ({
         if (e.clientX >= rect.left &&
             e.clientX <= rect.right &&
             e.clientY >= rect.top &&
-            e.clientY <= rect.bottom) {
+            e.clientY <= rect.bottom)
+        {
             const taskListElements = categorizerRef.current.querySelectorAll('.task-list-container');
-            if (taskListElements.length === 0) {
+            if (taskListElements.length === 0)
+            {
                 setDraggedOverIndex(0);
                 setDragPosition('below');
 
@@ -83,12 +93,14 @@ const Categorizer = ({
             let closestDistance = Infinity;
             let position = 'below';
 
-            taskListElements.forEach((el, index) => {
+            taskListElements.forEach((el, index) =>
+            {
                 const taskListRect = el.getBoundingClientRect();
                 const taskListMiddle = taskListRect.top + taskListRect.height / 2;
                 const distance = Math.abs(e.clientY - taskListMiddle);
 
-                if (distance < closestDistance) {
+                if (distance < closestDistance)
+                {
                     closestDistance = distance;
                     closestIndex = index;
                     position = e.clientY < taskListMiddle ? 'above' : 'below';
@@ -97,11 +109,13 @@ const Categorizer = ({
 
             const isSameCategory = window.dragState.sourceCategoryId === categoryId;
 
-            if (isSameCategory) {
+            if (isSameCategory)
+            {
                 const draggedIndex = taskLists.findIndex(list => list.id === window.dragState.draggedListId);
                 const targetIndex = position === 'below' ? closestIndex + 1 : closestIndex;
 
-                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1) {
+                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1)
+                {
                     setDraggedOverIndex(null);
                     setDragPosition(null);
 
@@ -128,28 +142,32 @@ const Categorizer = ({
         }
     };
 
-    useEffect(() => {
-        const handleGlobalMouseUp = () => {
-            if (window.dragState && window.dragState.isDraggingList) {
+    useEffect(() =>
+    {
+        const handleGlobalMouseUp = () =>
+        {
+            if(window.dragState && window.dragState.isDraggingList)
+            {
                 handleTaskListDragEnd();
             }
         };
 
         document.addEventListener('mouseup', handleGlobalMouseUp);
 
-        return () => {
+        return () =>
+        {
             document.removeEventListener('mouseup', handleGlobalMouseUp);
             document.removeEventListener('mousemove', handleMouseMove);
             document.body.classList.remove('dragging');
         };
-    }, [categoryId, taskLists]);
+    },[categoryId, taskLists]);
 
-    return (
+    return(
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center" ref={categorizerRef}>
             <div className="mb-4 font-bold text-lg" style={{ color: tagColor }}>
                 {title}
             </div>
-            <div className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col gap-4 w-full items-center">
                 {taskLists.map((taskList, index) => {
                     const isCurrentlyDragged =
                         window.dragState &&
@@ -164,10 +182,10 @@ const Categorizer = ({
                         (window.dragState.sourceCategoryId !== categoryId ||
                             window.dragState.draggedListId !== taskList.id);
 
-                    return (
-                        <div key={taskList.id} className="task-list-container w-full">
+                    return(
+                        <div key={taskList.id} className="task-list-container w-full items-center justify-center">
                             {showDropIndicator && dragPosition === 'above' && (
-                                <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mb-4"></div>
+                                <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mb-4 items-center justify-center"></div>
                             )}
                             <div className={isCurrentlyDragged ? "opacity-50" : ""}>
                                 <TaskList
@@ -182,10 +200,12 @@ const Categorizer = ({
                                     onEditCardOpen={onEditCardOpen}
                                     onMoveEntry={onMoveEntry}
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
-                                />
+                                    onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
+                                        onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)}/>
+
                             </div>
                             {showDropIndicator && dragPosition === 'below' && (
-                                <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mt-4"></div>
+                                <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mt-4 items-center justify-center"></div>
                             )}
                         </div>
                     );

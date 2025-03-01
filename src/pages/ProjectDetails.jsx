@@ -242,15 +242,33 @@ const ProjectDetails = () => {
         }
     };
 
-    const addEntry = (columnIndex, taskIndex, listId) =>
-    {
+    const addEntry = (columnIndex, taskIndex, listId) => {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
-        if(taskList)
-        {
-            const newEntry = `New Entry ${taskList.entries.length + 1}`;
+        if (taskList) {
+            const newEntry = {
+                text: `New Entry ${taskList.entries.length + 1}`,
+                checked: false
+            };
             taskList.entries.push(newEntry);
+            setColumns(newColumns);
+        }
+    };
+
+    const updateEntryCheckedStatus = (columnIndex, taskIndex, listId, entryIndex, isChecked) => {
+        const newColumns = [...columns];
+        const category = newColumns[columnIndex][taskIndex];
+        const taskList = category.taskLists.find((list) => list.id === listId);
+        if (taskList && taskList.entries[entryIndex]) {
+            if (typeof taskList.entries[entryIndex] === 'string') {
+                taskList.entries[entryIndex] = {
+                    text: taskList.entries[entryIndex],
+                    checked: isChecked
+                };
+            } else {
+                taskList.entries[entryIndex].checked = isChecked;
+            }
             setColumns(newColumns);
         }
     };
@@ -445,8 +463,7 @@ const ProjectDetails = () => {
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
                             No results found for "{searchTerm}"
-                        </div>
-                    )}
+                        </div>)}
                     <div
                         id="columns-container"
                         className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
@@ -454,10 +471,14 @@ const ProjectDetails = () => {
                             displayColumns.map((tasks, columnIndex) => (
                                 <div
                                     key={columnIndex}
-                                    className={`flex flex-col gap-4 ${isHorizontalLayout ? 'min-w-72 flex-shrink-0' : 'flex-1 min-w-72'}`}>
+                                    className={`flex flex-col gap-4 ${isHorizontalLayout
+                                            ? 'min-w-[350px] max-w-[450px] flex-shrink-0'
+                                            : 'min-w-[350px] max-w-[450px] flex-1'}`}>
                                     {
-                                        tasks.map((task, taskIndex) => (
+                                        tasks.map((task, taskIndex) =>(
                                             <Categorizer
+                                                onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
+                                                    updateEntryCheckedStatus(columnIndex, taskIndex, listId, entryIndex, isChecked)}
                                                 key={task.id}
                                                 columnIndex={columnIndex}
                                                 taskIndex={taskIndex}
@@ -471,7 +492,8 @@ const ProjectDetails = () => {
                                                 onEditCardOpen={resetSelectedEntry}
                                                 onAddList={() => addList(columnIndex, taskIndex)}
                                                 onMoveEntry={handleMoveEntry}
-                                                onMoveTaskList={handleMoveTaskList}/>))
+                                                onMoveTaskList={handleMoveTaskList}/>
+                                        ))
                                     }
                                 </div>
                             ))

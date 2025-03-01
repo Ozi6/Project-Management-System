@@ -7,6 +7,8 @@ import { FaExclamationCircle } from "react-icons/fa"; // Import an icon library 
 
 const ListEntry = ({
     text,
+    checked,
+    onCheckChange,
     isNew,
     isSelected,
     onClick,
@@ -20,7 +22,7 @@ const ListEntry = ({
     dueDate, // For due date
     warningThreshold = 1 // For warning threshold (default is 1 day)
 }) => {
-    const [checked, setChecked] = useState(false);
+    const [setChecked] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
     const entryRef = useRef(null);
@@ -42,7 +44,7 @@ const ListEntry = ({
             e.stopPropagation();
         }
 
-        setChecked(newChecked);
+        onCheckChange(newChecked);
         setHasInteracted(true);
     };
 

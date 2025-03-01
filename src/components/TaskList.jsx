@@ -16,7 +16,8 @@ const TaskList = ({
     onSelectEntry,
     onEditCardOpen,
     onMoveEntry,
-    onDragStart
+    onDragStart,
+    onUpdateEntryCheckedStatus
 }) =>
 {
     const [isEditing, setIsEditing] = useState(false);
@@ -373,7 +374,12 @@ const TaskList = ({
                                 <div key={entryId} className="entry-container">
                                     <ListEntry
                                         entryId={entryId}
-                                        text={entry.text}
+                                        text={typeof entry === 'string' ? entry : entry.text}
+                                        checked={typeof entry === 'string' ? false : !!entry.checked}
+                                        onCheckChange={(isChecked) =>
+                                        {
+                                            onUpdateEntryCheckedStatus(listId, index, isChecked);
+                                        }}
                                         isNew={index === entries.length - 1 && newEntryId !== null}
                                         isSelected={selectedEntryId === entryId}
                                         onClick={onSelectEntry}
