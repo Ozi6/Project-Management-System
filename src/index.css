@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+body
+{
+  background: transparent;
+}
+
 * {
   user-select: none;
 }
@@ -16,6 +21,23 @@
 
 .drop-indicator.below {
   margin-top: 8px; /* Added: Extra margin for below indicator */
+}
+
+*::-webkit-scrollbar
+{
+  width: 10px;
+}
+
+*::-webkit-scrollbar-thumb
+{
+  background: #0aa1dd;
+  border-radius: 20px;
+}
+
+*::-webkit-scrollbar-track
+{
+  background: transparent;
+  border-radius: 20px;
 }
 
 /*

@@ -15,6 +15,7 @@ import About from "./pages/Header/AboutUs";
 import NotFound from "./pages/404/NotFound"; // Import the NotFound component
 import LoginPage from "./pages/auth/LoginPage";
 import "./App.css";
+import "./index.css"
 
 function PageWrapper({ children }){
     return(
