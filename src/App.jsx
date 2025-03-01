@@ -18,6 +18,8 @@ import LoginPage from "./pages/auth/LoginPage";
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
+import Dashboard from './pages/Dashboard';
+import ScrollToTop from './components/ScrollToTop'; // Import the ScrollToTop component
 
 function PageWrapper({ children }){
     return(
@@ -49,8 +51,7 @@ function AnimatedRoutes() {
                 <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
                 <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>} />
-                
-                
+                <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 
                 {/* Auth Routes */}
                 <Route path="/signup" element={<PageWrapper><SignupPage /></PageWrapper>} />
@@ -77,6 +78,7 @@ function AnimatedRoutes() {
 function App() {
     return(
         <Router>
+            <ScrollToTop /> {/* Add the ScrollToTop component inside Router */}
             <AnimatedRoutes />
         </Router>
     );

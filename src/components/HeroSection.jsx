@@ -16,9 +16,9 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Text Content */}
           <div className="space-y-8 text-center lg:text-left">
-            <h1 className="text-5xl font-bold leading-tight text-white">
+            <h1 className="text-5xl font-bold leading-tight text-white font-sans tracking-tight">
               Transform Your Project Management with{' '}
-              <span className="text-blue-500">PlanWise</span>
+              <span className="text-blue-500 font-serif italic">PlanWise</span>
             </h1>
             <p className="text-xl text-gray-300">
               Streamline collaboration, boost productivity, and deliver projects 
@@ -41,27 +41,25 @@ const HeroSection = () => {
             {/* Stats Section */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
               <div>
-                <h3 className="text-3xl font-bold text-green-500">Manage Projects 24/7</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">Manage Projects 24/7</h3>
                 <p className="text-gray-300">Stay on Track, Anytime</p>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-green-500">100%</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">100%</h3>
                 <p className="text-gray-300">Secure</p>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-green-500">Free</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">Free</h3>
                 <p className="text-gray-300">To Start</p>
               </div>
             </div>
           </div>
 
           {/* Right Column - Image/Visual */}
-          {/*src="https://placehold.co/800x600/111827/4F46E5?text=Dashboard+Preview"*/}
           <div className="relative lg:pl-6">
             <div className="relative z-10 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-transparent"></div>
               <img
-                
                 src="https://i.pinimg.com/736x/28/bf/9f/28bf9f9ec63f5c16eaa4b5598601fa03.jpg"
                 alt="Project Dashboard"
                 className="w-full h-auto relative z-10"

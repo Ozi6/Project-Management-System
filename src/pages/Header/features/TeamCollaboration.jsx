@@ -46,7 +46,7 @@ const TeamCollaboration = () => {
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 mb-16">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Collaborate Better with Teams</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif">Collaborate Better with Teams</h2>
             <p className="text-lg text-gray-700 mb-6">
               PlanWise helps you organize team members, assign specific people to tasks, 
               and distribute workload efficiently—just like Trello, but with features tailored 
@@ -85,7 +85,7 @@ const TeamCollaboration = () => {
 
       {/* Features Grid */}
       <div className="mb-16">
-        <h2 className="text-2xl font-bold text-center mb-10">Team Management Tools</h2>
+        <h2 className="text-2xl font-bold text-center mb-10 font-mono tracking-tight">Team Management Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {collaborationFeatures.map((feature, index) => (
             <motion.div 
@@ -108,7 +108,7 @@ const TeamCollaboration = () => {
 
       {/* Team Assignment Demo Section */}
       <div className="bg-white rounded-2xl shadow-md p-8 mb-16">
-        <h2 className="text-2xl font-bold text-center mb-6">Task Assignment in Action</h2>
+        <h2 className="text-2xl font-bold text-center mb-6 font-sans uppercase tracking-wider">Task Assignment in Action</h2>
         <p className="text-center text-gray-600 mb-8">
           Easily assign tasks to team members and track who's working on what
         </p>
@@ -253,7 +253,7 @@ const TeamCollaboration = () => {
       {/* Team Workload Section */}
       <div className="bg-gray-50 rounded-2xl p-8 mb-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center mb-8">Balanced Workload Distribution</h2>
+          <h2 className="text-2xl font-bold text-center mb-8 font-sans italic">Balanced Workload Distribution</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
@@ -348,7 +348,7 @@ const TeamCollaboration = () => {
 
       {/* CTA Section */}
       <div className="text-center bg-blue-50 rounded-xl p-8">
-        <h2 className="text-3xl font-bold mb-4">Build Better Teams Today</h2>
+        <h2 className="text-3xl font-bold mb-4 font-mono tracking-tight">Build Better Teams Today</h2>
         <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
           Start assigning tasks, managing workloads, and collaborating efficiently with PlanWise's team management tools.
         </p>

@@ -23,7 +23,7 @@ export default function LoginPage() {
           <div className="w-full bg-[#C4D1FB] p-6 rounded-lg shadow-md">
             <SignIn 
               signUpUrl="/signup"
-              redirectUrl="/profile"
+              redirectUrl="/dashboard"
               appearance={{
                 elements: {
                   formButtonPrimary: "bg-blue-600 hover:bg-blue-700 text-white",

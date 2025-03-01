@@ -24,7 +24,7 @@ const AboutUs = () => {
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
               <motion.h1 
-                className="text-4xl md:text-5xl font-bold mb-6 text-gray-900"
+                className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 font-serif"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -52,7 +52,7 @@ const AboutUs = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 text-center">Our Story</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 text-center font-mono tracking-tight">Our Story</h2>
             <div className="space-y-6 text-lg text-gray-700">
               <p>
                 PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2022, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
@@ -80,7 +80,7 @@ const AboutUs = () => {
         <section className="py-16 md:py-24 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">Our Values</h2>
+              <h2 className="text-3xl font-bold mb-4 text-gray-900 font-mono tracking-tight">Our Values</h2>
               <p className="text-lg text-gray-700">
                 These core principles guide everything we do at PlanWise.
               </p>
@@ -134,7 +134,7 @@ const AboutUs = () => {
         <section className="py-16 md:py-24 bg-blue-50">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">What Our Users Say</h2>
+              <h2 className="text-3xl font-bold mb-4 text-gray-900 font-sans underline decoration-blue-500 decoration-4 underline-offset-8">What Our Users Say</h2>
               <p className="text-lg text-gray-700">
                 Don't just take our word for it - hear what teams using PlanWise have to say.
               </p>
@@ -200,7 +200,7 @@ const AboutUs = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold mb-6">Our Commitment to You</h2>
+              <h2 className="text-3xl font-bold mb-6 font-sans text-blue-400 drop-shadow-md">Our Commitment to You</h2>
               <div className="space-y-4 mb-8">
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-blue-400 mr-3 mt-1 flex-shrink-0" />

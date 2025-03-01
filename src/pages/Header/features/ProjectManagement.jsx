@@ -69,7 +69,7 @@ const ProjectManagement = () => {
       <div className="bg-blue-50 rounded-3xl p-8 mb-16">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Complete Control Over Your Projects</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif italic">Complete Control Over Your Projects</h2>
             <p className="text-lg text-gray-700 mb-6">
               PlanWise gives you everything you need to manage projects effectively, from initial planning to final delivery.
               Our comprehensive suite of project management tools helps you stay on schedule and within budget.
@@ -114,7 +114,7 @@ const ProjectManagement = () => {
 
       {/* How It Works Section */}
       <div className="bg-white rounded-2xl shadow-md p-8 mb-16">
-        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+        <h2 className="text-3xl font-bold text-center mb-12 font-mono tracking-tight">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -148,7 +148,7 @@ const ProjectManagement = () => {
 
       {/* CTA Section */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-6">Ready to transform your project management?</h2>
+        <h2 className="text-3xl font-bold mb-6 font-sans uppercase tracking-wider">Ready to transform your project management?</h2>
         <a 
           href="/signup" 
           className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg"

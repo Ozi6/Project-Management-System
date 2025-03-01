@@ -54,7 +54,7 @@ const TaskTracking = () => {
       <div className="bg-gradient-to-br from-blue-50 via-blue-50 to-indigo-50 rounded-3xl p-8 mb-16">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Never Lose Track of Tasks Again</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-sans uppercase tracking-wide">Never Lose Track of Tasks Again</h2>
             <p className="text-lg text-gray-700 mb-6">
               PlanWise's powerful task tracking system helps you manage everything from small daily activities 
               to complex multi-stage workflows. Keep everyone accountable and ensure nothing falls through the cracks.
@@ -94,7 +94,7 @@ const TaskTracking = () => {
       {/* Interactive Demo */}
       <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
         <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 text-center">
+          <h2 className="text-3xl font-bold mb-8 text-center font-mono tracking-tight">
             See Task Tracking in Action
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -123,7 +123,7 @@ const TaskTracking = () => {
 
       {/* Features Grid */}
       <div className="mb-16">
-        <h2 className="text-2xl font-bold text-center mb-10">Comprehensive Task Management Tools</h2>
+        <h2 className="text-2xl font-bold text-center mb-10 font-serif italic">Comprehensive Task Management Tools</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <motion.div 
@@ -145,12 +145,12 @@ const TaskTracking = () => {
       {/* Detailed Feature Section */}
       <div className="bg-blue-50 rounded-2xl p-8 mb-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">How PlanWise Makes Task Management Easier</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 font-sans tracking-wider">How PlanWise Makes Task Management Easier</h2>
           
           <div className="space-y-12">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="md:w-1/2">
-                <h3 className="text-2xl font-semibold mb-3">Intuitive Task Creation</h3>
+                <h3 className="text-2xl font-semibold mb-3 font-mono">Intuitive Task Creation</h3>
                 <p className="text-gray-700 mb-4">
                   Creating new tasks is quick and straightforward. Add descriptions, due dates, priority levels, 
                   and assign tasks to team members in seconds.
@@ -208,7 +208,7 @@ const TaskTracking = () => {
             
             <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
               <div className="md:w-1/2">
-                <h3 className="text-2xl font-semibold mb-3">Real-time Progress Tracking</h3>
+                <h3 className="text-2xl font-semibold mb-3 font-mono">Real-time Progress Tracking</h3>
                 <p className="text-gray-700 mb-4">
                   Monitor task completion and project progress in real-time with visual dashboards and detailed reports.
                 </p>
@@ -275,7 +275,7 @@ const TaskTracking = () => {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          <h2 className="text-3xl font-bold mb-4">Ready to Streamline Your Task Management?</h2>
+          <h2 className="text-3xl font-bold mb-4 font-serif">Ready to Streamline Your Task Management?</h2>
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
             Join PlanWise to boost productivity and deliver projects on time.
           </p>

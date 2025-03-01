@@ -33,7 +33,7 @@ const ForgotPasswordPage = () => {
         })
         .then((result) => {
           if (result.status === "complete") {
-            window.location.href = "/login"; // Redirect to login after success
+            window.location.href = "/dashboard"; // Redirect to dashboard after success
           }
         })
         .catch((err) => setError(err.errors[0].longMessage));

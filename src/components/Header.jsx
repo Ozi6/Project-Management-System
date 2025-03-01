@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
-import { Menu, X } from 'lucide-react';
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
+import { Menu, X, ArrowRight, AlertCircle } from 'lucide-react';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
@@ -14,6 +14,10 @@ const Header = ({ title, action }) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const { user } = useUser();
+    
+    // Check if user has admin role
+    const isAdmin = user?.publicMetadata?.role === 'admin';
 
     const navigate = useNavigate();
     const handleLoginRedirect = () => {
@@ -60,7 +64,9 @@ const Header = ({ title, action }) => {
         '/features/project-management',
         '/features/team-collaboration',
         '/features/task-tracking',
-        '/about'
+        '/about',
+        '/terms',
+        '/privacy'
     ].includes(location.pathname) || location.pathname.startsWith('/features/');
 
     // Desktop navigation for landing pages
@@ -81,6 +87,16 @@ const Header = ({ title, action }) => {
                 >
                     About Us
                 </Link>
+                {/* Admin-only Issues/Tickets link */}
+                {isAdmin && (
+                    <Link 
+                        to="/admin/issues" 
+                        className="text-base lg:text-lg text-orange-600 hover:text-orange-700 transition-colors duration-200 flex items-center"
+                    >
+                        <AlertCircle className="mr-1 h-4 w-4" />
+                        Issues
+                    </Link>
+                )}
             </div>
             <nav className="flex items-center gap-3 lg:gap-6">
                 <SignedOut>
@@ -96,9 +112,20 @@ const Header = ({ title, action }) => {
                         <UserButton />
                     </Link>
                 </SignedIn>
+                
+                {/* Conditional rendering for the action button based on sign-in status */}
+                <SignedIn>
+                    <Link 
+                        to="/dashboard"
+                        className="bg-green-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-green-700 
+                        transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap flex items-center"
+                    >
+                        My Dashboard <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                </SignedIn>
                 <SignedOut>
                     <Link 
-                        to="/signup" 
+                        to="/signup"
                         className="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-blue-700 
                         transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap"
                     >
@@ -187,6 +214,17 @@ const Header = ({ title, action }) => {
                                 About Us
                             </Link>
                             
+                            {/* Admin-only Issues/Tickets link for mobile */}
+                            {isAdmin && (
+                                <Link 
+                                    to="/admin/issues" 
+                                    className="block py-2 border-b border-gray-200 text-lg text-orange-600 flex items-center"
+                                >
+                                    <AlertCircle className="mr-1 h-4 w-4" />
+                                    Issues
+                                </Link>
+                            )}
+                            
                             <div className="pt-4 flex flex-col gap-4">
                                 <SignedOut>
                                     <button 
@@ -246,6 +284,17 @@ const Header = ({ title, action }) => {
                                     Solutions
                                 </Link>
                                 
+                                {/* Admin-only Issues/Tickets link for mobile */}
+                                {isAdmin && (
+                                    <Link 
+                                        to="/admin/issues" 
+                                        className="block py-2 border-b border-gray-200 text-lg text-orange-600 flex items-center"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        <AlertCircle className="mr-1 h-4 w-4" />
+                                        Issues
+                                    </Link>
+                                )}
                             </div>
                             
                             <div className="flex flex-col gap-4 pt-2">

@@ -90,7 +90,7 @@ const FeaturesSection = () => {
     <>
       <section className="py-8 md:py-16 px-4 md:px-5 text-center bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10 ffont-mono tracking-tight">
             Why Choose PlanWise?
           </h2>
           
@@ -131,7 +131,7 @@ const FeaturesSection = () => {
                   whileHover={{ y: -8, scale: 1.02 }}
                 >
                   <feature.icon className="h-10 w-10 md:h-12 md:w-12 text-blue-600 mb-4 md:mb-6" />
-                  <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-gray-900">
+                  <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-gray-900 font-sans">
                     {feature.title}
                   </h3>
                   <p className="text-base md:text-lg text-gray-600">
@@ -169,7 +169,7 @@ const FeaturesSection = () => {
       {/* Testimonials Section */}
       <section className="py-10 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-900">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-900 font-mono tracking-tight">
             What Our Users Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -194,7 +194,7 @@ const FeaturesSection = () => {
       {/* Replacing Pricing Section with Features Comparison */}
       <section className="py-10 md:py-16 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white font-sans uppercase tracking-wider">
             Everything You Need to Succeed
           </h2>
           
@@ -283,7 +283,7 @@ const FeaturesSection = () => {
       {/* Updated Call to Action with Login Link */}
       <section className="py-10 md:py-16 bg-blue-600">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 md:mb-6">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 md:mb-6 font-serif">
             Get Started with PlanWise Today!
           </h2>
           <p className="text-white mb-6 md:mb-8 text-sm md:text-base">
