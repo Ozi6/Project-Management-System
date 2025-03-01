@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 import { Menu, X } from 'lucide-react';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
@@ -83,29 +83,28 @@ const Header = ({ title, action }) => {
                 </Link>
             </div>
             <nav className="flex items-center gap-3 lg:gap-6">
-               
                 <SignedOut>
-                    
-                        <button 
-                            className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                            onClick={handleLoginRedirect}
-                        >
-                            Log In
-                        </button>
-                    
+                    <button 
+                        className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        onClick={handleLoginRedirect}
+                    >
+                        Log In
+                    </button>
                 </SignedOut>
                 <SignedIn>
                     <Link to="/profile">
-                        <UserButton/>
+                        <UserButton />
                     </Link>
                 </SignedIn>
-                <Link 
-                    to="/signup" // Changed from "/profile" to "/signup"
-                    className="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-blue-700 
-                    transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap"
-                >
-                    Start Free
-                </Link>
+                <SignedOut>
+                    <Link 
+                        to="/signup" 
+                        className="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-blue-700 
+                        transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap"
+                    >
+                        Start Free
+                    </Link>
+                </SignedOut>
             </nav>
         </div>
     );
@@ -190,26 +189,24 @@ const Header = ({ title, action }) => {
                             
                             <div className="pt-4 flex flex-col gap-4">
                                 <SignedOut>
-                                    
-                                        <button 
-                                            className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
-                                            onClick={handleLoginRedirect}
-                                        >
-                                            Log In
-                                        </button>
-                                    
+                                    <button 
+                                        className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
+                                        onClick={handleLoginRedirect}
+                                    >
+                                        Log In
+                                    </button>
                                 </SignedOut>
                                 
                                 <SignedIn>
                                     <div className="flex justify-center py-2">
                                         <Link to="/profile">
-                                            <UserButton/>
+                                            <UserButton />
                                         </Link>
                                     </div>
                                 </SignedIn>
                                 
                                 <Link 
-                                    to="/signup" // Changed from "/profile" to "/signup"
+                                    to="/signup" 
                                     className="w-full text-center bg-blue-600 text-white py-3 rounded-lg text-lg font-medium"
                                 >
                                     Start Free
@@ -253,26 +250,24 @@ const Header = ({ title, action }) => {
                             
                             <div className="flex flex-col gap-4 pt-2">
                                 <SignedOut>
-                                    
-                                        <button 
-                                            className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
-                                            onClick={handleLoginRedirect}
-                                        >
-                                            Log In
-                                        </button>
-                                    
+                                    <button 
+                                        className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
+                                        onClick={handleLoginRedirect}
+                                    >
+                                        Log In
+                                    </button>
                                 </SignedOut>
                                 
                                 <SignedIn>
                                     <div className="flex justify-center py-2">
                                         <Link to="/profile">
-                                            <UserButton/>
+                                            <UserButton />
                                         </Link>
                                     </div>
                                 </SignedIn>
                                 
                                 <Link 
-                                    to="/signup" // Changed from "/profile" to "/signup"
+                                    to="/signup" 
                                     className="w-full text-center bg-blue-600 text-white py-3 rounded-lg text-lg font-medium"
                                 >
                                     Start Free
