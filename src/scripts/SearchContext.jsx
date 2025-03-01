@@ -4,32 +4,26 @@ const SearchContext = createContext();
 
 export const useSearch = () => useContext(SearchContext);
 
-export const SearchProvider = ({ children }) =>
-{
+export const SearchProvider = ({ children }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredColumns, setFilteredColumns] = useState(null);
 
-    const performSearch = (term) =>
-    {
+    const performSearch = (term, columns) => {
         setSearchTerm(term);
+        filterColumns(columns, term);
     };
 
-    const filterColumns = (columns, term) =>
-    {
-        if(!term.trim())
-        {
+    const filterColumns = (columns, term) => {
+        if (!term.trim()) {
             setFilteredColumns(null);
             return null;
         }
 
         const searchLowerCase = term.toLowerCase();
 
-        const processedColumns = columns.map(column =>
-        {
-            return column.filter(category =>
-            {
-                if(category.title.toLowerCase().includes(searchLowerCase))
-                {
+        const processedColumns = columns.map(column => {
+            return column.filter(category => {
+                if (category.title.toLowerCase().includes(searchLowerCase)) {
                     return true;
                 }
 
@@ -37,15 +31,13 @@ export const SearchProvider = ({ children }) =>
                     list.title.toLowerCase().includes(searchLowerCase)
                 );
 
-                if(hasMatchingTaskList)
-                {
+                if (hasMatchingTaskList) {
                     return true;
                 }
 
-
                 const hasMatchingEntry = category.taskLists.some(list =>
                     list.entries.some(entry =>
-                        entry.toLowerCase().includes(searchLowerCase)
+                        entry.text.toLowerCase().includes(searchLowerCase)
                     )
                 );
 
@@ -57,15 +49,14 @@ export const SearchProvider = ({ children }) =>
         return processedColumns;
     };
 
-    const value =
-    {
+    const value = {
         searchTerm,
         filteredColumns,
         performSearch,
         filterColumns
     };
 
-    return(
+    return (
         <SearchContext.Provider value={value}>
             {children}
         </SearchContext.Provider>

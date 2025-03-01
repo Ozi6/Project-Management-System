@@ -24,8 +24,39 @@ const ProjectDetails = () => {
                 title: "Category A",
                 tagColor: "#8b5cf6",
                 taskLists: [
-                    { id: "task-list-1", title: "Task List 1", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                    { id: "task-list-2", title: "Task List 2", tagColor: "#8b5cf6", entries: ["Example Entry"] },
+                    {
+                        id: "task-list-1",
+                        title: "Task List 1",
+                        tagColor: "#8b5cf6",
+                        entries: [
+                            {
+                                text: "Complete project proposal",
+                                entryId: "task-1",
+                                dueDate: new Date("2025-12-15"),
+                            },
+                            {
+                                text: "Review design mockups",
+                                entryId: "task-2",
+                                dueDate: new Date("2025-3-2"),
+                            },
+                        ],
+                    },
+                    {
+                        id: "task-list-2",
+                        title: "Task List 2",
+                        tagColor: "#8b5cf6",
+                        entries: [
+                            {
+                                text: "Prepare presentation slides",
+                                entryId: "task-3",
+                                dueDate: new Date("2025-12-10"),
+                            },
+                            {
+                                text: "Send meeting invites",
+                                entryId: "task-4",
+                            },
+                        ],
+                    },
                 ],
             },
             {
@@ -33,8 +64,39 @@ const ProjectDetails = () => {
                 title: "Category B",
                 tagColor: "#f43f5e",
                 taskLists: [
-                    { id: "task-list-3", title: "Task List 3", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                    { id: "task-list-4", title: "Task List 4", tagColor: "#f43f5e", entries: ["Example Entry"] },
+                    {
+                        id: "task-list-3",
+                        title: "Task List 3",
+                        tagColor: "#f43f5e",
+                        entries: [
+                            {
+                                text: "Update website content",
+                                entryId: "task-5",
+                                dueDate: new Date("2025-12-25"),
+                            },
+                            {
+                                text: "Test new features",
+                                entryId: "task-6",
+                                dueDate: new Date("2025-12-18"), // Due soon
+                            },
+                        ],
+                    },
+                    {
+                        id: "task-list-4",
+                        title: "Task List 4",
+                        tagColor: "#f43f5e",
+                        entries: [
+                            {
+                                text: "Fix bugs in production",
+                                entryId: "task-7",
+                            },
+                            {
+                                text: "Write documentation",
+                                entryId: "task-8",
+                                dueDate: new Date("2025-12-30"),
+                            },
+                        ],
+                    },
                 ],
             },
             {
@@ -42,94 +104,39 @@ const ProjectDetails = () => {
                 title: "Category C",
                 tagColor: "#f97316",
                 taskLists: [
-                    { id: "task-list-5", title: "Task List 5", tagColor: "#f97316", entries: ["Example Entry"] },
-                    { id: "task-list-6", title: "Task List 6", tagColor: "#f97316", entries: ["Example Entry"] },
-                ],
-            },
-        ],
-        [
-            {
-                id: "category-d",
-                title: "Category D",
-                tagColor: "#8b5cf6",
-                taskLists: [
-                    { id: "task-list-1", title: "Task List 1", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                    { id: "task-list-2", title: "Task List 2", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-e",
-                title: "Category E",
-                tagColor: "#f43f5e",
-                taskLists: [
-                    { id: "task-list-3", title: "Task List 3", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                    { id: "task-list-4", title: "Task List 4", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-f",
-                title: "Category F",
-                tagColor: "#f97316",
-                taskLists: [
-                    { id: "task-list-5", title: "Task List 5", tagColor: "#f97316", entries: ["Example Entry"] },
-                    { id: "task-list-6", title: "Task List 6", tagColor: "#f97316", entries: ["Example Entry"] },
-                ],
-            },
-        ], [
-            {
-                id: "category-g",
-                title: "Category G",
-                tagColor: "#8b5cf6",
-                taskLists: [
-                    { id: "task-list-1", title: "Task List 1", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                    { id: "task-list-2", title: "Task List 2", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-h",
-                title: "Category H",
-                tagColor: "#f43f5e",
-                taskLists: [
-                    { id: "task-list-3", title: "Task List 3", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                    { id: "task-list-4", title: "Task List 4", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-i",
-                title: "Category I",
-                tagColor: "#f97316",
-                taskLists: [
-                    { id: "task-list-5", title: "Task List 5", tagColor: "#f97316", entries: ["Example Entry"] },
-                    { id: "task-list-6", title: "Task List 6", tagColor: "#f97316", entries: ["Example Entry"] },
-                ],
-            },
-        ],
-        [
-            {
-                id: "category-j",
-                title: "Category J",
-                tagColor: "#8b5cf6",
-                taskLists: [
-                    { id: "task-list-1", title: "Task List 1", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                    { id: "task-list-2", title: "Task List 2", tagColor: "#8b5cf6", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-k",
-                title: "Category K",
-                tagColor: "#f43f5e",
-                taskLists: [
-                    { id: "task-list-3", title: "Task List 3", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                    { id: "task-list-4", title: "Task List 4", tagColor: "#f43f5e", entries: ["Example Entry"] },
-                ],
-            },
-            {
-                id: "category-l",
-                title: "Category L",
-                tagColor: "#f97316",
-                taskLists: [
-                    { id: "task-list-5", title: "Task List 5", tagColor: "#f97316", entries: ["Example Entry"] },
-                    { id: "task-list-6", title: "Task List 6", tagColor: "#f97316", entries: ["Example Entry"] },
+                    {
+                        id: "task-list-5",
+                        title: "Task List 5",
+                        tagColor: "#f97316",
+                        entries: [
+                            {
+                                text: "Plan team outing",
+                                entryId: "task-9",
+                                dueDate: new Date("2025-12-22"), // Due soon
+                            },
+                            {
+                                text: "Order office supplies",
+                                entryId: "task-10",
+                            },
+                        ],
+                    },
+                    {
+                        id: "task-list-6",
+                        title: "Task List 6",
+                        tagColor: "#f97316",
+                        entries: [
+                            {
+                                text: "Conduct performance reviews",
+                                entryId: "task-11",
+                                dueDate: new Date("2025-12-28"),
+                            },
+                            {
+                                text: "Submit quarterly report",
+                                entryId: "task-12",
+                                dueDate: new Date("2025-12-31"),
+                            },
+                        ],
+                    },
                 ],
             },
         ],
@@ -140,7 +147,7 @@ const ProjectDetails = () => {
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
-    const { searchTerm, filteredColumns, filterColumns } = useSearch();
+    const { searchTerm, filteredColumns, performSearch } = useSearch();
 
     const MIN_COLUMN_WIDTH = 350;
     const MAX_COLUMN_WIDTH = 450;
@@ -419,11 +426,13 @@ const ProjectDetails = () => {
         return () => window.removeEventListener("resize", handleResize);
     }, [columns, isHorizontalLayout]);
 
-    useEffect(() =>
-    {
-        if(searchTerm)
-            filterColumns(columns, searchTerm);
-    },[columns, searchTerm]);
+    useEffect(() => {
+        if (searchTerm) {
+            performSearch(searchTerm, columns);
+        } else {
+            performSearch('', columns);
+        }
+    }, [searchTerm, columns]);
 
     const displayColumns = filteredColumns || columns;
 

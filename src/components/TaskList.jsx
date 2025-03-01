@@ -338,7 +338,7 @@ const TaskList = ({
         };
     }, [listId, categoryId, onMoveEntry, entries.length]);
 
-    return(
+    return (
         <div className="relative" ref={listRef}>
             <div
                 className={`bg-gray-100 rounded-lg shadow-md p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
@@ -369,11 +369,11 @@ const TaskList = ({
                                 (window.dragState.sourceListId !== listId ||
                                     window.dragState.sourceCategoryId !== categoryId ||
                                     window.dragState.draggedEntryId !== entryId);
-                            return(
+                            return (
                                 <div key={entryId} className="entry-container">
                                     <ListEntry
                                         entryId={entryId}
-                                        text={entry}
+                                        text={entry.text}
                                         isNew={index === entries.length - 1 && newEntryId !== null}
                                         isSelected={selectedEntryId === entryId}
                                         onClick={onSelectEntry}
@@ -381,7 +381,15 @@ const TaskList = ({
                                         onDragEnd={handleEntryDragEnd}
                                         isDragging={isCurrentlyDragged}
                                         isDraggedOver={showDropIndicator}
-                                        dragPosition={dragPosition}/></div>);})) : (<p className="text-center text-gray-500">No entries</p>)}
+                                        dragPosition={dragPosition}
+                                        dueDate={entry.dueDate}
+                                    />
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <p className="text-center text-gray-500">No entries</p>
+                    )}
                     {draggedOverIndex === entries.length && window.dragState && window.dragState.isDragging && (
                         <div className="border-2 border-dashed border-blue-500 rounded-md h-10 my-2 flex items-center justify-center bg-blue-50">
                             <span className="text-blue-500 text-sm">Drop here</span>
@@ -402,7 +410,7 @@ const TaskList = ({
                         title={editableTitle}
                         tagColor={editableTagColor}
                         onDone={handleDone}
-                        onCancel={handleCancel}/>
+                        onCancel={handleCancel} />
                 )}
             </AnimatePresence>
 

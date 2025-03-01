@@ -17,8 +17,7 @@ const Categorizer = ({
     onAddList,
     onMoveEntry,
     onMoveTaskList
-}) =>
-{
+}) => {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
     const [isDraggingCategory, setIsDraggingCategory] = useState(false);
@@ -39,13 +38,10 @@ const Categorizer = ({
         };
     };
 
-    const handleTaskListDragEnd = () =>
-    {
-        if (window.dragState && window.dragState.isDraggingList)
-        {
-            if (draggedOverIndex !== null)
-            {
-                
+    const handleTaskListDragEnd = () => {
+        if (window.dragState && window.dragState.isDraggingList) {
+            if (draggedOverIndex !== null) {
+                // Handle drop logic here
             }
         }
 
@@ -59,25 +55,22 @@ const Categorizer = ({
         window.dragState = null;
     };
 
-    const handleMouseMove = (e) =>
-    {
-        if (dragImageRef.current)
-        {
+    const handleMouseMove = (e) => {
+        if (dragImageRef.current) {
             dragImageRef.current.style.left = `${e.clientX - mouseOffsetX.current}px`;
             dragImageRef.current.style.top = `${e.clientY - mouseOffsetY.current}px`;
         }
 
-        if(!window.dragState || !window.dragState.isDraggingList || !categorizerRef.current)
+        if (!window.dragState || !window.dragState.isDraggingList || !categorizerRef.current)
             return;
+
         const rect = categorizerRef.current.getBoundingClientRect();
         if (e.clientX >= rect.left &&
             e.clientX <= rect.right &&
             e.clientY >= rect.top &&
-            e.clientY <= rect.bottom)
-        {
+            e.clientY <= rect.bottom) {
             const taskListElements = categorizerRef.current.querySelectorAll('.task-list-container');
-            if (taskListElements.length === 0)
-            {
+            if (taskListElements.length === 0) {
                 setDraggedOverIndex(0);
                 setDragPosition('below');
 
@@ -90,28 +83,25 @@ const Categorizer = ({
             let closestDistance = Infinity;
             let position = 'below';
 
-            taskListElements.forEach((el, index) =>
-            {
+            taskListElements.forEach((el, index) => {
                 const taskListRect = el.getBoundingClientRect();
                 const taskListMiddle = taskListRect.top + taskListRect.height / 2;
                 const distance = Math.abs(e.clientY - taskListMiddle);
 
-                if(distance < closestDistance)
-                {
+                if (distance < closestDistance) {
                     closestDistance = distance;
                     closestIndex = index;
                     position = e.clientY < taskListMiddle ? 'above' : 'below';
                 }
             });
+
             const isSameCategory = window.dragState.sourceCategoryId === categoryId;
 
-            if(isSameCategory)
-            {
+            if (isSameCategory) {
                 const draggedIndex = taskLists.findIndex(list => list.id === window.dragState.draggedListId);
                 const targetIndex = position === 'below' ? closestIndex + 1 : closestIndex;
 
-                if(targetIndex === draggedIndex || targetIndex === draggedIndex + 1)
-                {
+                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1) {
                     setDraggedOverIndex(null);
                     setDragPosition(null);
 
@@ -120,20 +110,18 @@ const Categorizer = ({
                     return;
                 }
             }
+
             const targetIndex = position === 'below' ? closestIndex + 1 : closestIndex;
             setDraggedOverIndex(targetIndex);
             setDragPosition(position);
 
             window.dragState.currentHoverCategoryId = categoryId;
             window.dragState.currentHoverIndex = targetIndex;
-        }
-        else
-        {
+        } else {
             setDraggedOverIndex(null);
             setDragPosition(null);
 
-            if(window.dragState.currentHoverCategoryId === categoryId)
-            {
+            if (window.dragState.currentHoverCategoryId === categoryId) {
                 window.dragState.currentHoverCategoryId = null;
                 window.dragState.currentHoverIndex = null;
             }
@@ -157,11 +145,11 @@ const Categorizer = ({
     }, [categoryId, taskLists]);
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md" ref={categorizerRef}>
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center" ref={categorizerRef}>
             <div className="mb-4 font-bold text-lg" style={{ color: tagColor }}>
                 {title}
             </div>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full">
                 {taskLists.map((taskList, index) => {
                     const isCurrentlyDragged =
                         window.dragState &&
@@ -177,7 +165,7 @@ const Categorizer = ({
                             window.dragState.draggedListId !== taskList.id);
 
                     return (
-                        <div key={taskList.id} className="task-list-container">
+                        <div key={taskList.id} className="task-list-container w-full">
                             {showDropIndicator && dragPosition === 'above' && (
                                 <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mb-4"></div>
                             )}
@@ -208,6 +196,7 @@ const Categorizer = ({
                     </div>
                 )}
             </div>
+
             <button
                 onClick={onAddList}
                 className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-blue-600 hover:scale-105">

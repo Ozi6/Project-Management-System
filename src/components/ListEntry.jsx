@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
+import { FaExclamationCircle } from "react-icons/fa"; // Import an icon library for the red exclamation mark
 
 const ListEntry = ({
     text,
@@ -15,7 +16,9 @@ const ListEntry = ({
     onDrop,
     isDragging,
     isDraggedOver,
-    dragPosition
+    dragPosition,
+    dueDate, // For due date
+    warningThreshold = 1 // For warning threshold (default is 1 day)
 }) => {
     const [checked, setChecked] = useState(false);
     const [hasInteracted, setHasInteracted] = useState(false);
@@ -26,18 +29,16 @@ const ListEntry = ({
     const mouseOffsetY = useRef(0);
     const isDragOperation = useRef(false);
 
-    const handleClick = (e) =>
-    {
-        if (!isDragOperation.current)
-        {
+    const isDueSoon = dueDate && new Date(dueDate) - new Date() <= warningThreshold * 24 * 60 * 60 * 1000;
+
+    const handleClick = (e) => {
+        if (!isDragOperation.current) {
             onClick(entryId);
         }
     };
 
-    const handleCheckboxChange = (newChecked, e) =>
-    {
-        if (e)
-        {
+    const handleCheckboxChange = (newChecked, e) => {
+        if (e) {
             e.stopPropagation();
         }
 
@@ -45,14 +46,11 @@ const ListEntry = ({
         setHasInteracted(true);
     };
 
-    const handleMouseDown = (e) =>
-    {
+    const handleMouseDown = (e) => {
         let target = e.target;
-        while(target && target !== entryRef.current)
-        {
+        while (target && target !== entryRef.current) {
             if (target.classList.contains('checkbox-container') ||
-                target.closest('.checkbox-container'))
-            {
+                target.closest('.checkbox-container')) {
                 return;
             }
             target = target.parentElement;
@@ -69,8 +67,7 @@ const ListEntry = ({
 
         let dragStarted = false;
 
-        const startDrag = () =>
-        {
+        const startDrag = () => {
             if (!dragStarted) {
                 dragStarted = true;
                 isDragOperation.current = true;
@@ -81,13 +78,11 @@ const ListEntry = ({
             }
         };
 
-        const dragTimeout = setTimeout(() =>
-        {
+        const dragTimeout = setTimeout(() => {
             startDrag();
         }, 150);
 
-        const handleMouseMoveStart = (moveEvent) =>
-        {
+        const handleMouseMoveStart = (moveEvent) => {
             if (!dragStarted) {
                 const dx = moveEvent.clientX - e.clientX;
                 const dy = moveEvent.clientY - e.clientY;
@@ -102,20 +97,16 @@ const ListEntry = ({
 
         document.addEventListener('mousemove', handleMouseMoveStart);
 
-        const handleMouseUp = () =>
-        {
+        const handleMouseUp = () => {
             clearTimeout(dragTimeout);
             document.removeEventListener('mousemove', handleMouseMoveStart);
 
-            if (dragStarted)
-            {
+            if (dragStarted) {
                 setIsDraggingThis(false);
                 onDragEnd();
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.body.classList.remove('dragging');
-            }
-            else
-            {
+            } else {
                 isDragOperation.current = false;
             }
 
@@ -125,50 +116,55 @@ const ListEntry = ({
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleMouseMove = (e) =>
-    {
-        if (dragImageRef.current)
-        {
+    const handleMouseMove = (e) => {
+        if (dragImageRef.current) {
             dragImageRef.current.style.left = `${e.clientX - mouseOffsetX.current}px`;
             dragImageRef.current.style.top = `${e.clientY - mouseOffsetY.current}px`;
         }
     };
 
-
-    useEffect(() =>
-    {
-        return () =>
-        {
+    useEffect(() => {
+        return () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.body.classList.remove('dragging');
         };
     }, []);
 
-    return(
+    return (
         <div className="relative">
             <div
                 ref={entryRef}
                 onMouseDown={handleMouseDown}
                 onClick={handleClick}
-                className={`p-2 shadow rounded-md border border-gray-300 flex items-center gap-2 transition-all duration-300 ease-out cursor-grab 
-                    ${isNew ? "animate-entryAppear" : ""} 
-                    ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}
-                    ${isDraggingThis ? "opacity-20" : ""}
-                    ${isDraggedOver ? (dragPosition === 'above' ? "border-t-4 border-t-dashed border-t-blue-500 mt-4" : dragPosition === 'below' ? "border-b-4 border-b-dashed border-b-blue-500 mb-4" : "") : ""}`}
+                className={`p-2 shadow rounded-md border border-gray-300 flex flex-col gap-2 transition-all duration-300 ease-out cursor-grab 
+            ${isNew ? "animate-entryAppear" : ""} 
+            ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}
+            ${isDraggingThis ? "opacity-20" : ""}
+            ${isDraggedOver ? (dragPosition === 'above' ? "border-t-4 border-t-dashed border-t-blue-500 mt-4" : dragPosition === 'below' ? "border-b-4 border-b-dashed border-b-blue-500 mb-4" : "") : ""}`}
             >
-                <div className="checkbox-container" onClick={(e) => e.stopPropagation()}>
-                    <AnimatedCheckbox
-                        checked={checked}
-                        onChange={handleCheckboxChange}/>
-                </div>
-                <span className="relative overflow-hidden">
-                    <span
-                        className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 ${checked ? "animate-cross-out" : (hasInteracted ? "animate-uncross-out" : "w-0")}`}/>
-                    <span
-                        className={`transition-all duration-300 ease-out select-none ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
-                        {text}
+                <div className="flex items-center gap-2">
+                    <div className="checkbox-container" onClick={(e) => e.stopPropagation()}>
+                        <AnimatedCheckbox
+                            checked={checked}
+                            onChange={handleCheckboxChange} />
+                    </div>
+                    <span className="relative overflow-hidden">
+                        <span
+                            className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 ${checked ? "animate-cross-out" : (hasInteracted ? "animate-uncross-out" : "w-0")}`} />
+                        <span
+                            className={`transition-all duration-300 ease-out select-none ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
+                            {text}
+                        </span>
                     </span>
-                </span>
+                </div>
+                {dueDate && (
+                    <div className="flex items-center gap-2">
+                        {isDueSoon && <FaExclamationCircle className="text-red-500" />}
+                        <span className={`text-sm ${isDueSoon ? "text-red-500" : "text-gray-500"}`}>
+                            {new Date(dueDate).toLocaleDateString()}
+                        </span>
+                    </div>
+                )}
             </div>
 
             {isDraggingThis && (
@@ -191,42 +187,42 @@ const ListEntry = ({
 
             <style jsx>
                 {`
-                    @keyframes entryAppear {
-                        0% {
-                            opacity: 0;
-                            transform: translateY(-20px);
-                        }
-                        100% {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-                    @keyframes cross-out {
-                        0% {
-                            width: 0%;
-                        }
-                        100% {
-                            width: 100%;
-                        }
-                    }
-                    @keyframes uncross-out {
-                        0% {
-                            width: 100%;
-                        }
-                        100% {
-                            width: 0%;
-                        }
-                    }
-                    .animate-entryAppear {
-                        animation: entryAppear 0.3s ease-out forwards;
-                    }
-                    .animate-cross-out {
-                        animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-                    }
-                    .animate-uncross-out {
-                        animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-                    }
-                `}
+            @keyframes entryAppear {
+                0% {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes cross-out {
+                0% {
+                    width: 0%;
+                }
+                100% {
+                    width: 100%;
+                }
+            }
+            @keyframes uncross-out {
+                0% {
+                    width: 100%;
+                }
+                100% {
+                    width: 0%;
+                }
+            }
+            .animate-entryAppear {
+                animation: entryAppear 0.3s ease-out forwards;
+            }
+            .animate-cross-out {
+                animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
+            }
+            .animate-uncross-out {
+                animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
+            }
+        `}
             </style>
         </div>
     );
@@ -243,7 +239,9 @@ ListEntry.propTypes = {
     onDrop: PropTypes.func,
     isDragging: PropTypes.bool,
     isDraggedOver: PropTypes.bool,
-    dragPosition: PropTypes.oneOf(['above', 'below', null])
+    dragPosition: PropTypes.oneOf(['above', 'below', null]),
+    dueDate: PropTypes.instanceOf(Date),
+    warningThreshold: PropTypes.number
 };
 
 ListEntry.defaultProps = {
@@ -253,7 +251,8 @@ ListEntry.defaultProps = {
     dragPosition: null,
     onDragStart: () => { },
     onDragEnd: () => { },
-    onDrop: () => { }
+    onDrop: () => { },
+    warningThreshold: 1 // Default warning threshold is 1 day
 };
 
 export default ListEntry;
