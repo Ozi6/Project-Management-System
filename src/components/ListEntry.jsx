@@ -9,6 +9,10 @@ const ListEntry = ({
     text,
     checked,
     onCheckChange,
+    onTextChange,
+    onDueDateChange,
+    onWarningThresholdChange,
+    onAssign,
     isNew,
     isSelected,
     onClick,
@@ -46,6 +50,24 @@ const ListEntry = ({
 
         onCheckChange(newChecked);
         setHasInteracted(true);
+    };
+
+    const handleEdit = (updatedEntry) => {
+        if (updatedEntry.text !== text && onTextChange) {
+            onTextChange(updatedEntry.text);
+        }
+
+        if (checked !== updatedEntry.checked) {
+            onCheckChange(updatedEntry.checked);
+        }
+
+        if (onDueDateChange) {
+            onDueDateChange(updatedEntry.dueDate);
+        }
+
+        if (onWarningThresholdChange) {
+            onWarningThresholdChange(updatedEntry.warningThreshold);
+        }
     };
 
     const handleMouseDown = (e) => {
@@ -184,7 +206,39 @@ const ListEntry = ({
             )}
 
             <AnimatePresence>
-                {isSelected && <ListEntryPopup onClose={() => onClick(null)} />}
+                {isSelected && (
+                    <ListEntryPopup
+                        entry={{
+                            text,
+                            checked,
+                            dueDate,
+                            warningThreshold,
+                            entryId
+                        }}
+                        onClose={() => onClick(null)}
+                        onEdit={(updatedEntry) =>
+                        {
+                            onCheckChange(updatedEntry.checked);
+                            if (onTextChange)
+                                onTextChange(updatedEntry.text);
+                            if (onDueDateChange)
+                                onDueDateChange(updatedEntry.dueDate);
+                            if (onWarningThresholdChange)
+                                onWarningThresholdChange(updatedEntry.warningThreshold);
+                        }}
+                        onDelete={(id) =>
+                        {
+                            if (onDelete)
+                                onDelete(id);
+                            onClick(null);
+                        }}
+                        onAssign={(id) => {
+                            if (onAssign)
+                                onAssign(id);
+                            onClick(null);
+                        }}
+                    />
+                )}
             </AnimatePresence>
 
             <style jsx>
@@ -243,7 +297,12 @@ ListEntry.propTypes = {
     isDraggedOver: PropTypes.bool,
     dragPosition: PropTypes.oneOf(['above', 'below', null]),
     dueDate: PropTypes.instanceOf(Date),
-    warningThreshold: PropTypes.number
+    warningThreshold: PropTypes.number,
+    onTextChange: PropTypes.func,
+    onDueDateChange: PropTypes.func,
+    onWarningThresholdChange: PropTypes.func,
+    onDelete: PropTypes.func,
+    onAssign: PropTypes.func
 };
 
 ListEntry.defaultProps = {
