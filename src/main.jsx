@@ -46,7 +46,7 @@ createRoot(document.getElementById('root')).render(
             headerSubtitle: {color: '#1E0342'},
             formFieldLabelRow:{color: '#E57777'},
             socialButtonsBlockButton: {
-              backgroundColor : '#C4D1FB',
+              backgroundColor : '#FFFFFF',
               color: '#1E0342',
             },
             input: {color: '#0E46A3'},
@@ -60,7 +60,12 @@ createRoot(document.getElementById('root')).render(
           variables: { colorPrimary: '#2D5CF2' },
           elements: {
             input: {color: '#1E0342'},
+            socialButtonsBlockButton: {
+              backgroundColor : '#FFFFFF',
+              color: '#1E0342',
+            },
           }
+          
         },
 
         userProfile: {

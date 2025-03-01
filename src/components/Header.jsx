@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
 import { Menu, X } from 'lucide-react';
@@ -14,6 +14,11 @@ const Header = ({ title, action }) => {
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+    const navigate = useNavigate();
+    const handleLoginRedirect = () => {
+        navigate('/login');
+    };
 
     // Track window width for responsive behavior
     useEffect(() => {
@@ -80,11 +85,14 @@ const Header = ({ title, action }) => {
             <nav className="flex items-center gap-3 lg:gap-6">
                
                 <SignedOut>
-                    <SignInButton mode="modal">
-                        <button className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200">
+                    
+                        <button 
+                            className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                            onClick={handleLoginRedirect}
+                        >
                             Log In
                         </button>
-                    </SignInButton>
+                    
                 </SignedOut>
                 <SignedIn>
                     <Link to="/profile">
@@ -182,11 +190,14 @@ const Header = ({ title, action }) => {
                             
                             <div className="pt-4 flex flex-col gap-4">
                                 <SignedOut>
-                                    <SignInButton mode="modal">
-                                        <button className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg">
+                                    
+                                        <button 
+                                            className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
+                                            onClick={handleLoginRedirect}
+                                        >
                                             Log In
                                         </button>
-                                    </SignInButton>
+                                    
                                 </SignedOut>
                                 
                                 <SignedIn>
@@ -242,11 +253,14 @@ const Header = ({ title, action }) => {
                             
                             <div className="flex flex-col gap-4 pt-2">
                                 <SignedOut>
-                                    <SignInButton mode="modal">
-                                        <button className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg">
+                                    
+                                        <button 
+                                            className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
+                                            onClick={handleLoginRedirect}
+                                        >
                                             Log In
                                         </button>
-                                    </SignInButton>
+                                    
                                 </SignedOut>
                                 
                                 <SignedIn>

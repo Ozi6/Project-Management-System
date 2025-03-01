@@ -33,7 +33,7 @@ export default function LoginPage() {
             />
             
             <div className="mt-6 text-center text-sm text-gray-600">
-              <p>Don't have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign up</Link></p>
+              <p>Forgot your password? <Link to="/forgot-password" className="text-blue-600 hover:underline">Reset your password</Link></p>
             </div>
           </div>
         </div>

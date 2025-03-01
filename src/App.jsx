@@ -12,10 +12,12 @@ import TaskTracking from "./pages/Header/features/TaskTracking";
 import ProfilePage from "./pages/auth/ProfilePage";
 import SignupPage from "./pages/auth/SignupPage";
 import About from "./pages/Header/AboutUs";
+import FAQPage from "./pages/Header/FAQPage";
 import NotFound from "./pages/404/NotFound"; // Import the NotFound component
 import LoginPage from "./pages/auth/LoginPage";
 import "./App.css";
 import "./index.css"
+import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 
 function PageWrapper({ children }){
     return(
@@ -42,14 +44,18 @@ function AnimatedRoutes() {
                 
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
+                
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
                 <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+                <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>} />
+                
+                
                 
                 {/* Auth Routes */}
                 <Route path="/signup" element={<PageWrapper><SignupPage /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
-                
+                <Route path="/forgot-password" element={<PageWrapper><ForgotPasswordPage /></PageWrapper>} />
                 {/* Feature Routes */}
                 <Route path="/features/project-management" element={
                     <PageWrapper><ProjectManagementFeature /></PageWrapper>

@@ -31,10 +31,6 @@ export default function SignupPage() {
                 }
               }}
             />
-            
-            <div className="mt-6 text-center text-sm text-gray-600">
-              <p>Already have an account? <Link to="/login" className="text-blue-600 hover:underline">Log in</Link></p>
-            </div>
           </div>
         </div>
       </div>
