@@ -42,10 +42,6 @@ const HeroSection = () => {
                 {isSignedIn ? 'Go to Dashboard' : 'Get Started Free'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
-              <button className="border-2 border-gray-300 text-white px-8 py-3 rounded-lg 
-                font-semibold hover:bg-white hover:text-gray-900 transition-colors duration-300">
-                Watch Demo
-              </button>
             </div>
             {/* Stats Section */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
