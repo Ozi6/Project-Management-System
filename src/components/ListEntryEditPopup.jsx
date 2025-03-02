@@ -53,32 +53,36 @@ const ListEntryEditPopup = ({
         }));
     };
 
-    return(
+    return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30"
+            className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
             onClick={onClose}
         >
             <motion.div
                 initial={{ y: 20 }}
                 animate={{ y: 0 }}
-                className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 m-4"
+                className="bg-white rounded-lg shadow-xl w-full max-w-md m-4"
                 onClick={e => e.stopPropagation()}
             >
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Edit Task</h2>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 transition-colors"
-                    >
-                        <FaTimes/>
-                    </button>
+                {/* Blue Header */}
+                <div className="bg-blue-500 text-white rounded-t-lg p-4">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-semibold">Edit Task</h2>
+                        <button
+                            onClick={onClose}
+                            className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-all duration-200 transform hover:scale-110"
+                        >
+                            <FaTimes className="text-white" />
+                        </button>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit}>
+                {/* Form Content */}
+                <form onSubmit={handleSubmit} className="p-6">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="text">
                             Task Name
