@@ -185,13 +185,17 @@ const Categorizer = ({
     },[categoryId, taskLists]);
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center w-[290px]" ref={categorizerRef}>
-            <div className="mb-4 font-bold text-lg flex items-center gap-2" style={{ color: tagColor }}>
+        <div
+            className="bg-white p-4 rounded-lg flex flex-col items-center w-[290px]"
+            style={{ boxShadow: '0 30px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)', border: `2px solid ${tagColor}` }}
+            ref={categorizerRef}
+        >
+            <div className="mb-4 font-bold text-lg flex items-center gap-2" style={{ color: tagColor, fontSize: "20px" }}>
                 {title}
                 <button
                     onClick={handleEditCategorizerCardOpen}
                     className="text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                    <Settings size={16} />
+                    <Settings size={20}/>
                 </button>
             </div>
             <div className="flex flex-col gap-4 w-full items-center">

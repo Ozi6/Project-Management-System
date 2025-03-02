@@ -59,7 +59,7 @@ const TaskList = ({
     };
 
     const luminance = getLuminance(editableTagColor.replace("#", ""));
-    const textColor = luminance < 0.5 ? "white" : "black";
+    const textColor = luminance < 0.5 ? "white" : "#444444";
 
     const handleHeaderMouseDown = (e) => {
         if (e.button !== 0) return;
@@ -327,14 +327,14 @@ const TaskList = ({
     return (
         <div className="relative" ref={listRef}>
             <div
-                className={`bg-gray-100 rounded-lg shadow-md p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
+                className={`bg-gray-100 rounded-lg shadow-xl p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
                 ${newEntryId ? "animate-[expand_0.3s_ease-out_forwards]" : ""}`}>
                 <div
                     ref={headerRef}
                     onMouseDown={handleHeaderMouseDown}
-                    className="p-3 rounded-md flex justify-between items-center cursor-grab active:cursor-grabbing"
+                    className="p-3 rounded-xl flex justify-between items-center cursor-grab active:cursor-grabbing"
                     style={{ backgroundColor: editableTagColor, color: textColor }}>
-                    <span className="w-full text-left">{editableTitle}</span>
+                    <span className="w-full text-left font-bold">{editableTitle}</span>
                     <Settings
                         size={18}
                         cursor="pointer"
