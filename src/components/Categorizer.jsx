@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import TaskList from "./TaskList";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
+import EditCategorizerCard from "./EditCategorizerCard";
 import PropTypes from "prop-types";
 
 const Categorizer = ({
@@ -17,15 +18,36 @@ const Categorizer = ({
     onAddList,
     onMoveEntry,
     onMoveTaskList,
-    onUpdateEntryCheckedStatus
+    onUpdateEntryCheckedStatus,
+    onUpdateCategory,
 }) => {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
     const [isDraggingCategory, setIsDraggingCategory] = useState(false);
+    const [isEditCategorizerCardOpen, setIsEditCategorizerCardOpen] = useState(false);
     const categorizerRef = useRef(null);
     const dragImageRef = useRef(null);
     const mouseOffsetX = useRef(0);
     const mouseOffsetY = useRef(0);
+
+    const handleEditCategorizerCardOpen = () => {
+        setIsEditCategorizerCardOpen(true);
+    };
+
+    const handleEditCategorizerCardDone = (newTitle, newTagColor) => {
+        console.log("Done clicked", newTitle, newTagColor);
+        try {
+            onUpdateCategory(categoryId, newTitle, newTagColor);
+        } catch (error) {
+            console.error("Error updating category:", error);
+        }
+        setIsEditCategorizerCardOpen(false);
+    };
+
+    // Close EditCategorizerCard without saving
+    const handleEditCategorizerCardCancel = () => {
+        setIsEditCategorizerCardOpen(false);
+    };
 
     const handleTaskListDragStart = (listId, listTitle, { offsetX, offsetY }) =>
     {
@@ -164,8 +186,13 @@ const Categorizer = ({
 
     return(
         <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center" ref={categorizerRef}>
-            <div className="mb-4 font-bold text-lg" style={{ color: tagColor }}>
+            <div className="mb-4 font-bold text-lg flex items-center gap-2" style={{ color: tagColor }}>
                 {title}
+                <button
+                    onClick={handleEditCategorizerCardOpen}
+                    className="text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                    <Settings size={16} />
+                </button>
             </div>
             <div className="flex flex-col gap-4 w-full items-center">
                 {taskLists.map((taskList, index) => {
@@ -240,12 +267,20 @@ const Categorizer = ({
                     </div>
                 </div>
             )}
+
+            {isEditCategorizerCardOpen && (
+                <EditCategorizerCard
+                    title={title}
+                    tagColor={tagColor}
+                    onDone={handleEditCategorizerCardDone}
+                    onCancel={handleEditCategorizerCardCancel}
+                />
+            )}
         </div>
     );
 };
 
-Categorizer.propTypes =
-{
+Categorizer.propTypes = {
     title: PropTypes.string.isRequired,
     tagColor: PropTypes.string.isRequired,
     taskLists: PropTypes.arrayOf(
@@ -264,7 +299,10 @@ Categorizer.propTypes =
     onAddEntry: PropTypes.func.isRequired,
     onEditCardOpen: PropTypes.func.isRequired,
     onAddList: PropTypes.func.isRequired,
-    onMoveEntry: PropTypes.func.isRequired
+    onMoveEntry: PropTypes.func.isRequired,
+    onMoveTaskList: PropTypes.func.isRequired,
+    onUpdateEntryCheckedStatus: PropTypes.func.isRequired,
+    onUpdateCategory: PropTypes.func.isRequired,
 };
 
 export default Categorizer;

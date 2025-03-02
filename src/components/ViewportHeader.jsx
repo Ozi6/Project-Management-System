@@ -220,15 +220,13 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                             </div>
 
                             <div className="flex flex-col gap-4 pt-2">
-                                {/* Add Categorizer Button for Mobile */}
                                 {onAddCategorizer && (
                                     <button
                                         onClick={() => {
                                             onAddCategorizer();
                                             setIsMobileMenuOpen(false);
                                         }}
-                                        className="w-full text-center bg-green-600 text-white py-3 rounded-lg text-lg font-medium flex items-center justify-center"
-                                    >
+                                        className="w-full text-center bg-green-600 text-white py-3 rounded-lg text-lg font-medium flex items-center justify-center">
                                         <PlusCircle size={20} className="mr-2" />
                                         Create Categorizer
                                     </button>
@@ -291,12 +289,10 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
                 {renderMobileMenuButton()}
                 <div className="flex items-center space-x-4">
-                    {/* Add Categorizer Button */}
                     {onAddCategorizer && (
                         <button
                             onClick={onAddCategorizer}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base"
-                        >
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base">
                             <PlusCircle size={20} className="mr-2" />
                             Create Categorizer
                         </button>
@@ -315,10 +311,8 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 </div>
             </header>
 
-            {/* Mobile menu */}
             {renderMobileMenu()}
 
-            {/* Desktop dropdowns */}
             <AnimatePresence mode="wait">
                 {activeDropdown && windowWidth >= 768 && (
                     <div className="fixed top-16 left-0 right-0 z-[999]">

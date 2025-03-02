@@ -149,7 +149,7 @@ const ProjectDetails = () => {
     const [originalColumns, setOriginalColumns] = useState(null);
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
-    const MIN_COLUMN_WIDTH = 350;
+    const MIN_COLUMN_WIDTH = 400;
     const MAX_COLUMN_WIDTH = 450;
 
     const toggleLayout = (isHorizontal) =>
@@ -244,6 +244,7 @@ const ProjectDetails = () => {
 
     const handleAddCategorizer = () =>
     {
+        console.log("a");
         const newCategorizer = {
             id: uuidv4(),
             title: "New Categorizer",
@@ -454,6 +455,18 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
+    const updateCategory = (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
+    {
+        const updatedColumns = [...displayColumns];
+        const category = updatedColumns[columnIndex][taskIndex];
+        if (category && category.id === categoryId)
+        {
+            category.title = newTitle;
+            category.tagColor = newTagColor;
+        }
+        setColumns(updatedColumns);
+    };
+
     useEffect(() => {
         const handleResize = () => {
             const container = document.getElementById("columns-container");
@@ -516,7 +529,12 @@ const ProjectDetails = () => {
                                                 onEditCardOpen={resetSelectedEntry}
                                                 onAddList={() => addList(columnIndex, taskIndex)}
                                                 onMoveEntry={handleMoveEntry}
-                                                onMoveTaskList={handleMoveTaskList}/>
+                                                onMoveTaskList={handleMoveTaskList}
+                                                onUpdateCategory={(categoryId, newTitle, newTagColor) =>
+                                                {
+                                                    updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
+                                                }}
+                                                />
                                         ))
                                     }
                                 </div>
