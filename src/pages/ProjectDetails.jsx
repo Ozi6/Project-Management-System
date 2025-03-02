@@ -149,6 +149,7 @@ const ProjectDetails = () => {
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
+    const [zoomLevel, setZoomLevel] = useState(0.7); // 1 = 100%, 0.7 = 70%, etc.
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
     const MIN_COLUMN_WIDTH = 315;
@@ -475,6 +476,11 @@ const ProjectDetails = () => {
         setColumns(updatedColumns);
     };
 
+    // Add this function to handle zoom level changes
+    const handleZoomChange = (newZoomLevel) => {
+      setZoomLevel(newZoomLevel);
+    };
+
     useEffect(() => {
         const handleResize = () => {
             const container = document.getElementById("columns-container");
@@ -501,7 +507,13 @@ const ProjectDetails = () => {
 
     return (
         <div className="flex flex-col h-screen">
-            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} onAddCategorizer={handleAddCategorizer} />
+            <ViewportHeader 
+              isHorizontalLayout={isHorizontalLayout} 
+              toggleLayout={toggleLayout} 
+              onAddCategorizer={handleAddCategorizer}
+              zoomLevel={zoomLevel}
+              onZoomChange={handleZoomChange} 
+            />
             <div className="flex flex-1">
                 <ViewportSidebar />
                 <div className="flex flex-col flex-1">
@@ -512,6 +524,12 @@ const ProjectDetails = () => {
                     )}
                     <div
                         id="columns-container"
+                        style={{
+                            transform: `scale(${zoomLevel})`,
+                            transformOrigin: 'top left',
+                            width: zoomLevel < 1 ? `${(1/zoomLevel) * 100}%` : '100%', // Compensate for zoom
+                            marginBottom: zoomLevel < 1 ? `${(1/zoomLevel - 1) * 100}px` : '0', // Extra space at bottom
+                        }}
                         className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
                         {displayColumns.map((tasks, columnIndex) => (
                             <div

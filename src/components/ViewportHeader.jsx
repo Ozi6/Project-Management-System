@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
-import { Menu, X, PlusCircle } from 'lucide-react';
+import { Menu, X, PlusCircle, Moon, Sun } from 'lucide-react';
+import { useDarkMode } from '../scripts/DarkModeContext';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
-import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
 import ToggleButton from './ToggleButton';
 import SearchBar from './SearchBar';
 import { useSearch } from '../scripts/SearchContext';
 
-const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer }) => {
+const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer, zoomLevel = 1, onZoomChange }) => {
     const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -97,7 +97,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     to="/signup"
                     className="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-blue-700 
                     transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap">
-                    Start Free
+                    Go to Dashboard
                 </Link>
             </nav>
         </div>
@@ -184,7 +184,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                     to="/signup"
                                     className="w-full text-center bg-blue-600 text-white py-3 rounded-lg text-lg font-medium"
                                 >
-                                    Start Free
+                                    Go to Dashboard
                                 </Link>
                             </div>
                         </>
@@ -273,40 +273,116 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         );
     };
 
+    // Add a zoom control to the header
+    const zoomOptions = [
+        { label: "50%", value: 0.5 },
+        { label: "70%", value: 0.7 },
+        { label: "85%", value: 0.85 },
+        { label: "100%", value: 1 },
+    ];
+
+    // Modified zoom control with better responsive design
+    const renderZoomControl = () => {
+        if (!onZoomChange) return null;
+
+        return (
+            <div className="hidden md:flex items-center">
+                <span className="text-sm text-gray-600 mr-2">Zoom:</span>
+                <select
+                    value={zoomLevel}
+                    onChange={(e) => onZoomChange(parseFloat(e.target.value))}
+                    className="bg-white border border-gray-300 rounded-md px-2 py-1 text-sm"
+                >
+                    {zoomOptions.map(option => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    };
+
+    // Add a more compact zoom control for mobile
+    const renderMobileZoomControl = () => {
+        if (!onZoomChange) return null;
+
+        return (
+            <select
+                value={zoomLevel}
+                onChange={(e) => onZoomChange(parseFloat(e.target.value))}
+                className="md:hidden bg-white border border-gray-300 rounded-md px-1 py-1 text-xs"
+                aria-label="Zoom level"
+            >
+                {zoomOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                        {option.label}
+                    </option>
+                ))}
+            </select>
+        );
+    };
+
     return (
         <div className="relative">
-            <header className="fixed top-0 left-0 right-0 px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-white/95 shadow-md backdrop-blur-sm z-[1000]">
-                <Link to="/" className="flex items-center mr-4 md:mr-8">
+            <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-white/95 shadow-md backdrop-blur-sm z-[1000]">
+                {/* Logo - Always visible but smaller on mobile */}
+                <Link to="/" className="flex items-center mr-2 sm:mr-4 md:mr-8 flex-shrink-0">
                     <img
                         src={logo}
                         alt="PlanWise Logo"
-                        className="h-[32px] md:h-[40px] w-auto object-contain" />
+                        className="h-[28px] sm:h-[32px] md:h-[40px] w-auto object-contain" />
                 </Link>
-                <div className="h-6 w-px bg-gray-300 mx-4" />
-                <div onClick={() => toggleLayout(!isHorizontalLayout)}>
+                
+                {/* Divider - Hide on very small screens */}
+                <div className="hidden sm:block h-6 w-px bg-gray-300 mx-2 sm:mx-4" />
+                
+                {/* Toggle button - Always visible */}
+                <div onClick={() => toggleLayout(!isHorizontalLayout)} className="mr-2 flex-shrink-0">
                     <ToggleButton isChecked={isHorizontalLayout} />
                 </div>
-                {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
+                
+                {/* Title or Navigation */}
+                {isLandingPage ? renderDesktopNavigation() : (
+                    <div className="hidden md:flex flex-1 justify-between items-center overflow-hidden">
+                        <h2 className="text-xl lg:text-3xl font-semibold text-gray-900 truncate">
+                            {title}
+                        </h2>
+                    </div>
+                )}
+                
+                {/* Mobile menu button - Order changed to be more accessible */}
                 {renderMobileMenuButton()}
-                <div className="flex items-center space-x-4">
+                
+                {/* Controls - Responsive Layout */}
+                <div className="flex items-center gap-1 sm:gap-2 md:gap-4 ml-auto mr-2 sm:mr-4 flex-shrink-0">
+                    {/* Zoom Control */}
+                    {renderZoomControl()}
+                    {renderMobileZoomControl()}
+                    
+                    {/* Create Categorizer Button - Hide text on small screens */}
                     {onAddCategorizer && (
                         <button
                             onClick={onAddCategorizer}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base">
-                            <PlusCircle size={20} className="mr-2" />
-                            Create Categorizer
+                            className="bg-green-600 hover:bg-green-700 text-white px-2 py-2 sm:px-3 md:px-4 lg:px-5 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
+                            <PlusCircle size={windowWidth < 640 ? 16 : 20} className="sm:mr-2" />
+                            <span className="hidden sm:inline">Create Categorizer</span>
                         </button>
                     )}
+                    
+                    {/* Action Button - Adapt to screen size */}
                     {action && (
                         <button
                             onClick={action.onClick}
-                            className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base">
+                            className="bg-blue-600 hover:bg-blue-800 text-white px-2 py-2 sm:px-3 md:px-4 lg:px-6 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
                             {action.icon}
-                            {action.label}
+                            <span className="hidden sm:inline">{action.label}</span>
                         </button>
                     )}
                 </div>
-                <div className="flex-1 max-w-md mx-4">
+                
+                {/* Search Bar - Responsive width */}
+                <div className="flex-1 max-w-[120px] sm:max-w-[200px] md:max-w-md mx-1 sm:mx-2 md:mx-4">
                     <SearchBar onSearch={handleSearch} />
                 </div>
             </header>

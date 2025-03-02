@@ -13,7 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
 
     const navItems =
     [
-        
+        // Your nav items here
     ];
 
     const getCurrentLabel = () =>
@@ -23,32 +23,39 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
     };
 
     return(
-        <div className={`sidebar fixed top-0 left-0 h-screen bg-white transition-all duration-300 ${isOpen ? 'w-64' : 'w-16'} shadow-md z-10`}>
-            <div className="sidebar-content overflow-hidden whitespace-nowrap w-full">
-                <Link to="/" className="p-8 flex items-center space-x-2 no-underline hover:bg-gray-50 transition-colors duration-200">
-                    <Layout className="h-8 w-8 text-gray-600" />
-                    <h1 className={`text-2xl font-bold text-blue-600 logo ${!isOpen ? 'hidden' : ''}`}>
-                        {getCurrentLabel()}
-                    </h1>
-                </Link>
-                <nav className="mt-4">
-                    {navItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                            <button
-                                key={item.id}
-                                onClick={() => setActiveTab(item.id)}
-                                className={`w-full p-4 flex items-center text-left transition-all duration-200 hover:bg-blue-50 hover:scale-105 ${activeTab === item.id ? "bg-blue-50 text-blue-600" : "text-gray-600"}`}>
-                                <Icon className="mr-3 h-6 w-6" />
-                                <span className={!isOpen ? 'hidden' : ''}>{item.label}</span>
-                            </button>
-                        );
-                    })}
-                </nav>
+        <div className="relative">
+            {/* Sidebar Content */}
+            <div className={`sidebar fixed top-0 left-0 h-screen bg-white white:bg-gray-800 transition-all duration-300 ${isOpen ? 'w-64' : 'w-0'} shadow-md z-10 overflow-hidden`}>
+                <div className="sidebar-content overflow-hidden whitespace-nowrap w-full">
+                    <Link to="/" className="p-8 flex items-center space-x-2 no-underline hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+                        <Layout className="h-8 w-8 text-gray-600 dark:text-gray-300" />
+                        <h1 className={`text-2xl font-bold text-blue-600 dark:text-blue-400 logo ${!isOpen ? 'hidden' : ''}`}>
+                            {getCurrentLabel()}
+                        </h1>
+                    </Link>
+                    <nav className="mt-4">
+                        {navItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <button
+                                    key={item.id}
+                                    onClick={() => setActiveTab(item.id)}
+                                    className={`w-full p-4 flex items-center text-left transition-all duration-200 hover:bg-blue-50 dark:hover:bg-blue-900 hover:scale-105 ${activeTab === item.id ? "bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300" : "text-gray-600 dark:text-gray-300"}`}>
+                                    <Icon className="mr-3 h-6 w-6" />
+                                    <span className={!isOpen ? 'hidden' : ''}>{item.label}</span>
+                                </button>
+                            );
+                        })}
+                    </nav>
+                </div>
             </div>
+            
+            {/* Toggle Button - Position fixed at a specific height instead of relative to viewport */}
             <button
                 onClick={toggleSidebar}
-                className="absolute -right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 hover:scale-110 transition-all duration-200">
+                className={`fixed z-20 top-[50vh] ${isOpen ? 'left-[246px]' : 'left-3'} w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 hover:scale-110 transition-all duration-200`}
+                style={{ transform: 'translateY(-50%)' }}
+            >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
