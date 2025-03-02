@@ -246,8 +246,8 @@ const ProjectDetails = () => {
 
     const handleAddCategorizer = () =>
     {
-        console.log("a");
-        const newCategorizer = {
+        const newCategorizer =
+        {
             id: uuidv4(),
             title: "New Categorizer",
             tagColor: "red",
@@ -255,17 +255,23 @@ const ProjectDetails = () => {
         };
 
         const newColumns = [...columns];
-        let smallestColumnIndex = 0;
-        for (let i = 1; i < newColumns.length; i++)
+
+        if(isHorizontalLayout)
         {
-            if (newColumns[i].length < newColumns[smallestColumnIndex].length)
+            const newColumn = [newCategorizer];
+            newColumns.push(newColumn);
+        }
+        else
+        {
+            let smallestColumnIndex = 0;
+            for (let i = 1; i < newColumns.length; i++)
             {
-                smallestColumnIndex = i;
-                break;
+                if(newColumns[i].length < newColumns[smallestColumnIndex].length)
+                    smallestColumnIndex = i;
             }
+            newColumns[smallestColumnIndex].push(newCategorizer);
         }
 
-        newColumns[smallestColumnIndex].push(newCategorizer);
         setColumns(newColumns);
     };
 
