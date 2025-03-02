@@ -2,12 +2,21 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useUser, useAuth } from "@clerk/clerk-react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const handleGetStarted = () => {
-    navigate('/projects');
+    if (isSignedIn) {
+      // If user is logged in, navigate to dashboard
+      navigate('/dashboard');
+    } else {
+      // If user is not logged in, navigate to signup
+      navigate('/signup');
+    }
   };
 
   return (
@@ -16,9 +25,9 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Text Content */}
           <div className="space-y-8 text-center lg:text-left">
-            <h1 className="text-5xl font-bold leading-tight text-white">
+            <h1 className="text-5xl font-bold leading-tight text-white font-sans tracking-tight">
               Transform Your Project Management with{' '}
-              <span className="text-blue-500">PlanWise</span>
+              <span className="text-blue-500 font-serif italic">PlanWise</span>
             </h1>
             <p className="text-xl text-gray-300">
               Streamline collaboration, boost productivity, and deliver projects 
@@ -30,26 +39,22 @@ const HeroSection = () => {
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold 
                 hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
               >
-                Get Started Free
+                {isSignedIn ? 'Go to Dashboard' : 'Get Started Free'}
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
-              <button className="border-2 border-gray-300 text-white px-8 py-3 rounded-lg 
-                font-semibold hover:bg-white hover:text-gray-900 transition-colors duration-300">
-                Watch Demo
               </button>
             </div>
             {/* Stats Section */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-gray-800">
               <div>
-                <h3 className="text-3xl font-bold text-green-500">Manage Projects 24/7</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">Manage Projects 24/7</h3>
                 <p className="text-gray-300">Stay on Track, Anytime</p>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-green-500">100%</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">100%</h3>
                 <p className="text-gray-300">Secure</p>
               </div>
               <div>
-                <h3 className="text-3xl font-bold text-green-500">Free</h3>
+                <h3 className="text-3xl font-bold text-green-500 font-mono">Free</h3>
                 <p className="text-gray-300">To Start</p>
               </div>
             </div>
@@ -60,7 +65,7 @@ const HeroSection = () => {
             <div className="relative z-10 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-transparent"></div>
               <img
-                src="https://placehold.co/800x600/111827/4F46E5?text=Dashboard+Preview"
+                src="https://i.pinimg.com/736x/28/bf/9f/28bf9f9ec63f5c16eaa4b5598601fa03.jpg"
                 alt="Project Dashboard"
                 className="w-full h-auto relative z-10"
               />

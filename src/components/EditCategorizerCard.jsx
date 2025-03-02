@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { SketchPicker } from "react-color";
 
-const EditCard = ({ title, tagColor, onDone, onCancel }) =>
+const EditCategorizerCard = ({ title, tagColor, onDone, onCancel }) =>
 {
     const [editedTitle, setEditedTitle] = useState(title);
     const [editedTagColor, setEditedTagColor] = useState(tagColor);
@@ -23,7 +23,7 @@ const EditCard = ({ title, tagColor, onDone, onCancel }) =>
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
                 onClick={onCancel}
-                style={{zIndex: 40,}}/>
+                style={{ zIndex: 40 }}/>
             <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 50 }}>
                 <motion.div
                     className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden"
@@ -36,7 +36,7 @@ const EditCard = ({ title, tagColor, onDone, onCancel }) =>
                         damping: 15,
                     }}>
                     <div className="bg-blue-500 p-4 shadow-md">
-                        <h3 className="text-2xl font-bold text-white text-center">Edit Task List</h3>
+                        <h3 className="text-2xl font-bold text-white text-center">Edit Category</h3>
                     </div>
                     <div className="p-6 flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
@@ -59,7 +59,8 @@ const EditCard = ({ title, tagColor, onDone, onCancel }) =>
                                 type="text"
                                 value={customTagColor}
                                 className="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                                onChange={(e) => setCustomTagColor(e.target.value)}/>
+                                onChange={(e) => setCustomTagColor(e.target.value)}
+                            />
                             <div className="flex justify-center">
                                 <SketchPicker
                                     color={customTagColor}
@@ -86,4 +87,4 @@ const EditCard = ({ title, tagColor, onDone, onCancel }) =>
     );
 };
 
-export default EditCard;
+export default EditCategorizerCard;

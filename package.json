@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -12,7 +12,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@clerk/clerk-react": "^5.23.0",
+    "@clerk/themes": "^2.2.19",
     "@tailwindcss/vite": "^4.0.8",
+    "clerk": "^0.8.3",
     "framer-motion": "^12.4.7",
     "lucide-react": "^0.475.0",
     "prop-types": "^15.8.1",
@@ -21,7 +24,8 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
-    "tailwindcss": "^4.0.8"
+    "tailwindcss": "^4.0.8",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",
