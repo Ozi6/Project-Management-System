@@ -109,12 +109,20 @@ const Header = ({ title, action, rightContent }) => {
                 )}
                 
                 <SignedOut>
-                    <button 
-                        className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                        onClick={handleLoginRedirect}
-                    >
-                        Log In
-                    </button>
+                    <div className="flex items-center gap-2 lg:gap-3">
+                        <button 
+                            className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                            onClick={handleLoginRedirect}
+                        >
+                            Log In
+                        </button>
+                        <Link 
+                            to="/signup"
+                            className="bg-blue-600 hover:bg-blue-700 text-white text-sm lg:text-base px-3 py-1.5 rounded-lg transition-colors duration-200 font-medium"
+                        >
+                            Sign Up
+                        </Link>
+                    </div>
                 </SignedOut>
                 <SignedIn>
                     <Link to="/profile" className="flex items-center">

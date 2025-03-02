@@ -2,12 +2,21 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useUser, useAuth } from "@clerk/clerk-react";
 
 const HeroSection = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const handleGetStarted = () => {
-    navigate('/projects');
+    if (isSignedIn) {
+      // If user is logged in, navigate to dashboard
+      navigate('/dashboard');
+    } else {
+      // If user is not logged in, navigate to signup
+      navigate('/signup');
+    }
   };
 
   return (
@@ -30,7 +39,7 @@ const HeroSection = () => {
                 className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold 
                 hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
               >
-                Get Started Free
+                {isSignedIn ? 'Go to Dashboard' : 'Get Started Free'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
               <button className="border-2 border-gray-300 text-white px-8 py-3 rounded-lg 
