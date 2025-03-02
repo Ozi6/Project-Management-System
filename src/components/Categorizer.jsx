@@ -44,8 +44,8 @@ const Categorizer = ({
         setIsEditCategorizerCardOpen(false);
     };
 
-    // Close EditCategorizerCard without saving
-    const handleEditCategorizerCardCancel = () => {
+    const handleEditCategorizerCardCancel = () =>
+    {
         setIsEditCategorizerCardOpen(false);
     };
 
@@ -184,8 +184,8 @@ const Categorizer = ({
         };
     },[categoryId, taskLists]);
 
-    return(
-        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center" ref={categorizerRef}>
+    return (
+        <div className="bg-white p-4 rounded-lg shadow-md flex flex-col items-center w-[290px]" ref={categorizerRef}>
             <div className="mb-4 font-bold text-lg flex items-center gap-2" style={{ color: tagColor }}>
                 {title}
                 <button
@@ -209,7 +209,7 @@ const Categorizer = ({
                         (window.dragState.sourceCategoryId !== categoryId ||
                             window.dragState.draggedListId !== taskList.id);
 
-                    return(
+                    return (
                         <div key={taskList.id} className="task-list-container w-full items-center justify-center">
                             {showDropIndicator && dragPosition === 'above' && (
                                 <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mb-4 items-center justify-center"></div>
@@ -228,8 +228,7 @@ const Categorizer = ({
                                     onMoveEntry={onMoveEntry}
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
                                     onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
-                                        onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)}/>
-
+                                        onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)} />
                             </div>
                             {showDropIndicator && dragPosition === 'below' && (
                                 <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mt-4 items-center justify-center"></div>

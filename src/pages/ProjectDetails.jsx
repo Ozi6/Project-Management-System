@@ -151,7 +151,7 @@ const ProjectDetails = () => {
     const [originalColumns, setOriginalColumns] = useState(null);
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
-    const MIN_COLUMN_WIDTH = 400;
+    const MIN_COLUMN_WIDTH = 315;
     const MAX_COLUMN_WIDTH = 450;
 
     const toggleLayout = (isHorizontal) =>
@@ -499,55 +499,51 @@ const ProjectDetails = () => {
 
     const displayColumns = filteredColumns || columns;
 
-    return(
+    return (
         <div className="flex flex-col h-screen">
-            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} onAddCategorizer={handleAddCategorizer}/>
+            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} onAddCategorizer={handleAddCategorizer} />
             <div className="flex flex-1">
                 <ViewportSidebar />
                 <div className="flex flex-col flex-1">
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
                             No results found for "{searchTerm}"
-                        </div>)}
+                        </div>
+                    )}
                     <div
                         id="columns-container"
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
-                        {
-                            displayColumns.map((tasks, columnIndex) => (
-                                <div
-                                    key={columnIndex}
-                                    className={`flex flex-col gap-4 ${isHorizontalLayout
-                                            ? 'min-w-[350px] max-w-[450px] flex-shrink-0'
-                                            : 'min-w-[350px] max-w-[450px] flex-1'}`}>
-                                    {
-                                        tasks.map((task, taskIndex) =>(
-                                            <Categorizer
-                                                onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
-                                                    updateEntryCheckedStatus(columnIndex, taskIndex, listId, entryIndex, isChecked)}
-                                                key={task.id}
-                                                columnIndex={columnIndex}
-                                                taskIndex={taskIndex}
-                                                categoryId={task.id}
-                                                title={task.title}
-                                                tagColor={task.tagColor}
-                                                taskLists={task.taskLists}
-                                                selectedEntryId={selectedEntryId}
-                                                onSelectEntry={onSelectEntry}
-                                                onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
-                                                onEditCardOpen={resetSelectedEntry}
-                                                onAddList={() => addList(columnIndex, taskIndex)}
-                                                onMoveEntry={handleMoveEntry}
-                                                onMoveTaskList={handleMoveTaskList}
-                                                onUpdateCategory={(categoryId, newTitle, newTagColor) =>
-                                                {
-                                                    updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
-                                                }}
-                                                />
-                                        ))
-                                    }
-                                </div>
-                            ))
-                        }
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-5 mt-6 pl-10`}>
+                        {displayColumns.map((tasks, columnIndex) => (
+                            <div
+                                key={columnIndex}
+                                className={`flex flex-col gap-4 ${isHorizontalLayout
+                                    ? 'min-w-[290px] max-w-[290px] flex-shrink-0'
+                                    : 'min-w-[290px] max-w-[290px] flex-1'}`}>
+                                {tasks.map((task, taskIndex) => (
+                                    <Categorizer
+                                        onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
+                                            updateEntryCheckedStatus(columnIndex, taskIndex, listId, entryIndex, isChecked)}
+                                        key={task.id}
+                                        columnIndex={columnIndex}
+                                        taskIndex={taskIndex}
+                                        categoryId={task.id}
+                                        title={task.title}
+                                        tagColor={task.tagColor}
+                                        taskLists={task.taskLists}
+                                        selectedEntryId={selectedEntryId}
+                                        onSelectEntry={onSelectEntry}
+                                        onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
+                                        onEditCardOpen={resetSelectedEntry}
+                                        onAddList={() => addList(columnIndex, taskIndex)}
+                                        onMoveEntry={handleMoveEntry}
+                                        onMoveTaskList={handleMoveTaskList}
+                                        onUpdateCategory={(categoryId, newTitle, newTagColor) => {
+                                            updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
