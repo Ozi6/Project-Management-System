@@ -15,11 +15,16 @@ import About from "./pages/Header/AboutUs";
 import FAQPage from "./pages/Header/FAQPage";
 import NotFound from "./pages/404/NotFound"; // Import the NotFound component
 import LoginPage from "./pages/auth/LoginPage";
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
+import Dashboard from "./pages/Dashboard";
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
-import Dashboard from './pages/Dashboard';
 import ScrollToTop from './components/ScrollToTop'; // Import the ScrollToTop component
+import Issues from './pages/admin/Issues';
+import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
+
 
 function PageWrapper({ children }){
     return(
@@ -45,13 +50,17 @@ function AnimatedRoutes() {
             <Routes location={location} key={location.pathname}>
                 
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
+                <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
                 <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-                <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>} />
+                <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
+                <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
+                {/* Add the new incidents-bugs route */}
+                <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
                 
                 {/* Auth Routes */}
                 <Route path="/signup" element={<PageWrapper><SignupPage /></PageWrapper>} />
@@ -67,6 +76,9 @@ function AnimatedRoutes() {
                 <Route path="/features/task-tracking" element={
                     <PageWrapper><TaskTracking /></PageWrapper>
                 } />
+                
+                <Route path="/privacy" element={<PageWrapper><PrivacyPolicy /></PageWrapper>} />
+                <Route path="/terms" element={<PageWrapper><TermsOfService /></PageWrapper>} />
                 
                 {/* 404 Route - Must be last */}
                 <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />

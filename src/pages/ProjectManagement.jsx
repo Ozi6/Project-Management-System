@@ -175,19 +175,6 @@ const ProjectManagement = () => {
                                     {activeProjects.filter(p => p.status === "Completed").length}
                                 </p>
                             </div>
-                            <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                                <h3 className="text-gray-500 text-sm font-medium">Team Members</h3>
-                                <div className="flex items-center mt-1">
-                                    <p className="text-2xl font-bold text-gray-800 mr-3">
-                                        {new Set(activeProjects.map(p => p.owner)).size}
-                                    </p>
-                                    <div className="flex -space-x-2">
-                                        <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs border-2 border-white">A</div>
-                                        <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs border-2 border-white">B</div>
-                                        <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-xs border-2 border-white">C</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         
                         {/* Projects grid with animations */}
@@ -256,19 +243,22 @@ const ProjectManagement = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center z-50"
+                        className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50"
                     >
                         <motion.div 
                             initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white p-6 rounded-xl shadow-xl w-full max-w-md"
+                            className="bg-white p-7 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-2 border-gray-800/10 w-full max-w-md ring-2 ring-gray-900/5 ring-opacity-75"
                         >
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-gray-800">Create New Project</h2>
+                                <div>
+                                    <span className="inline-block w-12 h-1.5 bg-blue-600 rounded-full mb-2"></span>
+                                    <h2 className="text-2xl font-bold text-gray-800">Create New Project</h2>
+                                </div>
                                 <button 
                                     onClick={closePopUp}
-                                    className="p-1 rounded-full hover:bg-gray-100"
+                                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -291,7 +281,7 @@ const ProjectManagement = () => {
                                         name="name"
                                         value={newProjectDetails.name}
                                         onChange={handleInputChange}
-                                        className="w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         required
                                         placeholder="Enter project name"
                                     />
@@ -309,7 +299,7 @@ const ProjectManagement = () => {
                                             name="owner"
                                             value={newProjectDetails.owner}
                                             onChange={handleInputChange}
-                                            className="w-full pl-10 p-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                            className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                             required
                                             placeholder="Project owner"
                                         />
@@ -323,7 +313,7 @@ const ProjectManagement = () => {
                                         name="role"
                                         value={newProjectDetails.role}
                                         onChange={handleInputChange}
-                                        className="w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         required
                                     >
                                         <option value="">Select your role</option>
@@ -343,25 +333,25 @@ const ProjectManagement = () => {
                                         name="dueDate"
                                         value={newProjectDetails.dueDate}
                                         onChange={handleInputChange}
-                                        className="w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         required
                                         min={new Date().toISOString().split('T')[0]}
                                     />
                                 </div>
 
-                                <div className="flex justify-end space-x-3 pt-4">
+                                <div className="flex justify-end space-x-3 pt-6">
                                     <button
                                         type="button"
                                         onClick={closePopUp}
-                                        className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                                        className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center"
+                                        className="px-7 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
                                     >
-                                        <Plus className="h-4 w-4 mr-1" />
+                                        <Plus className="h-4 w-4 mr-1.5" />
                                         Create Project
                                     </button>
                                 </div>

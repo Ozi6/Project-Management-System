@@ -9,7 +9,7 @@ import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
 
-const Header = ({ title, action }) => {
+const Header = ({ title, action, rightContent }) => {
     const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -72,7 +72,7 @@ const Header = ({ title, action }) => {
     // Desktop navigation for landing pages
     const renderDesktopNavigation = () => (
         <div className="hidden md:flex flex-1 justify-between items-center">
-            <div className="flex items-center gap-4 lg:gap-8">
+            <div className="flex items-center gap-3 lg:gap-6">
                 <FeaturesDropdown 
                     isOpen={activeDropdown === 'features'}
                     onClick={() => handleDropdownToggle('features')}
@@ -83,7 +83,7 @@ const Header = ({ title, action }) => {
                 />
                 <Link 
                     to="/about" 
-                    className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                    className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
                 >
                     About Us
                 </Link>
@@ -91,17 +91,18 @@ const Header = ({ title, action }) => {
                 {isAdmin && (
                     <Link 
                         to="/admin/issues" 
-                        className="text-base lg:text-lg text-orange-600 hover:text-orange-700 transition-colors duration-200 flex items-center"
+                        className="text-sm lg:text-base text-orange-600 hover:text-orange-700 transition-colors duration-200 flex items-center"
                     >
-                        <AlertCircle className="mr-1 h-4 w-4" />
+                        <AlertCircle className="mr-1 h-3 w-3" />
                         Issues
                     </Link>
+                    
                 )}
             </div>
-            <nav className="flex items-center gap-3 lg:gap-6">
+            <nav className="flex items-center gap-2 lg:gap-4">
                 <SignedOut>
                     <button 
-                        className="text-base lg:text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                        className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
                         onClick={handleLoginRedirect}
                     >
                         Log In
@@ -117,17 +118,17 @@ const Header = ({ title, action }) => {
                 <SignedIn>
                     <Link 
                         to="/dashboard"
-                        className="bg-green-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-green-700 
-                        transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap flex items-center"
+                        className="bg-green-600 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg hover:bg-green-700 
+                        transition-colors duration-200 text-xs lg:text-sm font-semibold whitespace-nowrap flex items-center"
                     >
-                        My Dashboard <ArrowRight className="ml-1 h-4 w-4" />
+                        My Dashboard <ArrowRight className="ml-1 h-3 w-3" />
                     </Link>
                 </SignedIn>
                 <SignedOut>
                     <Link 
                         to="/signup"
-                        className="bg-blue-600 text-white px-4 py-2 lg:px-6 lg:py-2 rounded-lg hover:bg-blue-700 
-                        transition-colors duration-200 text-sm lg:text-lg font-semibold whitespace-nowrap"
+                        className="bg-blue-600 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg hover:bg-blue-700 
+                        transition-colors duration-200 text-xs lg:text-sm font-semibold whitespace-nowrap"
                     >
                         Start Free
                     </Link>
@@ -139,29 +140,32 @@ const Header = ({ title, action }) => {
     // Desktop title and action for non-landing pages
     const renderDesktopTitleAction = () => (
         <div className="hidden md:flex flex-1 justify-between items-center">
-            <h2 className="text-xl lg:text-3xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
+            <h2 className="text-lg lg:text-2xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
                 {title}
             </h2>
-            {action && (
-                <button
-                    onClick={action.onClick}
-                    className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base"
-                >
-                    {action.icon}
-                    {action.label}
-                </button>
-            )}
+            <div className="flex items-center gap-4">
+                {rightContent}
+                {action && (
+                    <button
+                        onClick={action.onClick}
+                        className="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm"
+                    >
+                        {action.icon}
+                        {action.label}
+                    </button>
+                )}
+            </div>
         </div>
     );
 
     // Mobile menu button
     const renderMobileMenuButton = () => (
         <button 
-            className="md:hidden ml-auto p-2" 
+            className="md:hidden ml-auto p-1.5" 
             onClick={toggleMobileMenu}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
     );
 
@@ -170,8 +174,8 @@ const Header = ({ title, action }) => {
         if (!isMobileMenuOpen) return null;
 
         return (
-            <div className="md:hidden fixed inset-0 bg-white z-40 pt-16 overflow-y-auto">
-                <div className="flex flex-col p-4 space-y-4">
+            <div className="md:hidden fixed inset-0 bg-white z-40 pt-14 overflow-y-auto">
+                <div className="flex flex-col p-4 space-y-3">
                     {isLandingPage ? (
                         // Landing page mobile menu
                         <>
@@ -344,12 +348,12 @@ const Header = ({ title, action }) => {
 
     return (
         <div className="relative">
-            <header className="px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-white/95 shadow-md backdrop-blur-sm sticky top-0 z-[1000]">
-                <Link to="/" className="flex items-center mr-4 md:mr-8">
+            <header className="px-3 md:px-5 py-1.5 flex items-center w-full box-border h-14 bg-white/95 shadow-sm backdrop-blur-sm sticky top-0 z-[1000]">
+                <Link to="/" className="flex items-center mr-3 md:mr-6">
                     <img 
                         src={logo} 
                         alt="PlanWise Logo" 
-                        className="h-[32px] md:h-[40px] w-auto object-contain" 
+                        className="h-[26px] md:h-[32px] w-auto object-contain" 
                     />
                 </Link>
                 {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
@@ -362,7 +366,7 @@ const Header = ({ title, action }) => {
             {/* Desktop dropdowns */}
             <AnimatePresence mode="wait">
                 {activeDropdown && windowWidth >= 768 && (
-                    <div className="absolute top-full left-0 right-0 z-[999]">
+                    <div className="absolute top-14 left-0 right-0 z-[999]">
                         {activeDropdown === 'features' ? (
                             <FeaturesContent 
                                 isOpen={true}
