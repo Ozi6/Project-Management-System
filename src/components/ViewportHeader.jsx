@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
-import { Menu, X } from 'lucide-react';
+import { Menu, X, PlusCircle } from 'lucide-react';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
@@ -12,15 +12,14 @@ import ToggleButton from './ToggleButton';
 import SearchBar from './SearchBar';
 import { useSearch } from '../scripts/SearchContext';
 
-const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
+const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer }) => {
     const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const { performSearch, filterColumns } = useSearch();
 
-    const handleSearch = (term) =>
-    {
+    const handleSearch = (term) => {
         performSearch(term);
         filterColumns(columns, term);
     };
@@ -110,14 +109,6 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
             <h2 className="text-xl lg:text-3xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
                 {title}
             </h2>
-            {action && (
-                <button
-                    onClick={action.onClick}
-                    className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base">
-                    {action.icon}
-                    {action.label}
-                </button>
-            )}
         </div>
     );
 
@@ -229,6 +220,20 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
                             </div>
 
                             <div className="flex flex-col gap-4 pt-2">
+                                {/* Add Categorizer Button for Mobile */}
+                                {onAddCategorizer && (
+                                    <button
+                                        onClick={() => {
+                                            onAddCategorizer();
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className="w-full text-center bg-green-600 text-white py-3 rounded-lg text-lg font-medium flex items-center justify-center"
+                                    >
+                                        <PlusCircle size={20} className="mr-2" />
+                                        Create Categorizer
+                                    </button>
+                                )}
+
                                 <SignedOut>
                                     <SignInButton mode="modal">
                                         <button className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg">
@@ -277,14 +282,34 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout }) => {
                     <img
                         src={logo}
                         alt="PlanWise Logo"
-                        className="h-[32px] md:h-[40px] w-auto object-contain"/>
+                        className="h-[32px] md:h-[40px] w-auto object-contain" />
                 </Link>
-                <div className="h-6 w-px bg-gray-300 mx-4"/>
+                <div className="h-6 w-px bg-gray-300 mx-4" />
                 <div onClick={() => toggleLayout(!isHorizontalLayout)}>
-                    <ToggleButton isChecked={isHorizontalLayout}/>
+                    <ToggleButton isChecked={isHorizontalLayout} />
                 </div>
                 {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
                 {renderMobileMenuButton()}
+                <div className="flex items-center space-x-4">
+                    {/* Add Categorizer Button */}
+                    {onAddCategorizer && (
+                        <button
+                            onClick={onAddCategorizer}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base"
+                        >
+                            <PlusCircle size={20} className="mr-2" />
+                            Create Categorizer
+                        </button>
+                    )}
+                    {action && (
+                        <button
+                            onClick={action.onClick}
+                            className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 lg:px-6 lg:py-3 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-sm lg:text-base">
+                            {action.icon}
+                            {action.label}
+                        </button>
+                    )}
+                </div>
                 <div className="flex-1 max-w-md mx-4">
                     <SearchBar onSearch={handleSearch} />
                 </div>

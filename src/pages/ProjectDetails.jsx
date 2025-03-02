@@ -242,6 +242,30 @@ const ProjectDetails = () => {
         }
     };
 
+    const handleAddCategorizer = () =>
+    {
+        const newCategorizer = {
+            id: uuidv4(),
+            title: "New Categorizer",
+            tagColor: "red",
+            taskLists: [],
+        };
+
+        const newColumns = [...columns];
+        let smallestColumnIndex = 0;
+        for (let i = 1; i < newColumns.length; i++)
+        {
+            if (newColumns[i].length < newColumns[smallestColumnIndex].length)
+            {
+                smallestColumnIndex = i;
+                break;
+            }
+        }
+
+        newColumns[smallestColumnIndex].push(newCategorizer);
+        setColumns(newColumns);
+    };
+
     const addEntry = (columnIndex, taskIndex, listId) => {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
@@ -456,7 +480,7 @@ const ProjectDetails = () => {
 
     return(
         <div className="flex flex-col h-screen">
-            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} />
+            <ViewportHeader isHorizontalLayout={isHorizontalLayout} toggleLayout={toggleLayout} onAddCategorizer={handleAddCategorizer}/>
             <div className="flex flex-1">
                 <ViewportSidebar />
                 <div className="flex flex-col flex-1">

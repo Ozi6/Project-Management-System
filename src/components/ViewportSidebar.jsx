@@ -13,13 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
 
     const navItems =
     [
-        { id: 'dashboard', icon: Layout, label: 'Dashboard' },
-        { id: 'projects', icon: KanbanSquare, label: 'Projects' },
-        { id: 'team', icon: Users, label: 'Team' },
-        { id: 'calendar', icon: Calendar, label: 'Calendar' },
-        { id: 'reports', icon: PieChart, label: 'Reports' },
-        { id: 'settings', icon: Settings, label: 'Settings' },
-        { id: 'landingpage', icon: Layout, label: 'Landing Page' }
+        
     ];
 
     const getCurrentLabel = () =>
