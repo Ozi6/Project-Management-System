@@ -17,7 +17,8 @@ const TaskList = ({
     onEditCardOpen,
     onMoveEntry,
     onDragStart,
-    onUpdateEntryCheckedStatus
+    onUpdateEntryCheckedStatus,
+    onFileChange
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
@@ -25,7 +26,7 @@ const TaskList = ({
     const [newEntryId, setNewEntryId] = useState(null);
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
-    const [entries, setEntries] = useState(initialEntries); // Manage entries state
+    const [entries, setEntries] = useState(initialEntries);
     const listRef = useRef(null);
     const headerRef = useRef(null);
 
@@ -324,6 +325,12 @@ const TaskList = ({
         setEntries(updatedEntries);
     };
 
+    const handleFileChange = (index, file) => {
+        const updatedEntries = [...entries];
+        updatedEntries[index].file = file;
+        setEntries(updatedEntries);
+    };
+
     return (
         <div className="relative" ref={listRef}>
             <div
@@ -377,6 +384,8 @@ const TaskList = ({
                                         onTextChange={(newText) => handleTextChange(index, newText)}
                                         onDueDateChange={(newDueDate) => handleDueDateChange(index, newDueDate)}
                                         onWarningThresholdChange={(newWarningThreshold) => handleWarningThresholdChange(index, newWarningThreshold)}
+                                        file={entry.file}
+                                        onFileChange={(file) => handleFileChange(index, file)}
                                     />
                                 </div>
                             );

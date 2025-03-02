@@ -12,7 +12,6 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign }) => {
 
     const handleSaveEdit = (updatedEntry) =>
     {
-        console.log("ListEntryPopup - Passing to parent:", updatedEntry);
         onEdit(updatedEntry);
         setShowEditPopup(false);
     };

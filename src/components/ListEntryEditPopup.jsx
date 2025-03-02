@@ -12,7 +12,8 @@ const ListEntryEditPopup = ({
         text: "",
         dueDate: "",
         warningThreshold: 1,
-        checked: false
+        checked: false,
+        file: null
     });
 
     useEffect(() => {
@@ -41,7 +42,8 @@ const ListEntryEditPopup = ({
             text: formData.text,
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
             warningThreshold: parseInt(formData.warningThreshold, 10),
-            checked: formData.checked
+            checked: formData.checked,
+            file: formData.file
         });
         onClose();
     };
@@ -68,7 +70,6 @@ const ListEntryEditPopup = ({
                 className="bg-white rounded-lg shadow-xl w-full max-w-md m-4"
                 onClick={e => e.stopPropagation()}
             >
-                {/* Blue Header */}
                 <div className="bg-blue-500 text-white rounded-t-lg p-4">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold">Edit Task</h2>
@@ -81,7 +82,6 @@ const ListEntryEditPopup = ({
                     </div>
                 </div>
 
-                {/* Form Content */}
                 <form onSubmit={handleSubmit} className="p-6">
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="text">
@@ -170,6 +170,32 @@ const ListEntryEditPopup = ({
                             type="submit"
                             className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
+                            Save Changes
+                        </button>
+                    </div>
+                    <div className="mb-6">
+                        <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="file">
+                            Attach File
+                        </label>
+                        <input
+                            type="file"
+                            id="file"
+                            name="file"
+                            onChange={handleChange}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             Save Changes
                         </button>
                     </div>

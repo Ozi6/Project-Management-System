@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
-import { FaExclamationCircle } from "react-icons/fa"; // Import an icon library for the red exclamation mark
+import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an icon library for the red exclamation mark
 
 const ListEntry = ({
     text,
@@ -25,6 +25,8 @@ const ListEntry = ({
     isDragging,
     isDraggedOver,
     dragPosition,
+    file,
+    onFileChange,
 }) => {
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
@@ -170,6 +172,13 @@ const ListEntry = ({
                         </span>
                     </div>
                 )}
+                {/* Display the file if it exists */}
+                {file && (
+                    <div className="flex items-center gap-2">
+                        <FaPaperclip className="text-gray-500" />
+                        <span className="text-sm text-gray-500">{file.name}</span>
+                    </div>
+                )}
             </div>
 
             {isDraggingThis && (
@@ -194,29 +203,30 @@ const ListEntry = ({
                             checked,
                             dueDate,
                             warningThreshold,
-                            entryId
+                            entryId,
+                            file, // Pass the file to the popup
                         }}
                         onClose={() => onClick(null)}
-                        onEdit={(updatedEntry) =>
-                        {
+                        onEdit={(updatedEntry) => {
                             console.log("ListEntry received:", updatedEntry);
                             console.log("Current values - text:", text, "checked:", checked);
                             onCheckChange(updatedEntry.checked);
 
-                            if(updatedEntry.text !== text)
-                            {
+                            if (updatedEntry.text !== text) {
                                 console.log("New values - text:", updatedEntry.text);
                                 onTextChange(updatedEntry.text);
                             }
 
-                            if (updatedEntry.dueDate !== dueDate)
-                            {
+                            if (updatedEntry.dueDate !== dueDate) {
                                 onDueDateChange(updatedEntry.dueDate);
                             }
 
-                            if (updatedEntry.warningThreshold !== warningThreshold)
-                            {
+                            if (updatedEntry.warningThreshold !== warningThreshold) {
                                 onWarningThresholdChange(updatedEntry.warningThreshold);
+                            }
+
+                            if (updatedEntry.file !== file) {
+                                onFileChange(updatedEntry.file);
                             }
 
                             onClick(null);
@@ -296,7 +306,8 @@ ListEntry.propTypes = {
     onDueDateChange: PropTypes.func,
     onWarningThresholdChange: PropTypes.func,
     onDelete: PropTypes.func,
-    onAssign: PropTypes.func
+    onAssign: PropTypes.func,
+    onFileChange: PropTypes.func
 };
 
 ListEntry.defaultProps = {
@@ -307,7 +318,8 @@ ListEntry.defaultProps = {
     onDragStart: () => { },
     onDragEnd: () => { },
     onDrop: () => { },
-    warningThreshold: 1 // Default warning threshold is 1 day
+    warningThreshold: 1, // Default warning threshold is 1 day
+    file: null
 };
 
 export default ListEntry;
