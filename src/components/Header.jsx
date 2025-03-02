@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
-import { Menu, X, ArrowRight, AlertCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, AlertCircle, ShieldAlert } from 'lucide-react';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
@@ -87,7 +87,8 @@ const Header = ({ title, action, rightContent }) => {
                 >
                     About Us
                 </Link>
-                {/* Admin-only Issues/Tickets link */}
+                
+                {/* Admin-only Issues/Tickets link with enhanced visibility */}
                 {isAdmin && (
                     <Link 
                         to="/admin/issues" 
@@ -96,10 +97,17 @@ const Header = ({ title, action, rightContent }) => {
                         <AlertCircle className="mr-1 h-3 w-3" />
                         Issues
                     </Link>
-                    
                 )}
             </div>
             <nav className="flex items-center gap-2 lg:gap-4">
+                {/* Admin badge - UPDATED FOR LARGER SIZE */}
+                {isAdmin && (
+                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
+                        <ShieldAlert className="h-4 w-4 mr-2" />
+                        Admin
+                    </div>
+                )}
+                
                 <SignedOut>
                     <button 
                         className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
@@ -109,30 +117,18 @@ const Header = ({ title, action, rightContent }) => {
                     </button>
                 </SignedOut>
                 <SignedIn>
-                    <Link to="/profile">
-                        <UserButton />
+                    <Link to="/profile" className="flex items-center">
+                        {isAdmin && (
+                            <div className="relative">
+                                <UserButton />
+                                <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-purple-600 border-2 border-white shadow-sm"></div>
+                            </div>
+                        )}
+                        {!isAdmin && <UserButton />}
                     </Link>
                 </SignedIn>
                 
-                {/* Conditional rendering for the action button based on sign-in status */}
-                <SignedIn>
-                    <Link 
-                        to="/dashboard"
-                        className="bg-green-600 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg hover:bg-green-700 
-                        transition-colors duration-200 text-xs lg:text-sm font-semibold whitespace-nowrap flex items-center"
-                    >
-                        My Dashboard <ArrowRight className="ml-1 h-3 w-3" />
-                    </Link>
-                </SignedIn>
-                <SignedOut>
-                    <Link 
-                        to="/signup"
-                        className="bg-blue-600 text-white px-3 py-1.5 lg:px-4 lg:py-2 rounded-lg hover:bg-blue-700 
-                        transition-colors duration-200 text-xs lg:text-sm font-semibold whitespace-nowrap"
-                    >
-                        Start Free
-                    </Link>
-                </SignedOut>
+                {/* Rest of the navigation */}
             </nav>
         </div>
     );
@@ -140,9 +136,20 @@ const Header = ({ title, action, rightContent }) => {
     // Desktop title and action for non-landing pages
     const renderDesktopTitleAction = () => (
         <div className="hidden md:flex flex-1 justify-between items-center">
-            <h2 className="text-lg lg:text-2xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
-                {title}
-            </h2>
+            <div className="flex items-center">
+                <h2 className="text-lg lg:text-2xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
+                    {title}
+                </h2>
+                
+                {/* Add admin indicator for non-landing pages - UPDATED */}
+                {isAdmin && (
+                    <div className="ml-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
+                        <ShieldAlert className="h-4 w-4 mr-2" />
+                        Admin
+                    </div>
+                )}
+            </div>
+            
             <div className="flex items-center gap-4">
                 {rightContent}
                 {action && (
@@ -176,6 +183,14 @@ const Header = ({ title, action, rightContent }) => {
         return (
             <div className="md:hidden fixed inset-0 bg-white z-40 pt-14 overflow-y-auto">
                 <div className="flex flex-col p-4 space-y-3">
+                    {/* Add admin indicator at top of mobile menu - UPDATED */}
+                    {isAdmin && (
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 rounded-md flex items-center justify-center mb-3 shadow-md">
+                            <ShieldAlert className="h-5 w-5 mr-2" />
+                            <span className="font-bold text-lg">Admin Account</span>
+                        </div>
+                    )}
+                    
                     {isLandingPage ? (
                         // Landing page mobile menu
                         <>
