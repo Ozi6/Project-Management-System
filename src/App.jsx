@@ -19,6 +19,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Dashboard from "./pages/Dashboard";
+import Calendar from "./pages/CalendarPage";
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -62,6 +63,7 @@ function AnimatedRoutes() {
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
                 <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
+                <Route path="/calendar" element={<PageWrapper><Calendar/></PageWrapper>}/>
                 <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
