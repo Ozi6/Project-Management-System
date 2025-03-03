@@ -19,13 +19,13 @@ import LoginPage from "./pages/auth/LoginPage";
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Dashboard from "./pages/Dashboard";
+import GanttChart from "./pages/GanttChart";
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ScrollToTop from './components/ScrollToTop'; // Import the ScrollToTop component
 import Issues from './pages/admin/Issues';
 import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
-
 
 function PageWrapper({ children }){
     return(
@@ -56,6 +56,8 @@ function AnimatedRoutes() {
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
+                <Route path="/calendar" element={<PageWrapper><GanttChart/></PageWrapper>}/>
+
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
                 <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />

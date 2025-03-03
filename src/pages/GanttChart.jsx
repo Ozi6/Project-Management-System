@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { format, eachDayOfInterval } from "date-fns";
+import Sidebar from '../components/Sidebar';
 
 const GanttChart = () => {
+    const [activeTab, setActiveTab] = useState('calendar');
     const [tasks, setTasks] = useState([
         { id: 1, title: "Design UI", start: new Date(2025, 2, 1), end: new Date(2025, 2, 5) },
         { id: 2, title: "Develop Backend", start: new Date(2025, 2, 3), end: new Date(2025, 2, 10) },
@@ -32,14 +34,18 @@ const GanttChart = () => {
     };
 
     return (
-        <div className="flex w-full border rounded-lg shadow bg-white p-4">
+        <div className="flex w-full border rounded-lg shadow bg-white p-2"> {/* Reduced padding from p-4 to p-2 */}
+            {/* Sidebar */}
+            <div className="bg-white shadow-md z-5 border-r border-gray-100">
+                <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+            </div>
             {/* Task List */}
-            <div className="w-1/4 border-r p-4">
-                <h2 className="text-lg font-semibold mb-4">Tasks</h2>
+            <div className="w-1/4 border-r p-2"> {/* Reduced padding from p-4 to p-2 */}
+                <h2 className="text-lg font-semibold mb-2">Tasks</h2> {/* Reduced margin from mb-4 to mb-2 */}
                 {tasks.map(task => (
                     <div 
                         key={task.id} 
-                        className="py-2 border-b text-sm h-8 flex items-center"
+                        className="py-1 border-b text-sm h-8 flex items-center" /* Reduced py-2 to py-1 */
                     >
                         {task.title}
                     </div>
@@ -47,16 +53,16 @@ const GanttChart = () => {
             </div>
 
             {/* Calendar View */}
-            <div className="flex-1 p-4 overflow-x-auto">
+            <div className="flex-1 p-2 overflow-x-auto"> {/* Reduced padding from p-4 to p-2 */}
                 <div className="w-full">
                     {/* Month and Year Header */}
-                    <div className="text-center text-lg font-semibold mb-2">
+                    <div className="text-center text-lg font-semibold mb-1"> {/* Reduced margin from mb-2 to mb-1 */}
                         {format(startOfMonth, "MMMM yyyy")}
                     </div>
 
                     {/* Days Header */}
-                    <div className="flex mb-2">
-                        <div className="w-20 flex-shrink-0"></div>
+                    <div className="flex mb-1"> {/* Reduced margin from mb-2 to mb-1 */}
+                        <div className="w-16 flex-shrink-0"></div> {/* Reduced width from w-20 to w-16 */}
                         {daysInMonth.map((day, index) => (
                             <div
                                 key={index}
@@ -77,7 +83,7 @@ const GanttChart = () => {
                                     className="flex absolute w-full"
                                     style={{ top: `${taskIndex * 32}px`, height: "32px" }}
                                 >
-                                    <div className="w-20 flex-shrink-0" />
+                                    <div className="w-16 flex-shrink-0" /> {/* Reduced width from w-20 to w-16 */}
                                     {daysInMonth.map((_, dayIndex) => (
                                         <div
                                             key={dayIndex}
@@ -93,7 +99,7 @@ const GanttChart = () => {
                             {tasks.map((task, index) => {
                                 const startDay = task.start.getDate() - 1;
                                 const duration = task.end.getDate() - task.start.getDate() + 1;
-                                const leftOffset = startDay * 32 + 80;
+                                const leftOffset = startDay * 32 + 64; // Adjusted offset from 80 to 64 to match w-16
                                 const taskWidth = duration * 32;
 
                                 return (

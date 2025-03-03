@@ -27,7 +27,12 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const location = useLocation();
   const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [showIssuesMenu, setShowIssuesMenu] = useState(false);
-  
+  const [showSettings, setShowSettings] = useState(false);
+
+  const toggleSettings = () => {
+    setShowSettings(!showSettings); // Toggle visibility of settings
+  };
+
   // Check if user has admin role
   const isAdmin = user?.publicMetadata?.role === 'admin';
 
@@ -72,7 +77,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       id: 'settings', 
       icon: Settings, 
       label: 'Settings', 
-      path: '/settings',
+      path: '/project/settings',
       color: 'bg-slate-100 text-slate-600',
       iconColor: 'text-slate-600'
     },
