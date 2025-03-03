@@ -1,9 +1,11 @@
 import { useState, Fragment } from "react";
-import { UserPlus, Trash2, ChevronDown, Search } from "lucide-react";
+import { UserPlus, Trash, ChevronDown, Search } from "lucide-react";
 import { Menu, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
+import Dropdown from "./Dropdown";
+
 import ManageTeamsModal from "./ManageTeamsModal";
 import ErrorBoundary from "./ErrorBoundary"; // Ensure this exists as shown previously
 import SimpleModal from "./SimpleModal";
@@ -100,10 +102,11 @@ const AdvancedSettings = () => {
   const roles = ["Manager", "Guest", "Member"];
   const [memberToManageTeams, setMemberToManageTeams] = useState(null);
   const [teams, setTeams] = useState([
-    { name: "Engineering", icon: "Wrench" },
-    { name: "Marketing", icon: "BarChart" },
-    { name: "Design", icon: "Paintbrush" },
+    { id: 1, name: "Engineering", icon: "Wrench" },
+    { id: 2, name: "Marketing", icon: "BarChart" },
+    { id: 3, name: "Design", icon: "Paintbrush" },
   ]);
+  
 
   const [permissions, setPermissions] = useState(
     members.reduce(
@@ -172,21 +175,34 @@ const AdvancedSettings = () => {
       console.warn("Cannot edit team: updatedTeam or name is invalid");
       return;
     }
+  
     if (oldTeam) {
-      const updatedTeams = teams.map((team) => 
-        team.name === oldTeam.name ? updatedTeam : team
+      // Update existing team based on ID
+      const updatedTeams = teams.map((team) =>
+        team.id === oldTeam.id ? updatedTeam : team
       );
       setTeams(updatedTeams);
-
+  
+      // Update members with the new team name if it changed
       setMembers((prevMembers) =>
         prevMembers.map((member) =>
-          member.team === oldTeam.name 
-            ? { ...member, team: updatedTeam.name } 
+          member.team === oldTeam.name && oldTeam.name !== updatedTeam.name
+            ? { ...member, team: updatedTeam.name }
             : member
         )
       );
     } else {
-      setTeams((prevTeams) => [...prevTeams, updatedTeam]);
+      // Add new team only if explicitly intended (no oldTeam provided)
+      const existingTeam = teams.find((team) => team.id === updatedTeam.id);
+      if (!existingTeam) {
+        setTeams((prevTeams) => [...prevTeams, updatedTeam]);
+      } else {
+        // If ID exists but no oldTeam, update instead of adding
+        const updatedTeams = teams.map((team) =>
+          team.id === updatedTeam.id ? updatedTeam : team
+        );
+        setTeams(updatedTeams);
+      }
     }
   };
 
@@ -221,7 +237,7 @@ const AdvancedSettings = () => {
   return (
     <ErrorBoundary>
       <div className="p-6 w-full">
-        <h2 className="text-xl font-bold mb-4">Project Settings</h2>
+        <h2 className="text-xl font-bold mb-4">Advanced Settings</h2>
 
         <button
           className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition mb-4"
@@ -254,57 +270,68 @@ const AdvancedSettings = () => {
               key={member.id}
               className="flex items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg hover:scale-[1.02]"
             >
-              <div>
-                <p className="text-lg font-medium">{member.name}</p>
-                <p className="text-sm text-gray-500">{member.email}</p>
+              <div className="flex items-center space-x-4">
+                <img
+                  src={`https://i.pravatar.cc/150?img=${member.id}`} // Using a dummy avatar for each member
+                  alt={member.name}
+                  className="w-12 h-12 rounded-full"
+                />
+                <div>
+                  <p className="text-lg font-medium">{member.name}</p>
+                  <p className="text-sm text-gray-500">{member.email}</p>
+                </div>
               </div>
 
               <div className="flex w-[600px] justify-center items-center space-x-4">
-                <Menu as="div" className="relative inline-block text-left w-40 z-10">
-                  <Menu.Button
-                    className="flex items-center w-[160px] justify-between bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
-                    onClick={() => setOpenDropdown((prev) => (prev === member.id ? null : member.id))}
-                    onBlur={() => setTimeout(() => setOpenDropdown(null), 200)} // Delay to allow menu click
-                  >
-                    {member.role || "No Role"}
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                  </Menu.Button>
+              <Menu as="div" className="relative inline-block text-left w-40 z-10">
+                <Menu.Button
+                  className="flex items-center w-[160px] justify-between bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  onClick={() => setOpenDropdown((prev) => (prev === member.id ? null : member.id))}
+                  onBlur={() => setTimeout(() => setOpenDropdown(null), 200)} // Delay to allow menu click
+                >
+                  {member.role || "No Role"}
+                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                </Menu.Button>
 
-                  <Transition
-                    show={openDropdown === member.id}
-                    as={Fragment}
-                    enter="transition ease-out duration-200"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="transition ease-in duration-150"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
+                <Transition
+                  show={openDropdown === member.id}
+                  as={Fragment}
+                  enter="transition ease-out duration-200"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="transition ease-in duration-150"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Menu.Items
+                    className="absolute left-0 mt-1 min-w-[160px] bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] origin-top-right w-full"
+                    style={{
+                      top: "100%",
+                      left: "0",
+                      transform: "translateY(10px)",
+                    }}
                   >
-                    <Menu.Items
-                      className="absolute left-0 mt-1 min-w-[160px] bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] origin-top-right"
-                      style={{
-                        top: "100%",
-                        transform: "translateY(10px)",
-                      }}
-                    >
-                      {roles.map((role) => (
-                        <Menu.Item key={role}>
-                          {({ active }) => (
-                            <button
-                              className={`block w-full text-left px-4 py-2 ${
-                                active ? "bg-blue-100" : ""
-                              } ${member.role === role ? "font-bold text-blue-600" : "text-gray-700"}`}
-                              onClick={() => updateRole(member.id, role)}
-                              disabled={!member?.id}
-                            >
-                              {role}
-                            </button>
-                          )}
-                        </Menu.Item>
-                      ))}
-                    </Menu.Items>
-                  </Transition>
-                </Menu>
+                    {roles.map((role) => (
+                      <Menu.Item key={role}>
+                        {({ active }) => (
+                          <button
+                            className={`block w-full text-left px-4 py-2 ${
+                              active ? "bg-blue-100" : ""
+                            } ${member.role === role ? "font-bold text-blue-600" : "text-gray-700"}`}
+                            onClick={() => updateRole(member.id, role)}
+                            disabled={!member?.id}
+                          >
+                            {role}
+                          </button>
+                        )}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Items>
+                </Transition>
+                {/* <Dropdown member={member} roles={roles} updateRole={updateRole} /> */}
+
+              </Menu>
+
 
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-lg transition hover:bg-green-700"
@@ -315,11 +342,10 @@ const AdvancedSettings = () => {
                 </button>
 
                 <button
-                  className="text-gray-700 font-medium w-[90px] text-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition"
+                  className="text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                   onClick={() => setMemberToManageTeams(member || null)}
-                  disabled={!member}
                 >
-                  {member.team || "No Team"}
+                  Manage Team
                 </button>
 
                 <button
@@ -327,7 +353,7 @@ const AdvancedSettings = () => {
                   className="bg-red-500 text-white p-2 rounded-lg flex items-center transition-all hover:bg-red-700 hover:scale-110"
                   disabled={!member}
                 >
-                  <Trash2 className="w-5 h-5 mr-1" />
+                  <Trash className="w-5 h-5 mr-1" />
                   Remove
                 </button>
                 {/* <button
@@ -353,14 +379,16 @@ const AdvancedSettings = () => {
           onConfirm={confirmRemoveMember}
           onCancel={() => setMemberToRemove(null)}
         />
-        <ManageTeamsModal
-          member={memberToManageTeams || null} // Ensure null if not set
-          teams={teams || []} // Ensure teams is always an array
-          onAddToTeam={addToTeam}
-          onEditTeam={editTeam}
-          onDeleteTeam={deleteTeam}
-          onClose={() => setMemberToManageTeams(null)}
-        />
+        {memberToManageTeams && (
+          <ManageTeamsModal
+            member={memberToManageTeams}
+            teams={teams || []}
+            onAddToTeam={addToTeam}
+            onEditTeam={editTeam}
+            onDeleteTeam={deleteTeam}
+            onClose={() => setMemberToManageTeams(null)}
+          />
+        )}
         <SimpleModal 
           isOpen={modalOpen} onClose={() => setModalOpen(false)}
 

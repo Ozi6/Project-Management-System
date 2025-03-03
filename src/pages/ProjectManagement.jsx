@@ -8,12 +8,43 @@ import ProjectCard from "../components/ProjectCard";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import GanttChart from "../components/GanttChart";
+
 
 const ProjectManagement = () => {
     const [activeTab, setActiveTab] = useState("dashboard");
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const navigate = useNavigate();
+
+      // Event Handlers
+      const onTaskChange = (taskId, newStartDate, newEndDate) => {
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === taskId ? { ...task, start: newStartDate, end: newEndDate } : task
+          )
+        );
+      };
+    
+      const onProgressChange = (taskId, newProgress) => {
+        setTasks(prevTasks =>
+          prevTasks.map(task =>
+            task.id === taskId ? { ...task, progress: newProgress } : task
+          )
+        );
+      };
+    
+      const onTaskDelete = taskId => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+      };
+    
+      const onDblClick = taskId => {
+        console.log(`Task with ID ${taskId} was double clicked`);
+      };
+    
+      const onClick = taskId => {
+        console.log(`Task with ID ${taskId} was clicked`);
+      };
     
     const handleNewProject = () => {
         navigate('/project/new');

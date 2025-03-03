@@ -4,7 +4,7 @@ import { FaCog } from "react-icons/fa"; // Import settings icon
 const GeneralSettings = () => {
     const [projectName, setProjectName] = useState("My Project");
     const [projectDescription, setProjectDescription] = useState("A brief description of my project.");
-    const [backgroundImage, setBackgroundImage] = useState("https://via.placeholder.com/800x400"); // Default image
+    const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg"); // Default image
     const [isPublic, setIsPublic] = useState(false);
 
     const handleBackgroundImageChange = (e) => {
@@ -23,20 +23,20 @@ const GeneralSettings = () => {
     };
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto">
+        <div className="space-y-6 max-w-2xl mx-auto bg-gray-100 p-6 rounded-xl shadow-xl">
             <div className="flex items-center space-x-2">
-                <FaCog className="text-gray-600" />
+                <FaCog className="text-gray-600 text-3xl" /> {/* Enlarged icon */}
                 <h2 className="text-3xl font-semibold text-gray-800">General Settings</h2>
             </div>
 
-            <div className="bg-white rounded-xl shadow p-8 space-y-6">
+            <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">Project Name</label>
                     <input
                         type="text"
                         value={projectName}
                         onChange={(e) => setProjectName(e.target.value)}
-                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 hover:border-indigo-400 transition-colors duration-200"
+                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 hover:shadow-lg hover:scale-105 focus:shadow-xl focus:scale-105 transition-all duration-300 ease-in-out"
                     />
                 </div>
 
@@ -45,23 +45,25 @@ const GeneralSettings = () => {
                     <textarea
                         value={projectDescription}
                         onChange={(e) => setProjectDescription(e.target.value)}
-                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 hover:border-indigo-400 transition-colors duration-200"
+                        className="block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 hover:shadow-lg hover:scale-105 focus:shadow-xl focus:scale-105 transition-all duration-300 ease-in-out"
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Background Image (800x400)</label>
+                    <label className="block text-sm font-medium text-gray-700">Update Background Image (800x400)</label>
                     <input
                         type="file"
                         accept="image/*"
                         onChange={handleBackgroundImageChange}
                         className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-500 file:text-white hover:file:bg-indigo-600 cursor-pointer"
                     />
-                    <img
-                        src={backgroundImage}
-                        alt="Project Background"
-                        className="mt-4 rounded-xl shadow-md w-full h-64 object-cover" // Fixed format
-                    />
+                    <div className="mt-4 relative w-full h-64 bg-gray-200 rounded-xl shadow-md">
+                        <img
+                            src={backgroundImage}
+                            alt="Project Background"
+                            className="w-full h-full object-cover rounded-xl shadow-md"
+                        />
+                    </div>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -93,4 +95,6 @@ const GeneralSettings = () => {
             </div>
         </div>
     );
-};export default GeneralSettings;
+};
+
+export default GeneralSettings;

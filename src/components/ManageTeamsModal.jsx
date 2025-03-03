@@ -1,36 +1,58 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Check,
-  Edit2,
-  Users,
-  Rocket,
-  Lightbulb,
-  Wrench,
-  Paintbrush,
-  BarChart,
-} from "lucide-react";
+import { Pencil, Check } from "lucide-react";
+import { FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase, FaServer, FaCode, FaCog, FaDesktop, FaPaintBrush } from "react-icons/fa";
+import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
+import { IoMdPeople, IoMdSettings } from "react-icons/io";
 
-// Map of icon names to Lucide components
 const iconMap = {
-  Users: Users,
-  Rocket: Rocket,
-  Lightbulb: Lightbulb,
-  Wrench: Wrench,
-  Paintbrush: Paintbrush,
-  BarChart: BarChart,
+  Users: FaUsers,
+  Cog: FaCogs,
+  LightBulb: FaLightbulb,
+  ChartBar: FaChartBar,
+  Folder: FaFolder,
+  AddGroup: MdGroupAdd,
+  Assignment: MdAssignment,
+  Work: MdWork,
+  Build: MdBuild,
+  FolderOpen: MdFolderOpen,
+  People: IoMdPeople,
+  Settings: IoMdSettings,
+  FaDatabase: FaDatabase,
+  FaServer: FaServer,
+  FaCode: FaCode,
+  FaCog: FaCog,
+  FaDesktop: FaDesktop,
+  FaPaintBrush: FaPaintBrush 
 };
 
-// Confirmation Modal for Team Deletion
+const allIcons = [
+  { name: "Users", icon: FaUsers },
+  { name: "Cogs", icon: FaCogs },
+  { name: "LightBulb", icon: FaLightbulb },
+  { name: "ChartBar", icon: FaChartBar },
+  { name: "Folder", icon: FaFolder },
+  { name: "AddGroup", icon: MdGroupAdd },
+  { name: "Assignment", icon: MdAssignment },
+  { name: "Work", icon: MdWork },
+  { name: "Build", icon: MdBuild },
+  { name: "FolderOpen", icon: MdFolderOpen },
+  { name: "People", icon: IoMdPeople },
+  { name: "Settings", icon: IoMdSettings },
+  { name: "Database", icon: FaDatabase },
+  { name: "Server", icon: FaServer },
+  { name: "Code", icon: FaCode },
+  { name: "Cog", icon: FaCog },
+  { name: "Desktop", icon: FaDesktop },
+  { name: "PaintBrush", icon: FaPaintBrush },
+];
+
+// TeamDeleteConfirmation Component
 const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
-  // Check if teamName is valid
-  if (!teamName || typeof teamName !== "string") {
-    console.warn("Invalid teamName in TeamDeleteConfirmation");
-    return null;
-  }
+  if (!teamName || typeof teamName !== "string") return null;
 
   return (
-    <AnimatePresence mode="sync">
+    <AnimatePresence>
       {teamName && (
         <>
           <motion.div
@@ -40,260 +62,172 @@ const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
             onClick={onCancel}
-            style={{ zIndex: 60 }}
+            style={{ zIndex: 10002 }}
           />
-          <div
+          <motion.div
             className="fixed inset-0 flex items-center justify-center"
-            style={{ zIndex: 70 }}
+            initial={{ y: "-20%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            style={{ zIndex: 10003 }}
           >
-            <motion.div
-              className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden"
-              initial={{ y: "-20%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 150,
-                damping: 15,
-              }}
-            >
+            <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
               <div className="bg-red-500 p-4 shadow-md">
-                <h3 className="text-xl font-bold text-white text-center">
-                  Confirm Deletion
-                </h3>
+                <h3 className="text-xl font-bold text-white text-center">Confirm Deletion</h3>
               </div>
               <div className="p-6 flex flex-col gap-4">
-                <p className="text-gray-700 text-center">
-                  Are you sure you want to delete the team "{teamName}"?
-                </p>
+                <p className="text-gray-700 text-center">Are you sure you want to delete the team "{teamName}"?</p>
                 <div className="flex justify-between">
                   <button
                     className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={onCancel}
-                    disabled={!teamName}
                   >
                     Cancel
                   </button>
                   <button
                     className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={() => onConfirm(teamName)}
-                    disabled={!teamName}
                   >
                     Delete
                   </button>
                 </div>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </motion.div>
         </>
       )}
     </AnimatePresence>
   );
 };
 
-const ManageTeamsModal = ({
-  member,
-  teams,
-  onAddToTeam,
-  onEditTeam,
-  onDeleteTeam,
-  onClose,
-}) => {
+const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose }) => {
+  const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
+  const [localTeams, setLocalTeams] = useState(Array.isArray(teams) ? [...teams] : []);
+  const [editingTeamId, setEditingTeamId] = useState(null);
+  const [editingTeamName, setEditingTeamName] = useState("");
+  const [editingTeamIcon, setEditingTeamIcon] = useState("");
+  const [teamToDelete, setTeamToDelete] = useState(null);
   const [newTeamName, setNewTeamName] = useState("");
   const [newTeamIcon, setNewTeamIcon] = useState("Users");
   const [isAddingTeam, setIsAddingTeam] = useState(false);
-  const [editingTeam, setEditingTeam] = useState(null);
-  const [teamToDelete, setTeamToDelete] = useState(null);
-  const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || ""); // Local state to track team
-  const [localTeams, setLocalTeams] = useState([]); // Local state for teams, initialized empty
+  const [showIconMenuForTeamId, setShowIconMenuForTeamId] = useState(null);
+  const editInputRef = useRef(null);
 
-  const modalRef = useRef(null); // Ref to track the modal element
-  const editInputRef = useRef(null); // Ref to track the editing input for focus management
-
-  // Memoize localTeams to prevent unnecessary re-renders
-  const memoizedLocalTeams = useCallback(() => localTeams, [localTeams]);
-
-  // Sync local states with props, ensuring consistent updates with safeguards
   useEffect(() => {
+    const uniqueTeams = Array.isArray(teams) 
+      ? teams.map((team, index) => ({
+          ...team,
+          id: team.id || `${index}-${Date.now()}`
+        }))
+      : [];
+    setLocalTeams(uniqueTeams);
     setLocalMemberTeam(member?.team || "");
-    console.log("Member team updated:", member?.team);
-  }, [member]);
+  }, [teams, member]);
 
   useEffect(() => {
-    setLocalTeams(Array.isArray(teams) ? [...(teams || [])] : []); // Handle undefined teams
-    console.log("Teams prop updated:", teams);
-  }, [teams]);
+    if (editingTeamId && editInputRef.current) {
+      editInputRef.current.focus();
+    }
+  }, [editingTeamId]);
 
-  // Debugging logs for state updates, including teams and input value
-  // useEffect(() => {
-  //   console.log("ManageTeamsModal rendered with:", {
-  //     member,
-  //     teams: Array.isArray(teams) ? teams : [],
-  //     editingTeam,
-  //     localMemberTeam,
-  //     localTeams: memoizedLocalTeams(),
-  //   });
-  //   if (editingTeam) {
-  //     console.log("Current editingTeam (including name):", {
-  //       name: editingTeam.name,
-  //       icon: editingTeam.icon,
-  //     });
-  //   }
-  // }, [member, teams, editingTeam, localMemberTeam, memoizedLocalTeams]);
+  const handleEditTeam = (team) => {
+    if (editingTeamId === team.id) {
+      handleSaveTeam(team);
+    } else {
+      setEditingTeamId(team.id);
+      setEditingTeamName(team.name);
+      setEditingTeamIcon(team.icon);
+      setShowIconMenuForTeamId(null);
+    }
+  };
 
-  const icons = [
-    "Users",
-    "Rocket",
-    "Lightbulb",
-    "Wrench",
-    "Paintbrush",
-    "BarChart",
-  ];
+  const handleSaveTeam = (oldTeam) => {
+    if (!editingTeamId || !editingTeamName.trim()) return;
+
+    const updatedTeam = {
+      id: editingTeamId,
+      name: editingTeamName.trim(),
+      icon: editingTeamIcon || "Users"
+    };
+
+    setLocalTeams(prevTeams =>
+      prevTeams.map(team =>
+        team.id === editingTeamId ? updatedTeam : team
+      )
+    );
+
+    onEditTeam(updatedTeam, oldTeam);
+
+    setEditingTeamId(null);
+    setEditingTeamName("");
+    setEditingTeamIcon("");
+    setShowIconMenuForTeamId(null);
+  };
+
+  const handleToggleTeam = (teamName) => {
+    if (!onAddToTeam || !member || !member.id) return;
+    const newTeam = localMemberTeam === teamName ? "" : teamName;
+    onAddToTeam(member.id, newTeam);
+    setLocalMemberTeam(newTeam);
+  };
+
+  const handleDeleteTeam = (teamName) => {
+    setTeamToDelete(teamName);
+  };
+
+  const handleIconSelect = (iconName) => {
+    if (editingTeamId) {
+      setEditingTeamIcon(iconName);
+    } else if (isAddingTeam) {
+      setNewTeamIcon(iconName);
+    }
+    setShowIconMenuForTeamId(null);
+  };
+
+  const handleNameChange = (e) => {
+    setEditingTeamName(e.target.value);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTeamId(null);
+    setEditingTeamName("");
+    setEditingTeamIcon("");
+    setShowIconMenuForTeamId(null);
+  };
 
   const handleAddTeam = () => {
-    if (!onEditTeam || !newTeamName.trim()) {
-      console.warn("Cannot add team: onEditTeam or newTeamName invalid");
-      return;
-    }
-    onEditTeam({ name: newTeamName.trim(), icon: newTeamIcon }, null);
+    if (!onEditTeam || !newTeamName.trim()) return;
+    const newTeam = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: newTeamName.trim(),
+      icon: newTeamIcon
+    };
+    setLocalTeams(prev => [...prev, newTeam]);
+    onEditTeam(newTeam, null);
     setNewTeamName("");
     setNewTeamIcon("Users");
     setIsAddingTeam(false);
   };
 
-  const handleEditTeam = (team) => {
-    if (!onEditTeam || !team || !team.name) {
-      console.warn("Cannot edit team: onEditTeam, team, or team.name invalid");
-      return;
-    }
-    if (editingTeam && editingTeam.name === team.name) {
-      if (!editingTeam.name.trim()) {
-        alert("Team name cannot be empty.");
-        return;
-      }
-      console.log("Saving edited team:", editingTeam);
-      const updatedTeam = { ...editingTeam, name: editingTeam.name.trim() };
-      onEditTeam(updatedTeam, team); // Update existing team in AdvancedSettings
-      // Update localTeams for immediate UI feedback and force re-render
-      const updatedLocalTeams = localTeams.map((t) =>
-        t.name === team.name ? updatedTeam : t
-      );
-      setLocalTeams(updatedLocalTeams);
-      console.log("Updated localTeams in modal:", updatedLocalTeams);
-      setEditingTeam(null); // Reset editing state, but keep modal open
-      if (editInputRef.current) editInputRef.current.blur(); // Optionally blur input after save
-    } else {
-      setEditingTeam({
-        ...team,
-        name: team.name || "",
-        icon: team.icon || "Users",
-      }); // Start editing with current values
-      // Focus the input when starting to edit
-      setTimeout(() => editInputRef.current?.focus(), 0);
-    }
-  };
-
-  const handleNameChange = (e) => {
-    setEditingTeam((prev) => ({
-      ...prev,
-      name: e.target.value,
-    }));
-    console.log("Editing team name change (input value):", e.target.value); // Debug input value
-  };
-
-  const handleIconChange = (e) => {
-    setEditingTeam((prev) => ({
-      ...prev,
-      icon: e.target.value,
-    }));
-    console.log("Editing team icon change:", e.target.value); // Debug icon change
-  };
-
-  const isMemberInTeam = (teamName) => localMemberTeam === teamName; // Use local state for UI consistency
-
-  const toggleTeamSelection = (teamName) => {
-    if (!onAddToTeam || !member || !member.id) {
-      console.warn(
-        "Cannot toggle team: onAddToTeam, member, or member.id invalid"
-      );
-      return;
-    }
-    const newTeam = localMemberTeam === teamName ? "" : teamName;
-    console.log(
-      "Toggling team for member:",
-      member.id,
-      "from:",
-      localMemberTeam,
-      "to:",
-      newTeam
-    );
-    onAddToTeam(member.id, newTeam);
-    setLocalMemberTeam(newTeam); // Update local state immediately for UI
-  };
-
   const confirmDeleteTeam = (teamName) => {
-    if (!onDeleteTeam || !teamName) {
-      console.warn("Cannot delete team: onDeleteTeam or teamName invalid");
-      return;
-    }
+    if (!onDeleteTeam || !teamName) return;
     onDeleteTeam(teamName);
+    setLocalTeams(prev => prev.filter(team => team.name !== teamName));
+    if (localMemberTeam === teamName) setLocalMemberTeam("");
     setTeamToDelete(null);
+    setEditingTeamId(null);
   };
 
-  // Handle key press events only for Save/Cancel within the modal, preventing unintended closures
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (modalRef.current && modalRef.current.contains(e.target)) {
-        e.stopPropagation(); // Prevent key events from affecting other elements
-        e.preventDefault(); // Prevent default key behavior (e.g., form submission, navigation)
-        if (e.key === "Enter" && (editingTeam || isAddingTeam)) {
-          if (editingTeam) handleEditTeam(editingTeam); // Save edited team
-          if (isAddingTeam) handleAddTeam(); // Save new team
-        } else if (e.key === "Escape" && (editingTeam || isAddingTeam)) {
-          setEditingTeam(null); // Cancel editing team
-          setIsAddingTeam(false); // Cancel adding new team
-        }
-        // Do not close the modal or reset states on any other key presses
-      }
-    },
-    [editingTeam, isAddingTeam]
-  );
-
-  // Add keydown listener only when modal is active (member exists), but prevent modal close
-  useEffect(() => {
-    if (member) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [member, handleKeyDown]);
-
-  // Explicitly manage modal close only via buttons, not blur or keyboard
   const handleModalClose = () => {
-    setEditingTeam(null); // Reset editing state
-    setIsAddingTeam(false); // Reset adding state
-    setTeamToDelete(null); // Reset deletion state
-    onClose(); // Trigger onClose prop only when user clicks Close button
+    setEditingTeamId(null);
+    setIsAddingTeam(false);
+    setTeamToDelete(null);
+    setShowIconMenuForTeamId(null);
+    onClose();
   };
 
-  // Prevent input blur from closing editing mode
-  const handleInputBlur = (e) => {
-    e.stopPropagation(); // Prevent blur from closing modal
-    e.preventDefault(); // Prevent default blur behavior
-    // Do not reset editingTeam here; keep editing mode open unless explicitly canceled
-    console.log("Input blurred, keeping editing mode open");
-    if (!e.target.value.trim() && editingTeam) {
-      alert("Team name cannot be empty.");
-      e.target.focus(); // Keep focus to correct the empty input
-    }
-  };
-
-  // Early return outside AnimatePresence (after all Hooks)
-  if (!member) {
-    console.log("Member is null, skipping render");
-    return null;
-  }
+  if (!member) return null;
 
   return (
     <>
@@ -305,206 +239,187 @@ const ManageTeamsModal = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent backdrop click from closing modal
-            e.preventDefault(); // Prevent default click behavior
-          }}
-          style={{ zIndex: 10000 }} // High z-index to cover roles dropdown
+          onClick={handleModalClose}
+          style={{ zIndex: 10000 }}
         />
         <motion.div
           key="modal"
-          ref={modalRef} // Attach ref to the modal container for key event handling
           className="fixed inset-0 flex items-center justify-center"
           initial={{ y: "-20%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: "100%", opacity: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 150,
-            damping: 15,
-          }}
-          style={{ zIndex: 10001 }} // High z-index to cover roles dropdown
-          onKeyDown={(e) => {
-            e.stopPropagation(); // Prevent key events from bubbling up
-            e.preventDefault(); // Prevent default key behavior
-          }}
+          transition={{ type: "spring", stiffness: 150, damping: 15 }}
+          style={{ zIndex: 10001 }}
         >
-          <div className="bg-white rounded-md w-96 flex flex-col shadow-lg overflow-hidden">
+          <div className="bg-white rounded-lg w-96 flex flex-col shadow-lg overflow-hidden">
             <div className="bg-blue-500 p-4 shadow-md">
               <h3 className="text-xl font-bold text-white text-center">
-                Manage Teams for {member.name || "Unknown"}
+                Manage Teams for {member?.name || "Unknown"}
               </h3>
             </div>
             <div className="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-              <div className="space-y-2">
-                {localTeams.length > 0 ? (
-                  localTeams.map((team, index) => (
-                    <div
-                      key={`${
-                        team.name
-                      }-${index}-${Date.now()}-${Math.random()}`} // Highly unique key to force re-render
-                      className="flex items-center justify-between p-2 border-b"
-                    >
-                      {editingTeam && editingTeam.name === team.name ? (
-                        <div className="flex flex-col gap-2 w-full">
-                          <div className="flex items-center gap-2">
-                            <input
-                              ref={editInputRef} // Attach ref to the input for focus management
-                              type="text"
-                              value={editingTeam?.name || ""} // Ensure value is correctly bound
-                              onChange={handleNameChange}
-                              className="border p-1 bg-red-400 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              placeholder="Enter team name"
-                              onBlur={handleInputBlur} // Handle blur without closing
-                              onKeyDown={(e) => {
-                                e.stopPropagation(); // Prevent key events from bubbling up
-                                e.preventDefault(); // Prevent default key behavior
-                              }}
-                            />
-                            <select
-                              value={editingTeam?.icon || "Users"}
-                              onChange={handleIconChange}
-                              className="border p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              onKeyDown={(e) => {
-                                e.stopPropagation(); // Prevent key events from bubbling up
-                                e.preventDefault(); // Prevent default key behavior
-                              }}
-                            >
-                              {icons.map((icon) => (
-                                <option key={icon} value={icon}>
-                                  {icon}
-                                </option>
-                              ))}
-                            </select>
+              {localTeams.map((team) => (
+                <div 
+                  key={team.id} 
+                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-blue-50"
+                >
+                  {editingTeamId === team.id ? (
+                    <div className="flex flex-col gap-2 w-full">
+                      <div className="flex items-center gap-2 relative">
+                        <button
+                          onClick={() => setShowIconMenuForTeamId(team.id)}
+                          className="border p-1 rounded hover:bg-gray-200"
+                        >
+                          {React.createElement(iconMap[editingTeamIcon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
+                        </button>
+                        {showIconMenuForTeamId === team.id && (
+                          <div className="absolute top-10 left-0 bg-white border shadow-lg grid grid-cols-5 gap-2 p-2 z-10">
+                            {allIcons.map(({ name, icon: Icon }) => (
+                              <button 
+                                key={name} 
+                                onClick={() => handleIconSelect(name)}
+                                className="p-1 hover:bg-gray-100 rounded"
+                              >
+                                <Icon className="h-5 w-5 text-gray-700" />
+                              </button>
+                            ))}
                           </div>
-                          <div className="flex justify-between">
-                            <button
-                              onClick={() => handleEditTeam(team)}
-                              className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700"
-                            >
-                              Save
-                            </button>
-                            <button
-                              onClick={() => setTeamToDelete(team.name)}
-                              className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-700"
-                            >
-                              Delete
-                            </button>
-                            <button
-                              onClick={() => setEditingTeam(null)}
-                              className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-700"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center">
-                              {iconMap[team.icon] &&
-                                React.createElement(iconMap[team.icon], {
-                                  size: 20,
-                                })}
-                            </div>
-                            <span>{team.name}</span>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => toggleTeamSelection(team.name)}
-                              className={`w-5 h-5 rounded-full flex items-center justify-center transition-colors ${
-                                isMemberInTeam(localTeams[index]?.name)
-                                  ? "bg-green-500 text-white"
-                                  : "bg-gray-300"
-                              }`}
-                            >
-                              {isMemberInTeam(localTeams[index]?.name) && (
-                                <Check size={12} />
-                              )}
-                            </button>
-                            <button
-                              onClick={() => handleEditTeam(localTeams[index])}
-                              className="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-700"
-                            >
-                              <Edit2 size={18} />
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                        )}
+                        <input
+                          ref={editInputRef}
+                          type="text"
+                          value={editingTeamName}
+                          onChange={handleNameChange}
+                          className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          onKeyPress={(e) => e.key === 'Enter' && handleSaveTeam(team)}
+                        />
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={localMemberTeam === team.name}
+                            onChange={() => handleToggleTeam(team.name)}
+                            className="hidden"
+                          />
+                          <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
+                            localMemberTeam === team.name ? "bg-green-500 border-green-600" : "bg-white border-gray-300 hover:border-gray-500"
+                          }`}>
+                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                          </span>
+                        </label>
+                      </div>
+                      <div className="flex justify-between gap-2">
+                        <button 
+                          onClick={() => handleSaveTeam(team)} 
+                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 flex-1 transition-all duration-200"
+                        >
+                          Save
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteTeam(team.name)} 
+                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 flex-1 transition-all duration-200"
+                        >
+                          Delete
+                        </button>
+                        <button 
+                          onClick={handleCancelEdit} 
+                          className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
-                  ))
-                ) : (
-                  <div>No teams available.</div>
-                )}
-              </div>
-            </div>
-            <div className="flex justify-between px-4 pb-4">
-              {isAddingTeam ? (
-                <div className="flex flex-col gap-2 w-3/4">
-                  <div className="flex items-center gap-2">
+                  ) : (
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-2">
+                          {React.createElement(iconMap[team.icon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
+                          <span className="text-gray-800 font-medium">{team.name}</span>
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleEditTeam(team)}
+                          className="border p-1 rounded bg-yellow-200 hover:bg-yellow-300 text-gray-700 transition-all duration-200"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={localMemberTeam === team.name}
+                            onChange={() => handleToggleTeam(team.name)}
+                            className="hidden"
+                          />
+                          <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
+                            localMemberTeam === team.name ? "bg-green-500 border-green-600" : "bg-white border-gray-300 hover:border-gray-500"
+                          }`}>
+                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {isAddingTeam && (
+                <div className="flex flex-col gap-2 p-2 border-b bg-gray-50 rounded">
+                  <div className="flex items-center gap-2 relative">
+                    <button
+                      onClick={() => setShowIconMenuForTeamId("new")}
+                      className="border p-1 rounded hover:bg-gray-200"
+                    >
+                      {React.createElement(iconMap[newTeamIcon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
+                    </button>
+                    {showIconMenuForTeamId === "new" && (
+                      <div className="absolute top-10 left-0 bg-white border shadow-lg grid grid-cols-5 gap-2 p-2 z-10">
+                        {allIcons.map(({ name, icon: Icon }) => (
+                          <button 
+                            key={name} 
+                            onClick={() => handleIconSelect(name)}
+                            className="p-1 hover:bg-gray-100 rounded"
+                          >
+                            <Icon className="h-5 w-5 text-gray-700" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                     <input
                       type="text"
                       value={newTeamName}
                       onChange={(e) => setNewTeamName(e.target.value)}
+                      className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="New team name"
-                      className="border p-1 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      onBlur={(e) => {
-                        e.stopPropagation(); // Prevent blur from closing modal
-                        e.preventDefault(); // Prevent default blur behavior
-                        if (!e.target.value.trim()) {
-                          alert("Team name cannot be empty.");
-                          e.target.focus();
-                        }
-                      }}
-                      onKeyDown={(e) => {
-                        e.stopPropagation(); // Prevent key events from bubbling up
-                        e.preventDefault(); // Prevent default key behavior
-                      }}
                     />
-                    <select
-                      value={newTeamIcon}
-                      onChange={(e) => setNewTeamIcon(e.target.value)}
-                      className="border p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      onKeyDown={(e) => {
-                        e.stopPropagation(); // Prevent key events from bubbling up
-                        e.preventDefault(); // Prevent default key behavior
-                      }}
-                    >
-                      {icons.map((icon) => (
-                        <option key={icon} value={icon}>
-                          {icon}
-                        </option>
-                      ))}
-                    </select>
                   </div>
                   <div className="flex justify-between">
-                    <button
-                      onClick={handleAddTeam}
-                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-700"
+                    <button 
+                      onClick={handleAddTeam} 
+                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all duration-200"
                     >
-                      Save
+                      Add
                     </button>
-                    <button
-                      onClick={() => setIsAddingTeam(false)}
-                      className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-700"
+                    <button 
+                      onClick={() => setIsAddingTeam(false)} 
+                      className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 transition-all duration-200"
                     >
                       Cancel
                     </button>
                   </div>
                 </div>
-              ) : (
-                <button
-                  onClick={() => setIsAddingTeam(true)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Add Team
-                </button>
               )}
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                onClick={handleModalClose}
+            </div>
+            <div className="p-4 flex justify-between">
+              <button 
+                onClick={() => setIsAddingTeam(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-200"
               >
-                Close
+                Add Team
+              </button>
+              <button 
+                onClick={handleModalClose} 
+                className="bg-amber-300 text-white px-4 py-2 rounded hover:bg-green-600 transition-all duration-200"
+              >
+                Done
               </button>
             </div>
           </div>
@@ -519,5 +434,4 @@ const ManageTeamsModal = ({
     </>
   );
 };
-
 export default ManageTeamsModal;
