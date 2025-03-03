@@ -27,6 +27,7 @@ const ListEntry = ({
     dragPosition,
     file,
     onFileChange,
+    onDelete,
 }) => {
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);

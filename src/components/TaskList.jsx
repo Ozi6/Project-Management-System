@@ -16,6 +16,8 @@ const TaskList = ({
     onSelectEntry,
     onEditCardOpen,
     onMoveEntry,
+    onEntryDelete,
+    onDeleteList,
     onDragStart,
     onUpdateEntryCheckedStatus,
     onFileChange
@@ -48,6 +50,12 @@ const TaskList = ({
     const handleEditCardOpen = () => {
         setIsEditing(true);
         onEditCardOpen();
+    };
+
+    const handleDeleteList = () =>
+    {
+        if (onDeleteList)
+            onDeleteList(listId);
     };
 
     const getLuminance = (color) => {
@@ -331,6 +339,15 @@ const TaskList = ({
         setEntries(updatedEntries);
     };
 
+    const handleDelete = (entryId) =>
+    {
+        const parts = entryId.split('-');
+        const index = parseInt(parts[parts.length - 1]);
+
+        setEntries(entries.filter((_, i) => i !== index));
+
+    };
+
     return (
         <div className="relative" ref={listRef}>
             <div
@@ -385,6 +402,9 @@ const TaskList = ({
                                         onDueDateChange={(newDueDate) => handleDueDateChange(index, newDueDate)}
                                         onWarningThresholdChange={(newWarningThreshold) => handleWarningThresholdChange(index, newWarningThreshold)}
                                         file={entry.file}
+                                        onDelete={(entryId) => {
+                                            onEntryDelete(listId, index);
+                                        }}
                                         onFileChange={(file) => handleFileChange(index, file)}
                                     />
                                 </div>
@@ -413,7 +433,8 @@ const TaskList = ({
                         title={editableTitle}
                         tagColor={editableTagColor}
                         onDone={handleDone}
-                        onCancel={handleCancel} />
+                        onCancel={handleCancel}
+                        onDelete={handleDeleteList}/>
                 )}
             </AnimatePresence>
 
@@ -444,7 +465,8 @@ TaskList.propTypes = {
     onSelectEntry: PropTypes.func.isRequired,
     onEditCardOpen: PropTypes.func.isRequired,
     onMoveEntry: PropTypes.func.isRequired,
-    onDragStart: PropTypes.func.isRequired
+    onDragStart: PropTypes.func.isRequired,
+    onEntryDelete: PropTypes.func.isRequired
 };
 
 export default TaskList;

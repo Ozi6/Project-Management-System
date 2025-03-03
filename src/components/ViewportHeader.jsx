@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
 import { Menu, X, PlusCircle, Moon, Sun } from 'lucide-react';
-import { useDarkMode } from '../scripts/DarkModeContext';
+//import { useDarkMode } from '../scripts/DarkModeContext';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import ResourcesDropdown from './ResourcesDropdown';

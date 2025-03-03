@@ -14,10 +14,13 @@ const Categorizer = ({
     selectedEntryId,
     onSelectEntry,
     onAddEntry,
+    onEntryDelete,
     onEditCardOpen,
     onAddList,
     onMoveEntry,
     onMoveTaskList,
+    onDeleteList,
+    onDeleteCategory,
     onUpdateEntryCheckedStatus,
     onUpdateCategory,
 }) => {
@@ -184,6 +187,7 @@ const Categorizer = ({
         };
     },[categoryId, taskLists]);
 
+
     return (
         <div
             className="bg-white p-4 rounded-lg flex flex-col items-center w-[290px]"
@@ -228,6 +232,9 @@ const Categorizer = ({
                                     selectedEntryId={selectedEntryId}
                                     onSelectEntry={onSelectEntry}
                                     onAddEntry={() => onAddEntry(taskList.id)}
+                                    onEntryDelete={(listId, entryIndex) =>
+                                        onEntryDelete(columnIndex, taskIndex, listId, entryIndex)}
+                                    onDeleteList={(listId) => onDeleteList(columnIndex, taskIndex, listId)}
                                     onEditCardOpen={onEditCardOpen}
                                     onMoveEntry={onMoveEntry}
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
@@ -277,6 +284,7 @@ const Categorizer = ({
                     tagColor={tagColor}
                     onDone={handleEditCategorizerCardDone}
                     onCancel={handleEditCategorizerCardCancel}
+                    onDelete={() => onDeleteCategory(categoryId)}
                 />
             )}
         </div>
@@ -306,6 +314,7 @@ Categorizer.propTypes = {
     onMoveTaskList: PropTypes.func.isRequired,
     onUpdateEntryCheckedStatus: PropTypes.func.isRequired,
     onUpdateCategory: PropTypes.func.isRequired,
+    onDeleteCategory: PropTypes.func.isRequired,
 };
 
 export default Categorizer;

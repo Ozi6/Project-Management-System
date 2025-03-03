@@ -152,18 +152,33 @@ const ProjectDetails = () => {
     const [zoomLevel, setZoomLevel] = useState(0.7); // 1 = 100%, 0.7 = 70%, etc.
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
-    const MIN_COLUMN_WIDTH = 315;
-    const MAX_COLUMN_WIDTH = 450;
+    const BASE_MIN_COLUMN_WIDTH = 315;
+    const BASE_MAX_COLUMN_WIDTH = 450;
+    const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
+    const MAX_COLUMN_WIDTH = BASE_MAX_COLUMN_WIDTH * (1 / zoomLevel);
 
     const toggleLayout = (isHorizontal) =>
     {
-        if (!isHorizontal) {
+        if (!isHorizontal)
+        {
             if (originalColumns)
                 setColumns(originalColumns);
         }
-        else {
+        else
+        {
             setOriginalColumns(columns);
-            const allCategories = columns.flat();
+
+            const allCategories = [];
+            const maxRows = Math.max(...columns.map(column => column.length));
+
+            for (let rowIndex = 0; rowIndex < maxRows; rowIndex++)
+            {
+                for (let colIndex = 0; colIndex < columns.length; colIndex++)
+                {
+                    if(columns[colIndex][rowIndex])
+                        allCategories.push(columns[colIndex][rowIndex]);
+                }
+            }
             const horizontalLayout = allCategories.map(category => [category]);
             setColumns(horizontalLayout);
         }
@@ -257,10 +272,17 @@ const ProjectDetails = () => {
 
         const newColumns = [...columns];
 
-        if(isHorizontalLayout)
+        if (isHorizontalLayout)
         {
-            const newColumn = [newCategorizer];
-            newColumns.push(newColumn);
+            const emptyColumnIndex = newColumns.findIndex(column => column.length === 0);
+
+            if(emptyColumnIndex === -1)
+            {
+                const newColumn = [newCategorizer];
+                newColumns.push(newColumn);
+            }
+            else
+                newColumns[emptyColumnIndex].push(newCategorizer);
         }
         else
         {
@@ -274,6 +296,9 @@ const ProjectDetails = () => {
         }
 
         setColumns(newColumns);
+
+        if (isHorizontalLayout)
+            setOriginalColumns(newColumns);
     };
 
     const addEntry = (columnIndex, taskIndex, listId) => {
@@ -286,6 +311,18 @@ const ProjectDetails = () => {
                 checked: false
             };
             taskList.entries.push(newEntry);
+            setColumns(newColumns);
+        }
+    };
+
+    const handleEntryDelete = (columnIndex, taskIndex, listId, entryIndex) =>
+    {
+        const newColumns = [...columns];
+        const category = newColumns[columnIndex][taskIndex];
+        const taskList = category.taskLists.find((list) => list.id === listId);
+        if(taskList && taskList.entries.length > entryIndex)
+        {
+            taskList.entries.splice(entryIndex, 1);
             setColumns(newColumns);
         }
     };
@@ -370,6 +407,16 @@ const ProjectDetails = () => {
 
         const [movedList] = sourceCategory.taskLists.splice(sourceListIndex, 1);
         targetCategory.taskLists.splice(targetIndex, 0, movedList);
+
+        setColumns(newColumns);
+    };
+
+    const handleDeleteList = (columnIndex, taskIndex, listId) =>
+    {
+        const newColumns = [...columns];
+        const category = newColumns[columnIndex][taskIndex];
+
+        category.taskLists = category.taskLists.filter(list => list.id !== listId);
 
         setColumns(newColumns);
     };
@@ -476,9 +523,12 @@ const ProjectDetails = () => {
         setColumns(updatedColumns);
     };
 
-    // Add this function to handle zoom level changes
-    const handleZoomChange = (newZoomLevel) => {
-      setZoomLevel(newZoomLevel);
+    const handleZoomChange = (newZoomLevel) =>
+    {
+        setZoomLevel(newZoomLevel);
+        const container = document.getElementById("columns-container");
+        if(container && !isHorizontalLayout)
+            redistributeTasks(container.offsetWidth);
     };
 
     useEffect(() => {
@@ -493,7 +543,7 @@ const ProjectDetails = () => {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [columns, isHorizontalLayout]);
+    }, [columns, isHorizontalLayout, zoomLevel]);
 
     useEffect(() => {
         if (searchTerm) {
@@ -501,7 +551,22 @@ const ProjectDetails = () => {
         } else {
             performSearch('', columns);
         }
-    }, [searchTerm, columns]);
+    },[searchTerm, columns]);
+
+    const handleDeleteCategory = (columnIndex, taskIndex) =>
+    {
+        const newColumns = [...columns];
+
+        if (newColumns[columnIndex] && newColumns[columnIndex][taskIndex])
+        {
+            newColumns[columnIndex].splice(taskIndex, 1);
+
+            if (newColumns[columnIndex].length === 0)
+                newColumns.splice(columnIndex, 1);
+        }
+
+        setColumns(newColumns);
+    }
 
     const displayColumns = filteredColumns || columns;
 
@@ -527,16 +592,16 @@ const ProjectDetails = () => {
                         style={{
                             transform: `scale(${zoomLevel})`,
                             transformOrigin: 'top left',
-                            width: zoomLevel < 1 ? `${(1/zoomLevel) * 100}%` : '100%', // Compensate for zoom
-                            marginBottom: zoomLevel < 1 ? `${(1/zoomLevel - 1) * 100}px` : '0', // Extra space at bottom
+                            width: zoomLevel < 1 ? `${(1/zoomLevel) * 100}%` : '100%',
+                            marginBottom: zoomLevel < 1 ? `${(1 / zoomLevel) * 100}px` : '20px',
                         }}
                         className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
                         {displayColumns.map((tasks, columnIndex) => (
                             <div
                                 key={columnIndex}
                                 className={`flex flex-col gap-4 ${isHorizontalLayout
-                                    ? 'min-w-[290px] max-w-[290px] flex-shrink-0'
-                                    : 'min-w-[290px] max-w-[290px] flex-1'}`}>
+                                    ? 'min-w-[285px] max-w-[285px] flex-shrink-0'
+                                    : 'min-w-[285px] max-w-[285px] flex-1'}`}>
                                 {tasks.map((task, taskIndex) => (
                                     <Categorizer
                                         onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
@@ -551,13 +616,16 @@ const ProjectDetails = () => {
                                         selectedEntryId={selectedEntryId}
                                         onSelectEntry={onSelectEntry}
                                         onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
+                                        onEntryDelete={handleEntryDelete}
                                         onEditCardOpen={resetSelectedEntry}
                                         onAddList={() => addList(columnIndex, taskIndex)}
                                         onMoveEntry={handleMoveEntry}
                                         onMoveTaskList={handleMoveTaskList}
+                                        onDeleteList={handleDeleteList}
                                         onUpdateCategory={(categoryId, newTitle, newTagColor) => {
                                             updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
                                         }}
+                                        onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex)}
                                     />
                                 ))}
                             </div>
