@@ -4,7 +4,7 @@ import { Layout, KanbanSquare, Users, Calendar, Settings, PieChart } from "lucid
 
 const Sidebar = ({ activeTab, setActiveTab }) =>
 {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
 
     const toggleSidebar = () =>
     {
@@ -13,7 +13,22 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
 
     const navItems =
     [
-        // Your nav items here
+        {
+            id: 'team',
+            icon: Users,
+            label: 'Teams',
+            path: '/team',
+            color: 'bg-green-100 text-green-600',
+            iconColor: 'text-green-600'
+        },
+        {
+            id: 'calendar',
+            icon: Calendar,
+            label: 'Calendar',
+            path: '/calendar',
+            color: 'bg-amber-100 text-amber-600',
+            iconColor: 'text-amber-600'
+        },
     ];
 
     const getCurrentLabel = () =>
@@ -25,7 +40,7 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
     return(
         <div className="relative">
             {/* Sidebar Content */}
-            <div className={`sidebar fixed top-0 left-0 h-screen bg-white white:bg-gray-800 transition-all duration-300 ${isOpen ? 'w-64' : 'w-0'} shadow-md z-10 overflow-hidden`}>
+            <div className={`sidebar fixed top-0 left-0 h-screen bg-white white:bg-gray-800 transition-all duration-300 ${isOpen ? 'w-64 shadow-xl' : 'w-0 shadow-sm'} z-10 overflow-hidden`}>
                 <div className="sidebar-content overflow-hidden whitespace-nowrap w-full">
 
                 </div>
@@ -34,9 +49,8 @@ const Sidebar = ({ activeTab, setActiveTab }) =>
             {/* Toggle Button - Position fixed at a specific height instead of relative to viewport */}
             <button
                 onClick={toggleSidebar}
-                className={`fixed z-20 top-[50vh] ${isOpen ? 'left-[246px]' : 'left-3'} w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 hover:scale-110 transition-all duration-200`}
-                style={{ transform: 'translateY(-50%)' }}
-            >
+                className={`fixed z-20 top-[50vh] ${isOpen ? 'left-[246px]' : 'left-3'} w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:bg-blue-700 hover:scale-110 transition-all duration-200`}
+                style={{ transform: 'translateY(-50%)' }}>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
