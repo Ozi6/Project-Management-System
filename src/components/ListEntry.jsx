@@ -28,6 +28,7 @@ const ListEntry = ({
     file,
     onFileChange,
     onDelete,
+    zoomLevel,
 }) => {
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
@@ -125,9 +126,10 @@ const ListEntry = ({
     };
 
     const handleMouseMove = (e) => {
-        if (dragImageRef.current) {
-            dragImageRef.current.style.left = `${e.clientX - mouseOffsetX.current}px`;
-            dragImageRef.current.style.top = `${e.clientY - mouseOffsetY.current}px`;
+        if (dragImageRef.current)
+        {
+            dragImageRef.current.style.left = `${(e.clientX - mouseOffsetX.current)}px`;
+            dragImageRef.current.style.top = `${(e.clientY - mouseOffsetY.current - 60)}px`;
         }
     };
 

@@ -626,6 +626,7 @@ const ProjectDetails = () => {
                                             updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
                                         }}
                                         onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex)}
+                                        zoomLevel={task.zoomLevel}
                                     />
                                 ))}
                             </div>
