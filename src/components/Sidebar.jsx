@@ -65,7 +65,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       icon: Calendar, 
       label: 'Calendar', 
       path: '/calendar',
-      color: 'bg-amber-100 text-amber-600',
+      color: 'bg-yellow-100 text-yellow-600',
       iconColor: 'text-amber-600'
     },
     { 

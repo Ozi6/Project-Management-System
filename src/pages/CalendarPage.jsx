@@ -225,11 +225,6 @@ const CalendarPage = ({ projectData }) => {
       <div className="w-full bg-white shadow-sm z-10">
         <Header
           title={<span className="text-xl font-semibold text-gray-800">Calendar</span>}
-          action={{
-            onClick: () => navigate('/project/new'),
-            icon: <Plus className="mr-2 h-4 w-4" />,
-            label: "New Project"
-          }}
         />
       </div>
 

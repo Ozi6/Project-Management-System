@@ -70,10 +70,10 @@ const ResourcesContent = ({ isOpen, setIsOpen }) => {
             link: "/blog"
         },
         {
-            title: "Help Center",
-            description: "FAQ and support documentation",
+            title: "FAQ",
+            description: "Frequently asked questions.",
             icon: HelpCircle,
-            link: "/help"
+            link: "/faq"
         }
     ];
 
