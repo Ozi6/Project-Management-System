@@ -4,11 +4,14 @@ import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
 import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an icon library for the red exclamation mark
+import { Teams, Users } from './TeamAndUsersTest';
 
 const ListEntry = ({
     text,
     dueDate,
     warningThreshold,
+    assignedUsers = [],
+    assignedTeams = [],
     checked,
     onCheckChange,
     onTextChange,
@@ -27,7 +30,7 @@ const ListEntry = ({
     dragPosition,
     file,
     onFileChange,
-    onDelete
+    onDelete,
 }) => {
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
@@ -192,6 +195,39 @@ const ListEntry = ({
                         </span>
                     </div>
                 )}
+                {(assignedUsers.length > 0 || assignedTeams.length > 0) && (
+                    <div className="flex items-center gap-2 mt-1">
+                        {assignedTeams.map((team) => {
+                            const TeamIcon = team.teamIcon;
+                            return (
+                                <div
+                                    key={team.id}
+                                    className="tooltip"
+                                    title={team.teamName || 'Unnamed Team'}
+                                >
+                                    {TeamIcon && <TeamIcon className="text-gray-600 w-4 h-4" />}
+                                </div>
+                            );
+                        })}
+                        {assignedUsers.map((user) => (
+                            <div
+                                key={user.id}
+                                className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold tooltip"
+                                title={user.name || 'Unknown User'}
+                            >
+                                {user.profilePicture ? (
+                                    <img
+                                        src={user.profilePicture}
+                                        alt={user.name || 'User'}
+                                        className="w-full h-full rounded-full object-cover"
+                                    />
+                                ) : (
+                                    (user.name || '??').split(' ').map(n => n[0]).join('').substring(0, 2)
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
                 {/* Display the file if it exists */}
                 {file && (
                     <div className="flex items-center gap-2">
@@ -243,6 +279,8 @@ const ListEntry = ({
                             warningThreshold,
                             entryId,
                             file,
+                            assignedTeams,
+                            assignedUsers
                         }}
                         onClose={() => onClick(null)}
                         onEdit={(updatedEntry) => {
@@ -279,6 +317,8 @@ const ListEntry = ({
                                 onAssign(id);
                             onClick(null);
                         }}
+                        teams={Teams}
+                        users={Users}
                     />
                 )}
             </AnimatePresence>
@@ -328,6 +368,24 @@ const ListEntry = ({
 
 ListEntry.propTypes = {
     text: PropTypes.string.isRequired,
+    dueDate: PropTypes.instanceOf(Date),
+    warningThreshold: PropTypes.number,
+    assignedUsers: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+        teamIcon: PropTypes.elementType,
+    })).isRequired,
+    assignedTeams: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        teamName: PropTypes.string.isRequired,
+        teamIcon: PropTypes.elementType,
+    })).isRequired,
+    checked: PropTypes.bool.isRequired,
+    onCheckChange: PropTypes.func.isRequired,
+    onTextChange: PropTypes.func,
+    onDueDateChange: PropTypes.func,
+    onWarningThresholdChange: PropTypes.func,
+    onAssign: PropTypes.func,
     isNew: PropTypes.bool,
     isSelected: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
@@ -338,15 +396,9 @@ ListEntry.propTypes = {
     isDragging: PropTypes.bool,
     isDraggedOver: PropTypes.bool,
     dragPosition: PropTypes.oneOf(['above', 'below', null]),
-    dueDate: PropTypes.instanceOf(Date),
-    warningThreshold: PropTypes.number,
-    onTextChange: PropTypes.func,
-    onDueDateChange: PropTypes.func,
-    onWarningThresholdChange: PropTypes.func,
-    onDelete: PropTypes.func,
-    onAssign: PropTypes.func,
+    file: PropTypes.instanceOf(File),
     onFileChange: PropTypes.func,
-    file: PropTypes.instanceOf(File)
+    onDelete: PropTypes.func,
 };
 
 ListEntry.defaultProps = {
@@ -357,8 +409,16 @@ ListEntry.defaultProps = {
     onDragStart: () => { },
     onDragEnd: () => { },
     onDrop: () => { },
-    warningThreshold: 1, // Default warning threshold is 1 day
-    file: null
+    warningThreshold: 1,
+    file: null,
+    assignedTeams: [],
+    assignedUsers: [],
+    onTextChange: () => { },
+    onDueDateChange: () => { },
+    onWarningThresholdChange: () => { },
+    onFileChange: () => { },
+    onDelete: () => { },
+    onAssign: () => { },
 };
 
 export default ListEntry;

@@ -2,12 +2,23 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import ListEntryEditPopup from "./ListEntryEditPopup";
+import ListEntryAssignPopup from "./ListEntryAssignPopup";
 
-const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign }) => {
+const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign, teams, users}) => {
     const [showEditPopup, setShowEditPopup] = useState(false);
+    const [showAssignPopup, setShowAssignPopup] = useState(false);
 
     const handleEditClick = () => {
         setShowEditPopup(true);
+    };
+
+    const handleAssignClicked = () => {
+        setShowAssignPopup(true);
+    };
+
+    const handleAssign = (assignmentData) => {
+        onAssign(assignmentData);
+        setShowAssignPopup(false);
     };
 
     const handleSaveEdit = (updatedEntry) =>
@@ -32,7 +43,7 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign }) => {
                     </button>
                     {onAssign && (
                         <button
-                            onClick={() => onAssign(entry.entryId)}
+                            onClick={handleAssignClicked}
                             className="w-full px-4 py-2 text-left hover:bg-gray-100 transition-colors duration-200">
                             Assign
                         </button>
@@ -53,6 +64,14 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign }) => {
                     onSave={handleSaveEdit}
                     onClose={() => setShowEditPopup(false)}/>
             )}
+            {showAssignPopup && (
+                <ListEntryAssignPopup
+                    entry={entry}
+                    onAssign={handleAssign}
+                    onClose={() => setShowAssignPopup(false)}
+                    teams={teams}
+                    users={users}/>
+            )}
         </>
     );
 };
@@ -68,7 +87,15 @@ ListEntryPopup.propTypes = {
     onClose: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
     onDelete: PropTypes.func,
-    onAssign: PropTypes.func
+    onAssign: PropTypes.func,
+    teams: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            teamName: PropTypes.string.isRequired,
+        })).isRequired,
+    users: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.string.isRequired,
+        name: PropTypes.string.isRequired,
+    })).isRequired,
 };
 
 export default ListEntryPopup;

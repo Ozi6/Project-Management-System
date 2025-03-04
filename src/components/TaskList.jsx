@@ -326,6 +326,13 @@ const TaskList = ({
         setEntries(updatedEntries);
     };
 
+    const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
+        const updatedEntries = [...entries];
+        updatedEntries[index].assignedUsers = newAssigneesUsers;
+        updatedEntries[index].assignedTeams = newAssigneesTeams;
+        setEntries(updatedEntries);
+    };
+
     // Callback to update entry warning threshold
     const handleWarningThresholdChange = (index, newWarningThreshold) => {
         const updatedEntries = [...entries];
@@ -406,6 +413,9 @@ const TaskList = ({
                                             onEntryDelete(listId, index);
                                         }}
                                         onFileChange={(file) => handleFileChange(index, file)}
+                                        assignedTeams={entry.assignedTeams}
+                                        assignedUsers={entry.assignedUsers}
+                                        onAssign={(newAssigneesTeams, newAssigneesUsers) => handleAssignedChange(index, newAssigneesTeams, newAssigneesUsers)}
                                     />
                                 </div>
                             );

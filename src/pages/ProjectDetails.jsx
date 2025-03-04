@@ -7,6 +7,7 @@ import Categorizer from "../components/Categorizer";
 import { useNavigate } from 'react-router-dom';
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
+import { Teams, Users } from '../components/TeamAndUsersTest';
 
 const ProjectDetailsWrapper = () =>
 {
@@ -36,6 +37,8 @@ const ProjectDetails = () => {
                                 text: "Complete project proposal",
                                 entryId: "task-1",
                                 dueDate: new Date("2025-12-15"),
+                                assignedTeams: [Teams[0], Teams[1]],
+                                assignedUsers: [Users[0]]
                             },
                             {
                                 text: "Review design mockups",
