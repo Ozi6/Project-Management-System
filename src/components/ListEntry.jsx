@@ -145,7 +145,7 @@ const ListEntry = ({
         if (dragImageRef.current)
         {
             dragImageRef.current.style.left = `${(e.clientX - mouseOffsetX.current)}px`;
-            dragImageRef.current.style.top = `${(e.clientY - mouseOffsetY.current - 60)}px`;
+            dragImageRef.current.style.top = `${(e.clientY - mouseOffsetY.current)}px`;
         }
     };
 
