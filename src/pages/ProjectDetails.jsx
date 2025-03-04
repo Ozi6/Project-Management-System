@@ -19,6 +19,7 @@ const ProjectDetailsWrapper = () =>
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState("team");
     const initialColumns = [
         [
             {
@@ -515,7 +516,7 @@ const ProjectDetails = () => {
               onZoomChange={handleZoomChange} 
             />
             <div className="flex flex-1">
-                <ViewportSidebar />
+                <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 <div className="flex flex-col flex-1">
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
