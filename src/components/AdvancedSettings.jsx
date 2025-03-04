@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
 import ErrorBoundary from "./ErrorBoundary";
+import Dropdown from "./Dropdown";
+
+
 import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 
@@ -183,6 +186,34 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       }
     }
   };
+ 
+  const updateMemberRole = (memberId, newRole) => {
+    if (!memberId || !newRole) return;
+
+    setTeams(prevTeams => {
+      const updatedTeams = prevTeams.map(team => ({
+        ...team,
+        members: team.members.map(member => 
+          member.id === memberId 
+            ? { ...member, role: newRole }
+            : member
+        )
+      }));
+      
+
+      const memberUpdated = updatedTeams.some(team => 
+        team.members.some(member => 
+          member.id === memberId && member.role === newRole
+        )
+      );
+      
+      if (!memberUpdated) {
+        console.warn('Failed to update member role');
+        return prevTeams;
+      }
+      
+      return updatedTeams;
+    });
 
   const deleteTeam = (teamName) => {
     if (!teamName || typeof teamName !== "string") {
@@ -300,6 +331,13 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             </div>
           ))}
         </div>
+        <ManageRoleModal
+          member={selectedMember}
+          onClose={() => setSelectedMember(null)}
+          onUpdateRole={updateMemberRole}
+          roles={roles}
+          currentRole={selectedMember?.role}
+        />
 
         <ManageAccessModal
           member={selectedMember}
@@ -328,5 +366,5 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
     </ErrorBoundary>
   );
 };
-
+};
 export default AdvancedSettings;
