@@ -22,8 +22,7 @@ const Categorizer = ({
     onDeleteList,
     onDeleteCategory,
     onUpdateEntryCheckedStatus,
-    onUpdateCategory,
-    zoomLevel
+    onUpdateCategory
 }) => {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
@@ -241,7 +240,7 @@ const Categorizer = ({
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
                                     onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
                                         onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)}
-                                    zoomLevel={zoomLevel} />
+                                    />
                             </div>
                             {showDropIndicator && dragPosition === 'below' && (
                                 <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mt-4 items-center justify-center"></div>

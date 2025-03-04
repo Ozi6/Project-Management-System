@@ -150,13 +150,10 @@ const ProjectDetails = () => {
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(0.7); // 1 = 100%, 0.7 = 70%, etc.
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
     const BASE_MIN_COLUMN_WIDTH = 315;
-    const BASE_MAX_COLUMN_WIDTH = 450;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
-    const MAX_COLUMN_WIDTH = BASE_MAX_COLUMN_WIDTH * (1 / zoomLevel);
 
     const toggleLayout = (isHorizontal) =>
     {
@@ -524,14 +521,6 @@ const ProjectDetails = () => {
         setColumns(updatedColumns);
     };
 
-    const handleZoomChange = (newZoomLevel) =>
-    {
-        setZoomLevel(newZoomLevel);
-        const container = document.getElementById("columns-container");
-        if(container && !isHorizontalLayout)
-            redistributeTasks(container.offsetWidth);
-    };
-
     useEffect(() => {
         const handleResize = () => {
             const container = document.getElementById("columns-container");
@@ -544,7 +533,7 @@ const ProjectDetails = () => {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [columns, isHorizontalLayout, zoomLevel]);
+    }, [columns, isHorizontalLayout]);
 
     useEffect(() => {
         if (searchTerm) {
@@ -577,8 +566,6 @@ const ProjectDetails = () => {
               isHorizontalLayout={isHorizontalLayout} 
               toggleLayout={toggleLayout} 
               onAddCategorizer={handleAddCategorizer}
-              zoomLevel={zoomLevel}
-              onZoomChange={handleZoomChange} 
             />
             <div className="flex flex-1">
                 <ViewportSidebar />
@@ -591,10 +578,10 @@ const ProjectDetails = () => {
                     <div
                         id="columns-container"
                         style={{
-                            transform: `scale(${zoomLevel})`,
+                            transform: ``,
                             transformOrigin: 'top left',
-                            width: zoomLevel < 1 ? `${(1/zoomLevel) * 100}%` : '100%',
-                            marginBottom: zoomLevel < 1 ? `${(1 / zoomLevel) * 100}px` : '20px',
+                            width: '100%',
+                            marginBottom: '20px',
                         }}
                         className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-20`}>
                         {displayColumns.map((tasks, columnIndex) => (
@@ -627,7 +614,6 @@ const ProjectDetails = () => {
                                             updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
                                         }}
                                         onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex)}
-                                        zoomLevel={task.zoomLevel}
                                     />
                                 ))}
                             </div>

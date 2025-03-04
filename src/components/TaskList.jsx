@@ -20,8 +20,7 @@ const TaskList = ({
     onDeleteList,
     onDragStart,
     onUpdateEntryCheckedStatus,
-    onFileChange,
-    zoomLevel
+    onFileChange
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
@@ -407,7 +406,6 @@ const TaskList = ({
                                             onEntryDelete(listId, index);
                                         }}
                                         onFileChange={(file) => handleFileChange(index, file)}
-                                        zoomLevel={zoomLevel}
                                     />
                                 </div>
                             );
