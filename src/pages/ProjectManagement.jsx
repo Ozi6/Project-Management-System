@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, SortAsc, User, Heart } from "lucide-react";
+import { Plus, Search, Filter, User, Heart } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ProjectCard from "../components/ProjectCard";
@@ -48,10 +48,11 @@ const ProjectManagement = () => {
         navigate('/project/new');
     };
     
+    // Updated sampleProjects - removed role property
     const sampleProjects = [
-        { id: 1, name: "Website Redesign", owner: "Alice", role: "Project Manager", progress: 75, status: "In Progress", isOwner: true },
-        { id: 2, name: "Mobile App Development", owner: "Bob", role: "Developer", progress: 30, status: "In Progress", isOwner: false },
-        { id: 3, name: "Database Migration", owner: "Charlie", role: "DB Admin", progress: 100, status: "Completed", isOwner: false }
+        { id: 1, name: "Website Redesign", owner: "Alice", progress: 75, status: "In Progress", isOwner: true },
+        { id: 2, name: "Mobile App Development", owner: "Bob", progress: 30, status: "In Progress", isOwner: false },
+        { id: 3, name: "Database Migration", owner: "Charlie", progress: 100, status: "Completed", isOwner: false }
     ];
 
     const [activeProjects, setProject] = useState(sampleProjects);
@@ -66,10 +67,10 @@ const ProjectManagement = () => {
         setIsAddProjectPopUpOpen(false);
     }
 
+    // Updated newProjectDetails - removed role property
     const [newProjectDetails, setNewProjectDetails] = useState({
         name: "",
         owner: "",
-        role: "",
         progress: 0,
         status: "In Progress",
         dueDate: "",
@@ -104,12 +105,12 @@ const ProjectManagement = () => {
         });
     };
 
+    // Updated addNewProject - removed role property
     const addNewProject = () => {
         const newProject = {
             id: uuidv4(),
             name: newProjectDetails.name,
             owner: newProjectDetails.owner,
-            role: newProjectDetails.role,
             progress: 0,
             status: "In Progress",
             isOwner: true,
@@ -119,12 +120,20 @@ const ProjectManagement = () => {
         setNewProjectDetails({
             name: "",
             owner: "",
-            role: "",
             progress: 0,
             status: "In Progress",
             isOwner: "",
         });
         setIsAddProjectPopUpOpen(false);
+    };
+
+    const deleteProject = (projectId) => {
+        // Filter out the project with the given id
+        const updatedProjects = activeProjects.filter(project => project.id !== projectId);
+        setProject(updatedProjects);
+        
+        // Optional: Show a toast notification
+        // toast.success("Project deleted successfully");
     };
     
     return (
@@ -146,29 +155,7 @@ const ProjectManagement = () => {
                 <div className="bg-white shadow-md z-5 border-r border-pink-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
-                <div className="flex-1 overflow-auto bg-gray-50">
-                    <main className="p-6 h-full w-full">
-                        {activeTab === "calendar" ? <GanttChart fullPage={true} /> : 
-                         activeTab === "teams" ? (
-                            <Teams />  
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {sampleProjects.map((project) => (
-                                    <ProjectCard
-                                        key={project.id}
-                                        id={project.id}
-                                        name={project.name}
-                                        owner={project.owner}
-                                        role={project.role}
-                                        progress={project.progress}
-                                        status={project.status}
-                                        dueDate={project.dueDate}
-                                    />
-                                ))}
-                            </div>
-                        )}
-                    </main>
-                </div>
+                
                 
                 {/* Main content area with better organization */}
                 <div className="flex-1 overflow-auto bg-pink-50 flex flex-col">
@@ -201,8 +188,6 @@ const ProjectManagement = () => {
                                     </select>
                                     <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-gray-500 pointer-events-none" />
                                 </div>
-                                
-                                
                             </div>
                         </div>
                         
@@ -254,10 +239,10 @@ const ProjectManagement = () => {
                                                 id={project.id}
                                                 name={project.name}
                                                 owner={project.owner}
-                                                role={project.role}
                                                 progress={project.progress}
                                                 status={project.status}
                                                 isOwner={project.isOwner}
+                                                onDelete={deleteProject} // Pass the delete function here
                                             />
                                         </motion.div>
                                     ))}
@@ -285,7 +270,7 @@ const ProjectManagement = () => {
                 </div>
             </div>
 
-            {/* Modal with pink accents */}
+            {/* Modal with pink accents - Removed role field */}
             <AnimatePresence>
                 {isAddProjectPopUpOpen && (
                     <motion.div 
@@ -353,25 +338,6 @@ const ProjectManagement = () => {
                                             placeholder="Project owner"
                                         />
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Your Role</label>
-                                    <select
-                                        id="role"
-                                        name="role"
-                                        value={newProjectDetails.role}
-                                        onChange={handleInputChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-200"
-                                        required
-                                    >
-                                        <option value="">Select your role</option>
-                                        <option value="Project Manager">Project Manager</option>
-                                        <option value="Developer">Developer</option>
-                                        <option value="Designer">Designer</option>
-                                        <option value="DB Admin">DB Admin</option>
-                                        <option value="QA Tester">QA Tester</option>
-                                    </select>
                                 </div>
 
                                 <div>

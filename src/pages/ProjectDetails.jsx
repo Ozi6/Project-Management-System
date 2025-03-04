@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 import ViewportHeader from "../components/ViewportHeader";
-import ViewportSidebar from "../components/ViewportSidebar";
+import Sidebar from "../components/Sidebar"; // Changed from ViewportSidebar
 import Categorizer from "../components/Categorizer";
 import { useNavigate } from 'react-router-dom';
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
 import { Teams, Users } from '../components/TeamAndUsersTest';
+import { Activity, KanbanSquare, Layout, Settings, Users as UsersIcon } from "lucide-react"; // Changed Calendar to Activity
 
 const ProjectDetailsWrapper = () =>
 {
@@ -547,6 +548,51 @@ const ProjectDetails = () => {
 
     const displayColumns = filteredColumns || columns;
 
+    // Custom navigation items for the sidebar
+    const customNavItems = [
+        { 
+            id: 'dashboard', 
+            icon: Layout, 
+            label: 'Dashboard', 
+            path: '/dashboard',
+            color: 'bg-blue-100 text-blue-600',  
+            iconColor: 'text-blue-600',     
+            defaultColor: true
+        },
+        { 
+            id: 'projects', 
+            icon: KanbanSquare, 
+            label: 'This Project', // Changed from "Projects" to "This Project"
+            path: '/project/1', // Changed from "/projects" to "/project/1"
+            color: 'bg-purple-100 text-purple-600',
+            iconColor: 'text-purple-600'
+        },
+        { 
+            id: 'activity', 
+            icon: Activity, 
+            label: 'Activity',
+            path: '/activity',
+            color: 'bg-yellow-100 text-yellow-600',
+            iconColor: 'text-amber-600'
+        },
+        { 
+            id: 'teams', 
+            icon: UsersIcon, 
+            label: 'Teams',
+            path: '/teams',
+            color: 'bg-green-100 text-green-600',
+            iconColor: 'text-green-600'
+        },
+        { 
+            id: 'settings', 
+            icon: Settings, 
+            label: 'Settings',
+            path: '/project/settings',
+            color: 'bg-gray-100 text-gray-600',
+            iconColor: 'text-gray-600'
+        }
+    ];
+
     return (
         <div className="flex flex-col h-screen">
             <ViewportHeader 
@@ -555,7 +601,11 @@ const ProjectDetails = () => {
               onAddCategorizer={handleAddCategorizer}
             />
             <div className="flex flex-1">
-                <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+                <Sidebar 
+                    activeTab={activeTab} 
+                    setActiveTab={setActiveTab}
+                    customNavItems={customNavItems} // Pass custom navigation items to Sidebar
+                />
                 <div className="flex flex-col flex-1">
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
