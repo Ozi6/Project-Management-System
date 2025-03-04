@@ -6,6 +6,7 @@ import ViewportSidebar from "../components/ViewportSidebar";
 import Categorizer from "../components/Categorizer";
 import { useNavigate } from 'react-router-dom';
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
+import ProgressBar from '../components/ProgressBar';
 
 const ProjectDetailsWrapper = () =>
 {
@@ -633,6 +634,7 @@ const ProjectDetails = () => {
                         ))}
                     </div>
                 </div>
+                <ProgressBar tasks={displayColumns}/>
             </div>
         </div>
     );
