@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
-import { FaCalendarAlt, FaTimes, FaPaperclip, FaTrash } from "react-icons/fa";
+import { FaTimes } from "react-icons/fa";
 
 const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
     const [formData, setFormData] = useState({
-        assignedTeams: [],
-        assignedUsers: [],
+        assignedTeams: entry ? entry.assignedTeams || [] : [],
+        assignedUsers: entry ? entry.assignedUsers || [] : [],
     });
+    const [availableTeams, setAvailableTeams] = useState([]);
+    const [availableUsers, setAvailableUsers] = useState([]);
 
     useEffect(() => {
-        if (entry) {
-            setFormData({
-                assignedTeams: entry.assignedTeams || [],
-                assignedUsers: entry.assignedUsers || [],
-            });
-        }
-    }, [entry]);
+        setAvailableTeams(teams.filter(team => !formData.assignedTeams.includes(team.id)));
+        setAvailableUsers(users.filter(user => !formData.assignedUsers.includes(user.id)));
+    }, [teams, users, formData.assignedTeams, formData.assignedUsers]);
 
     const addTeam = (teamId) => {
         setFormData((prev) => ({
@@ -52,19 +50,15 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onAssign(
-            formData.assignedUsers,
-            formData.assignedTeams
-        );
+        onAssign(formData.assignedUsers, formData.assignedTeams);
         onClose();
     };
 
-    const availableTeams = teams.filter(
-        (team) => !formData.assignedTeams.some(assignedTeamId => assignedTeamId === team.id)
-    );
-    const availableUsers = users.filter(
-        (user) => !formData.assignedUsers.some(assignedUserId => assignedUserId === user.id)
-    );
+    useEffect(() => {
+        console.log("all teams: ", teams);
+        console.log("available teams: ", availableTeams);
+        console.log("assigned teams: ", formData.assignedTeams);
+    }, [teams, formData.assignedTeams, availableTeams]);
 
     return (
         <motion.div
@@ -95,7 +89,6 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
 
                 <form onSubmit={handleSubmit} className="p-6">
                     <div className="mb-4 flex">
-                        {/* Assigned Teams */}
                         <div className="w-1/2 pr-2">
                             <label className="block text-gray-700 text-sm font-medium mb-2">
                                 Assigned Teams
@@ -122,7 +115,6 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                             </div>
                         </div>
                         <div className="w-px bg-gray-300 mx-2"></div>
-                        {/* Available Teams */}
                         <div className="w-1/2 pl-2">
                             <label className="block text-gray-700 text-sm font-medium mb-2">
                                 Available Teams
@@ -148,7 +140,6 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                     </div>
 
                     <div className="mb-4 flex">
-                        {/* Assigned Users */}
                         <div className="w-1/2 pr-2">
                             <label className="block text-gray-700 text-sm font-medium mb-2">
                                 Assigned Users
@@ -240,7 +231,7 @@ ListEntryAssignPopup.propTypes = {
                 id: PropTypes.string.isRequired,
                 teamName: PropTypes.string.isRequired,
             })
-        )
+        ),
     }),
     onAssign: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
