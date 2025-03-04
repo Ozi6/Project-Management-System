@@ -4,12 +4,9 @@ import { Menu, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
-import Dropdown from "./Dropdown";
-
-import ManageTeamsModal from "./ManageTeamsModal";
-import ErrorBoundary from "./ErrorBoundary"; // Ensure this exists as shown previously
+import ErrorBoundary from "./ErrorBoundary";
 import SimpleModal from "./SimpleModal";
-
+import ManageTeamsModal from "./ManageTeamsModal";
 
 const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   return (
@@ -76,30 +73,25 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       id: 1,
       name: "Alice Johnson",
       email: "alice@example.com",
-      role: "Manager",
       team: "Engineering",
     },
     {
       id: 2,
       name: "Bob Smith",
       email: "bob@example.com",
-      role: "Guest",
       team: "Marketing",
     },
     {
       id: 3,
       name: "Charlie Brown",
       email: "charlie@example.com",
-      role: "Member",
       team: "Design",
     },
   ]);
-  const [openDropdown, setOpenDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberToRemove, setMemberToRemove] = useState(null);
-  const roles = ["Manager", "Guest", "Member"];
   const [memberToManageTeams, setMemberToManageTeams] = useState(null);
   const [teams, setTeams] = useState([
     { id: 1, name: "Engineering", icon: "Wrench" },
@@ -107,7 +99,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
     { id: 3, name: "Design", icon: "Paintbrush" },
   ]);
   
-
   const [permissions, setPermissions] = useState(
     members.reduce(
       (acc, member) => ({
@@ -134,19 +125,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         [option]: !prev[email]?.[option],
       },
     }));
-  };
-
-  const updateRole = (id, newRole) => {
-    if (!id || !newRole) {
-      console.warn("Invalid id or newRole for updateRole");
-      return;
-    }
-    setMembers(
-      members.map((member) =>
-        member.id === id ? { ...member, role: newRole } : member
-      )
-    );
-    setOpenDropdown(null); // Close dropdown after selecting a role
   };
   
   const confirmRemoveMember = (id) => {
@@ -232,7 +210,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <ErrorBoundary>
@@ -241,7 +218,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         <div className="flex justify-between items-center mb-6">
           {/* Go Back to General Settings Button */}
           <button
-            onClick={() => setShowAdvanced(false)}  // This triggers the callback to go back to GeneralSettings
+            onClick={() => setShowAdvanced(false)}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
           >
             Go Back to General Settings
@@ -249,12 +226,15 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
           {/* Invite People Button */}
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
+            onClick={() => setIsModalOpen(true)}
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center"
           >
+            <UserPlus className="w-5 h-5 mr-2" />
             Invite People
           </button>
         </div>
         
+        {/* Invite People Modal */}
         <InvitePeople
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -288,60 +268,11 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 <div>
                   <p className="text-lg font-medium">{member.name}</p>
                   <p className="text-sm text-gray-500">{member.email}</p>
+                  <p className="text-xs text-gray-400">Team: {member.team || "None"}</p>
                 </div>
               </div>
 
-              <div className="flex w-[600px] justify-center items-center space-x-4">
-              <Menu as="div" className="relative inline-block text-left w-40 z-10">
-                <Menu.Button
-                  className="flex items-center w-[160px] justify-between bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
-                  onClick={() => setOpenDropdown((prev) => (prev === member.id ? null : member.id))}
-                  onBlur={() => setTimeout(() => setOpenDropdown(null), 200)} // Delay to allow menu click
-                >
-                  {member.role || "No Role"}
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                </Menu.Button>
-
-                <Transition
-                  show={openDropdown === member.id}
-                  as={Fragment}
-                  enter="transition ease-out duration-200"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="transition ease-in duration-150"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Menu.Items
-                    className="absolute left-0 mt-1 min-w-[160px] bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] origin-top-right w-full"
-                    style={{
-                      top: "100%",
-                      left: "0",
-                      transform: "translateY(10px)",
-                    }}
-                  >
-                    {roles.map((role) => (
-                      <Menu.Item key={role}>
-                        {({ active }) => (
-                          <button
-                            className={`block w-full text-left px-4 py-2 ${
-                              active ? "bg-blue-100" : ""
-                            } ${member.role === role ? "font-bold text-blue-600" : "text-gray-700"}`}
-                            onClick={() => updateRole(member.id, role)}
-                            disabled={!member?.id}
-                          >
-                            {role}
-                          </button>
-                        )}
-                      </Menu.Item>
-                    ))}
-                  </Menu.Items>
-                </Transition>
-                {/* <Dropdown member={member} roles={roles} updateRole={updateRole} /> */}
-
-              </Menu>
-
-
+              <div className="flex items-center space-x-4">
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-lg transition hover:bg-green-700"
                   onClick={() => setSelectedMember(member || null)}
@@ -365,14 +296,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   <Trash className="w-5 h-5 mr-1" />
                   Remove
                 </button>
-                {/* <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                  onClick={() => setModalOpen(true)}
-                >
-                  Open Modal
-                </button> */}
               </div>
-
             </div>
           ))}
         </div>
@@ -389,6 +313,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           onConfirm={confirmRemoveMember}
           onCancel={() => setMemberToRemove(null)}
         />
+        
         {memberToManageTeams && (
           <ManageTeamsModal
             member={memberToManageTeams}
@@ -399,10 +324,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             onClose={() => setMemberToManageTeams(null)}
           />
         )}
-        <SimpleModal 
-          isOpen={modalOpen} onClose={() => setModalOpen(false)}
-
-        />
       </div>
     </ErrorBoundary>
   );
