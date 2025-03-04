@@ -375,6 +375,34 @@ const ProjectDetails = () => {
         setSelectedEntryId(null);
     };
 
+    const deepCopyColumns = (columns) => {
+        return columns.map(column => {
+            return column.map(category => {
+                return {
+                    ...category,
+                    taskLists: (category.taskLists || []).map(taskList => {
+                        return {
+                            ...taskList,
+                            entries: (taskList.entries || []).map(entry => {
+                                return {
+                                    ...entry,
+                                    assignedUsers: (entry.assignedUsers || []).map(user => ({
+                                        ...user,
+                                        profilePicture: user.profilePicture
+                                    })),
+                                    assignedTeams: (entry.assignedTeams || []).map(team => ({
+                                        ...team,
+                                        teamIcon: team.teamIcon
+                                    }))
+                                };
+                            })
+                        };
+                    })
+                };
+            });
+        });
+    };
+
     const handleMoveTaskList = (moveData) => {
         const { sourceListId, sourceCategoryId, targetCategoryId, targetIndex } = moveData;
         const newColumns = JSON.parse(JSON.stringify(columns));
@@ -439,41 +467,53 @@ const ProjectDetails = () => {
             entry
         } = moveData;
 
-        // No deep copy, work directly with columns
+        const newColumns = deepCopyColumns(columns);
+
         const sourceEntryIdParts = sourceEntryId.split('-');
         const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
 
-        let sourceList, targetList;
+        let sourceCategory, sourceList, targetCategory, targetList;
+        let sourceColumnIndex, sourceTaskIndex, targetColumnIndex, targetTaskIndex;
 
-        outerLoop: for (const column of columns) {
-            for (const category of column) {
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+            for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
+                const category = newColumns[colIndex][taskIndex];
                 if (category.id === sourceCategoryId) {
+                    sourceCategory = category;
+                    sourceColumnIndex = colIndex;
+                    sourceTaskIndex = taskIndex;
                     sourceList = category.taskLists.find(list => list.id === sourceListId);
                     if (sourceList) break outerLoop;
                 }
             }
         }
 
-        if (!sourceList) {
+        if (!sourceCategory || !sourceList) {
             console.error("Source not found");
             return;
         }
 
         if (targetIndex === -1) {
-            setColumns([...columns]); // Force re-render
+            setColumns(newColumns);
             return;
         }
 
-        outerLoop: for (const column of columns) {
-            for (const category of column) {
-                if (category.id === targetCategoryId) {
-                    targetList = category.taskLists.find(list => list.id === targetListId);
-                    if (targetList) break outerLoop;
+        if (targetListId && targetCategoryId) {
+            outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+                for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
+                    const category = newColumns[colIndex][taskIndex];
+                    if (category.id === targetCategoryId) {
+                        targetCategory = category;
+                        targetColumnIndex = colIndex;
+                        targetTaskIndex = taskIndex;
+                        targetList = category.taskLists.find(list => list.id === targetListId);
+                        if (targetList) break outerLoop;
+                    }
                 }
             }
         }
 
-        if (!targetList) {
+        if (!targetCategory || !targetList) {
             console.error("Target not found");
             return;
         }
@@ -486,15 +526,21 @@ const ProjectDetails = () => {
             return;
         }
 
+        const safeEntry = {
+            ...entryToMove,
+            assignedUsers: entryToMove.assignedUsers || [],
+            assignedTeams: entryToMove.assignedTeams || []
+        };
+
         if (isSameList) {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            sourceList.entries.splice(targetIndex, 0, entryToMove);
+            sourceList.entries.splice(targetIndex, 0, safeEntry);
         } else {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            targetList.entries.splice(targetIndex, 0, entryToMove);
+            targetList.entries.splice(targetIndex, 0, safeEntry);
         }
 
-        setColumns([...columns]);
+        setColumns(newColumns);
     };
 
     const updateCategory = (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
