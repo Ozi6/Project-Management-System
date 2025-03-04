@@ -1,46 +1,49 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
-import { FaCalendarAlt, FaTimes } from "react-icons/fa";
+import { FaCalendarAlt, FaTimes, FaPaperclip, FaTrash } from "react-icons/fa";
 
-const ListEntryEditPopup = ({
-    entry,
-    onSave,
-    onClose
-}) => {
+const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
     const [formData, setFormData] = useState({
         text: "",
         dueDate: "",
         warningThreshold: 1,
         checked: false,
-        file: null
+        file: null,
     });
 
     useEffect(() => {
         if (entry) {
             setFormData({
                 text: entry.text || "",
-                dueDate: entry.dueDate ? new Date(entry.dueDate).toISOString().split('T')[0] : "",
+                dueDate: entry.dueDate ? new Date(entry.dueDate).toISOString().split("T")[0] : "",
                 warningThreshold: entry.warningThreshold || 1,
                 checked: entry.checked || false,
-                file: entry.file
+                file: entry.file || null,
             });
         }
     }, [entry]);
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
-        if (type === 'file') {
-            setFormData(prev => ({
+        if (type === "file") {
+            setFormData((prev) => ({
                 ...prev,
-                file: files[0] || null
+                file: files[0] || null, // Set to new file or null if no file selected
             }));
         } else {
-            setFormData(prev => ({
+            setFormData((prev) => ({
                 ...prev,
-                [name]: type === "checkbox" ? checked : value
+                [name]: type === "checkbox" ? checked : value,
             }));
         }
+    };
+
+    const handleRemoveFile = () => {
+        setFormData((prev) => ({
+            ...prev,
+            file: null,
+        }));
     };
 
     const handleSubmit = (e) => {
@@ -51,16 +54,16 @@ const ListEntryEditPopup = ({
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
             warningThreshold: parseInt(formData.warningThreshold, 10),
             checked: formData.checked,
-            file: formData.file
+            file: formData.file, // Pass the file (original, new, or null)
         };
         onSave(updatedEntry);
         onClose();
     };
 
     const clearDueDate = () => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            dueDate: ""
+            dueDate: "",
         }));
     };
 
@@ -77,7 +80,7 @@ const ListEntryEditPopup = ({
                 initial={{ y: 20 }}
                 animate={{ y: 0 }}
                 className="bg-white rounded-lg shadow-xl w-full max-w-md m-4"
-                onClick={e => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
             >
                 <div className="bg-blue-500 text-white rounded-t-lg p-4">
                     <div className="flex justify-between items-center">
@@ -166,10 +169,29 @@ const ListEntryEditPopup = ({
                             <span className="ml-2 text-gray-700 text-sm">Mark as completed</span>
                         </label>
                     </div>
+
                     <div className="mb-6">
                         <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="file">
                             Attach File
                         </label>
+                        {formData.file && (
+                            <div className="flex items-center gap-2 mb-2">
+                                <FaPaperclip className="text-gray-500" />
+                                <span className="text-sm text-gray-700">
+                                    {formData.file.name.length > 15
+                                        ? formData.file.name.substring(0, 15) + "..." + formData.file.name.substring(formData.file.name.lastIndexOf("."))
+                                        : formData.file.name}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={handleRemoveFile}
+                                    className="text-red-500 hover:text-red-700"
+                                    title="Remove file"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        )}
                         <input
                             type="file"
                             id="file"
@@ -177,18 +199,25 @@ const ListEntryEditPopup = ({
                             onChange={handleChange}
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
+                        {formData.file && (
+                            <p className="text-xs text-gray-500 mt-1">
+                                Upload a new file to replace the current one.
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex justify-end space-x-3">
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
                             Save Changes
                         </button>
                     </div>
@@ -205,10 +234,10 @@ ListEntryEditPopup.propTypes = {
         warningThreshold: PropTypes.number,
         checked: PropTypes.bool,
         entryId: PropTypes.string,
-        file: PropTypes.instanceOf(File)
+        file: PropTypes.instanceOf(File),
     }),
     onSave: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
+    onClose: PropTypes.func.isRequired,
 };
 
 export default ListEntryEditPopup;

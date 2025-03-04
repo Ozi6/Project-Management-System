@@ -200,7 +200,21 @@ const ListEntry = ({
                             onClick={handleDownload}
                             title={`Download ${file.name}`}
                         />
-                        <span className="text-sm text-gray-500">{file.name}</span>
+                        <span className="text-sm text-gray-500">
+                            {file.name.length > 15
+                                ? (() => {
+                                    const lastDotIndex = file.name.lastIndexOf(".");
+                                    if (lastDotIndex !== -1) {
+                                        const namePart = file.name.substring(0, lastDotIndex);
+                                        const extPart = file.name.substring(lastDotIndex);
+                                        return namePart.length + extPart.length > 15
+                                            ? namePart.substring(0, 15 - extPart.length) + "..." + extPart
+                                            : file.name;
+                                    }
+                                    return file.name.length > 15 ? file.name.substring(0, 15) + "..." : file.name;
+                                })()
+                                : file.name}
+                        </span>
                     </div>
                 )}
             </div>
@@ -228,7 +242,7 @@ const ListEntry = ({
                             dueDate,
                             warningThreshold,
                             entryId,
-                            file, // Pass the file to the popup
+                            file,
                         }}
                         onClose={() => onClick(null)}
                         onEdit={(updatedEntry) => {
