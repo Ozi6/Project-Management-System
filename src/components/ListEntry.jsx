@@ -187,7 +187,7 @@ const ListEntry = ({
             {isDraggingThis && (
                 <div
                     ref={dragImageRef}
-                    className="fixed z-50 p-2 shadow rounded-md border border-blue-500 bg-blue-100 flex items-center gap-2 pointer-events-none"
+                    className="fixed z-90 p-2 shadow rounded-md border border-blue-500 bg-blue-100 flex items-center gap-2 pointer-events-none"
                     style={{
                         width: entryRef.current ? `${entryRef.current.offsetWidth}px` : 'auto',
                         opacity: 0.8
