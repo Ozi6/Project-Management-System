@@ -37,7 +37,6 @@ const TaskList = ({
     const listRef = useRef(null);
     const headerRef = useRef(null);
 
-    // Update entries when initialEntries prop changes
     useEffect(() => {
         setEntries(initialEntries);
     }, [initialEntries]);

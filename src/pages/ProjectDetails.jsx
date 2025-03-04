@@ -46,6 +46,8 @@ const ProjectDetails = () => {
                                 text: "Review design mockups",
                                 entryId: "task-2",
                                 dueDate: new Date("2025-3-2"),
+                                assignedTeams: [Teams[0], Teams[1]],
+                                assignedUsers: [Users[0]]
                             },
                         ],
                     },
@@ -81,6 +83,8 @@ const ProjectDetails = () => {
                                 text: "Update website content",
                                 entryId: "task-5",
                                 dueDate: new Date("2025-12-25"),
+                                assignedTeams: [ Teams[1]],
+                                assignedUsers: [Users[0]]
                             },
                             {
                                 text: "Test new features",
@@ -435,52 +439,41 @@ const ProjectDetails = () => {
             entry
         } = moveData;
 
-        const newColumns = JSON.parse(JSON.stringify(columns));
+        // No deep copy, work directly with columns
         const sourceEntryIdParts = sourceEntryId.split('-');
         const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
 
-        let sourceCategory, sourceList, targetCategory, targetList;
-        let sourceColumnIndex, sourceTaskIndex, targetColumnIndex, targetTaskIndex;
+        let sourceList, targetList;
 
-        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
-            for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
-                const category = newColumns[colIndex][taskIndex];
+        outerLoop: for (const column of columns) {
+            for (const category of column) {
                 if (category.id === sourceCategoryId) {
-                    sourceCategory = category;
-                    sourceColumnIndex = colIndex;
-                    sourceTaskIndex = taskIndex;
                     sourceList = category.taskLists.find(list => list.id === sourceListId);
                     if (sourceList) break outerLoop;
                 }
             }
         }
 
-        if (!sourceCategory || !sourceList) {
+        if (!sourceList) {
             console.error("Source not found");
             return;
         }
 
         if (targetIndex === -1) {
-            setColumns(newColumns);
+            setColumns([...columns]); // Force re-render
             return;
         }
 
-        if (targetListId && targetCategoryId) {
-            outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
-                for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
-                    const category = newColumns[colIndex][taskIndex];
-                    if (category.id === targetCategoryId) {
-                        targetCategory = category;
-                        targetColumnIndex = colIndex;
-                        targetTaskIndex = taskIndex;
-                        targetList = category.taskLists.find(list => list.id === targetListId);
-                        if (targetList) break outerLoop;
-                    }
+        outerLoop: for (const column of columns) {
+            for (const category of column) {
+                if (category.id === targetCategoryId) {
+                    targetList = category.taskLists.find(list => list.id === targetListId);
+                    if (targetList) break outerLoop;
                 }
             }
         }
 
-        if (!targetCategory || !targetList) {
+        if (!targetList) {
             console.error("Target not found");
             return;
         }
@@ -493,27 +486,15 @@ const ProjectDetails = () => {
             return;
         }
 
-        // Ensure entry has all properties defined, and nullify file if name is falsy
-        const safeEntry = {
-            ...entryToMove,
-            file: entryToMove.file && entryToMove.file.name ? entryToMove.file : null,
-            checked: entryToMove.checked || false,
-            text: entryToMove.text || '',
-            dueDate: entryToMove.dueDate || null,
-            warningThreshold: entryToMove.warningThreshold || 1,
-            assignedUsers: entryToMove.assignedUsers || [],
-            assignedTeams: entryToMove.assignedTeams || []
-        };
-
         if (isSameList) {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            sourceList.entries.splice(targetIndex, 0, safeEntry);
+            sourceList.entries.splice(targetIndex, 0, entryToMove);
         } else {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            targetList.entries.splice(targetIndex, 0, safeEntry);
+            targetList.entries.splice(targetIndex, 0, entryToMove);
         }
 
-        setColumns(newColumns);
+        setColumns([...columns]);
     };
 
     const updateCategory = (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
