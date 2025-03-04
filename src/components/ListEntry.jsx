@@ -229,7 +229,7 @@ const ListEntry = ({
                     </div>
                 )}
                 {/* Display the file if it exists */}
-                {file && (
+                {file && file.name && (
                     <div className="flex items-center gap-2">
                         <FaPaperclip
                             className="text-gray-500 cursor-pointer hover:text-gray-700"

@@ -423,34 +423,28 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
-    const handleMoveEntry = (moveData) =>
-    {
-        const
-            {
+    const handleMoveEntry = (moveData) => {
+        const {
             sourceEntryId,
             sourceListId,
             sourceCategoryId,
             targetListId,
             targetCategoryId,
             targetIndex,
-            entryText
+            entry
         } = moveData;
 
         const newColumns = JSON.parse(JSON.stringify(columns));
-
         const sourceEntryIdParts = sourceEntryId.split('-');
         const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
 
         let sourceCategory, sourceList, targetCategory, targetList;
         let sourceColumnIndex, sourceTaskIndex, targetColumnIndex, targetTaskIndex;
 
-        outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
-        {
-            for(let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++)
-            {
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+            for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
                 const category = newColumns[colIndex][taskIndex];
-                if(category.id === sourceCategoryId)
-                {
+                if (category.id === sourceCategoryId) {
                     sourceCategory = category;
                     sourceColumnIndex = colIndex;
                     sourceTaskIndex = taskIndex;
@@ -460,27 +454,21 @@ const ProjectDetails = () => {
             }
         }
 
-        if(!sourceCategory || !sourceList)
-        {
-            console.error("test1");
+        if (!sourceCategory || !sourceList) {
+            console.error("Source not found");
             return;
         }
 
-        if(targetIndex === -1)
-        {
+        if (targetIndex === -1) {
             setColumns(newColumns);
             return;
         }
 
-        if(targetListId && targetCategoryId)
-        {
-            outerLoop: for(let colIndex = 0; colIndex < newColumns.length; colIndex++)
-            {
-                for(let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++)
-                {
+        if (targetListId && targetCategoryId) {
+            outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+                for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
                     const category = newColumns[colIndex][taskIndex];
-                    if(category.id === targetCategoryId)
-                    {
+                    if (category.id === targetCategoryId) {
                         targetCategory = category;
                         targetColumnIndex = colIndex;
                         targetTaskIndex = taskIndex;
@@ -491,25 +479,39 @@ const ProjectDetails = () => {
             }
         }
 
-        if(!targetCategory || !targetList)
-        {
-            console.log("test2");
+        if (!targetCategory || !targetList) {
+            console.error("Target not found");
             return;
         }
 
         const isSameList = sourceListId === targetListId && sourceCategoryId === targetCategoryId;
-        const entryToMove = sourceList.entries[sourceEntryIndex];
+        const entryToMove = sourceList.entries[sourceEntryIndex] || entry;
 
-        if(isSameList)
-        {
-            sourceList.entries.splice(sourceEntryIndex, 1);
-            sourceList.entries.splice(targetIndex, 0, entryToMove);
+        if (!entryToMove) {
+            console.error("Entry to move not found");
+            return;
         }
-        else
-        {
+
+        // Ensure entry has all properties defined, and nullify file if name is falsy
+        const safeEntry = {
+            ...entryToMove,
+            file: entryToMove.file && entryToMove.file.name ? entryToMove.file : null,
+            checked: entryToMove.checked || false,
+            text: entryToMove.text || '',
+            dueDate: entryToMove.dueDate || null,
+            warningThreshold: entryToMove.warningThreshold || 1,
+            assignedUsers: entryToMove.assignedUsers || [],
+            assignedTeams: entryToMove.assignedTeams || []
+        };
+
+        if (isSameList) {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            targetList.entries.splice(targetIndex, 0, entryToMove || entryText);
+            sourceList.entries.splice(targetIndex, 0, safeEntry);
+        } else {
+            sourceList.entries.splice(sourceEntryIndex, 1);
+            targetList.entries.splice(targetIndex, 0, safeEntry);
         }
+
         setColumns(newColumns);
     };
 

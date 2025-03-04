@@ -28,7 +28,12 @@ const TaskList = ({
     const [newEntryId, setNewEntryId] = useState(null);
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
-    const [entries, setEntries] = useState(initialEntries);
+    const [entries, setEntries] = useState(() =>
+        initialEntries.map(entry => ({
+            ...entry,
+            file: entry.file && entry.file.name ? entry.file : null
+        }))
+    );
     const listRef = useRef(null);
     const headerRef = useRef(null);
 
@@ -140,29 +145,23 @@ const TaskList = ({
     };
 
     const handleEntryDragEnd = () => {
-        if (window.dragState) {
-            if (draggedOverIndex !== null) {
-                const sourceEntryId = window.dragState.draggedEntryId;
-                const sourceListId = window.dragState.sourceListId;
-                const sourceCategoryId = window.dragState.sourceCategoryId;
-                const sourceEntryText = window.dragState.draggedEntryText;
+        if (window.dragState && draggedOverIndex !== null) {
+            const sourceEntryId = window.dragState.draggedEntryId;
+            const sourceListId = window.dragState.sourceListId;
+            const sourceCategoryId = window.dragState.sourceCategoryId;
+            const sourceIndex = parseInt(sourceEntryId.split('-').pop());
+            const sourceEntry = entries[sourceIndex];
 
-                window.dragState.targetListId = listId;
-                window.dragState.targetCategoryId = categoryId;
-                window.dragState.targetIndex = draggedOverIndex;
-
-                onMoveEntry({
-                    sourceEntryId,
-                    sourceListId,
-                    sourceCategoryId,
-                    targetListId: listId,
-                    targetCategoryId: categoryId,
-                    targetIndex: draggedOverIndex,
-                    entryText: sourceEntryText
-                });
-            }
+            onMoveEntry({
+                sourceEntryId,
+                sourceListId,
+                sourceCategoryId,
+                targetListId: listId,
+                targetCategoryId: categoryId,
+                targetIndex: draggedOverIndex,
+                entry: sourceEntry
+            });
         }
-
         setDraggedOverIndex(null);
         setDragPosition(null);
     };
@@ -335,8 +334,9 @@ const TaskList = ({
 
     const handleFileChange = (index, file) => {
         const updatedEntries = [...entries];
-        updatedEntries[index].file = file;
+        updatedEntries[index].file = file && file.name ? file : null;
         setEntries(updatedEntries);
+        onFileChange?.(listId, index, updatedEntries[index].file);
     };
 
     const handleDelete = (entryId) =>
