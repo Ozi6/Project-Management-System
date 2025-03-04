@@ -146,7 +146,29 @@ const ProjectManagement = () => {
                 <div className="bg-white shadow-md z-5 border-r border-pink-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
-                
+                <div className="flex-1 overflow-auto bg-gray-50">
+                    <main className="p-6 h-full w-full">
+                        {activeTab === "calendar" ? <GanttChart fullPage={true} /> : 
+                         activeTab === "teams" ? (
+                            <Teams />  
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sampleProjects.map((project) => (
+                                    <ProjectCard
+                                        key={project.id}
+                                        id={project.id}
+                                        name={project.name}
+                                        owner={project.owner}
+                                        role={project.role}
+                                        progress={project.progress}
+                                        status={project.status}
+                                        dueDate={project.dueDate}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </main>
+                </div>
                 
                 {/* Main content area with better organization */}
                 <div className="flex-1 overflow-auto bg-pink-50 flex flex-col">
