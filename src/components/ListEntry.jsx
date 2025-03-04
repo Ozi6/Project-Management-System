@@ -54,6 +54,23 @@ const ListEntry = ({
         setHasInteracted(true);
     };
 
+    const handleDownload = (e) =>
+    {
+        e.stopPropagation();
+
+        if(file)
+        {
+            const fileURL = URL.createObjectURL(file);
+            const link = document.createElement('a');
+            link.href = fileURL;
+            link.download = file.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(fileURL);
+        }
+    };
+
     const handleMouseDown = (e) => {
         let target = e.target;
         while (target && target !== entryRef.current) {
@@ -177,7 +194,11 @@ const ListEntry = ({
                 {/* Display the file if it exists */}
                 {file && (
                     <div className="flex items-center gap-2">
-                        <FaPaperclip className="text-gray-500" />
+                        <FaPaperclip
+                            className="text-gray-500 cursor-pointer hover:text-gray-700"
+                            onClick={handleDownload}
+                            title={`Download ${file.name}`}
+                        />
                         <span className="text-sm text-gray-500">{file.name}</span>
                     </div>
                 )}
@@ -309,7 +330,8 @@ ListEntry.propTypes = {
     onWarningThresholdChange: PropTypes.func,
     onDelete: PropTypes.func,
     onAssign: PropTypes.func,
-    onFileChange: PropTypes.func
+    onFileChange: PropTypes.func,
+    file: PropTypes.instanceOf(File)
 };
 
 ListEntry.defaultProps = {

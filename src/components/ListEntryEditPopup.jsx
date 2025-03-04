@@ -22,29 +22,38 @@ const ListEntryEditPopup = ({
                 text: entry.text || "",
                 dueDate: entry.dueDate ? new Date(entry.dueDate).toISOString().split('T')[0] : "",
                 warningThreshold: entry.warningThreshold || 1,
-                checked: entry.checked || false
+                checked: entry.checked || false,
+                file: entry.file
             });
         }
     }, [entry]);
 
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value
-        }));
+        const { name, value, type, checked, files } = e.target;
+        if (type === 'file') {
+            setFormData(prev => ({
+                ...prev,
+                file: files[0] || null
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: type === "checkbox" ? checked : value
+            }));
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave({
+        const updatedEntry = {
             ...entry,
             text: formData.text,
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
             warningThreshold: parseInt(formData.warningThreshold, 10),
             checked: formData.checked,
             file: formData.file
-        });
+        };
+        onSave(updatedEntry);
         onClose();
     };
 
@@ -195,7 +204,8 @@ ListEntryEditPopup.propTypes = {
         dueDate: PropTypes.instanceOf(Date),
         warningThreshold: PropTypes.number,
         checked: PropTypes.bool,
-        entryId: PropTypes.string
+        entryId: PropTypes.string,
+        file: PropTypes.instanceOf(File)
     }),
     onSave: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired
