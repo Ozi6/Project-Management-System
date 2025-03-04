@@ -180,10 +180,7 @@ const ProjectManagement = () => {
                                     <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-gray-500 pointer-events-none" />
                                 </div>
                                 
-                                <button className="inline-flex items-center bg-white border border-pink-200 text-gray-700 text-sm rounded-lg px-3 py-2.5 hover:bg-pink-50">
-                                    <SortAsc className="h-4 w-4 mr-1" />
-                                    Sort
-                                </button>
+                                
                             </div>
                         </div>
                         
