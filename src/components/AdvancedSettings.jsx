@@ -70,7 +70,7 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   );
 };
 
-const AdvancedSettings = () => {
+const AdvancedSettings = ({ setShowAdvanced }) => {
   const [members, setMembers] = useState([
     {
       id: 1,
@@ -238,20 +238,29 @@ const AdvancedSettings = () => {
     <ErrorBoundary>
       <div className="p-6 w-full">
         <h2 className="text-xl font-bold mb-4">Advanced Settings</h2>
+        <div className="flex justify-between items-center mb-6">
+          {/* Go Back to General Settings Button */}
+          <button
+            onClick={() => setShowAdvanced(false)}  // This triggers the callback to go back to GeneralSettings
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
+          >
+            Go Back to General Settings
+          </button>
 
-        <button
-          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition mb-4"
-          onClick={() => setIsModalOpen(true)}
-          disabled={!members.length} // Prevent invite if no members exist
-        >
-          <UserPlus className="w-5 h-5 mr-2" />
-          Invite People
-        </button>
+          {/* Invite People Button */}
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
+          >
+            Invite People
+          </button>
+        </div>
+        
         <InvitePeople
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         />
 
+        {/* Search Input */}
         <div className="relative mb-6">
           <Search className="absolute left-3 top-3 text-gray-500 w-5 h-5" />
           <input
@@ -363,6 +372,7 @@ const AdvancedSettings = () => {
                   Open Modal
                 </button> */}
               </div>
+
             </div>
           ))}
         </div>

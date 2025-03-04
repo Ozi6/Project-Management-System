@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaCog } from "react-icons/fa"; // Import settings icon
 
-const GeneralSettings = () => {
+const GeneralSettings = ({ setShowAdvanced }) => {
     const [projectName, setProjectName] = useState("My Project");
     const [projectDescription, setProjectDescription] = useState("A brief description of my project.");
     const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg"); // Default image
@@ -23,6 +23,7 @@ const GeneralSettings = () => {
     };
 
     return (
+        
         <div className="space-y-6 max-w-2xl mx-auto bg-gray-100 p-6 rounded-xl shadow-xl">
             <div className="flex items-center space-x-2">
                 <FaCog className="text-gray-600 text-3xl" /> {/* Enlarged icon */}
@@ -85,13 +86,23 @@ const GeneralSettings = () => {
                         />
                     </button>
                 </div>
+                <div className="flex justify-between">
+                    {/* Advanced Settings Button */}
+                    <button
+                        onClick={() => setShowAdvanced(true)}
+                        className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
+                    >
+                        Advanced Settings
+                    </button>
 
-                <button
-                    onClick={handleDeleteProject}
-                    className="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
-                >
-                    Delete Project
-                </button>
+                    {/* Delete Project Button */}
+                    <button
+                        onClick={handleDeleteProject}
+                        className="bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
+                    >
+                        Delete Project
+                    </button>
+                </div>
             </div>
         </div>
     );

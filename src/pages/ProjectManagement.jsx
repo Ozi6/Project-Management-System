@@ -7,7 +7,6 @@ import ProjectCard from "../components/ProjectCard";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import GanttChart from "../components/GanttChart";
 
 
 const ProjectManagement = () => {
@@ -146,6 +145,26 @@ const ProjectManagement = () => {
                 {/* Sidebar with improved styling */}
                 <div className="bg-white shadow-md z-5 border-r border-pink-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
+                <div className="flex-1 overflow-auto bg-gray-50">
+                    <main className="p-6 h-full w-full">
+                        {activeTab === "calendar" ? <GanttChart fullPage={true} /> : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {sampleProjects.map((project) => (
+                                    <ProjectCard
+                                        key={project.id}
+                                        id={project.id}
+                                        name={project.name}
+                                        owner={project.owner}
+                                        role={project.role}
+                                        progress={project.progress}
+                                        status={project.status}
+                                        dueDate={project.dueDate}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </main>
                 </div>
                 
                 {/* Main content area with better organization */}
