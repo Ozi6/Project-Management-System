@@ -22,8 +22,8 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign, teams, use
         setShowAssignPopup(true);
     };
 
-    const handleAssign = (updatedEntry) => {
-        onAssign(updatedEntry);
+    const handleAssign = (newUsers, newTeams) => {
+        onAssign(newUsers, newTeams);
         setShowAssignPopup(false);
     };
 
@@ -82,7 +82,17 @@ ListEntryPopup.propTypes = {
         checked: PropTypes.bool,
         dueDate: PropTypes.instanceOf(Date),
         warningThreshold: PropTypes.number,
-        entryId: PropTypes.string.isRequired
+        entryId: PropTypes.string.isRequired,
+        assignedUsers: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            name: PropTypes.string.isRequired,
+            profilePicture: PropTypes.elementType,
+        })).isRequired,
+        assignedTeams: PropTypes.arrayOf(PropTypes.shape({
+            id: PropTypes.string.isRequired,
+            name: PropTypes.string.isRequired,
+            teamIcon: PropTypes.elementType,
+        })).isRequired,
     }).isRequired,
     onClose: PropTypes.func.isRequired,
     onEdit: PropTypes.func.isRequired,
@@ -91,10 +101,12 @@ ListEntryPopup.propTypes = {
     teams: PropTypes.arrayOf(PropTypes.shape({
             id: PropTypes.string.isRequired,
             teamName: PropTypes.string.isRequired,
+            teamIcon: PropTypes.elementType,
         })).isRequired,
     users: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
+        profilePicture: PropTypes.elementType,
     })).isRequired,
 };
 

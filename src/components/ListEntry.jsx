@@ -32,7 +32,6 @@ const ListEntry = ({
     onFileChange,
     onDelete,
 }) => {
-
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
     const entryRef = useRef(null);
@@ -326,42 +325,42 @@ const ListEntry = ({
 
             <style jsx>
                 {`
-                    @keyframes entryAppear {
-                        0% {
-                            opacity: 0;
-                            transform: translateY(-20px);
-                        }
-                        100% {
-                            opacity: 1;
-                            transform: translateY(0);
-                        }
-                    }
-                    @keyframes cross-out {
-                        0% {
-                            width: 0%;
-                        }
-                        100% {
-                            width: 100%;
-                        }
-                    }
-                    @keyframes uncross-out {
-                        0% {
-                            width: 100%;
-                        }
-                        100% {
-                            width: 0%;
-                        }
-                    }
-                    .animate-entryAppear {
-                        animation: entryAppear 0.3s ease-out forwards;
-                    }
-                    .animate-cross-out {
-                        animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-                    }
-                    .animate-uncross-out {
-                        animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-                    }
-                `}
+            @keyframes entryAppear {
+                0% {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes cross-out {
+                0% {
+                    width: 0%;
+                }
+                100% {
+                    width: 100%;
+                }
+            }
+            @keyframes uncross-out {
+                0% {
+                    width: 100%;
+                }
+                100% {
+                    width: 0%;
+                }
+            }
+            .animate-entryAppear {
+                animation: entryAppear 0.3s ease-out forwards;
+            }
+            .animate-cross-out {
+                animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
+            }
+            .animate-uncross-out {
+                animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
+            }
+        `}
             </style>
         </div>
     );
@@ -374,7 +373,7 @@ ListEntry.propTypes = {
     assignedUsers: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
-        profilePicture: PropTypes.elementType,
+        teamIcon: PropTypes.elementType,
     })).isRequired,
     assignedTeams: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,

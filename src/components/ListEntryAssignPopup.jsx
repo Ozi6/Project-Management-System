@@ -5,8 +5,8 @@ import { FaTimes } from "react-icons/fa";
 
 const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
     const [formData, setFormData] = useState({
-        assignedTeams: entry ? entry.assignedTeams || [] : [],
-        assignedUsers: entry ? entry.assignedUsers || [] : [],
+        assignedTeams: entry.assignedTeams || [],
+        assignedUsers: entry.assignedUsers || []
     });
     const [availableTeams, setAvailableTeams] = useState([]);
     const [availableUsers, setAvailableUsers] = useState([]);
@@ -50,15 +50,9 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onAssign(formData.assignedUsers, formData.assignedTeams);
+        onAssign([...formData.assignedUsers], [...formData.assignedTeams]);
         onClose();
     };
-
-    useEffect(() => {
-        console.log("all teams: ", teams);
-        console.log("available teams: ", availableTeams);
-        console.log("assigned teams: ", formData.assignedTeams);
-    }, [teams, formData.assignedTeams, availableTeams]);
 
     return (
         <motion.div
@@ -224,12 +218,14 @@ ListEntryAssignPopup.propTypes = {
             PropTypes.shape({
                 id: PropTypes.string.isRequired,
                 teamName: PropTypes.string.isRequired,
+                teamIcon: PropTypes.elementType,
             })
         ),
         assignedUsers: PropTypes.arrayOf(
             PropTypes.shape({
                 id: PropTypes.string.isRequired,
-                teamName: PropTypes.string.isRequired,
+                name: PropTypes.string.isRequired,
+                profilePicture: PropTypes.elementType,
             })
         ),
     }),
@@ -239,12 +235,14 @@ ListEntryAssignPopup.propTypes = {
         PropTypes.shape({
             id: PropTypes.string.isRequired,
             teamName: PropTypes.string.isRequired,
+            teamIcon: PropTypes.elementType,
         })
     ).isRequired,
     users: PropTypes.arrayOf(
         PropTypes.shape({
             id: PropTypes.string.isRequired,
             name: PropTypes.string.isRequired,
+            profilePicture: PropTypes.elementType,
         })
     ).isRequired,
 };
