@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { SignedIn, SignedOut, useUser, UserButton } from "@clerk/clerk-react";
 
-const Sidebar = ({ activeTab, setActiveTab }) => {
+const Sidebar = ({ activeTab, setActiveTab, customNavItems }) => {
   const [isOpen, setIsOpen] = useState(true);
   const { user } = useUser();
   const navigate = useNavigate();
@@ -39,8 +39,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     setIsOpen(!isOpen);
   };
 
-    // Update the Dashboard navItem to use blue colors
-  const navItems = [
+  // Use custom nav items if provided, otherwise use default
+  const navItems = customNavItems || [
     { 
       id: 'dashboard', 
       icon: Layout, 

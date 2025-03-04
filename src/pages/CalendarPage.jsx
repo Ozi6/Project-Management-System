@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, User, Heart } from 'lucide-react';
-import ViewportSidebar from "../components/ViewportSidebar";
+import Sidebar from "../components/Sidebar"; // Changed from ViewportSidebar
 import Header from "../components/Header";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom"; // Added useLocation
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react"; // Added needed icons
 
 const CalendarPage = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -11,6 +12,51 @@ const CalendarPage = ({ projectData }) => {
   const [calendarDays, setCalendarDays] = useState([]);
   const [tasksByDate, setTasksByDate] = useState({});
   const navigate = useNavigate();
+
+  // Custom navigation items for the sidebar (similar to ProjectDetails.jsx)
+  const customNavItems = [
+    { 
+      id: 'dashboard', 
+      icon: Layout, 
+      label: 'Dashboard', 
+      path: '/dashboard',
+      color: 'bg-blue-100 text-blue-600',  
+      iconColor: 'text-blue-600',     
+      defaultColor: true
+    },
+    { 
+      id: 'projects', 
+      icon: KanbanSquare, 
+      label: 'This Project', 
+      path: '/project/1',
+      color: 'bg-purple-100 text-purple-600',
+      iconColor: 'text-purple-600'
+    },
+    { 
+      id: 'activity', 
+      icon: Activity, 
+      label: 'Activity', 
+      path: '/activity',
+      color: 'bg-yellow-100 text-yellow-600',
+      iconColor: 'text-amber-600'
+    },
+    { 
+      id: 'teams', 
+      icon: UsersIcon, 
+      label: 'Teams',
+      path: '/teams',
+      color: 'bg-green-100 text-green-600',
+      iconColor: 'text-green-600'
+    },
+    { 
+      id: 'settings', 
+      icon: Settings, 
+      label: 'Settings',
+      path: '/project/settings',
+      color: 'bg-gray-100 text-gray-600',
+      iconColor: 'text-gray-600'
+    }
+  ];
 
   // Sample project data with tasks
   const sampleProjectData = [
@@ -229,12 +275,16 @@ const CalendarPage = ({ projectData }) => {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
+        {/* Sidebar - Updated to use Sidebar component with customNavItems */}
         <div className="bg-white shadow-md z-5 border-r border-gray-100">
-          <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <Sidebar 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            customNavItems={customNavItems}
+          />
         </div>
 
-        {/* Main content */}
+        {/* Main content - remains the same */}
         <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col items-center h-full mt-10">
 
           <div className="p-6 w-full max-w-4xl">

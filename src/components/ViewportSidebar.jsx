@@ -65,7 +65,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             id: 'settings', 
             icon: Settings, 
             label: 'Settings', 
-            path: currentProjectId ? `/project/${currentProjectId}/settings` : '/settings', 
+            path: currentProjectId ? `/project/settings` : '/project/settings/', 
             color: 'bg-slate-100 text-slate-600',
             iconColor: 'text-slate-600'
         },
