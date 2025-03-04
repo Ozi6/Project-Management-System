@@ -37,7 +37,7 @@ const ListEntry = ({
     const mouseOffsetY = useRef(0);
     const isDragOperation = useRef(false);
 
-    const isDueSoon = dueDate && new Date(dueDate) - new Date() <= warningThreshold * 24 * 60 * 60 * 1000;
+    const isDueSoon = !checked && dueDate && new Date(dueDate) - new Date() <= warningThreshold * 24 * 60 * 60 * 1000;
 
     const handleClick = (e) => {
         if (!isDragOperation.current) {
@@ -163,6 +163,7 @@ const ListEntry = ({
                 onMouseDown={handleMouseDown}
                 onClick={handleClick}
                 className={`p-2 shadow rounded-md border border-gray-300 flex flex-col gap-2 transition-all duration-300 ease-out cursor-grab 
+            ${isDueSoon ? "border-red-500 border-2" : "border-gray-300"}
             ${isNew ? "animate-entryAppear" : ""} 
             ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}
             ${isDraggingThis ? "opacity-20" : ""}
