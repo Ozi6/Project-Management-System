@@ -102,6 +102,11 @@ const Dashboard = () => {
     navigate('/projects/new');
   };
 
+  // Add a function to navigate to calendar
+  const navigateToCalendar = () => {
+    navigate('/calendar');
+  };
+
   return (
     <div className="flex flex-col h-screen bg-blue-50">
       {/* Header with blue accent */}
@@ -307,9 +312,12 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-blue-800">Upcoming Deadlines</h2>
-                  <button className="text-sm flex items-center text-blue-600 hover:underline">
+                  <button 
+                    onClick={navigateToCalendar} 
+                    className="text-sm flex items-center text-blue-600 hover:underline"
+                  >
                     <Calendar className="h-4 w-4 mr-1" />
-                    View Calendar
+                    View Timeline
                   </button>
                 </div>
                 <div className="space-y-3">

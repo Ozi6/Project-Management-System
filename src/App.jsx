@@ -27,6 +27,7 @@ import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
 import ScrollToTop from './components/ScrollToTop'; // Import the ScrollToTop component
 import Issues from './pages/admin/Issues';
 import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
+import ProjectCalendar from './pages/ProjectCalendar';
 
 function PageWrapper({ children }){
     return(
@@ -57,7 +58,7 @@ function AnimatedRoutes() {
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
-                <Route path="/calendar" element={<PageWrapper><GanttChart/></PageWrapper>}/>
+                <Route path="/calendar" element={<PageWrapper><ProjectCalendar/></PageWrapper>}/>
 
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
