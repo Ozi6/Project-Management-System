@@ -145,9 +145,7 @@ const Dashboard = () => {
                 <Link to="/projects" className="bg-white/20 hover:bg-white/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
                   View All Projects <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
-                <Link to="/team" className="bg-white/20 hover:bg-white/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
-                  Manage Team <ChevronRight className="h-4 w-4 ml-1" />
-                </Link>
+                
               </div>
             </motion.div>
             

@@ -20,7 +20,6 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Dashboard from "./pages/Dashboard";
 import Activity from "./pages/CalendarPage";
-import GanttChart from "./pages/GanttChart";
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';

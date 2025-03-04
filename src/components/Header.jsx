@@ -66,7 +66,8 @@ const Header = ({ title, action, rightContent }) => {
         '/features/task-tracking',
         '/about',
         '/terms',
-        '/privacy'
+        '/privacy',
+        '/faq'
     ].includes(location.pathname) || location.pathname.startsWith('/features/');
 
     // Desktop navigation for landing pages
