@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, User, Heart } from 'lucide-react';
-import Sidebar from "../components/Sidebar";
+import ViewportSidebar from "../components/ViewportSidebar";
 import Header from "../components/Header";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -231,7 +231,7 @@ const CalendarPage = ({ projectData }) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <div className="bg-white shadow-md z-5 border-r border-gray-100">
-          <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+          <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
 
         {/* Main content */}

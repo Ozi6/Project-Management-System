@@ -58,18 +58,6 @@ const ResourcesContent = ({ isOpen, setIsOpen }) => {
             link: "/docs"
         },
         {
-            title: "Video Tutorials",
-            description: "Learn through step-by-step videos",
-            icon: Video,
-            link: "/tutorials"
-        },
-        {
-            title: "Blog",
-            description: "Latest updates and best practices",
-            icon: FileText,
-            link: "/blog"
-        },
-        {
             title: "FAQ",
             description: "Frequently asked questions.",
             icon: HelpCircle,

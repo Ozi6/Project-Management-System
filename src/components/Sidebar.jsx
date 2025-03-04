@@ -59,29 +59,13 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       iconColor: 'text-purple-600'
     },
     { 
-      id: 'team', 
-      icon: Users, 
-      label: 'Teams', 
-      path: '/team',
-      color: 'bg-green-100 text-green-600',
-      iconColor: 'text-green-600'
-    },
-    { 
       id: 'calendar', 
       icon: Calendar, 
-      label: 'Calendar', 
-      path: '/activity',
+      label: 'Gantt Chart', 
+      path: '/calendar',
       color: 'bg-yellow-100 text-yellow-600',
       iconColor: 'text-amber-600'
-    },
-    { 
-      id: 'settings', 
-      icon: Settings, 
-      label: 'Settings', 
-      path: '/project/settings',
-      color: 'bg-slate-100 text-slate-600',
-      iconColor: 'text-slate-600'
-    },
+    }
   ];
 
   // Merge help items into issuesItems
