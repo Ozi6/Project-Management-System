@@ -51,9 +51,9 @@ const ProjectManagement = () => {
     };
     
     const sampleProjects = [
-        { id: 1, name: "Website Redesign", owner: "Alice", role: "Project Manager", progress: 75, status: "In Progress", dueDate: "2025-03-15" },
-        { id: 2, name: "Mobile App Development", owner: "Bob", role: "Developer", progress: 30, status: "In Progress", dueDate: "2025-04-01" },
-        { id: 3, name: "Database Migration", owner: "Charlie", role: "DB Admin", progress: 100, status: "Completed", dueDate: "2025-02-28" }
+        { id: 1, name: "Website Redesign", owner: "Alice", role: "Project Manager", progress: 75, status: "In Progress", isOwner: true },
+        { id: 2, name: "Mobile App Development", owner: "Bob", role: "Developer", progress: 30, status: "In Progress", isOwner: false },
+        { id: 3, name: "Database Migration", owner: "Charlie", role: "DB Admin", progress: 100, status: "Completed", isOwner: false }
     ];
 
     const [activeProjects, setProject] = useState(sampleProjects);
@@ -114,7 +114,7 @@ const ProjectManagement = () => {
             role: newProjectDetails.role,
             progress: 0,
             status: "In Progress",
-            dueDate: newProjectDetails.dueDate,
+            isOwner: true,
         };
         
         setProject([...activeProjects, newProject]);
@@ -124,7 +124,7 @@ const ProjectManagement = () => {
             role: "",
             progress: 0,
             status: "In Progress",
-            dueDate: "",
+            isOwner: "",
         });
         setIsAddProjectPopUpOpen(false);
     };
@@ -239,7 +239,7 @@ const ProjectManagement = () => {
                                                 role={project.role}
                                                 progress={project.progress}
                                                 status={project.status}
-                                                dueDate={project.dueDate}
+                                                isOwner={project.isOwner}
                                             />
                                         </motion.div>
                                     ))}
@@ -335,39 +335,6 @@ const ProjectManagement = () => {
                                             placeholder="Project owner"
                                         />
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Your Role</label>
-                                    <select
-                                        id="role"
-                                        name="role"
-                                        value={newProjectDetails.role}
-                                        onChange={handleInputChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        required
-                                    >
-                                        <option value="">Select your role</option>
-                                        <option value="Project Manager">Project Manager</option>
-                                        <option value="Developer">Developer</option>
-                                        <option value="Designer">Designer</option>
-                                        <option value="DB Admin">DB Admin</option>
-                                        <option value="QA Tester">QA Tester</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                                    <input
-                                        type="date"
-                                        id="dueDate"
-                                        name="dueDate"
-                                        value={newProjectDetails.dueDate}
-                                        onChange={handleInputChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                        required
-                                        min={new Date().toISOString().split('T')[0]}
-                                    />
                                 </div>
 
                                 <div className="flex justify-end space-x-3 pt-6">

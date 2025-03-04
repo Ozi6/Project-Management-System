@@ -103,15 +103,6 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         </div>
     );
 
-    // Desktop title and action for non-landing pages
-    const renderDesktopTitleAction = () => (
-        <div className="hidden md:flex flex-1 justify-between items-center">
-            <h2 className="text-xl lg:text-3xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
-                {title}
-            </h2>
-        </div>
-    );
-
     const renderMobileMenuButton = () => (
         <button
             className="md:hidden ml-auto p-2"
@@ -126,7 +117,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         if (!isMobileMenuOpen) return null;
 
         return (
-            <div className="md:hidden fixed inset-0 bg-white z-40 pt-16 overflow-y-auto">
+            <div className="md:hidden fixed inset-0 bg-white z-50 pt-16 overflow-y-auto">
                 <div className="flex flex-col p-4 space-y-4">
                     {isLandingPage ? (
                         <>

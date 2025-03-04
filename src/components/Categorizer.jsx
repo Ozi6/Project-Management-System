@@ -264,7 +264,7 @@ const Categorizer = ({
             {isDraggingCategory && window.dragState && (
                 <div
                     ref={dragImageRef}
-                    className="fixed z-90 shadow-lg rounded-md border border-blue-500 pointer-events-none"
+                    className="fixed z-50 shadow-lg rounded-md border border-blue-500 pointer-events-none"
                     style={{
                         width: window.dragState.originalWidth ? `${window.dragState.originalWidth}px` : 'auto',
                         opacity: 0.8
