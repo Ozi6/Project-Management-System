@@ -103,11 +103,11 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header */}
-      <div className="w-full bg-white shadow-sm z-10">
+    <div className="flex flex-col h-screen bg-blue-50">
+      {/* Header with blue accent */}
+      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-blue-100">
         <Header
-          title={<span className="text-xl font-semibold text-gray-800">Dashboard</span>}
+          title={<span className="text-xl font-semibold text-blue-800">Dashboard</span>}
           action={{
             onClick: handleNewProject,
             icon: <Plus className="mr-2 h-4 w-4" />,
@@ -118,19 +118,19 @@ const Dashboard = () => {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="bg-white shadow-md z-5 border-r border-gray-100">
+        <div className="bg-white shadow-md z-5 border-r border-blue-100">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
-        {/* Main content */}
-        <div className="flex-1 overflow-auto bg-gray-50 flex flex-col">
+        {/* Main content with blue background */}
+        <div className="flex-1 overflow-auto bg-blue-50 flex flex-col">
           <div className="p-6 space-y-6 flex-grow">
-            {/* Welcome banner */}
+            {/* Welcome banner with blue gradient */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl shadow-md p-6 text-white"
+              className="bg-gradient-to-r from-blue-700 to-blue-900 rounded-xl shadow-md p-6 text-white"
             >
               <h1 className="text-2xl font-bold mb-2">Welcome to your Dashboard</h1>
               <p className="opacity-90">
@@ -146,18 +146,18 @@ const Dashboard = () => {
               </div>
             </motion.div>
             
-            {/* Stats overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Stats with blue accents */}
+            <div className="flex justify-center gap-6 flex-wrap">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-blue-200 w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-gray-500 font-medium">Total Projects</p>
-                    <h3 className="text-2xl font-bold text-gray-800">{stats.totalProjects}</h3>
+                    <p className="text-sm text-blue-600 font-medium">Total Projects</p>
+                    <h3 className="text-2xl font-bold text-blue-800">{stats.totalProjects}</h3>
                   </div>
                   <span className="p-2 bg-blue-100 rounded-md">
                     <BarChart3 className="h-5 w-5 text-blue-600" />
@@ -167,7 +167,7 @@ const Dashboard = () => {
                   <span className="flex items-center text-green-500">
                     <ArrowUp className="h-3 w-3 mr-1" /> 12% 
                   </span>
-                  <span className="ml-1 text-gray-500">since last month</span>
+                  <span className="ml-1 text-blue-500">since last month</span>
                 </div>
               </motion.div>
               
@@ -175,12 +175,12 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-blue-200 w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-gray-500 font-medium">In Progress</p>
-                    <h3 className="text-2xl font-bold text-blue-600">{stats.inProgress}</h3>
+                    <p className="text-sm text-blue-600 font-medium">In Progress</p>
+                    <h3 className="text-2xl font-bold text-blue-700">{stats.inProgress}</h3>
                   </div>
                   <span className="p-2 bg-blue-100 rounded-md">
                     <Activity className="h-5 w-5 text-blue-600" />
@@ -190,7 +190,7 @@ const Dashboard = () => {
                   <span className="flex items-center text-red-500">
                     <ArrowDown className="h-3 w-3 mr-1" /> 5% 
                   </span>
-                  <span className="ml-1 text-gray-500">since last week</span>
+                  <span className="ml-1 text-blue-500">since last week</span>
                 </div>
               </motion.div>
               
@@ -198,37 +198,37 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-blue-200 w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-gray-500 font-medium">Completion Rate</p>
-                    <h3 className="text-2xl font-bold text-green-600">{stats.completionRate}%</h3>
+                    <p className="text-sm text-blue-600 font-medium">Completed</p>
+                    <h3 className="text-2xl font-bold text-blue-600">{stats.completed}</h3>
                   </div>
-                  <span className="p-2 bg-green-100 rounded-md">
-                    <PieChart className="h-5 w-5 text-green-600" />
+                  <span className="p-2 bg-blue-100 rounded-md">
+                    <CheckCircle className="h-5 w-5 text-blue-600" />
                   </span>
                 </div>
                 <div className="mt-2 flex items-center text-xs">
                   <span className="flex items-center text-green-500">
                     <ArrowUp className="h-3 w-3 mr-1" /> 8% 
                   </span>
-                  <span className="ml-1 text-gray-500">increase in efficiency</span>
+                  <span className="ml-1 text-blue-500">since last month</span>
                 </div>
               </motion.div>
             </div>
             
-            {/* Main dashboard content */}
+            {/* Main dashboard content with blue accents */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Projects overview */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm lg:col-span-2"
+                className="bg-white p-5 rounded-xl shadow-sm border border-blue-200 lg:col-span-2"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-gray-800">Project Progress</h2>
+                  <h2 className="font-semibold text-blue-800">Project Progress</h2>
                   <Link to="/projects" className="text-sm text-blue-600 hover:underline flex items-center">
                     View All <ChevronRight className="h-4 w-4" />
                   </Link>
@@ -264,15 +264,15 @@ const Dashboard = () => {
                 </div>
               </motion.div>
               
-              {/* Recent Activity Feed */}
+              {/* Recent Activity Feed with blue accents */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm"
+                className="bg-white p-5 rounded-xl shadow-sm border border-blue-200"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-gray-800">Recent Activity</h2>
+                  <h2 className="font-semibold text-blue-800">Recent Activity</h2>
                   <button className="text-sm text-blue-600 hover:underline flex items-center">
                     <Eye className="h-4 w-4 mr-1" /> View All
                   </button>
@@ -296,17 +296,17 @@ const Dashboard = () => {
               </motion.div>
             </div>
             
-            {/* Third row: Upcoming deadlines and Tasks */}
+            {/* Third row with blue accents */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Upcoming deadlines */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm"
+                className="bg-white p-5 rounded-xl shadow-sm border border-blue-200"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-gray-800">Upcoming Deadlines</h2>
+                  <h2 className="font-semibold text-blue-800">Upcoming Deadlines</h2>
                   <button className="text-sm flex items-center text-blue-600 hover:underline">
                     <Calendar className="h-4 w-4 mr-1" />
                     View Calendar
@@ -335,15 +335,15 @@ const Dashboard = () => {
                 </div>
               </motion.div>
               
-              {/* Quick Actions / Documents */}
+              {/* Documents with blue accents */}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm"
+                className="bg-white p-5 rounded-xl shadow-sm border border-blue-200"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-gray-800">Recent Documents</h2>
+                  <h2 className="font-semibold text-blue-800">Recent Documents</h2>
                   <button className="text-sm flex items-center text-blue-600 hover:underline">
                     <FileText className="h-4 w-4 mr-1" />
                     All Documents
@@ -371,16 +371,16 @@ const Dashboard = () => {
             </div>
           </div>
           
-          {/* Footer */}
-          <div className="bg-white border-t border-gray-200 py-3 px-6">
-            <div className="flex flex-row justify-between items-center text-xs text-gray-500">
+          {/* Footer with blue accent */}
+          <div className="bg-white border-t border-blue-100 py-3 px-6">
+            <div className="flex flex-row justify-between items-center text-xs text-blue-600">
               <div>
                 <span>© 2025 PlanWise</span>
                 <span className="hidden sm:inline"> • All rights reserved</span>
               </div>
               <div className="flex items-center space-x-4">
-                <Link to="/terms" className="hover:text-blue-600 transition-colors">Terms</Link>
-                <Link to="/privacy" className="hover:text-blue-600 transition-colors">Privacy</Link>
+                <Link to="/terms" className="hover:text-blue-800 transition-colors">Terms</Link>
+                <Link to="/privacy" className="hover:text-blue-800 transition-colors">Privacy</Link>
                 <span className="flex items-center">
                   Made with <Heart className="h-3 w-3 text-red-500 mx-1" /> by PlanWise
                 </span>

@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   BugPlay,
   AlertOctagon,
-  ShieldAlert  // Added for admin icon
+  ShieldAlert
 } from "lucide-react";
 import { SignedIn, SignedOut, useUser, UserButton } from "@clerk/clerk-react";
 
@@ -25,7 +25,6 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   const { user } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showHelpMenu, setShowHelpMenu] = useState(false);
   const [showIssuesMenu, setShowIssuesMenu] = useState(false);
   
   // Check if user has admin role
@@ -35,14 +34,16 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     setIsOpen(!isOpen);
   };
 
+    // Update the Dashboard navItem to use blue colors
   const navItems = [
     { 
       id: 'dashboard', 
       icon: Layout, 
       label: 'Dashboard', 
       path: '/dashboard',
-      color: 'bg-blue-100 text-blue-600',
-      iconColor: 'text-blue-600'
+      color: 'bg-blue-100 text-blue-600',  
+      iconColor: 'text-blue-600',     
+      defaultColor : true
     },
     { 
       id: 'projects', 
@@ -78,26 +79,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
     },
   ];
 
-  const helpItems = [
-    { 
-      id: 'documentation', 
-      icon: FileText, 
-      label: 'Documentation', 
-      path: '/docs',
-      color: 'bg-teal-50 text-teal-600',
-      iconColor: 'text-teal-500'
-    },
-    { 
-      id: 'support', 
-      icon: MessageSquare, 
-      label: 'Support', 
-      path: '/support',
-      color: 'bg-indigo-50 text-indigo-600',
-      iconColor: 'text-indigo-500'
-    }
-  ];
-
-  // Update the issuesItems based on user role
+  // Merge help items into issuesItems
   const issuesItems = isAdmin ? [
     { 
       id: 'adminIssues', 
@@ -116,6 +98,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
       color: 'bg-rose-50 text-rose-600',
       iconColor: 'text-rose-500'
     }
+    
   ];
 
   useEffect(() => {
@@ -179,33 +162,43 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           {navItems.map((item) => {
             const Icon = item.icon;
             const hoverBgColor = item.color.replace("100", "50"); // Create lighter hover background
+            // Make Dashboard blue even when not active
+            const isItemDashboard = item.id === 'dashboard';
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item)}
                 className={`w-full p-4 flex items-center text-left transition-all duration-200 
-                  ${activeTab === item.id ? `${item.color} ${item.iconColor}` : "text-gray-600"} 
+                  ${activeTab === item.id 
+                    ? `${item.color} ${item.iconColor}` 
+                    : isItemDashboard 
+                      ? "text-blue-600" 
+                      : "text-gray-600"} 
                   hover:${hoverBgColor} hover:text-${item.iconColor.split('-')[1]}-600
                   hover:scale-105 hover:shadow-md hover:border hover:border-${item.iconColor.split('-')[1]}-200`}
               >
-                <Icon className={`min-w-6 h-6 w-6 ${activeTab === item.id ? item.iconColor : ''}`} />
+                <Icon className={`min-w-6 h-6 w-6 ${
+                  activeTab === item.id 
+                    ? item.iconColor 
+                    : isItemDashboard 
+                      ? 'text-blue-600'
+                      : ''
+                }`} />
                 <span className={`ml-3 text-base font-medium ${!isOpen ? 'hidden' : ''}`}>{item.label}</span>
               </button>
             );
           })}
         </nav>
-      </div>
-      
-      {/* New Issues & Help Section */}
-      <div className="border-t border-gray-100">
-        <div className="px-4 py-3">
+        
+        {/* Issues & Help Section - Inside sidebar-content */}
+        <div className="mt-6 border-t border-gray-200 pt-4 px-4">
           <button 
             onClick={() => isOpen && setShowIssuesMenu(!showIssuesMenu)}
-            className={`w-full py-3 flex items-center justify-between text-gray-700 hover:text-rose-600 transition-colors`}
+            className={`w-full py-3 flex items-center justify-between text-gray-700 hover:text-rose-600 transition-colors rounded-lg ${showIssuesMenu ? 'bg-gray-100' : ''}`}
           >
             <div className="flex items-center">
               <AlertTriangle className="min-w-5 h-5 w-5" />
-              <span className={`ml-3 text-sm font-medium ${!isOpen ? 'hidden' : ''} text-base`}>
+              <span className={`ml-3 text-base font-medium ${!isOpen ? 'hidden' : ''}`}>
                 Issues & Help
               </span>
             </div>
@@ -217,50 +210,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
           </button>
           
           {isOpen && showIssuesMenu && (
-            <div className="mt-2 pl-8 space-y-2">
+            <div className="mt-2 pl-8 space-y-2 mb-4">
               {issuesItems.map(item => {
-                const Icon = item.icon;
-                return (
-                  <Link 
-                    key={item.id}
-                    to={item.path} 
-                    className={`flex items-center py-2 px-3 text-sm rounded-md transition-colors
-                      ${item.color}
-                      hover:bg-${item.iconColor.split('-')[1]}-100`}
-                  >
-                    <Icon size={16} className={`mr-2 ${item.iconColor}`} />
-                    <span className="text-sm font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Help & Support Section */}
-      <div className="border-t border-gray-100">
-        <div className="px-4 py-3">
-          <button 
-            onClick={() => isOpen && setShowHelpMenu(!showHelpMenu)}
-            className={`w-full py-3 flex items-center justify-between text-gray-700 hover:text-blue-600 transition-colors`}
-          >
-            <div className="flex items-center">
-              <HelpCircle className="min-w-5 h-5 w-5" />
-              <span className={`ml-3 font-medium ${!isOpen ? 'hidden' : ''} text-base`}>
-                Help & Support
-              </span>
-            </div>
-            {isOpen && (
-              <ChevronRight 
-                className={`h-4 w-4 transition-transform ${showHelpMenu ? 'rotate-90' : ''}`} 
-              />
-            )}
-          </button>
-          
-          {isOpen && showHelpMenu && (
-            <div className="mt-2 pl-8 space-y-2">
-              {helpItems.map(item => {
                 const Icon = item.icon;
                 return (
                   <Link 

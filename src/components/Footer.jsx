@@ -1,7 +1,6 @@
-// src/components/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Github, Twitter, Linkedin, Instagram, CheckSquare, Users, Clock } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -31,12 +30,28 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Product Links */}
+          {/* Features Links */}
           <div>
-            <h4 className="text-lg font-semibold text-white mb-4">Product</h4>
+            <h4 className="text-lg font-semibold text-white mb-4">Features</h4>
             <ul className="space-y-2">
-              <li><Link to="/features" className="hover:text-blue-500 transition-colors">Features</Link></li>
-              <li><Link to="/security" className="hover:text-blue-500 transition-colors">Security</Link></li>
+              <li>
+                <Link to="/features/project-management" className="hover:text-blue-500 transition-colors flex items-center gap-2">
+                  <CheckSquare size={16} />
+                  <span>Project Management</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/features/team-collaboration" className="hover:text-blue-500 transition-colors flex items-center gap-2">
+                  <Users size={16} />
+                  <span>Team Collaboration</span>
+                </Link>
+              </li>
+              <li>
+                <Link to="/features/task-tracking" className="hover:text-blue-500 transition-colors flex items-center gap-2">
+                  <Clock size={16} />
+                  <span>Task Tracking</span>
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -54,8 +69,8 @@ const Footer = () => {
             <h4 className="text-lg font-semibold text-white mb-4">Company</h4>
             <ul className="space-y-2">
               <li><Link to="/about" className="hover:text-blue-500 transition-colors">About Us</Link></li>
-              <li><Link to="/contact" className="hover:text-blue-500 transition-colors">Contact</Link></li>
-              <li><Link to="/faq" className="hover:text-blue-500 transition-colors">FAQ</Link></li>
+              <li><Link to="/login" className="hover:text-blue-500 transition-colors">Login</Link></li>
+              <li><Link to="/signup" className="hover:text-blue-500 transition-colors">Sign Up</Link></li>
             </ul>
           </div>
         </div>
@@ -72,7 +87,6 @@ const Footer = () => {
             <Link to="/terms" className="text-sm hover:text-blue-500 transition-colors">
               Terms of Service
             </Link>
-            
           </div>
         </div>
       </div>

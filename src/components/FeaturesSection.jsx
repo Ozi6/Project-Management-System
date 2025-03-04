@@ -173,16 +173,39 @@ const FeaturesSection = () => {
             What Our Users Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {[1, 2, 3].map((_, index) => (
+            {[
+              { 
+                name: "Emir Özen", 
+                role: "Project Manager at Tech Co", 
+                comment: "PlanWise has transformed how our team collaborates. The intuitive interface and powerful features have increased our productivity by 30%.",
+                avatar: "https://i.pravatar.cc/100?img=68"
+              },
+              { 
+                name: "Ozan Nurcan", 
+                role: "Team Lead at DevOps Inc", 
+                comment: "As a team lead, I needed a solution that gives me visibility while empowering my team. PlanWise delivers exactly that - it's the backbone of our workflow.",
+                avatar: "https://i.pravatar.cc/100?img=53"
+              },
+              { 
+                name: "Elif Batcı", 
+                role: "Product Owner at Agile Systems", 
+                comment: "The customizable workflows in PlanWise align perfectly with our agile methodology. I can finally track product development with confidence and clarity.",
+                avatar: "https://i.pravatar.cc/100?img=45"
+              }
+            ].map((testimonial, index) => (
               <div key={index} className="bg-gray-900 p-5 md:p-6 rounded-xl">
                 <p className="text-sm md:text-base text-white mb-4">
-                  "PlanWise has transformed how our team collaborates. It's intuitive and powerful!"
+                  "{testimonial.comment}"
                 </p>
                 <div className="flex items-center">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-full mr-3"></div>
+                  <img 
+                    src={testimonial.avatar} 
+                    alt={testimonial.name}
+                    className="w-8 h-8 md:w-10 md:h-10 rounded-full mr-3 object-cover"
+                  />
                   <div>
-                    <h4 className="font-semibold text-white text-sm md:text-base">John Doe</h4>
-                    <p className="text-xs md:text-sm text-gray-300">Project Manager at Tech Co</p>
+                    <h4 className="font-semibold text-white text-sm md:text-base">{testimonial.name}</h4>
+                    <p className="text-xs md:text-sm text-gray-300">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -296,9 +319,7 @@ const FeaturesSection = () => {
             >
               Get Started
             </a>
-            <button className="bg-transparent text-white border border-white px-6 py-2 md:px-8 md:py-3 rounded-lg font-semibold hover:bg-white/10 transition-colors duration-300 text-sm md:text-base w-full sm:w-auto">
-              Learn More
-            </button>
+            
           </div>
         </div>
       </section>
