@@ -12,19 +12,19 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign, teams, use
         setShowEditPopup(true);
     };
 
-    const handleAssignClicked = () => {
-        setShowAssignPopup(true);
-    };
-
-    const handleAssign = (assignmentData) => {
-        onAssign(assignmentData);
-        setShowAssignPopup(false);
-    };
-
     const handleSaveEdit = (updatedEntry) =>
     {
         onEdit(updatedEntry);
         setShowEditPopup(false);
+    };
+
+    const handleAssignClicked = () => {
+        setShowAssignPopup(true);
+    };
+
+    const handleAssign = (updatedEntry) => {
+        onAssign(updatedEntry);
+        setShowAssignPopup(false);
     };
 
     return(

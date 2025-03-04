@@ -284,12 +284,9 @@ const ListEntry = ({
                         }}
                         onClose={() => onClick(null)}
                         onEdit={(updatedEntry) => {
-                            console.log("ListEntry received:", updatedEntry);
-                            console.log("Current values - text:", text, "checked:", checked);
                             onCheckChange(updatedEntry.checked);
 
                             if (updatedEntry.text !== text) {
-                                console.log("New values - text:", updatedEntry.text);
                                 onTextChange(updatedEntry.text);
                             }
 
@@ -312,9 +309,13 @@ const ListEntry = ({
                                 onDelete(id);
                             onClick(null);
                         }}
-                        onAssign={(id) => {
-                            if (onAssign)
-                                onAssign(id);
+                        onAssign={(updatedEntry) => {
+                            if (onAssign && (updatedEntry.assignedTeams !== assignedTeams || updatedEntry.assignedUsers !== assignedUsers)) {
+                                onAssign(
+                                    updatedEntry.assignedUsers || [],
+                                    updatedEntry.assignedTeams || []
+                                );
+                            }
                             onClick(null);
                         }}
                         teams={Teams}

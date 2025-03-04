@@ -52,12 +52,10 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const assignmentData = {
-            ...entry,
-            assignedTeams: formData.assignedTeams,
-            assignedUsers: formData.assignedUsers,
-        };
-        onAssign(assignmentData);
+        onAssign(
+            formData.assignedUsers,
+            formData.assignedTeams
+        );
         onClose();
     };
 
