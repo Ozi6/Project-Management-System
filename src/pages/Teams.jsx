@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ViewportSidebar from "../components/ViewportSidebar";
 import ManageRoleModal from "../components/ManageRoleModal";
 
-// Добавляем цвета для разных команд
+
 const teamColors = {
   1: "from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200",
   2: "from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200",
@@ -83,6 +83,12 @@ const teamsData = [
         email: "lucas@example.com",
         image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
       },
+      {
+        id: 7,
+        name: "John Doe ",
+        email: "john@example.com",
+        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+      },
     ],
   },
   {
@@ -109,35 +115,6 @@ const Teams = () => {
   const [activeTab, setActiveTab] = useState("teams");
   const [teams, setTeams] = useState(teamsData);
   const [selectedMember, setSelectedMember] = useState(null);
-
-  const updateMemberRole = (memberId, newRole) => {
-    if (!memberId || !newRole) return;
-
-    setTeams((prevTeams) => {
-      const updatedTeams = prevTeams.map((team) => ({
-        ...team,
-        members: team.members.map((member) =>
-          member.id === memberId ? { ...member, role: newRole } : member
-        ),
-      }));
-
-      // Проверяем, что роль действительно обновилась
-      const memberUpdated = updatedTeams.some((team) =>
-        team.members.some(
-          (member) => member.id === memberId && member.role === newRole
-        )
-      );
-
-      if (!memberUpdated) {
-        console.warn("Failed to update member role");
-        return prevTeams;
-      }
-
-      return updatedTeams;
-    });
-
-    setSelectedMember(null);
-  };
 
   return (
     <div className="flex">
@@ -185,12 +162,7 @@ const Teams = () => {
                           </div>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setSelectedMember(member)}
-                        className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 ease-in-out flex items-center space-x-2"
-                      >
-                        <span>{member.role || "Set Role"}</span>
-                      </button>
+      
                     </div>
                   ))}
                 </div>
@@ -198,14 +170,6 @@ const Teams = () => {
             </div>
           ))}
         </div>
-
-        <ManageRoleModal
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-          onUpdateRole={updateMemberRole}
-          roles={roles}
-          currentRole={selectedMember?.role}
-        />
       </div>
     </div>
   );

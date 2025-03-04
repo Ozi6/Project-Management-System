@@ -46,10 +46,10 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
             iconColor: 'text-purple-600'
         },
         { 
-            id: 'team', 
+            id: 'teams', 
             icon: Users, 
             label: 'Teams', 
-            path: '/team', 
+            path: '/teams', 
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
         },

@@ -27,6 +27,8 @@ import ScrollToTop from './components/ScrollToTop'; // Import the ScrollToTop co
 import Issues from './pages/admin/Issues';
 import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
 import ProjectCalendar from './pages/ProjectCalendar';
+import Teams from './pages/Teams';
+
 
 function PageWrapper({ children }){
     return(
@@ -58,6 +60,8 @@ function AnimatedRoutes() {
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/calendar" element={<PageWrapper><ProjectCalendar/></PageWrapper>}/>
+                <Route path="/teams" element={<PageWrapper><Teams/></PageWrapper>}/>
+
 
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
