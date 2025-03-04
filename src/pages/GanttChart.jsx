@@ -8,119 +8,153 @@ import {
   addDays,
 } from "date-fns";
 import ViewportSidebar from "../components/ViewportSidebar";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+
+
+
+const TaskModal = ({ task, onClose }) => {
+  if (!task) return null;
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        className="fixed inset-0 bg-gray-800/50 backdrop-blur-xs"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        onClick={onClose}
+        style={{ zIndex: 40 }}
+      />
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        style={{ zIndex: 50 }}
+      >
+        <motion.div
+          className="bg-white rounded-md w-[480px] flex flex-col shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+          initial={{ y: "-20%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "100%", opacity: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 150,
+            damping: 15,
+          }}
+        >
+          <div className="bg-indigo-500 p-4 shadow-md rounded-t-md hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105">
+            <h3 className="text-xl font-bold text-white text-center ">
+              Task Details
+            </h3>
+          </div>
+          <div className="p-6 flex flex-col gap-4">
+            <div className="space-y-4 ">
+              <div className="bg-gray-50 p-3 rounded-md hover:bg-indigo-100 hover:shadow-md transition-all duration-200 hover:scale-105">
+                <label className="font-medium text-gray-700 block mb-1">
+                  Title:
+                </label>
+                <p className="text-gray-900">{task.title}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-md hover:bg-indigo-100 hover:shadow-md transition-all duration-200 hover:scale-105">
+                <label className="font-medium text-gray-700 block mb-1">
+                  Team:
+                </label>
+                <p className="text-gray-900">{task.assignedTeam}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-md hover:bg-indigo-100 hover:shadow-md transition-all duration-200 hover:scale-105">
+                <label className="font-medium text-gray-700 block mb-1">
+                  Assigned member:
+                </label>
+                <p className="text-gray-900">{task.assignedTo}</p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-md hover:bg-indigo-100 hover:shadow-md transition-all duration-200 hover:scale-105">
+                <label className="font-medium text-gray-700 block mb-1">
+                  Start Date:
+                </label>
+                <p className="text-gray-900">
+                  {task.startDate
+                    ? format(new Date(task.startDate), "dd MMM yyyy")
+                    : "Не указана"}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-3 rounded-md hover:bg-indigo-100 hover:shadow-md transition-all duration-200 hover:scale-105">
+                <label className="font-medium text-gray-700 block mb-1">
+                  End Date:
+                </label>
+                <p className="text-gray-900">
+                  {task.endDate
+                    ? format(new Date(task.endDate), "dd MMM yyyy")
+                    : "Not specified"}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-center mt-4 ">
+              <button
+                className="bg-indigo-500 w-full text-white py-2 px-6 rounded-md hover:bg-gray-700 hover:shadow-md transition-all duration-200 hover:scale-105"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+  
+};
 
 const GanttChart = () => {
   const [activeTab, setActiveTab] = useState("calendar");
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 2, 1));
-  const taskColors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-purple-500",
-    "bg-red-500",
-    "bg-yellow-500",
-    "bg-indigo-500",
-    "bg-pink-500",
-    "bg-teal-500",
-  ];
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Design UI",
-      start: new Date(2025, 2, 1),
-      end: new Date(2025, 2, 5),
-    },
-    {
-      id: 2,
-      title: "Develop Backend",
-      start: new Date(2025, 2, 3),
-      end: new Date(2025, 2, 10),
-    },
-    {
-      id: 3,
-      title: "Testing",
-      start: new Date(2025, 2, 7),
-      end: new Date(2025, 2, 14),
-    },
-    {
-      id: 4,
-      title: "API Integration",
-      start: new Date(2025, 2, 5),
-      end: new Date(2025, 2, 12),
-    },
-    {
-      id: 5,
-      title: "Documentation",
-      start: new Date(2025, 2, 10),
-      end: new Date(2025, 2, 16),
-    },
-    {
-      id: 6,
-      title: "Deployment",
-      start: new Date(2025, 2, 15),
-      end: new Date(2025, 2, 20),
-    },
-    {
-      id: 7,
-      title: "Review",
-      start: new Date(2025, 2, 18),
-      end: new Date(2025, 2, 25),
-    },
-    {
-      id: 8,
-      title: "Design UI",
-      start: new Date(2025, 2, 1),
-      end: new Date(2025, 2, 5),
-    },
-    {
-      id: 9,
-      title: "Develop Backend",
-      start: new Date(2025, 2, 3),
-      end: new Date(2025, 2, 10),
-    },
-    {
-      id: 10,
-      title: "Testing",
-      start: new Date(2025, 2, 7),
-      end: new Date(2025, 2, 14),
-    },
-    {
-      id: 11,
-      title: "API Integration",
-      start: new Date(2025, 2, 5),
-      end: new Date(2025, 2, 12),
-    },
-    {
-      id: 12,
-      title: "Documentation",
-      start: new Date(2025, 2, 10),
-      end: new Date(2025, 2, 16),
-    },
-    {
-      id: 13,
-      title: "Deployment",
-      start: new Date(2025, 2, 15),
-      end: new Date(2025, 2, 20),
-    },
-    {
-      id: 14,
-      title: "Review",
-      start: new Date(2025, 2, 18),
-      end: new Date(2025, 2, 25),
-    },
-    {
-        id: 15,
-        title: "Review",
-        start: new Date(2025, 2, 18),
-        end: new Date(2025, 2, 25),
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [tasks, setTasks] = useState(
+    [
+      {
+        title: "Complete project proposal",
+        startDate: "2025-03-15T00:00:00.000Z",
+        endDate: "2025-03-16T00:00:00.000Z",
+        assignedTeam: "Category A",
+        assignedTo: "Bob",
       },
       {
-        id: 16,
-        title: "Review",
-        start: new Date(2025, 2, 18),
-        end: new Date(2025, 2, 25),
+        title: "Review design mockups",
+        startDate: "2025-03-02T00:00:00.000Z",
+        endDate: "2025-03-03T00:00:00.000Z",
+        assignedTeam: "Category A",
+        assignedTo: "Alice",
       },
-  ]);
+      {
+        title: "Prepare presentation slides",
+        startDate: "2025-03-10T00:00:00.000Z",
+        endDate: "2025-03-20T00:00:00.000Z",
+        assignedTeam: "Category A",
+        assignedTo: "Bob",
+      },
+      {
+        title: "Send meeting invites",
+        startDate: null,
+        endDate: null,
+        assignedTeam: "Category A",
+        assignedTo: "Alice",
+      },
+      {
+        title: "Update website content",
+        startDate: "2025-03-02T00:00:00.000Z",
+        endDate: "2025-03-26T00:00:00.000Z",
+        assignedTeam: "Category B",
+        assignedTo: "David",
+      },
+
+    ]
+  );
+
+  const teamColors = {
+    "Category A": "#8b5cf6",
+    "Category B": "#f43f5e",
+    "Category C": "#f97316",
+  };
 
   const startOfMonth = new Date(
     currentDate.getFullYear(),
@@ -137,18 +171,30 @@ const GanttChart = () => {
     end: endOfMonth,
   });
 
-  const filteredTasks = tasks.filter(
-    (task) =>
-      isWithinInterval(task.start, { start: startOfMonth, end: endOfMonth }) ||
-      isWithinInterval(task.end, { start: startOfMonth, end: endOfMonth }) ||
-      (task.start < startOfMonth && task.end > endOfMonth)
-  );
+  const filteredTasks = tasks.filter((task) => {
+    if (!task.startDate || !task.endDate) return false;
+    const start = new Date(task.startDate);
+    const end = new Date(task.endDate);
+    return (
+      isWithinInterval(start, { start: startOfMonth, end: endOfMonth }) ||
+      isWithinInterval(end, { start: startOfMonth, end: endOfMonth }) ||
+      (start < startOfMonth && end > endOfMonth)
+    );
+  });
+
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+  };
 
   const handleTaskUpdate = (taskId, newStartDate, newEndDate) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) =>
-        task.id === taskId
-          ? { ...task, start: newStartDate, end: newEndDate }
+        task.title === taskId
+          ? {
+              ...task,
+              startDate: newStartDate.toISOString(),
+              endDate: newEndDate.toISOString(),
+            }
           : task
       )
     );
@@ -164,19 +210,19 @@ const GanttChart = () => {
 
   const handleResizeStart = (taskId, e) => {
     e.preventDefault();
+    e.stopPropagation();
     const startX = e.clientX;
-    const task = tasks.find((t) => t.id === taskId);
-    const originalStart = new Date(task.start);
-    const originalDuration = task.end.getDate() - task.start.getDate();
+    const task = tasks.find((t) => t.title === taskId);
+    const originalStart = new Date(task.startDate);
+    const originalEnd = new Date(task.endDate);
 
     const onMouseMove = (moveEvent) => {
       const diff = moveEvent.clientX - startX;
-      const daysDiff = Math.round(diff / 32); // 32px per day
+      const daysDiff = Math.round(diff / 32);
       const newStartDate = addDays(originalStart, daysDiff);
-      const newEndDate = addDays(newStartDate, originalDuration);
 
-      if (newStartDate >= startOfMonth && newEndDate <= endOfMonth) {
-        handleTaskUpdate(taskId, newStartDate, newEndDate);
+      if (newStartDate < originalEnd) {
+        handleTaskUpdate(taskId, newStartDate, originalEnd);
       }
     };
 
@@ -191,17 +237,19 @@ const GanttChart = () => {
 
   const handleResizeEnd = (taskId, e) => {
     e.preventDefault();
+    e.stopPropagation();
     const startX = e.clientX;
-    const task = tasks.find((t) => t.id === taskId);
-    const originalEnd = new Date(task.end);
+    const task = tasks.find((t) => t.title === taskId);
+    const originalStart = new Date(task.startDate);
+    const originalEnd = new Date(task.endDate);
 
     const onMouseMove = (moveEvent) => {
       const diff = moveEvent.clientX - startX;
-      const daysDiff = Math.round(diff / 32); // 32px per day
+      const daysDiff = Math.round(diff / 32);
       const newEndDate = addDays(originalEnd, daysDiff);
 
-      if (newEndDate <= endOfMonth && newEndDate >= task.start) {
-        handleTaskUpdate(taskId, task.start, newEndDate);
+      if (newEndDate > originalStart) {
+        handleTaskUpdate(taskId, originalStart, newEndDate);
       }
     };
 
@@ -216,6 +264,10 @@ const GanttChart = () => {
 
   return (
     <div className="fixed top-0 left-0 w-screen h-screen flex bg-white m-0 p-0 overflow-hidden">
+      {selectedTask && (
+        <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
+      )}
+
       {/* Sidebar */}
       <div className="h-full bg-white shadow-md z-10 border-r border-gray-100 m-0 p-0">
         <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -243,22 +295,26 @@ const GanttChart = () => {
         </div>
 
         {/* Task List and Calendar Container */}
-        <div className="flex flex-1 overflow-hidden justify-center ">
+        <div className="flex flex-1 overflow-hidden justify-center">
           {/* Task List */}
-          <div className="w-1/4 border-r border-gray-100 flex flex-col">
+          <div className="w-1/4 flex flex-col">
             <h2 className="text-lg font-semibold p-1">Tasks</h2>
             <div className="flex-1 overflow-y-auto">
               {filteredTasks.length > 0 ? (
                 filteredTasks.map((task) => (
                   <div
-                    key={task.id}
-                    className="py-1 border-b text-sm h-8 flex items-center px-1 hover:bg-gray-100 transition-colors"
+                    key={task.title}
+                    className="py-1 shadow-sm text-sm h-8 flex items-center px-1 hover:bg-gray-100 transition-colors cursor-pointer"
+                    onClick={() => handleTaskClick(task)}
+                    style={{
+                      borderLeft: `4px solid ${teamColors[task.assignedTeam]}`,
+                    }}
                   >
                     {task.title}
                   </div>
                 ))
               ) : (
-                <div className="py-1 text-sm h-8 flex items-center px-1 text-gray-500 hover:bg-gray-100 transition-colors">
+                <div className="py-1 text-sm h-8 flex items-center px-1 text-gray-500">
                   No tasks this month
                 </div>
               )}
@@ -266,9 +322,9 @@ const GanttChart = () => {
           </div>
 
           {/* Calendar */}
-          <div className="flex-1 flex flex-col overflow-auto">
+          <div className="flex-1 flex flex-col border-l border-gray-500 overflow-auto">
             {/* Days Header */}
-            <div className="flex min-w-max border-b border-gray-100 bg-gray-50">
+            <div className="flex min-w-max border-b border-gray-100 bg-gray-50 mb-5">
               {daysInMonth.map((day, index) => (
                 <div
                   key={index}
@@ -300,43 +356,47 @@ const GanttChart = () => {
                 )}
               </div>
               {/* Tasks */}
-              <div className="relative min-w-max space-y-2 mt-5">
+              <div className="relative min-w-max">
                 {filteredTasks.map((task, index) => {
-                  const startDay = Math.max(
-                    0,
-                    task.start.getDate() - startOfMonth.getDate()
-                  );
-                  const endDay = Math.min(
-                    daysInMonth.length - 1,
-                    task.end.getDate() - startOfMonth.getDate()
-                  );
-                  const leftOffset = startDay * 32;
-                  const taskWidth = (endDay - startDay + 1) * 32;
+                  if (!task.startDate || !task.endDate) return null;
 
-                  // Assign color based on task index
-                  const taskColor = taskColors[index % taskColors.length];
+                  const start = new Date(task.startDate);
+                  const end = new Date(task.endDate);
+
+                  const startDay = Math.round(
+                    (start - startOfMonth) / (1000 * 60 * 60 * 24)
+                  );
+                  const endDay = Math.round(
+                    (end - startOfMonth) / (1000 * 60 * 60 * 24)
+                  );
+
+                  const leftOffset = Math.max(0, startDay * 32);
+                  const taskWidth = (endDay - startDay + 1) * 32;
 
                   return (
                     <div
-                      key={task.id}
-                      className={`${taskColor} text-white text-xs rounded-md z-10 opacity-80 flex items-center justify-between hover:opacity-100 hover:shadow-md transition-all duration-200`}
+                      key={task.title}
+                      className="text-white text-xs rounded-md z-10 opacity-80 flex items-center justify-between hover:opacity-100 hover:shadow-md transition-all duration-200 group cursor-pointer"
                       style={{
+                        position: "absolute",
                         left: `${leftOffset}px`,
                         width: `${taskWidth}px`,
                         height: "24px",
-                        top: `${index * 32 + 4}px`,
+                        top: `${index * 32 + 2}px`,
+                        backgroundColor: teamColors[task.assignedTeam],
                       }}
+                      onClick={() => handleTaskClick(task)}
                     >
                       <div
-                        className="w-2 cursor-w-resize hover:bg-white/20"
-                        onMouseDown={(e) => handleResizeStart(task.id, e)}
+                        className="w-2 h-full cursor-w-resize hover:bg-white/20 group-hover:bg-white/10 transition-colors"
+                        onMouseDown={(e) => handleResizeStart(task.title, e)}
                       />
                       <div className="flex-1 text-center truncate px-1">
                         {task.title}
                       </div>
                       <div
-                        className="w-2 cursor-e-resize hover:bg-white/20"
-                        onMouseDown={(e) => handleResizeEnd(task.id, e)}
+                        className="w-2 h-full cursor-e-resize hover:bg-white/20 group-hover:bg-white/10 transition-colors"
+                        onMouseDown={(e) => handleResizeEnd(task.title, e)}
                       />
                     </div>
                   );

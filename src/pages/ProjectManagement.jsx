@@ -149,7 +149,10 @@ const ProjectManagement = () => {
                 </div>
                 <div className="flex-1 overflow-auto bg-gray-50">
                     <main className="p-6 h-full w-full">
-                        {activeTab === "calendar" ? <GanttChart fullPage={true} /> : (
+                        {activeTab === "calendar" ? <GanttChart fullPage={true} /> : 
+                         activeTab === "teams" ? (
+                            <Teams />  
+                        ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {sampleProjects.map((project) => (
                                     <ProjectCard

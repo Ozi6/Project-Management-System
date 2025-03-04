@@ -20,6 +20,8 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import Dashboard from "./pages/Dashboard";
 import GanttChart from "./pages/GanttChart";
+import Teams from "./pages/Teams";
+
 import "./App.css";
 import "./index.css"
 import ForgotPasswordPage from './pages/auth/ForgotPasswordPage';
@@ -57,6 +59,8 @@ function AnimatedRoutes() {
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/calendar" element={<PageWrapper><GanttChart/></PageWrapper>}/>
+                <Route path="/teams" element={<PageWrapper><Teams/></PageWrapper>}/>
+
 
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
