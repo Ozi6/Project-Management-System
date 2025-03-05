@@ -666,7 +666,7 @@ const ProjectDetails = () => {
                             width: '100%',
                             marginBottom: '20px',
                         }}
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-1`}>
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-8`}>
                         {displayColumns.map((tasks, columnIndex) => (
                             <div
                                 key={columnIndex}
