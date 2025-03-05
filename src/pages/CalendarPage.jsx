@@ -395,7 +395,7 @@ const CalendarPage = ({ projectData }) => {
                           </div>
                         </div>
                         <div className="text-sm text-gray-500">
-                          {task.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {/*task.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })*/}
                         </div>
                       </div>
                     ))
