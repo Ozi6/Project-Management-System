@@ -3,6 +3,7 @@ import { Plus, Settings } from "lucide-react";
 import PropTypes from "prop-types";
 import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
+import { Teams, Users } from './TeamAndUsersTest';
 import { AnimatePresence } from "framer-motion";
 
 const TaskList = ({
@@ -348,10 +349,15 @@ const TaskList = ({
     };
 
     const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
-        const updatedEntries = [...entries];
-        updatedEntries[index].assignedUsers = newAssigneesUsers;
-        updatedEntries[index].assignedTeams = newAssigneesTeams;
-        setEntries(updatedEntries);
+        setEntries(prev => {
+            const updated = [...prev];
+            updated[index] = {
+                ...updated[index],
+                assignedUsers: Array.isArray(newAssigneesUsers) ? [...newAssigneesUsers] : [],
+                assignedTeams: Array.isArray(newAssigneesTeams) ? [...newAssigneesTeams] : []
+            };
+            return updated;
+        });
     };
 
     return (
@@ -412,9 +418,9 @@ const TaskList = ({
                                             onEntryDelete(listId, index);
                                         }}
                                         onFileChange={(file) => handleFileChange(index, file)}
-                                        assignedTeams={entry.assignedTeams}
-                                        assignedUsers={entry.assignedUsers}
-                                        onAssign={(newAssigneesUsers, newAssigneesTeams) => handleAssignedChange(index, newAssigneesUsers, newAssigneesTeams)}
+                                        assignedUsers={entry.assignedUsers || []}
+                                        assignedTeams={entry.assignedTeams || []}
+                                        onAssign={(newUsers, newTeams) => handleAssignedChange(index, newUsers, newTeams)}
                                     />
                                 </div>
                             );

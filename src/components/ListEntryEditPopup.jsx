@@ -54,7 +54,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
             warningThreshold: parseInt(formData.warningThreshold, 10),
             checked: formData.checked,
-            file: formData.file, // Pass the file (original, new, or null)
+            file: formData.file,
         };
         onSave(updatedEntry);
         onClose();
