@@ -161,11 +161,12 @@ const Header = ({ title, action, rightContent }) => {
             
             <div className="flex items-center gap-4">
                 {rightContent}
-                {action && (
+                {/* Show action button on /projects or /bugs pages */}
+                {action && (location.pathname === '/projects' || location.pathname === '/bugs') && (
                     <button
                         onClick={action.onClick}
                         className={`${
-                            location.pathname === '/incidents' || location.pathname.includes('/bugs')
+                            location.pathname === '/bugs' || location.pathname.includes('/incidents')
                                 ? 'bg-rose-600 hover:bg-rose-700'
                                 : 'bg-blue-600 hover:bg-blue-800'
                         } text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm`}
