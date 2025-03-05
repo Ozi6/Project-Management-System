@@ -176,19 +176,19 @@ const FeaturesSection = () => {
             {[
               { 
                 name: "Emir Özen", 
-                role: "Project Manager at Tech Co", 
+                role: "Frontend Expert in EVO LAB",
                 comment: "PlanWise has transformed how our team collaborates. The intuitive interface and powerful features have increased our productivity by 30%.",
                 avatar: "https://i.pravatar.cc/100?img=68"
               },
               { 
                 name: "Ozan Nurcan", 
-                role: "Team Lead at DevOps Inc", 
+                role: "Team Lead at Dungeon Adventure Gang", 
                 comment: "As a team lead, I needed a solution that gives me visibility while empowering my team. PlanWise delivers exactly that - it's the backbone of our workflow.",
                 avatar: "https://i.pravatar.cc/100?img=53"
               },
               { 
                 name: "Elif Batcı", 
-                role: "Product Owner at Agile Systems", 
+                role: "Developer of Mole-Whacker", 
                 comment: "The customizable workflows in PlanWise align perfectly with our agile methodology. I can finally track product development with confidence and clarity.",
                 avatar: "https://i.pravatar.cc/100?img=45"
               }
