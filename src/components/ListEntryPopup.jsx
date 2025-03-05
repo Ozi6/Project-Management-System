@@ -22,8 +22,18 @@ const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign, teams, use
         setShowAssignPopup(true);
     };
 
-    const handleAssign = (newUsers, newTeams) => {
-        onAssign(newUsers, newTeams);
+    const handleAssign = (assignData) => {
+        console.log("Received assign data:", assignData);
+        
+        // Create updated entry with the full team and user objects
+        const updatedEntry = {
+            ...entry,
+            assignedTeams: assignData.assignedTeams,
+            assignedUsers: assignData.assignedUsers
+        };
+        
+        console.log("Updated entry with assignments:", updatedEntry);
+        onAssign(updatedEntry);
         setShowAssignPopup(false);
     };
 
@@ -99,14 +109,14 @@ ListEntryPopup.propTypes = {
     onDelete: PropTypes.func,
     onAssign: PropTypes.func,
     teams: PropTypes.arrayOf(PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            teamName: PropTypes.string.isRequired,
-            teamIcon: PropTypes.elementType,
-        })).isRequired,
+        id: PropTypes.string.isRequired,
+        teamName: PropTypes.string.isRequired, // Make sure this matches your data structure
+        teamIcon: PropTypes.elementType,
+    })).isRequired,
     users: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        profilePicture: PropTypes.elementType,
+        name: PropTypes.string.isRequired, // Make sure this matches your data structure
+        profilePicture: PropTypes.oneOfType([PropTypes.string, PropTypes.elementType]),
     })).isRequired,
 };
 

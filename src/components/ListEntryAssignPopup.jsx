@@ -4,53 +4,65 @@ import PropTypes from "prop-types";
 import { FaTimes } from "react-icons/fa";
 
 const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
+    // Initialize with the full team/user objects or empty arrays
     const [formData, setFormData] = useState({
         assignedTeams: entry.assignedTeams || [],
         assignedUsers: entry.assignedUsers || []
     });
+    
+    // Extract IDs for filtering
+    const assignedTeamIds = formData.assignedTeams.map(team => team.id);
+    const assignedUserIds = formData.assignedUsers.map(user => user.id);
+    
     const [availableTeams, setAvailableTeams] = useState([]);
     const [availableUsers, setAvailableUsers] = useState([]);
 
     useEffect(() => {
-        setAvailableTeams(teams.filter(team => !formData.assignedTeams.includes(team.id)));
-        setAvailableUsers(users.filter(user => !formData.assignedUsers.includes(user.id)));
-    }, [teams, users, formData.assignedTeams, formData.assignedUsers]);
+        // Filter teams/users not already assigned
+        setAvailableTeams(teams.filter(team => !assignedTeamIds.includes(team.id)));
+        setAvailableUsers(users.filter(user => !assignedUserIds.includes(user.id)));
+    }, [teams, users, assignedTeamIds, assignedUserIds]);
 
     const addTeam = (teamId) => {
-        setFormData((prev) => ({
-            ...prev,
-            assignedTeams: prev.assignedTeams.includes(teamId)
-                ? prev.assignedTeams
-                : [...prev.assignedTeams, teamId],
-        }));
+        const teamToAdd = teams.find(t => t.id === teamId);
+        if (teamToAdd && !assignedTeamIds.includes(teamId)) {
+            setFormData(prev => ({
+                ...prev,
+                assignedTeams: [...prev.assignedTeams, teamToAdd]
+            }));
+        }
     };
 
     const removeTeam = (teamId) => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
-            assignedTeams: prev.assignedTeams.filter((team) => team !== teamId),
+            assignedTeams: prev.assignedTeams.filter(team => team.id !== teamId)
         }));
     };
 
     const addUser = (userId) => {
-        setFormData((prev) => ({
-            ...prev,
-            assignedUsers: prev.assignedUsers.includes(userId)
-                ? prev.assignedUsers
-                : [...prev.assignedUsers, userId],
-        }));
+        const userToAdd = users.find(u => u.id === userId);
+        if (userToAdd && !assignedUserIds.includes(userId)) {
+            setFormData(prev => ({
+                ...prev,
+                assignedUsers: [...prev.assignedUsers, userToAdd]
+            }));
+        }
     };
 
     const removeUser = (userId) => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
-            assignedUsers: prev.assignedUsers.filter((user) => user !== userId),
+            assignedUsers: prev.assignedUsers.filter(user => user.id !== userId)
         }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onAssign([...formData.assignedUsers], [...formData.assignedTeams]);
+        console.log("Submitting assignment data:", formData);
+        
+        // Pass the full team/user objects directly
+        onAssign(formData);
         onClose();
     };
 
@@ -88,24 +100,21 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                                 Assigned Teams
                             </label>
                             <div className="max-h-40 overflow-y-auto">
-                                {formData.assignedTeams.map((teamId) => {
-                                    const team = teams.find((t) => t.id === teamId);
-                                    return team ? (
-                                        <div
-                                            key={teamId}
-                                            className="flex justify-between items-center bg-blue-100 text-blue-800 px-2 py-1 mb-1 rounded text-sm"
+                                {formData.assignedTeams.map((team) => (
+                                    <div
+                                        key={team.id}
+                                        className="flex justify-between items-center bg-blue-100 text-blue-800 px-2 py-1 mb-1 rounded text-sm"
+                                    >
+                                        {team.teamName}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeTeam(team.id)}
+                                            className="text-blue-500 hover:text-blue-700"
                                         >
-                                            {team.teamName}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeTeam(teamId)}
-                                                className="text-blue-500 hover:text-blue-700"
-                                            >
-                                                <FaTimes />
-                                            </button>
-                                        </div>
-                                    ) : null;
-                                })}
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <div className="w-px bg-gray-300 mx-2"></div>
@@ -139,24 +148,21 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                                 Assigned Users
                             </label>
                             <div className="max-h-40 overflow-y-auto">
-                                {formData.assignedUsers.map((userId) => {
-                                    const user = users.find((u) => u.id === userId);
-                                    return user ? (
-                                        <div
-                                            key={userId}
-                                            className="flex justify-between items-center bg-green-100 text-green-800 px-2 py-1 mb-1 rounded text-sm"
+                                {formData.assignedUsers.map((user) => (
+                                    <div
+                                        key={user.id}
+                                        className="flex justify-between items-center bg-green-100 text-green-800 px-2 py-1 mb-1 rounded text-sm"
+                                    >
+                                        {user.name}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeUser(user.id)}
+                                            className="text-green-500 hover:text-green-700"
                                         >
-                                            {user.name}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeUser(userId)}
-                                                className="text-green-500 hover:text-green-700"
-                                            >
-                                                <FaTimes />
-                                            </button>
-                                        </div>
-                                    ) : null;
-                                })}
+                                            <FaTimes />
+                                        </button>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                         <div className="w-px bg-gray-300 mx-2"></div>

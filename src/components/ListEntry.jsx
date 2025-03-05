@@ -7,30 +7,30 @@ import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an 
 import { Teams, Users } from './TeamAndUsersTest';
 
 const ListEntry = ({
-    text,
+    text = "",
     dueDate,
-    warningThreshold,
+    warningThreshold = 1,
     assignedUsers = [],
     assignedTeams = [],
-    checked,
-    onCheckChange,
-    onTextChange,
-    onDueDateChange,
-    onWarningThresholdChange,
-    onAssign,
-    isNew,
-    isSelected,
-    onClick,
-    entryId,
-    onDragStart,
-    onDragEnd,
-    onDrop,
-    isDragging,
-    isDraggedOver,
-    dragPosition,
-    file,
-    onFileChange,
-    onDelete,
+    checked = false,
+    onCheckChange = () => {},
+    onTextChange = () => {},
+    onDueDateChange = () => {},
+    onWarningThresholdChange = () => {},
+    onAssign = () => {},
+    isNew = false,
+    isSelected = false,
+    onClick = () => {},
+    entryId = "",
+    onDragStart = () => {},
+    onDragEnd = () => {},
+    onDrop = () => {},
+    isDragging = false,
+    isDraggedOver = false,
+    dragPosition = null,
+    file = null,
+    onFileChange = () => {},
+    onDelete = () => {},
 }) => {
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
@@ -197,15 +197,18 @@ const ListEntry = ({
                 )}
                 {(assignedUsers.length > 0 || assignedTeams.length > 0) && (
                     <div className="flex items-center gap-2 mt-1">
+                        {console.log("assignedTeams:", assignedTeams)}
                         {assignedTeams.map((team) => {
+                            console.log("Team in map:", team);
                             const TeamIcon = team.teamIcon;
+                            console.log("TeamIcon component:", TeamIcon);
                             return (
                                 <div
                                     key={team.id}
                                     className="tooltip"
                                     title={team.teamName || 'Unnamed Team'}
                                 >
-                                    {TeamIcon && <TeamIcon className="text-gray-600 w-4 h-4" />}
+                                    {TeamIcon ? <TeamIcon className="text-gray-600 w-4 h-4" /> : 'No icon'}
                                 </div>
                             );
                         })}
@@ -309,10 +312,10 @@ const ListEntry = ({
                             onClick(null);
                         }}
                         onAssign={(updatedEntry) => {
-                            if (onAssign && (updatedEntry.assignedTeams !== assignedTeams || updatedEntry.assignedUsers !== assignedUsers)) {
+                            if (onAssign) {
                                 onAssign(
-                                    updatedEntry.assignedUsers || [],
-                                    updatedEntry.assignedTeams || []
+                                    updatedEntry.assignedUsers,
+                                    updatedEntry.assignedTeams
                                 );
                             }
                             onClick(null);
@@ -373,7 +376,7 @@ ListEntry.propTypes = {
     assignedUsers: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
-        teamIcon: PropTypes.elementType,
+        profilePicture: PropTypes.oneOfType([PropTypes.string, PropTypes.elementType]),
     })).isRequired,
     assignedTeams: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,

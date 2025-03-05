@@ -21,7 +21,8 @@ const TaskList = ({
     onDeleteList,
     onDragStart,
     onUpdateEntryCheckedStatus,
-    onFileChange
+    onFileChange,
+    onEntryUpdate
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
@@ -349,15 +350,20 @@ const TaskList = ({
     };
 
     const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
-        setEntries(prev => {
-            const updated = [...prev];
-            updated[index] = {
-                ...updated[index],
-                assignedUsers: Array.isArray(newAssigneesUsers) ? [...newAssigneesUsers] : [],
-                assignedTeams: Array.isArray(newAssigneesTeams) ? [...newAssigneesTeams] : []
-            };
-            return updated;
-        });
+        const updatedEntries = [...entries];
+        updatedEntries[index].assignedUsers = newAssigneesUsers;
+        updatedEntries[index].assignedTeams = newAssigneesTeams;
+        setEntries(updatedEntries);
+        
+        // Notify parent component of the changes if needed
+        // This is missing in your current implementation
+        // Add a prop like onEntryUpdate if you need to persist these changes
+        if (onEntryUpdate) {
+            onEntryUpdate(listId, index, {
+                assignedUsers: newAssigneesUsers,
+                assignedTeams: newAssigneesTeams
+            });
+        }
     };
 
     return (
