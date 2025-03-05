@@ -264,9 +264,9 @@ const IncidentsBugs = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-red-100">
       {/* Header */}
-      <div className="w-full bg-white shadow-sm z-10">
+      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-red-200">
         <Header
           title={<span className="text-xl font-semibold text-gray-800">Bugs & Incidents</span>}
           action={{
@@ -279,12 +279,12 @@ const IncidentsBugs = () => {
       
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="bg-white shadow-md z-5 border-r border-gray-100">
+        <div className="bg-white shadow-md z-5 border-r-2 border-red-200">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
         {/* Main content */}
-        <div className="flex-1 overflow-auto bg-gray-50 flex flex-col">
+        <div className="flex-1 overflow-auto bg-red-100 flex flex-col">
           <div className="p-6 space-y-6 flex-grow">
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -292,7 +292,7 @@ const IncidentsBugs = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border-2 border-red-300"
               >
                 <h3 className="text-gray-500 text-sm font-medium">Your Reports</h3>
                 <p className="text-2xl font-bold text-gray-800">{incidents.length}</p>
@@ -302,7 +302,7 @@ const IncidentsBugs = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-red-200"
               >
                 <h3 className="text-gray-500 text-sm font-medium">Open Issues</h3>
                 <p className="text-2xl font-bold text-red-600">
@@ -314,7 +314,7 @@ const IncidentsBugs = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-red-200"
               >
                 <h3 className="text-gray-500 text-sm font-medium">In Progress</h3>
                 <p className="text-2xl font-bold text-amber-600">
@@ -326,7 +326,7 @@ const IncidentsBugs = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-white p-4 rounded-xl shadow-sm border border-red-200"
               >
                 <h3 className="text-gray-500 text-sm font-medium">Resolved</h3>
                 <p className="text-2xl font-bold text-green-600">
@@ -343,7 +343,7 @@ const IncidentsBugs = () => {
                 </div>
                 <input 
                   type="text" 
-                  className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+                  className="bg-white border-2 border-red-300 text-gray-700 text-sm rounded-lg focus:ring-red-600 focus:border-red-500 block w-full pl-10 p-2.5"
                   placeholder="Search reports by title or description"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -353,7 +353,7 @@ const IncidentsBugs = () => {
               <div className="flex flex-wrap gap-2">
                 <div className="relative">
                   <select 
-                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 appearance-none pr-8"
+                    className="bg-white border-2 border-red-300 text-gray-700 text-sm rounded-lg focus:ring-red-600 focus:border-red-500 block w-full p-2.5 appearance-none pr-8"
                     onChange={(e) => setStatusFilter(e.target.value)}
                     value={statusFilter}
                   >
@@ -367,7 +367,7 @@ const IncidentsBugs = () => {
                 
                 <div className="relative">
                   <select 
-                    className="bg-white border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 appearance-none pr-8"
+                    className="bg-white border-2 border-red-300 text-gray-700 text-sm rounded-lg focus:ring-red-600 focus:border-red-500 block w-full p-2.5 appearance-none pr-8"
                     onChange={(e) => setPriorityFilter(e.target.value)}
                     value={priorityFilter}
                   >
@@ -405,7 +405,7 @@ const IncidentsBugs = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+                      className="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden hover:border-red-300 transition-colors duration-300"
                     >
                       <div className="p-5">
                         <div className="flex justify-between items-start mb-3">
@@ -449,7 +449,7 @@ const IncidentsBugs = () => {
 
       {/* Report Issue Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-red-50/50 backdrop-blur-sm flex justify-center items-center z-50">
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
@@ -482,7 +482,7 @@ const IncidentsBugs = () => {
                   id="title"
                   value={newIncident.title}
                   onChange={handleInputChange}
-                  className={`w-full p-3 bg-gray-50 border ${formErrors.title ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200`}
+                  className={`w-full p-3 bg-gray-50 border ${formErrors.title ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200`}
                   required
                   placeholder="Brief summary of the issue"
                 />
@@ -496,7 +496,7 @@ const IncidentsBugs = () => {
                   rows="4"
                   value={newIncident.description}
                   onChange={handleInputChange}
-                  className={`w-full p-3 bg-gray-50 border ${formErrors.description ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200`}
+                  className={`w-full p-3 bg-gray-50 border ${formErrors.description ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200`}
                   required
                   placeholder="Please provide details about what happened and how to reproduce the issue"
                 ></textarea>
@@ -509,7 +509,7 @@ const IncidentsBugs = () => {
                   id="category"
                   value={newIncident.category}
                   onChange={handleInputChange}
-                  className={`w-full p-3 bg-gray-50 border ${formErrors.category ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200`}
+                  className={`w-full p-3 bg-gray-50 border ${formErrors.category ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200`}
                   required
                 >
                   <option value="">Select category</option>
@@ -526,7 +526,7 @@ const IncidentsBugs = () => {
                   id="priority"
                   value={newIncident.priority}
                   onChange={handleInputChange}
-                  className={`w-full p-3 bg-gray-50 border ${formErrors.priority ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all duration-200`}
+                  className={`w-full p-3 bg-gray-50 border ${formErrors.priority ? 'border-red-500' : 'border-gray-200'} text-gray-900 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all duration-200`}
                   required
                 >
                   <option value="">Select priority</option>

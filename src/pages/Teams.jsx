@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import ViewportSidebar from "../components/ViewportSidebar";
+import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 import ManageRoleModal from "../components/ManageRoleModal";
-
+import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@clerk/clerk-react"; // Add this import if using Clerk for auth
 
 const teamColors = {
   1: "from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200",
-  2: "from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200",
-  3: "from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200",
   4: "from-green-50 to-green-100 hover:from-green-100 hover:to-green-200",
 };
 
@@ -116,59 +117,121 @@ const Teams = () => {
   const [teams, setTeams] = useState(teamsData);
   const [selectedMember, setSelectedMember] = useState(null);
 
+  // Custom navigation items for the sidebar - matching ProjectDetails.jsx
+  const customNavItems = [
+    { 
+      id: 'dashboard', 
+      icon: Layout, 
+      label: 'Dashboard', 
+      path: '/dashboard',
+      color: 'bg-blue-100 text-blue-600',  
+      iconColor: 'text-blue-600',     
+      defaultColor: true
+    },
+    { 
+      id: 'projects', 
+      icon: KanbanSquare, 
+      label: 'This Project', 
+      path: '/project/1',
+      color: 'bg-purple-100 text-purple-600',
+      iconColor: 'text-purple-600'
+    },
+    { 
+      id: 'activity', 
+      icon: Activity, 
+      label: 'Activity',
+      path: '/activity',
+      color: 'bg-yellow-100 text-yellow-600',
+      iconColor: 'text-amber-600'
+    },
+    { 
+      id: 'teams', 
+      icon: Users, 
+      label: 'Teams',
+      path: '/teams',
+      color: 'bg-green-100 text-green-600',
+      iconColor: 'text-green-600'
+    },
+    { 
+      id: 'settings', 
+      icon: Settings, 
+      label: 'Settings',
+      path: '/project/settings',
+      color: 'bg-gray-100 text-gray-600',
+      iconColor: 'text-gray-600'
+    }
+  ];
+
   return (
-    <div className="flex">
-      {/* Sidebar */}
-      <div>
-        <ViewportSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="flex flex-col h-screen bg-blue-50">
+      {/* Header with shadow */}
+      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-blue-100">
+        <Header
+          title={<span className="text-xl font-semibold text-blue-800">Teams</span>}
+          action={{
+            onClick: () => console.log("Add team clicked"),
+            icon: <Users className="mr-2 h-4 w-4" />,
+            label: "Add Team"
+          }}
+        />
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 py-6 transition-all duration-300 ease-in-out">
-        <h1 className="text-3xl font-bold ml-6 mt-5 mb-8 text-gray-800 px-6">
-          Teams
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-6">
-          {teams.map((team) => (
-            <div
-              key={team.id}
-              className={`rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 bg-gradient-to-br ${
-                teamColors[team.id]
-              } overflow-hidden`}
-            >
-              <div className="w-full p-4 text-left border-b border-gray-100/50">
-                <span className="font-medium text-gray-700">{team.name}</span>
-              </div>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar with customNavItems to match ProjectDetails.jsx */}
+        <div className="bg-white shadow-md z-5 border-r border-blue-100">
+          <Sidebar 
+            activeTab={activeTab} 
+            setActiveTab={setActiveTab} 
+            customNavItems={customNavItems} 
+          />
+        </div>
 
-              <div className="p-4 backdrop-blur-sm bg-white/30">
-                <div className="space-y-3">
-                  {team.members.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 transition-colors duration-200"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="w-8 h-8 rounded-full shadow-sm hover:shadow-md transition-shadow duration-200"
-                        />
-                        <div>
-                          <div className="font-medium text-sm text-gray-700">
-                            {member.name}
-                          </div>
-                          <div className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200">
-                            {member.email}
+        {/* Main content */}
+        <div className="flex-1 py-6 px-6 overflow-auto bg-blue-50">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+            {teams.map((team) => (
+              <div
+                key={team.id}
+                className={`rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 bg-gradient-to-br ${
+                  teamColors[team.id]
+                } overflow-hidden`}
+              >
+                <div className="w-full p-4 text-left border-b border-gray-100/50">
+                  <span className="font-medium text-gray-700">{team.name}</span>
+                </div>
+
+                <div className="p-4 backdrop-blur-sm bg-white/30">
+                  <div className="space-y-3">
+                    {team.members.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 transition-colors duration-200"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-8 h-8 rounded-full shadow-sm hover:shadow-md transition-shadow duration-200"
+                          />
+                          <div>
+                            <div className="font-medium text-sm text-gray-700">
+                              {member.name}
+                            </div>
+                            <div className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                              {member.email}
+                            </div>
                           </div>
                         </div>
+                        <div className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                          {member.role || "Member"}
+                        </div>
                       </div>
-      
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>
