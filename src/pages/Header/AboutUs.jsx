@@ -55,7 +55,7 @@ const AboutUs = () => {
             <h2 className="text-3xl md:text-4xl font-bold mb-8 text-gray-900 text-center font-mono tracking-tight">Our Story</h2>
             <div className="space-y-6 text-lg text-gray-700">
               <p>
-                PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2022, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
+                PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2025, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
               </p>
               <p>
                 What started as a simple task board has evolved into a full-featured project management platform that helps thousands of teams organize their work effectively. Our approach focuses on visual workflows inspired by Trello but extended with the features teams actually need.
