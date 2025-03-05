@@ -285,7 +285,7 @@ const CalendarPage = ({ projectData }) => {
         </div>
 
         {/* Main content - remains the same */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col items-center h-full mt-10">
+        <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col items-center h-full mt-0">
 
           <div className="p-6 w-full max-w-4xl">
             <div className="bg-white rounded-lg shadow p-4">

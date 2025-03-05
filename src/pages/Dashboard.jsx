@@ -276,9 +276,9 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-blue-800">Recent Activity</h2>
-                  <button className="text-sm text-blue-600 hover:underline flex items-center">
+                                  {/*<button className="text-sm text-blue-600 hover:underline flex items-center">
                     <Eye className="h-4 w-4 mr-1" /> View All
-                  </button>
+                  </button>*/}
                 </div>
                 <div className="space-y-4">
                   {recentActivities.map(activity => (
@@ -350,10 +350,10 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-blue-800">Recent Documents</h2>
-                  <button className="text-sm flex items-center text-blue-600 hover:underline">
+                                  {/*<button className="text-sm flex items-center text-blue-600 hover:underline">
                     <FileText className="h-4 w-4 mr-1" />
                     All Documents
-                  </button>
+                  </button>*/}
                 </div>
                 <div className="space-y-3">
                   {[

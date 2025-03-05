@@ -27,7 +27,7 @@ const ProjectDetails = () => {
         [
             {
                 id: "category-a",
-                title: "Frontend",
+                title: "Backend",
                 tagColor: "#8b5cf6",
                 taskLists: [
                     {

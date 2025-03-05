@@ -189,7 +189,7 @@ const FeaturesSection = () => {
               { 
                 name: "Elif Batcı", 
                 role: "Developer of Mole-Whacker", 
-                comment: "The customizable workflows in PlanWise align perfectly with our agile methodology. I can finally track product development with confidence and clarity.",
+                comment: "The customizable workflows in PlanWise align perfectly with our mole bashing methodology. I can finally track product development with confidence and clarity.",
                 avatar: "https://i.pravatar.cc/100?img=45"
               }
             ].map((testimonial, index) => (

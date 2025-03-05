@@ -46,8 +46,16 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
         }));
     };
 
+    const warningThreshold = parseInt(formData.warningThreshold, 10);
+    const maxThreshold = 365 * 10; //10 years
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (warningThreshold > maxThreshold) {
+            alert(`Warning threshold cannot be greater than ${maxThreshold} days.`);
+            return;
+        }
+
         const updatedEntry = {
             ...entry,
             text: formData.text,
