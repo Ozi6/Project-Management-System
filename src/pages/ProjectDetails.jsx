@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 import ViewportHeader from "../components/ViewportHeader";
-import Sidebar from "../components/Sidebar"; // Changed from ViewportSidebar
+import Sidebar from "../components/Sidebar";
 import Categorizer from "../components/Categorizer";
-import { useNavigate } from 'react-router-dom';
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
 import { Teams, Users } from '../components/TeamAndUsersTest';
-import { Activity, KanbanSquare, Layout, Settings, Users as UsersIcon } from "lucide-react"; // Changed Calendar to Activity
+import { 
+  Activity, 
+  KanbanSquare, 
+  Layout, 
+  Settings, 
+  Users as UsersIcon, 
+  Menu, 
+  Plus 
+} from "lucide-react";
 
-const ProjectDetailsWrapper = () =>
-{
+const ProjectDetailsWrapper = () => {
     return(
         <SearchProvider>
             <ProjectDetails/>
@@ -22,7 +28,10 @@ const ProjectDetailsWrapper = () =>
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState("team");
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [showProgressBar, setShowProgressBar] = useState(false);
     const initialColumns = [
         [
             {
@@ -164,8 +173,37 @@ const ProjectDetails = () => {
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
 
-    const toggleLayout = (isHorizontal) =>
-    {
+    // Mobile sidebar handlers
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMobileSidebarOpen(false);
+                setShowProgressBar(true);
+            } else {
+                setShowProgressBar(false);
+            }
+        };
+
+        handleResize(); // Call once on mount to set initial state
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Close mobile sidebar when changing routes
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+    }, [location.pathname]);
+
+    const toggleMobileSidebar = () => {
+        setIsMobileSidebarOpen(!isMobileSidebarOpen);
+    };
+
+    const toggleProgressBar = () => {
+        setShowProgressBar(!showProgressBar);
+    };
+
+    // Existing logic for layout toggle
+    const toggleLayout = (isHorizontal) => {
         if (!isHorizontal)
         {
             if (originalColumns)
@@ -192,11 +230,8 @@ const ProjectDetails = () => {
         setIsHorizontalLayout(isHorizontal);
     };
 
-
-    /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
-    No AI can replicate this, on God on Donda.*/
-    const redistributeTasks = (width) =>
-    {
+    // Existing function for task redistribution
+    const redistributeTasks = (width) => {
         if(isHorizontalLayout)
             return;
 
@@ -266,6 +301,21 @@ const ProjectDetails = () => {
             setColumns(copyColumns);
         }
     };
+
+    // Keep the existing resize effect, but adjust it to work with mobile sidebar
+    useEffect(() => {
+        const handleResize = () => {
+            const container = document.getElementById("columns-container");
+            if (container) {
+                setContainerWidth(container.offsetWidth);
+                if (!isHorizontalLayout)
+                    redistributeTasks(container.offsetWidth);
+            }
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [columns, isHorizontalLayout]);
 
     const handleAddCategorizer = () =>
     {
@@ -646,18 +696,79 @@ const ProjectDetails = () => {
               toggleLayout={toggleLayout} 
               onAddCategorizer={handleAddCategorizer}
             />
-            <div className="flex flex-1">
-                <Sidebar 
-                    activeTab={activeTab} 
-                    setActiveTab={setActiveTab}
-                    customNavItems={customNavItems} // Pass custom navigation items to Sidebar
-                />
-                <div className="flex flex-col flex-1">
+            <div className="flex flex-1 relative">
+                {/* Mobile menu toggle button */}
+                <div className="md:hidden fixed bottom-4 right-4 z-50 flex flex-col gap-3">
+                    {/* Mobile Add Category button - top */}
+                    <button 
+                        onClick={handleAddCategorizer}
+                        className="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+                        aria-label="Add category"
+                    >
+                        <Plus size={24} />
+                    </button>
+
+                    {/* Mobile Progress toggle button - middle */}
+                    <button 
+                        onClick={toggleProgressBar}
+                        className="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+                        aria-label="Toggle progress"
+                    >
+                        <Activity size={24} />
+                    </button>
+
+                    {/* Mobile menu toggle button - bottom */}
+                    <button 
+                        onClick={toggleMobileSidebar}
+                        className="bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-colors"
+                        aria-label="Toggle menu"
+                    >
+                        <Menu size={24} />
+                    </button>
+                </div>
+
+                {/* Sidebar - hidden on mobile, shown on md+ screens */}
+                <div className="hidden md:block bg-white shadow-md z-5">
+                    <Sidebar 
+                        activeTab={activeTab} 
+                        setActiveTab={setActiveTab}
+                        customNavItems={customNavItems}
+                    />
+                </div>
+                
+                {/* Mobile sidebar - full screen overlay when open */}
+                {isMobileSidebarOpen && (
+                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                        <Sidebar 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab} 
+                            customNavItems={customNavItems}
+                            isMobile={true}
+                            closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+                        />
+                    </div>
+                )}
+
+                {/* Main content area */}
+                <div className="flex-1 overflow-auto">
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
                             No results found for "{searchTerm}"
                         </div>
                     )}
+                    
+                    {/* Mobile progress bar - conditionally shown when toggled */}
+                    {showProgressBar && (
+                        <div className="md:hidden mx-4 mt-4">
+                            <div className="bg-white p-4 rounded-lg shadow">
+                                <h3 className="text-md font-semibold mb-2">Project Progress</h3>
+                                <div className="px-2">
+                                    <ProgressBar tasks={displayColumns} isCompact={true} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
                     <div
                         id="columns-container"
                         style={{
@@ -666,13 +777,13 @@ const ProjectDetails = () => {
                             width: '100%',
                             marginBottom: '20px',
                         }}
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-8`}>
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-8`}>
                         {displayColumns.map((tasks, columnIndex) => (
                             <div
                                 key={columnIndex}
                                 className={`flex flex-col gap-4 ${isHorizontalLayout
                                     ? 'min-w-[285px] max-w-[285px] flex-shrink-0'
-                                    : 'min-w-[285px] max-w-[285px] flex-1'}`}>
+                                    : 'min-w-[280px] max-w-full md:max-w-[285px] flex-1'}`}>
                                 {tasks.map((task, taskIndex) => (
                                     <Categorizer
                                         onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
@@ -703,7 +814,11 @@ const ProjectDetails = () => {
                         ))}
                     </div>
                 </div>
-                <ProgressBar tasks={displayColumns}/>
+                
+                {/* Desktop progress bar - hidden on mobile */}
+                <div className={`hidden md:block`}>
+                    <ProgressBar tasks={displayColumns} />
+                </div>
             </div>
         </div>
     );
