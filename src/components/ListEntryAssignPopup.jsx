@@ -73,7 +73,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
-            onClick={onClose}
+            //onClick={onClose}
         >
             <motion.div
                 initial={{ y: 20 }}

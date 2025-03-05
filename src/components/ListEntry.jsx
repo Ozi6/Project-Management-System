@@ -178,14 +178,18 @@ const ListEntry = ({
                             checked={checked}
                             onChange={handleCheckboxChange} />
                     </div>
-                    <span className="relative overflow-hidden">
-                        <span
-                            className={`absolute inset-0 bg-gray-400 h-0.5 top-1/2 transform -translate-y-1/2 ${checked ? "animate-cross-out" : (hasInteracted ? "animate-uncross-out" : "w-0")}`} />
-                        <span
-                            className={`transition-all duration-300 ease-out select-none ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-400" : "text-black")}`}>
+                    <div className="flex-1 overflow-hidden">
+                        <span className={`
+                            relative 
+                            transition-all duration-300 ease-out 
+                            select-none 
+                            inline-block
+                            ${checked ? "task-completed" : ""}
+                            ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-500" : "text-black")}
+                        `}>
                             {text}
                         </span>
-                    </span>
+                    </div>
                 </div>
                 {dueDate && (
                     <div className="flex items-center gap-2">
@@ -328,42 +332,55 @@ const ListEntry = ({
 
             <style jsx>
                 {`
-            @keyframes entryAppear {
-                0% {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
-                100% {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            @keyframes cross-out {
-                0% {
-                    width: 0%;
-                }
-                100% {
-                    width: 100%;
-                }
-            }
-            @keyframes uncross-out {
-                0% {
-                    width: 100%;
-                }
-                100% {
-                    width: 0%;
-                }
-            }
-            .animate-entryAppear {
-                animation: entryAppear 0.3s ease-out forwards;
-            }
-            .animate-cross-out {
-                animation: cross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-            }
-            .animate-uncross-out {
-                animation: uncross-out 0.3s cubic-bezier(0.83, 0.05, 0.62, 1) forwards;
-            }
-        `}
+    @keyframes entryAppear {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-entryAppear {
+        animation: entryAppear 0.3s ease-out forwards;
+    }
+    
+    .task-completed {
+        position: relative;
+        opacity: 0.65;
+        font-style: italic;
+        color: #9ca3af;
+        text-decoration: line-through;
+        background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.2), transparent);
+        padding: 1px 4px;
+        border-radius: 4px;
+        transform: scale(0.98);
+    }
+    
+    .task-completed::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        height: 2px;
+        background: linear-gradient(to right, transparent, #ef4444, transparent);
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: strikethrough 0.3s ease-out forwards;
+    }
+    
+    @keyframes strikethrough {
+        0% {
+            transform: scaleX(0);
+        }
+        100% {
+            transform: scaleX(1);
+        }
+    }
+    `}
             </style>
         </div>
     );
