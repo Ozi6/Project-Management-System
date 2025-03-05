@@ -346,7 +346,6 @@ const TaskList = ({
         const index = parseInt(parts[parts.length - 1]);
 
         setEntries(entries.filter((_, i) => i !== index));
-
     };
 
     const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {

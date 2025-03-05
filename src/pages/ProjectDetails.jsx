@@ -27,23 +27,23 @@ const ProjectDetails = () => {
         [
             {
                 id: "category-a",
-                title: "Category A",
+                title: "Frontend",
                 tagColor: "#8b5cf6",
                 taskLists: [
                     {
                         id: "task-list-1",
-                        title: "Task List 1",
+                        title: "SQL",
                         tagColor: "#8b5cf6",
                         entries: [
                             {
-                                text: "Complete project proposal",
+                                text: "Connect API",
                                 entryId: "task-1",
                                 dueDate: new Date("2025-12-15"),
                                 assignedTeams: [Teams[0], Teams[1]],
                                 assignedUsers: [Users[0]]
                             },
                             {
-                                text: "Review design mockups",
+                                text: "Establish Database",
                                 entryId: "task-2",
                                 dueDate: new Date("2025-3-2"),
                                 assignedTeams: [Teams[0], Teams[1]],
@@ -53,16 +53,16 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-2",
-                        title: "Task List 2",
+                        title: "User Establishing",
                         tagColor: "#8b5cf6",
                         entries: [
                             {
-                                text: "Prepare presentation slides",
+                                text: "Proper Initializations",
                                 entryId: "task-3",
                                 dueDate: new Date("2025-12-10"),
                             },
                             {
-                                text: "Send meeting invites",
+                                text: "Authentication",
                                 entryId: "task-4",
                             },
                         ],
@@ -71,23 +71,23 @@ const ProjectDetails = () => {
             },
             {
                 id: "category-b",
-                title: "Category B",
+                title: "Frontend",
                 tagColor: "#f43f5e",
                 taskLists: [
                     {
                         id: "task-list-3",
-                        title: "Task List 3",
+                        title: "Controls",
                         tagColor: "#f43f5e",
                         entries: [
                             {
-                                text: "Update website content",
+                                text: "Update Website Content",
                                 entryId: "task-5",
                                 dueDate: new Date("2025-12-25"),
                                 assignedTeams: [ Teams[1]],
                                 assignedUsers: [Users[0]]
                             },
                             {
-                                text: "Test new features",
+                                text: "Test New Features",
                                 entryId: "task-6",
                                 dueDate: new Date("2025-12-18"), // Due soon
                             },
@@ -95,11 +95,11 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-4",
-                        title: "Task List 4",
+                        title: "Extra",
                         tagColor: "#f43f5e",
                         entries: [
                             {
-                                text: "Fix bugs in production",
+                                text: "Fix Bugs in Template",
                                 entryId: "task-7",
                             },
                             {
@@ -113,12 +113,12 @@ const ProjectDetails = () => {
             },
             {
                 id: "category-c",
-                title: "Category C",
+                title: "Management",
                 tagColor: "#f97316",
                 taskLists: [
                     {
                         id: "task-list-5",
-                        title: "Task List 5",
+                        title: "Office",
                         tagColor: "#f97316",
                         entries: [
                             {
@@ -134,7 +134,7 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-6",
-                        title: "Task List 6",
+                        title: "Employees",
                         tagColor: "#f97316",
                         entries: [
                             {
