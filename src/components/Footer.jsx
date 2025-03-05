@@ -15,16 +15,13 @@ const Footer = () => {
               Streamline your project management with our intuitive and powerful solution.
             </p>
             <div className="flex space-x-4">
-              <a href="https://github.com" className="hover:text-blue-500 transition-colors">
+              <a href="https://github.com/Ozi6/Project-Management-System/" className="hover:text-blue-500 transition-colors">
                 <Github size={20} />
               </a>
-              <a href="https://twitter.com" className="hover:text-blue-500 transition-colors">
+            <a href="https://x.com/teamplanwise" className="hover:text-blue-500 transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="https://linkedin.com" className="hover:text-blue-500 transition-colors">
-                <Linkedin size={20} />
-              </a>
-              <a href="https://instagram.com" className="hover:text-blue-500 transition-colors">
+                <a href="https://www.instagram.com/planwise.team/" className="hover:text-blue-500 transition-colors">
                 <Instagram size={20} />
               </a>
             </div>
