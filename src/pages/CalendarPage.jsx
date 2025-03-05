@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, User, Heart } from 'lucide-react';
-import Sidebar from "../components/Sidebar"; // Changed from ViewportSidebar
+import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, User, Heart, Menu } from 'lucide-react';
+import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import { Link, useNavigate, useLocation } from "react-router-dom"; // Added useLocation
-import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react"; // Added needed icons
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
 
 const CalendarPage = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -11,7 +11,9 @@ const CalendarPage = ({ projectData }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarDays, setCalendarDays] = useState([]);
   const [tasksByDate, setTasksByDate] = useState({});
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Custom navigation items for the sidebar (similar to ProjectDetails.jsx)
   const customNavItems = [
@@ -57,6 +59,27 @@ const CalendarPage = ({ projectData }) => {
       iconColor: 'text-gray-600'
     }
   ];
+
+  // Handle mobile sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile sidebar when changing routes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   // Sample project data with tasks
   const sampleProjectData = [
@@ -268,28 +291,50 @@ const CalendarPage = ({ projectData }) => {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
-      <div className="w-full bg-white shadow-sm z-10">
+      <div className="w-full bg-white shadow-sm z-10 border-b border-gray-100">
         <Header
           title={<span className="text-xl font-semibold text-gray-800">Calendar</span>}
         />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar - Updated to use Sidebar component with customNavItems */}
-        <div className="bg-white shadow-md z-5 border-r border-gray-100">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile menu toggle button */}
+        <button 
+          onClick={toggleMobileSidebar}
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Sidebar - hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:block bg-white shadow-md z-5 border-r border-gray-100">
           <Sidebar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
             customNavItems={customNavItems}
           />
         </div>
+        
+        {/* Mobile sidebar - full screen overlay when open */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-white">
+            <Sidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              customNavItems={customNavItems}
+              isMobile={true}
+              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
 
         {/* Main content - remains the same */}
         <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col items-center h-full mt-0">
 
           <div className="p-6 w-full max-w-4xl">
             <div className="bg-white rounded-lg shadow p-4">
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-gray-500" />
                   <h2 className="text-xl font-semibold text-gray-800">Project Calendar</h2>
@@ -319,12 +364,12 @@ const CalendarPage = ({ projectData }) => {
                 </div>
               </div>
 
-              {/* Calendar grid */}
+              {/* Calendar grid - made more responsive */}
               <div className="grid grid-cols-7 gap-px bg-gray-200">
                 {/* Day headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="bg-gray-100 text-center py-2 font-medium text-gray-500">
-                    {day}
+                  <div key={day} className="bg-gray-100 text-center py-2 font-medium text-gray-500 text-xs sm:text-sm">
+                    {window.innerWidth < 640 ? day.charAt(0) : day}
                   </div>
                 ))}
                 
@@ -337,7 +382,7 @@ const CalendarPage = ({ projectData }) => {
                     <div
                       key={index}
                       onClick={() => setSelectedDate(day.date)}
-                      className={`min-h-24 bg-white p-1 ${
+                      className={`min-h-16 sm:min-h-24 bg-white p-1 ${
                         !day.currentMonth ? 'text-gray-400' : ''
                       } ${
                         isToday(day.date) ? 'bg-blue-50' : ''
@@ -346,7 +391,7 @@ const CalendarPage = ({ projectData }) => {
                       } hover:bg-gray-50 cursor-pointer`}
                     >
                       <div className="flex justify-between">
-                        <span className={`text-sm ${isToday(day.date) ? 'font-bold text-blue-600' : ''}`}>
+                        <span className={`text-xs sm:text-sm ${isToday(day.date) ? 'font-bold text-blue-600' : ''}`}>
                           {day.date.getDate()}
                         </span>
                         {hasTask && (
@@ -354,8 +399,8 @@ const CalendarPage = ({ projectData }) => {
                         )}
                       </div>
                       
-                      <div className="mt-1 max-h-20 overflow-y-auto">
-                        {tasks.slice(0, 3).map((task, i) => (
+                      <div className="mt-1 max-h-10 sm:max-h-20 overflow-y-auto">
+                        {tasks.slice(0, window.innerWidth < 640 ? 1 : 3).map((task, i) => (
                           <div
                             key={i}
                             className="text-xs mb-1 p-1 rounded truncate"
@@ -364,9 +409,9 @@ const CalendarPage = ({ projectData }) => {
                             {task.text}
                           </div>
                         ))}
-                        {tasks.length > 3 && (
+                        {tasks.length > (window.innerWidth < 640 ? 1 : 3) && (
                           <div className="text-xs text-gray-500 pl-1">
-                            +{tasks.length - 3} more
+                            +{tasks.length - (window.innerWidth < 640 ? 1 : 3)} more
                           </div>
                         )}
                       </div>
@@ -405,6 +450,22 @@ const CalendarPage = ({ projectData }) => {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="w-full bg-white border-t border-gray-100 py-3 px-6 mt-auto">
+            <div className="flex flex-row justify-between items-center text-xs text-gray-600">
+              <div>
+                <span>© 2025 PlanWise</span>
+                <span className="hidden sm:inline"> • All rights reserved</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="flex items-center">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  Calendar
+                </span>
               </div>
             </div>
           </div>

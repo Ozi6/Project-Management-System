@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   AlertCircle,
@@ -10,7 +10,8 @@ import {
   Plus,
   AlertTriangle,
   CheckCircle,
-  MessageSquare
+  MessageSquare,
+  Menu
 } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -60,7 +61,7 @@ const IncidentsBugs = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [showReportModal, setShowReportModal] = useState(false);
-  // Add state for the new incident form
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [newIncident, setNewIncident] = useState({
     title: '',
     description: '',
@@ -69,15 +70,35 @@ const IncidentsBugs = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Add a new state variable for the detail view
+  // Add state for incident detail view
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-
-  // Add these new state variables
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commentError, setCommentError] = useState('');
+
+  // Handle mobile sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile sidebar when changing routes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   // Add this function to handle viewing incident details
   const handleViewDetails = (incident) => {
@@ -277,14 +298,67 @@ const IncidentsBugs = () => {
         />
       </div>
       
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="bg-white shadow-md z-5 border-r-2 border-red-200">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile menu toggle button */}
+        <button 
+          onClick={toggleMobileSidebar}
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-red-600 text-white p-3 rounded-full shadow-lg hover:bg-red-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Mobile Report Issue button */}
+        <button 
+          onClick={() => setShowReportModal(true)}
+          className="md:hidden fixed bottom-4 right-20 z-50 bg-rose-600 text-white p-3 rounded-full shadow-lg hover:bg-rose-700 transition-colors"
+          aria-label="Report issue"
+        >
+          <AlertTriangle size={24} />
+        </button>
+
+        {/* Sidebar - hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:block bg-white shadow-md z-5 border-r-2 border-red-200">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
+        {/* Mobile sidebar - full screen overlay when open */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-white">
+            <Sidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              isMobile={true}
+              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
+        
         {/* Main content */}
         <div className="flex-1 overflow-auto bg-red-100 flex flex-col">
+          {/* Mobile card shortcut to report issue - visible at the top on mobile only */}
+          <div className="md:hidden mx-6 mt-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white p-4 rounded-xl shadow-lg border-2 border-red-300 hover:shadow-xl transition-all duration-300"
+              onClick={() => setShowReportModal(true)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="bg-rose-100 p-2 rounded-lg mr-3">
+                    <AlertTriangle className="h-5 w-5 text-rose-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-gray-800">Have an issue?</h3>
+                    <p className="text-sm text-gray-500">Report it now</p>
+                  </div>
+                </div>
+                <Plus className="h-5 w-5 text-rose-600" />
+              </div>
+            </motion.div>
+          </div>
+
           <div className="p-6 space-y-6 flex-grow">
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -442,6 +516,22 @@ const IncidentsBugs = () => {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+          
+          {/* Footer - optional */}
+          <div className="bg-white border-t border-red-100 py-3 px-6">
+            <div className="flex flex-row justify-between items-center text-xs text-red-600">
+              <div>
+                <span>© 2025 PlanWise</span>
+                <span className="hidden sm:inline"> • All rights reserved</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="flex items-center">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Issue Tracker
+                </span>
+              </div>
             </div>
           </div>
         </div>

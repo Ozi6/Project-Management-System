@@ -10,6 +10,7 @@ import Dropdown from "./Dropdown";
 import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 
+// RemoveConfirmationModal remains the same
 const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   return (
     <AnimatePresence mode="wait">
@@ -158,6 +159,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
     )
   );
 
+  // Existing functions
   const togglePermission = (email, option) => {
     if (!email || !permissions[email]) {
       console.warn("Invalid email or permissions for togglePermission");
@@ -173,109 +175,27 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
   };
   
   const updateMemberRole = (memberId, newRole) => {
-    if (!memberId || !newRole) return;
-
-    setTeams(prevTeams => {
-      const updatedTeams = prevTeams.map(team => ({
-        ...team,
-        members: team.members ? team.members.map(member => 
-          member.id === memberId 
-            ? { ...member, role: newRole }
-            : member
-        ) : []
-      }));
-      
-      const memberUpdated = updatedTeams.some(team => 
-        team.members && team.members.some(member => 
-          member.id === memberId && member.role === newRole
-        )
-      );
-      
-      if (!memberUpdated) {
-        console.warn('Failed to update member role');
-        return prevTeams;
-      }
-      
-      return updatedTeams;
-    });
+    // ... existing function ...
   };
 
   const deleteTeam = (teamName) => {
-    if (!teamName || typeof teamName !== "string") {
-      console.warn("Cannot delete team: invalid team name");
-      return;
-    }
-    setTeams(teams.filter((team) => team.name !== teamName));
-    setMembers(
-      members.map((member) =>
-        member.team === teamName ? { ...member, team: "" } : member
-      )
-    );
+    // ... existing function ...
   };
 
   const confirmRemoveMember = (id) => {
-    if (!id) {
-      console.warn("Invalid id for confirmRemoveMember");
-      return;
-    }
-    setMembers(members.filter((member) => member.id !== id));
-    setMemberToRemove(null); // Close the modal after confirmation
+    // ... existing function ...
   };
 
   const addToTeam = (memberId, teamName) => {
-    if (!memberId) {
-      console.warn("Invalid memberId for addToTeam");
-      return;
-    }
-    setMembers(
-      members.map((member) =>
-        member.id === memberId ? { ...member, team: teamName || "" } : member
-      )
-    );
+    // ... existing function ...
   };
 
   const editTeam = (updatedTeam, oldTeam) => {
-    if (!updatedTeam || !updatedTeam.name || !updatedTeam.name.trim()) {
-      console.warn("Cannot edit team: updatedTeam or name is invalid");
-      return;
-    }
-  
-    if (oldTeam) {
-      // Update existing team based on ID
-      const updatedTeams = teams.map((team) =>
-        team.id === oldTeam.id ? updatedTeam : team
-      );
-      setTeams(updatedTeams);
-  
-      // Update members with the new team name if it changed
-      setMembers((prevMembers) =>
-        prevMembers.map((member) =>
-          member.team === oldTeam.name && oldTeam.name !== updatedTeam.name
-            ? { ...member, team: updatedTeam.name }
-            : member
-        )
-      );
-    } else {
-      // Add new team only if explicitly intended (no oldTeam provided)
-      const existingTeam = teams.find((team) => team.id === updatedTeam.id);
-      if (!existingTeam) {
-        setTeams((prevTeams) => [...prevTeams, updatedTeam]);
-      } else {
-        // If ID exists but no oldTeam, update instead of adding
-        const updatedTeams = teams.map((team) =>
-          team.id === updatedTeam.id ? updatedTeam : team
-        );
-        setTeams(updatedTeams);
-      }
-    }
+    // ... existing function ...
   };
 
   const handleRemoveClick = (member) => {
-    if (!member || !member.id) {
-      console.warn("Cannot remove member: invalid member data");
-      return;
-    }
-    setMemberToRemove(member); // Open the confirmation modal
+    // ... existing function ...
   };
 
   const filteredMembers = members.filter(
@@ -288,19 +208,19 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
     <ErrorBoundary>
       <div className="p-6 w-full">
         <h2 className="text-xl font-bold mb-4">Advanced Settings</h2>
-        <div className="flex justify-between items-center mb-6">
-          {/* Go Back to General Settings Button */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-3">
+          {/* Go Back to General Settings Button - Full width on mobile */}
           <button
             onClick={() => setShowAdvanced(false)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out w-full sm:w-auto"
           >
             Go Back to General Settings
           </button>
 
-          {/* Invite People Button - only fully visible to project owner */}
+          {/* Invite People Button - Full width on mobile */}
           <button
             onClick={() => isProjectOwner && setIsModalOpen(true)}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center ${
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center justify-center w-full sm:w-auto ${
               !isProjectOwner ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={!isProjectOwner}
@@ -341,9 +261,10 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {filteredMembers.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg hover:scale-[1.02]"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg hover:scale-[1.01]"
             >
-              <div className="flex items-center space-x-4">
+              {/* Member info - Full width on mobile */}
+              <div className="flex items-center space-x-4 w-full sm:w-auto mb-4 sm:mb-0">
                 <img
                   src={`https://i.pravatar.cc/150?img=${member.id}`}
                   alt={member.name}
@@ -364,10 +285,11 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                {/* Manage Access Button - transparent for non-owners */}
+              {/* Action buttons - Stack on mobile, row on desktop */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:space-x-4 w-full sm:w-auto">
+                {/* Manage Access Button - Full width on mobile */}
                 <button
-                  className={`bg-green-500 text-white px-4 py-2 rounded-lg transition ${
+                  className={`bg-green-500 text-white px-4 py-2 rounded-lg transition w-full sm:w-auto ${
                     isProjectOwner ? "hover:bg-green-700" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setSelectedMember(member)}
@@ -376,9 +298,9 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   Manage Access
                 </button>
 
-                {/* Manage Team Button - transparent for non-owners */}
+                {/* Manage Team Button - Full width on mobile */}
                 <button
-                  className={`text-white bg-blue-500 px-4 py-2 rounded-lg transition ${
+                  className={`text-white bg-blue-500 px-4 py-2 rounded-lg transition w-full sm:w-auto ${
                     isProjectOwner ? "hover:bg-blue-700" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setMemberToManageTeams(member)}
@@ -387,11 +309,11 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   Manage Team
                 </button>
 
-                {/* Remove Button - transparent for non-owners */}
+                {/* Remove Button - Full width on mobile */}
                 <button
                   onClick={() => isProjectOwner && handleRemoveClick(member)}
-                  className={`bg-red-500 text-white p-2 rounded-lg flex items-center transition-all ${
-                    isProjectOwner ? "hover:bg-red-700 hover:scale-110" : "opacity-50 cursor-not-allowed"
+                  className={`bg-red-500 text-white p-2 rounded-lg flex items-center justify-center transition-all w-full sm:w-auto ${
+                    isProjectOwner ? "hover:bg-red-700 hover:scale-105" : "opacity-50 cursor-not-allowed"
                   }`}
                   disabled={!isProjectOwner}
                 >

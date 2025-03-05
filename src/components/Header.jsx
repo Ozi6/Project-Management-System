@@ -82,12 +82,7 @@ const Header = ({ title, action, rightContent }) => {
                     isOpen={activeDropdown === 'resources'}
                     onClick={() => handleDropdownToggle('resources')}
                 />
-                <Link 
-                    to="/about" 
-                    className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                >
-                    About Us
-                </Link>
+                
                 
                 {/* Admin-only Issues/Tickets link with enhanced visibility */}
                 {isAdmin && (
@@ -240,13 +235,6 @@ const Header = ({ title, action, rightContent }) => {
                                 </div>
                             )}
                             
-                            <Link 
-                                to="/about" 
-                                className="block py-2 border-b border-gray-200 text-lg"
-                            >
-                                About Us
-                            </Link>
-                            
                             {/* Admin-only Issues/Tickets link for mobile */}
                             {isAdmin && (
                                 <Link 
@@ -301,21 +289,9 @@ const Header = ({ title, action, rightContent }) => {
                                     Home
                                 </Link>
                                 
-                                <Link 
-                                    to="/about" 
-                                    className="block py-2 border-b border-gray-200 text-lg"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    About Us
-                                </Link>
                                 
-                                <Link 
-                                    to="/solutions" 
-                                    className="block py-2 border-b border-gray-200 text-lg"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    Solutions
-                                </Link>
+                                
+                                
                                 
                                 {/* Admin-only Issues/Tickets link for mobile */}
                                 {isAdmin && (

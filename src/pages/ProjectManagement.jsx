@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Plus, Search, Filter, User, Heart } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Plus, Search, Filter, User, Heart, Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ProjectCard from "../components/ProjectCard";
@@ -8,12 +8,13 @@ import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 
-
 const ProjectManagement = () => {
     const [activeTab, setActiveTab] = useState("projects");
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const navigate = useNavigate();
+    const location = useLocation();
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
     // Event Handlers
     const onTaskChange = (taskId, newStartDate, newEndDate) => {
@@ -135,6 +136,27 @@ const ProjectManagement = () => {
         // Optional: Show a toast notification
         // toast.success("Project deleted successfully");
     };
+
+    // Handle mobile sidebar
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMobileSidebarOpen(false);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Close mobile sidebar when changing routes
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+    }, [location.pathname]);
+
+    const toggleMobileSidebar = () => {
+        setIsMobileSidebarOpen(!isMobileSidebarOpen);
+    };
     
     return (
         <div className="flex flex-col h-screen bg-purple-50">
@@ -150,15 +172,67 @@ const ProjectManagement = () => {
                 />
             </div>
             
-            <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar with improved styling */}
-                <div className="bg-white shadow-md z-5 border-r border-purple-100">
+            <div className="flex flex-1 overflow-hidden relative">
+                {/* Mobile menu toggle button */}
+                <button 
+                    onClick={toggleMobileSidebar}
+                    className="md:hidden fixed bottom-4 right-4 z-50 bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-colors"
+                    aria-label="Toggle menu"
+                >
+                    <Menu size={24} />
+                </button>
+
+                {/* Mobile New Project button */}
+                <button 
+                    onClick={openPopUp}
+                    className="md:hidden fixed bottom-4 right-20 z-50 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+                    aria-label="Create new project"
+                >
+                    <Plus size={24} />
+                </button>
+
+                {/* Sidebar - hidden on mobile, shown on md+ screens */}
+                <div className="hidden md:block bg-white shadow-md z-5 border-r border-purple-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
                 
+                {/* Mobile sidebar - full screen overlay when open */}
+                {isMobileSidebarOpen && (
+                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                        <Sidebar 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab} 
+                            isMobile={true}
+                            closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+                        />
+                    </div>
+                )}
                 
                 {/* Main content area with better organization */}
                 <div className="flex-1 overflow-auto bg-purple-50 flex flex-col">
+                    {/* Mobile quick create card - visible only on mobile */}
+                    <div className="md:hidden mx-6 mt-6">
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="bg-white p-4 rounded-xl shadow-lg border-2 border-purple-300 hover:shadow-xl transition-all duration-300"
+                            onClick={openPopUp}
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                                        <Plus className="h-5 w-5 text-purple-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-medium text-gray-800">Start a new project</h3>
+                                        <p className="text-sm text-gray-500">Create and manage</p>
+                                    </div>
+                                </div>
+                                <Plus className="h-5 w-5 text-purple-600" />
+                            </div>
+                        </motion.div>
+                    </div>
+
                     <div className="p-6 space-y-6 flex-grow">
                         {/* Search and filters bar */}
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4">

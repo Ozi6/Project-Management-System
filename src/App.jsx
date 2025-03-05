@@ -28,6 +28,7 @@ import Issues from './pages/admin/Issues';
 import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
 import ProjectCalendar from './pages/ProjectCalendar';
 import Teams from './pages/Teams';
+import Documentation from "./pages/Documentation";
 
 
 function PageWrapper({ children }){
@@ -71,6 +72,7 @@ function AnimatedRoutes() {
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/activity" element={<PageWrapper><Activity/></PageWrapper>}/>
                 <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
+                <Route path="/docs" element={<PageWrapper><Documentation /></PageWrapper>} />
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
                 

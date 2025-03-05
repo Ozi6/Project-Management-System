@@ -15,9 +15,7 @@ const Footer = () => {
               Streamline your project management with our intuitive and powerful solution.
             </p>
             <div className="flex space-x-4">
-              <a href="https://github.com/Ozi6/Project-Management-System/" className="hover:text-blue-500 transition-colors">
-                <Github size={20} />
-              </a>
+              
             <a href="https://x.com/teamplanwise" className="hover:text-blue-500 transition-colors">
                 <Twitter size={20} />
               </a>
@@ -56,7 +54,8 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Resources</h4>
             <ul className="space-y-2">
-              <li><Link to="/docs" className="hover:text-blue-500 transition-colors">Documentation</Link></li>
+              <li><Link to="/about" className="hover:text-blue-500 transition-colors">About Us</Link></li>
+              <li><Link to="/faq" className="hover:text-blue-500 transition-colors">FAQ</Link></li>
             </ul>
           </div>
 
@@ -64,7 +63,6 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Company</h4>
             <ul className="space-y-2">
-              <li><Link to="/about" className="hover:text-blue-500 transition-colors">About Us</Link></li>
               <li><Link to="/login" className="hover:text-blue-500 transition-colors">Login</Link></li>
               <li><Link to="/signup" className="hover:text-blue-500 transition-colors">Sign Up</Link></li>
             </ul>

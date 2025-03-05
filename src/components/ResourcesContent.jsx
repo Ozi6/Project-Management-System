@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Video, FileText, HelpCircle } from 'lucide-react';
+import { BookOpen, Video, FileText, HelpCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const ResourcesContent = ({ isOpen, setIsOpen }) => {
@@ -52,10 +52,10 @@ const ResourcesContent = ({ isOpen, setIsOpen }) => {
 
     const resources = [
         {
-            title: "Documentation",
-            description: "Detailed guides and API references",
-            icon: BookOpen,
-            link: "/docs"
+            title: "About Us",
+            description: "Learn more about our team and mission",
+            icon: Users,
+            link: "/about"
         },
         {
             title: "FAQ",

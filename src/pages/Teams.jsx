@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ManageRoleModal from "../components/ManageRoleModal";
-import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck } from "lucide-react";
+import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck, Menu } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/clerk-react"; // Add this import if using Clerk for auth
 
@@ -116,6 +117,29 @@ const Teams = () => {
   const [activeTab, setActiveTab] = useState("teams");
   const [teams, setTeams] = useState(teamsData);
   const [selectedMember, setSelectedMember] = useState(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  // Handle mobile sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile sidebar when changing routes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   // Custom navigation items for the sidebar - matching ProjectDetails.jsx
   const customNavItems = [
@@ -176,24 +200,46 @@ const Teams = () => {
         />
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar with customNavItems to match ProjectDetails.jsx */}
-        <div className="bg-white shadow-md z-5 border-r border-blue-100">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile menu toggle button */}
+        <button 
+          onClick={toggleMobileSidebar}
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Sidebar - hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:block bg-white shadow-md z-5 border-r border-blue-100">
           <Sidebar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
             customNavItems={customNavItems} 
           />
         </div>
+        
+        {/* Mobile sidebar - full screen overlay when open */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-white">
+            <Sidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              customNavItems={customNavItems}
+              isMobile={true}
+              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
 
         {/* Main content */}
-        <div className="flex-1 py-6 px-6 overflow-auto bg-blue-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="flex-1 py-6 px-6 overflow-auto bg-blue-50 flex flex-col">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto flex-grow">
             {teams.map((team) => (
               <div
                 key={team.id}
                 className={`rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 bg-gradient-to-br ${
-                  teamColors[team.id]
+                  teamColors[team.id] || "from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200"
                 } overflow-hidden`}
               >
                 <div className="w-full p-4 text-left border-b border-gray-100/50">
@@ -231,6 +277,22 @@ const Teams = () => {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Footer */}
+          <div className="w-full bg-white border-t border-blue-100 py-3 px-6 mt-auto">
+            <div className="flex flex-row justify-between items-center text-xs text-blue-600">
+              <div>
+                <span>© 2025 PlanWise</span>
+                <span className="hidden sm:inline"> • All rights reserved</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="flex items-center">
+                  <Users className="h-3 w-3 mr-1" />
+                  Team Management
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
