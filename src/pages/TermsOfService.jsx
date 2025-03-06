@@ -108,8 +108,8 @@ const TermsOfService = () => {
             <p>
               If you have any questions about these Terms, please contact us at:
               <br />
-              <a href="mailto:legal@planwise.com" className="text-blue-500 hover:underline">
-                legal@planwise.com
+              <a href="mailto:planwise.team@outlook.com" className="text-blue-500 hover:underline">
+                planwise.team@outlook.com
               </a>
             </p>
           </section>
