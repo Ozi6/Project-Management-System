@@ -4,12 +4,10 @@ import { Menu, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
-import ErrorBoundary from "./ErrorBoundary";
-import Dropdown from "./Dropdown";
-
-
-import SimpleModal from "./SimpleModal";
+import ManageRolesModal from "./ManageRolesModal";
 import ManageTeamsModal from "./ManageTeamsModal";
+import ErrorBoundary from "./ErrorBoundary"; // Ensure this exists as shown previously
+import SimpleModal from "./SimpleModal";
 
 const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   return (
@@ -25,7 +23,10 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
             onClick={onCancel}
             style={{ zIndex: 40 }}
           />
-          <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 50 }}>
+          <div
+            className="fixed inset-0 flex items-center justify-center"
+            style={{ zIndex: 50 }}
+          >
             <motion.div
               className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden"
               initial={{ y: "-20%", opacity: 0 }}
@@ -76,32 +77,37 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       id: 1,
       name: "Alice Johnson",
       email: "alice@example.com",
+      role: "Manager",
       team: "Engineering",
     },
     {
       id: 2,
       name: "Bob Smith",
       email: "bob@example.com",
+      role: "Guest",
       team: "Marketing",
     },
     {
       id: 3,
       name: "Charlie Brown",
       email: "charlie@example.com",
+      role: "Member",
       team: "Design",
     },
   ]);
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberToRemove, setMemberToRemove] = useState(null);
+  const roles = ["Manager", "Guest", "Member"];
   const [memberToManageTeams, setMemberToManageTeams] = useState(null);
   const [teams, setTeams] = useState([
     { id: 1, name: "Engineering", icon: "Wrench" },
     { id: 2, name: "Marketing", icon: "BarChart" },
     { id: 3, name: "Design", icon: "Paintbrush" },
   ]);
-  
+
   const [permissions, setPermissions] = useState(
     members.reduce(
       (acc, member) => ({
@@ -129,7 +135,20 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       },
     }));
   };
-  
+
+  const updateRole = (id, newRole) => {
+    if (!id || !newRole) {
+      console.warn("Invalid id or newRole for updateRole");
+      return;
+    }
+    setMembers(
+      members.map((member) =>
+        member.id === id ? { ...member, role: newRole } : member
+      )
+    );
+    setOpenDropdown(null); // Close dropdown after selecting a role
+  };
+
   const confirmRemoveMember = (id) => {
     if (!id) {
       console.warn("Invalid id for confirmRemoveMember");
@@ -156,14 +175,14 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       console.warn("Cannot edit team: updatedTeam or name is invalid");
       return;
     }
-  
+
     if (oldTeam) {
       // Update existing team based on ID
       const updatedTeams = teams.map((team) =>
         team.id === oldTeam.id ? updatedTeam : team
       );
       setTeams(updatedTeams);
-  
+
       // Update members with the new team name if it changed
       setMembers((prevMembers) =>
         prevMembers.map((member) =>
@@ -186,34 +205,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       }
     }
   };
- 
-  const updateMemberRole = (memberId, newRole) => {
-    if (!memberId || !newRole) return;
-
-    setTeams(prevTeams => {
-      const updatedTeams = prevTeams.map(team => ({
-        ...team,
-        members: team.members.map(member => 
-          member.id === memberId 
-            ? { ...member, role: newRole }
-            : member
-        )
-      }));
-      
-
-      const memberUpdated = updatedTeams.some(team => 
-        team.members.some(member => 
-          member.id === memberId && member.role === newRole
-        )
-      );
-      
-      if (!memberUpdated) {
-        console.warn('Failed to update member role');
-        return prevTeams;
-      }
-      
-      return updatedTeams;
-    });
 
   const deleteTeam = (teamName) => {
     if (!teamName || typeof teamName !== "string") {
@@ -238,9 +229,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
   const filteredMembers = members.filter(
     (member) =>
-      member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+      member &&
+      (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+  const [modalOpen, setModalOpen] = useState(false);
+  const [memberToManageRole, setMemberToManageRole] = useState(null);
 
   return (
     <ErrorBoundary>
@@ -249,23 +243,18 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         <div className="flex justify-between items-center mb-6">
           {/* Go Back to General Settings Button */}
           <button
-            onClick={() => setShowAdvanced(false)}
+            onClick={() => setShowAdvanced(false)} // This triggers the callback to go back to GeneralSettings
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
           >
             Go Back to General Settings
           </button>
 
           {/* Invite People Button */}
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center"
-          >
-            <UserPlus className="w-5 h-5 mr-2" />
+          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out">
             Invite People
           </button>
         </div>
-        
-        {/* Invite People Modal */}
+
         <InvitePeople
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -299,14 +288,21 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 <div>
                   <p className="text-lg font-medium">{member.name}</p>
                   <p className="text-sm text-gray-500">{member.email}</p>
-                  <p className="text-xs text-gray-400">Team: {member.team || "None"}</p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex w-[600px] justify-center items-center space-x-4">
+                <button
+                  className="flex items-center w-[160px] justify-between bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
+                  onClick={() => setMemberToManageRole(member)}
+                >
+                  {member.role || "No Role"}
+                  <ChevronDown className="h-5 w-5 text-gray-500" />
+                </button>
+
                 <button
                   className="bg-green-500 text-white px-4 py-2 rounded-lg transition hover:bg-green-700"
-                  onClick={() => setSelectedMember(member || null)}
+                  onClick={() => setSelectedMember(member)}
                   disabled={!member}
                 >
                   Manage Access
@@ -314,7 +310,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
                 <button
                   className="text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  onClick={() => setMemberToManageTeams(member || null)}
+                  onClick={() => setMemberToManageTeams(member)}
                 >
                   Manage Team
                 </button>
@@ -331,12 +327,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             </div>
           ))}
         </div>
-        <ManageRoleModal
-          member={selectedMember}
-          onClose={() => setSelectedMember(null)}
-          onUpdateRole={updateMemberRole}
+
+        <ManageRolesModal
+          member={memberToManageRole}
           roles={roles}
-          currentRole={selectedMember?.role}
+          onUpdateRole={updateRole}
+          onClose={() => setMemberToManageRole(null)}
         />
 
         <ManageAccessModal
@@ -351,7 +347,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           onConfirm={confirmRemoveMember}
           onCancel={() => setMemberToRemove(null)}
         />
-        
         {memberToManageTeams && (
           <ManageTeamsModal
             member={memberToManageTeams}
@@ -362,9 +357,10 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             onClose={() => setMemberToManageTeams(null)}
           />
         )}
+        <SimpleModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </ErrorBoundary>
   );
 };
-};
+
 export default AdvancedSettings;
