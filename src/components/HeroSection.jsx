@@ -1,13 +1,28 @@
 // src/components/HeroSection.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from "@clerk/clerk-react";
+import image1 from '../assets/webp/1.webp';
+import image2 from '../assets/webp/2.webp';
+import image3 from '../assets/webp/3.webp';
+import image4 from '../assets/webp/4.webp';
+import image5 from '../assets/webp/5.webp';
 
 const HeroSection = () => {
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const images = [image1, image2, image3, image4, image5];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex(prevIndex => (prevIndex + 1) % images.length);
+    }, 3000); // Change image every 3 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleGetStarted = () => {
     if (isSignedIn) {
@@ -64,11 +79,24 @@ const HeroSection = () => {
           <div className="relative lg:pl-6">
             <div className="relative z-10 bg-gray-800 rounded-xl overflow-hidden shadow-2xl border border-gray-700">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-transparent to-transparent"></div>
-              <img
-                src="https://i.pinimg.com/736x/28/bf/9f/28bf9f9ec63f5c16eaa4b5598601fa03.jpg"
-                alt="Project Dashboard"
-                className="w-full h-auto relative z-10"
-              />
+              <div className="relative">
+                {images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Project Dashboard ${index + 1}`}
+                    className={`w-full h-auto absolute top-0 left-0 transition-opacity duration-1000 ${
+                      index === currentImageIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                    }`}
+                  />
+                ))}
+                <img
+                  src={images[currentImageIndex]} 
+                  alt="Project Dashboard"
+                  className="w-full h-auto invisible"
+                  style={{ visibility: 'hidden' }}
+                />
+              </div>
             </div>
             {/* Decorative Elements */}
             <div className="absolute -top-4 -right-4 w-72 h-72 bg-blue-600/10 rounded-full filter blur-3xl"></div>

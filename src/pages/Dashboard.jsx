@@ -3,7 +3,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   BarChart3, Activity, PieChart, ChevronRight, 
   Calendar, CheckCircle, Clock, AlertCircle, 
-  ArrowUp, ArrowDown, Eye, FileText, Plus, Heart
+  ArrowUp, ArrowDown, Eye, FileText, Plus, Heart,
+  Menu
 } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -21,6 +22,7 @@ const Dashboard = () => {
     teamMembers: 0,
     completionRate: 0
   });
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -107,6 +109,27 @@ const Dashboard = () => {
     navigate('/calendar');
   };
 
+  // Check screen size and close mobile sidebar on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile sidebar when changing routes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-blue-50">
       {/* Header with blue accent */}
@@ -121,11 +144,32 @@ const Dashboard = () => {
         />
       </div>
       
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="bg-white shadow-md z-5 border-r border-blue-100">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile menu toggle button */}
+        <button 
+          onClick={toggleMobileSidebar}
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Sidebar - hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:block bg-white shadow-md z-5 border-r border-blue-100">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
+        
+        {/* Mobile sidebar - full screen overlay when open */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-white">
+            <Sidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              isMobile={true}
+              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
         
         {/* Main content with blue background */}
         <div className="flex-1 overflow-auto bg-blue-50 flex flex-col">
@@ -276,9 +320,9 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-blue-800">Recent Activity</h2>
-                  <button className="text-sm text-blue-600 hover:underline flex items-center">
+                                  {/*<button className="text-sm text-blue-600 hover:underline flex items-center">
                     <Eye className="h-4 w-4 mr-1" /> View All
-                  </button>
+                  </button>*/}
                 </div>
                 <div className="space-y-4">
                   {recentActivities.map(activity => (
@@ -350,10 +394,10 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-blue-800">Recent Documents</h2>
-                  <button className="text-sm flex items-center text-blue-600 hover:underline">
+                                  {/*<button className="text-sm flex items-center text-blue-600 hover:underline">
                     <FileText className="h-4 w-4 mr-1" />
                     All Documents
-                  </button>
+                  </button>*/}
                 </div>
                 <div className="space-y-3">
                   {[

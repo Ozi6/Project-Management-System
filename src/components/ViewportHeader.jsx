@@ -219,7 +219,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                         }}
                                         className="w-full text-center bg-green-600 text-white py-3 rounded-lg text-lg font-medium flex items-center justify-center">
                                         <PlusCircle size={20} className="mr-2" />
-                                        Create Categorizer
+                                        Create Category
                                     </button>
                                 )}
 
@@ -357,7 +357,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                             onClick={onAddCategorizer}
                             className="bg-green-600 hover:bg-green-700 text-white px-2 py-2 sm:px-3 md:px-4 lg:px-5 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
                             <PlusCircle size={windowWidth < 640 ? 16 : 20} className="sm:mr-2" />
-                            <span className="hidden sm:inline">Create Categorizer</span>
+                            <span className="hidden sm:inline">Create Category</span>
                         </button>
                     )}
                     

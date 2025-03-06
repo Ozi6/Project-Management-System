@@ -79,8 +79,8 @@ const PrivacyPolicy = () => {
               <p>
                 If you have any questions about this Privacy Policy, please contact us at:
                 <br />
-                <a href="mailto:privacy@planwise.com" className="text-blue-500 hover:underline">
-                  privacy@planwise.com
+                <a href="mailto:planwise.team@outlook.com" className="text-blue-500 hover:underline">
+                  planwise.team@outlook.com
                 </a>
               </p>
             </section>

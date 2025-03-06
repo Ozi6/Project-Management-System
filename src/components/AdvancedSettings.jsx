@@ -1,13 +1,14 @@
 import { useState, Fragment } from "react";
-import { UserPlus, Trash, ChevronDown, Search } from "lucide-react";
+import { UserPlus, Trash, ChevronDown, Search, UserCheck } from "lucide-react";
 import { Menu, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
-import ManageRolesModal from "./ManageRolesModal";
-import ManageTeamsModal from "./ManageTeamsModal";
-import ErrorBoundary from "./ErrorBoundary"; // Ensure this exists as shown previously
+import ErrorBoundary from "./ErrorBoundary";
+import Dropdown from "./Dropdown";
 import SimpleModal from "./SimpleModal";
+import ManageTeamsModal from "./ManageTeamsModal";
 
 const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   return (
@@ -23,10 +24,7 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
             onClick={onCancel}
             style={{ zIndex: 40 }}
           />
-          <div
-            className="fixed inset-0 flex items-center justify-center"
-            style={{ zIndex: 50 }}
-          >
+          <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 50 }}>
             <motion.div
               className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden"
               initial={{ y: "-20%", opacity: 0 }}
@@ -71,43 +69,81 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   );
 };
 
+// Simple placeholder for ManageRoleModal
+const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) => {
+  if (!member) return null;
+  
+  return (
+    <SimpleModal
+      isOpen={!!member}
+      onClose={onClose}
+      title="Manage Role"
+    >
+      <div className="p-4">
+        <p>Manage roles for {member.name}</p>
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={onClose}
+            className="bg-gray-500 text-white py-2 px-4 rounded"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </SimpleModal>
+  );
+};
+
 const AdvancedSettings = ({ setShowAdvanced }) => {
+  // Get current user from Clerk
+  const { user } = useUser();
+
+  // Hardcoded project owner for demo - replace with actual logic from your backend
+  const projectOwner = "alice@example.com";
+  
+  // Check if current user is the project owner
+  const isProjectOwner = user?.primaryEmailAddress?.emailAddress === projectOwner || 
+                         user?.publicMetadata?.role === "admin";
+
+  // Rest of your existing state...
   const [members, setMembers] = useState([
     {
       id: 1,
       name: "Alice Johnson",
-      email: "alice@example.com",
-      role: "Manager",
+      email: "alice@example.com", // This is the project owner in our example
       team: "Engineering",
+      role: "Owner" // Changed from "Member" to "Owner" to indicate ownership
     },
     {
       id: 2,
       name: "Bob Smith",
       email: "bob@example.com",
-      role: "Guest",
       team: "Marketing",
+      role: "Admin"
     },
     {
       id: 3,
       name: "Charlie Brown",
       email: "charlie@example.com",
-      role: "Member",
       team: "Design",
+      role: "Member"
     },
   ]);
-  const [openDropdown, setOpenDropdown] = useState(null);
+  
+  // Define roles
+  const roles = ["Admin", "Member", "Guest"];
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberToRemove, setMemberToRemove] = useState(null);
-  const roles = ["Manager", "Guest", "Member"];
   const [memberToManageTeams, setMemberToManageTeams] = useState(null);
   const [teams, setTeams] = useState([
     { id: 1, name: "Engineering", icon: "Wrench" },
     { id: 2, name: "Marketing", icon: "BarChart" },
     { id: 3, name: "Design", icon: "Paintbrush" },
   ]);
-
+  
   const [permissions, setPermissions] = useState(
     members.reduce(
       (acc, member) => ({
@@ -135,18 +171,46 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       },
     }));
   };
+  
+  const updateMemberRole = (memberId, newRole) => {
+    if (!memberId || !newRole) return;
 
-  const updateRole = (id, newRole) => {
-    if (!id || !newRole) {
-      console.warn("Invalid id or newRole for updateRole");
+    setTeams(prevTeams => {
+      const updatedTeams = prevTeams.map(team => ({
+        ...team,
+        members: team.members ? team.members.map(member => 
+          member.id === memberId 
+            ? { ...member, role: newRole }
+            : member
+        ) : []
+      }));
+      
+      const memberUpdated = updatedTeams.some(team => 
+        team.members && team.members.some(member => 
+          member.id === memberId && member.role === newRole
+        )
+      );
+      
+      if (!memberUpdated) {
+        console.warn('Failed to update member role');
+        return prevTeams;
+      }
+      
+      return updatedTeams;
+    });
+  };
+
+  const deleteTeam = (teamName) => {
+    if (!teamName || typeof teamName !== "string") {
+      console.warn("Cannot delete team: invalid team name");
       return;
     }
+    setTeams(teams.filter((team) => team.name !== teamName));
     setMembers(
       members.map((member) =>
-        member.id === id ? { ...member, role: newRole } : member
+        member.team === teamName ? { ...member, team: "" } : member
       )
     );
-    setOpenDropdown(null); // Close dropdown after selecting a role
   };
 
   const confirmRemoveMember = (id) => {
@@ -175,14 +239,14 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       console.warn("Cannot edit team: updatedTeam or name is invalid");
       return;
     }
-
+  
     if (oldTeam) {
       // Update existing team based on ID
       const updatedTeams = teams.map((team) =>
         team.id === oldTeam.id ? updatedTeam : team
       );
       setTeams(updatedTeams);
-
+  
       // Update members with the new team name if it changed
       setMembers((prevMembers) =>
         prevMembers.map((member) =>
@@ -206,19 +270,6 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
     }
   };
 
-  const deleteTeam = (teamName) => {
-    if (!teamName || typeof teamName !== "string") {
-      console.warn("Cannot delete team: invalid team name");
-      return;
-    }
-    setTeams(teams.filter((team) => team.name !== teamName));
-    setMembers(
-      members.map((member) =>
-        member.team === teamName ? { ...member, team: "" } : member
-      )
-    );
-  };
-
   const handleRemoveClick = (member) => {
     if (!member || !member.id) {
       console.warn("Cannot remove member: invalid member data");
@@ -229,12 +280,9 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
   const filteredMembers = members.filter(
     (member) =>
-      member &&
-      (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+      member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
-  const [modalOpen, setModalOpen] = useState(false);
-  const [memberToManageRole, setMemberToManageRole] = useState(null);
 
   return (
     <ErrorBoundary>
@@ -243,20 +291,36 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         <div className="flex justify-between items-center mb-6">
           {/* Go Back to General Settings Button */}
           <button
-            onClick={() => setShowAdvanced(false)} // This triggers the callback to go back to GeneralSettings
+            onClick={() => setShowAdvanced(false)}
             className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
           >
             Go Back to General Settings
           </button>
 
-          {/* Invite People Button */}
-          <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out">
+          {/* Invite People Button - only fully visible to project owner */}
+          <button
+            onClick={() => isProjectOwner && setIsModalOpen(true)}
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center ${
+              !isProjectOwner ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={!isProjectOwner}
+          >
+            <UserPlus className="w-5 h-5 mr-2" />
             Invite People
           </button>
         </div>
-
+        
+        {/* Owner status indicator */}
+        {!isProjectOwner && (
+          <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700 flex items-center">
+            <UserCheck className="w-5 h-5 mr-2 text-yellow-500" />
+            You need to be the project owner to manage access and teams
+          </div>
+        )}
+        
+        {/* Invite People Modal */}
         <InvitePeople
-          isOpen={isModalOpen}
+          isOpen={isModalOpen && isProjectOwner}
           onClose={() => setIsModalOpen(false)}
         />
 
@@ -269,7 +333,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            disabled={!members.length} // Disable search if no members exist
+            disabled={!members.length}
           />
         </div>
 
@@ -281,44 +345,55 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             >
               <div className="flex items-center space-x-4">
                 <img
-                  src={`https://i.pravatar.cc/150?img=${member.id}`} // Using a dummy avatar for each member
+                  src={`https://i.pravatar.cc/150?img=${member.id}`}
                   alt={member.name}
                   className="w-12 h-12 rounded-full"
                 />
                 <div>
-                  <p className="text-lg font-medium">{member.name}</p>
+                  <div className="flex items-center">
+                    <p className="text-lg font-medium">{member.name}</p>
+                    {member.role === "Owner" && (
+                      <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                        <UserCheck className="w-3 h-3 mr-1" />
+                        Owner
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-500">{member.email}</p>
+                  <p className="text-xs text-gray-400">Team: {member.team || "None"}</p>
                 </div>
               </div>
 
-              <div className="flex w-[600px] justify-center items-center space-x-4">
+              <div className="flex items-center space-x-4">
+                {/* Manage Access Button - transparent for non-owners */}
                 <button
-                  className="flex items-center w-[160px] justify-between bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200"
-                  onClick={() => setMemberToManageRole(member)}
-                >
-                  {member.role || "No Role"}
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                </button>
-
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded-lg transition hover:bg-green-700"
-                  onClick={() => setSelectedMember(member)}
-                  disabled={!member}
+                  className={`bg-green-500 text-white px-4 py-2 rounded-lg transition ${
+                    isProjectOwner ? "hover:bg-green-700" : "opacity-50 cursor-not-allowed"
+                  }`}
+                  onClick={() => isProjectOwner && setSelectedMember(member)}
+                  disabled={!isProjectOwner}
                 >
                   Manage Access
                 </button>
 
+                {/* Manage Team Button - transparent for non-owners */}
                 <button
-                  className="text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  onClick={() => setMemberToManageTeams(member)}
+                  className={`text-white bg-blue-500 px-4 py-2 rounded-lg transition ${
+                    isProjectOwner ? "hover:bg-blue-700" : "opacity-50 cursor-not-allowed"
+                  }`}
+                  onClick={() => isProjectOwner && setMemberToManageTeams(member)}
+                  disabled={!isProjectOwner}
                 >
                   Manage Team
                 </button>
 
+                {/* Remove Button - transparent for non-owners */}
                 <button
-                  onClick={() => handleRemoveClick(member)}
-                  className="bg-red-500 text-white p-2 rounded-lg flex items-center transition-all hover:bg-red-700 hover:scale-110"
-                  disabled={!member}
+                  onClick={() => isProjectOwner && handleRemoveClick(member)}
+                  className={`bg-red-500 text-white p-2 rounded-lg flex items-center transition-all ${
+                    isProjectOwner ? "hover:bg-red-700 hover:scale-110" : "opacity-50 cursor-not-allowed"
+                  }`}
+                  disabled={!isProjectOwner}
                 >
                   <Trash className="w-5 h-5 mr-1" />
                   Remove
@@ -327,37 +402,43 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             </div>
           ))}
         </div>
+        
+        {/* Modals are conditional based on project ownership */}
+        {isProjectOwner && (
+          <>
+            <ManageRoleModal
+              member={selectedMember}
+              onClose={() => setSelectedMember(null)}
+              onUpdateRole={updateMemberRole}
+              roles={roles}
+              currentRole={selectedMember?.role}
+            />
 
-        <ManageRolesModal
-          member={memberToManageRole}
-          roles={roles}
-          onUpdateRole={updateRole}
-          onClose={() => setMemberToManageRole(null)}
-        />
+            <ManageAccessModal
+              member={selectedMember}
+              permissions={permissions}
+              onTogglePermission={togglePermission}
+              onClose={() => setSelectedMember(null)}
+            />
 
-        <ManageAccessModal
-          member={selectedMember}
-          permissions={permissions}
-          onTogglePermission={togglePermission}
-          onClose={() => setSelectedMember(null)}
-        />
-
-        <RemoveConfirmationModal
-          member={memberToRemove}
-          onConfirm={confirmRemoveMember}
-          onCancel={() => setMemberToRemove(null)}
-        />
-        {memberToManageTeams && (
-          <ManageTeamsModal
-            member={memberToManageTeams}
-            teams={teams || []}
-            onAddToTeam={addToTeam}
-            onEditTeam={editTeam}
-            onDeleteTeam={deleteTeam}
-            onClose={() => setMemberToManageTeams(null)}
-          />
+            <RemoveConfirmationModal
+              member={memberToRemove}
+              onConfirm={confirmRemoveMember}
+              onCancel={() => setMemberToRemove(null)}
+            />
+            
+            {memberToManageTeams && (
+              <ManageTeamsModal
+                member={memberToManageTeams}
+                teams={teams || []}
+                onAddToTeam={addToTeam}
+                onEditTeam={editTeam}
+                onDeleteTeam={deleteTeam}
+                onClose={() => setMemberToManageTeams(null)}
+              />
+            )}
+          </>
         )}
-        <SimpleModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
       </div>
     </ErrorBoundary>
   );

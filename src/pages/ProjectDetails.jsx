@@ -1,17 +1,23 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
 import ViewportHeader from "../components/ViewportHeader";
-import Sidebar from "../components/Sidebar"; // Changed from ViewportSidebar
+import Sidebar from "../components/Sidebar";
 import Categorizer from "../components/Categorizer";
-import { useNavigate } from 'react-router-dom';
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
 import { Teams, Users } from '../components/TeamAndUsersTest';
-import { Activity, KanbanSquare, Layout, Settings, Users as UsersIcon } from "lucide-react"; // Changed Calendar to Activity
+import { 
+  Activity, 
+  KanbanSquare, 
+  Layout, 
+  Settings, 
+  Users as UsersIcon, 
+  Menu, 
+  Plus 
+} from "lucide-react";
 
-const ProjectDetailsWrapper = () =>
-{
+const ProjectDetailsWrapper = () => {
     return(
         <SearchProvider>
             <ProjectDetails/>
@@ -22,28 +28,31 @@ const ProjectDetailsWrapper = () =>
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState("team");
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [showProgressBar, setShowProgressBar] = useState(false);
     const initialColumns = [
         [
             {
                 id: "category-a",
-                title: "Category A",
+                title: "Backend",
                 tagColor: "#8b5cf6",
                 taskLists: [
                     {
                         id: "task-list-1",
-                        title: "Task List 1",
+                        title: "SQL",
                         tagColor: "#8b5cf6",
                         entries: [
                             {
-                                text: "Complete project proposal",
+                                text: "Connect API",
                                 entryId: "task-1",
                                 dueDate: new Date("2025-12-15"),
                                 assignedTeams: [Teams[0], Teams[1]],
                                 assignedUsers: [Users[0]]
                             },
                             {
-                                text: "Review design mockups",
+                                text: "Establish Database",
                                 entryId: "task-2",
                                 dueDate: new Date("2025-3-2"),
                                 assignedTeams: [Teams[0], Teams[1]],
@@ -53,16 +62,16 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-2",
-                        title: "Task List 2",
+                        title: "User Establishing",
                         tagColor: "#8b5cf6",
                         entries: [
                             {
-                                text: "Prepare presentation slides",
+                                text: "Proper Initializations",
                                 entryId: "task-3",
                                 dueDate: new Date("2025-12-10"),
                             },
                             {
-                                text: "Send meeting invites",
+                                text: "Authentication",
                                 entryId: "task-4",
                             },
                         ],
@@ -71,23 +80,23 @@ const ProjectDetails = () => {
             },
             {
                 id: "category-b",
-                title: "Category B",
+                title: "Frontend",
                 tagColor: "#f43f5e",
                 taskLists: [
                     {
                         id: "task-list-3",
-                        title: "Task List 3",
+                        title: "Controls",
                         tagColor: "#f43f5e",
                         entries: [
                             {
-                                text: "Update website content",
+                                text: "Update Website Content",
                                 entryId: "task-5",
                                 dueDate: new Date("2025-12-25"),
                                 assignedTeams: [ Teams[1]],
                                 assignedUsers: [Users[0]]
                             },
                             {
-                                text: "Test new features",
+                                text: "Test New Features",
                                 entryId: "task-6",
                                 dueDate: new Date("2025-12-18"), // Due soon
                             },
@@ -95,11 +104,11 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-4",
-                        title: "Task List 4",
+                        title: "Extra",
                         tagColor: "#f43f5e",
                         entries: [
                             {
-                                text: "Fix bugs in production",
+                                text: "Fix Bugs in Template",
                                 entryId: "task-7",
                             },
                             {
@@ -113,12 +122,12 @@ const ProjectDetails = () => {
             },
             {
                 id: "category-c",
-                title: "Category C",
+                title: "Management",
                 tagColor: "#f97316",
                 taskLists: [
                     {
                         id: "task-list-5",
-                        title: "Task List 5",
+                        title: "Office",
                         tagColor: "#f97316",
                         entries: [
                             {
@@ -134,7 +143,7 @@ const ProjectDetails = () => {
                     },
                     {
                         id: "task-list-6",
-                        title: "Task List 6",
+                        title: "Employees",
                         tagColor: "#f97316",
                         entries: [
                             {
@@ -164,8 +173,37 @@ const ProjectDetails = () => {
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
 
-    const toggleLayout = (isHorizontal) =>
-    {
+    // Mobile sidebar handlers
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsMobileSidebarOpen(false);
+                setShowProgressBar(true);
+            } else {
+                setShowProgressBar(false);
+            }
+        };
+
+        handleResize(); // Call once on mount to set initial state
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    // Close mobile sidebar when changing routes
+    useEffect(() => {
+        setIsMobileSidebarOpen(false);
+    }, [location.pathname]);
+
+    const toggleMobileSidebar = () => {
+        setIsMobileSidebarOpen(!isMobileSidebarOpen);
+    };
+
+    const toggleProgressBar = () => {
+        setShowProgressBar(!showProgressBar);
+    };
+
+    // Existing logic for layout toggle
+    const toggleLayout = (isHorizontal) => {
         if (!isHorizontal)
         {
             if (originalColumns)
@@ -192,11 +230,8 @@ const ProjectDetails = () => {
         setIsHorizontalLayout(isHorizontal);
     };
 
-
-    /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
-    No AI can replicate this, on God on Donda.*/
-    const redistributeTasks = (width) =>
-    {
+    // Existing function for task redistribution
+    const redistributeTasks = (width) => {
         if(isHorizontalLayout)
             return;
 
@@ -266,6 +301,21 @@ const ProjectDetails = () => {
             setColumns(copyColumns);
         }
     };
+
+    // Keep the existing resize effect, but adjust it to work with mobile sidebar
+    useEffect(() => {
+        const handleResize = () => {
+            const container = document.getElementById("columns-container");
+            if (container) {
+                setContainerWidth(container.offsetWidth);
+                if (!isHorizontalLayout)
+                    redistributeTasks(container.offsetWidth);
+            }
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [columns, isHorizontalLayout]);
 
     const handleAddCategorizer = () =>
     {
@@ -375,6 +425,34 @@ const ProjectDetails = () => {
         setSelectedEntryId(null);
     };
 
+    const deepCopyColumns = (columns) => {
+        return columns.map(column => {
+            return column.map(category => {
+                return {
+                    ...category,
+                    taskLists: (category.taskLists || []).map(taskList => {
+                        return {
+                            ...taskList,
+                            entries: (taskList.entries || []).map(entry => {
+                                return {
+                                    ...entry,
+                                    assignedUsers: (entry.assignedUsers || []).map(user => ({
+                                        ...user,
+                                        profilePicture: user.profilePicture
+                                    })),
+                                    assignedTeams: (entry.assignedTeams || []).map(team => ({
+                                        ...team,
+                                        teamIcon: team.teamIcon
+                                    }))
+                                };
+                            })
+                        };
+                    })
+                };
+            });
+        });
+    };
+
     const handleMoveTaskList = (moveData) => {
         const { sourceListId, sourceCategoryId, targetCategoryId, targetIndex } = moveData;
         const newColumns = JSON.parse(JSON.stringify(columns));
@@ -439,41 +517,53 @@ const ProjectDetails = () => {
             entry
         } = moveData;
 
-        // No deep copy, work directly with columns
+        const newColumns = deepCopyColumns(columns);
+
         const sourceEntryIdParts = sourceEntryId.split('-');
         const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
 
-        let sourceList, targetList;
+        let sourceCategory, sourceList, targetCategory, targetList;
+        let sourceColumnIndex, sourceTaskIndex, targetColumnIndex, targetTaskIndex;
 
-        outerLoop: for (const column of columns) {
-            for (const category of column) {
+        outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+            for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
+                const category = newColumns[colIndex][taskIndex];
                 if (category.id === sourceCategoryId) {
+                    sourceCategory = category;
+                    sourceColumnIndex = colIndex;
+                    sourceTaskIndex = taskIndex;
                     sourceList = category.taskLists.find(list => list.id === sourceListId);
                     if (sourceList) break outerLoop;
                 }
             }
         }
 
-        if (!sourceList) {
+        if (!sourceCategory || !sourceList) {
             console.error("Source not found");
             return;
         }
 
         if (targetIndex === -1) {
-            setColumns([...columns]); // Force re-render
+            setColumns(newColumns);
             return;
         }
 
-        outerLoop: for (const column of columns) {
-            for (const category of column) {
-                if (category.id === targetCategoryId) {
-                    targetList = category.taskLists.find(list => list.id === targetListId);
-                    if (targetList) break outerLoop;
+        if (targetListId && targetCategoryId) {
+            outerLoop: for (let colIndex = 0; colIndex < newColumns.length; colIndex++) {
+                for (let taskIndex = 0; taskIndex < newColumns[colIndex].length; taskIndex++) {
+                    const category = newColumns[colIndex][taskIndex];
+                    if (category.id === targetCategoryId) {
+                        targetCategory = category;
+                        targetColumnIndex = colIndex;
+                        targetTaskIndex = taskIndex;
+                        targetList = category.taskLists.find(list => list.id === targetListId);
+                        if (targetList) break outerLoop;
+                    }
                 }
             }
         }
 
-        if (!targetList) {
+        if (!targetCategory || !targetList) {
             console.error("Target not found");
             return;
         }
@@ -486,15 +576,21 @@ const ProjectDetails = () => {
             return;
         }
 
+        const safeEntry = {
+            ...entryToMove,
+            assignedUsers: entryToMove.assignedUsers || [],
+            assignedTeams: entryToMove.assignedTeams || []
+        };
+
         if (isSameList) {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            sourceList.entries.splice(targetIndex, 0, entryToMove);
+            sourceList.entries.splice(targetIndex, 0, safeEntry);
         } else {
             sourceList.entries.splice(sourceEntryIndex, 1);
-            targetList.entries.splice(targetIndex, 0, entryToMove);
+            targetList.entries.splice(targetIndex, 0, safeEntry);
         }
 
-        setColumns([...columns]);
+        setColumns(newColumns);
     };
 
     const updateCategory = (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
@@ -600,18 +696,79 @@ const ProjectDetails = () => {
               toggleLayout={toggleLayout} 
               onAddCategorizer={handleAddCategorizer}
             />
-            <div className="flex flex-1">
-                <Sidebar 
-                    activeTab={activeTab} 
-                    setActiveTab={setActiveTab}
-                    customNavItems={customNavItems} // Pass custom navigation items to Sidebar
-                />
-                <div className="flex flex-col flex-1">
+            <div className="flex flex-1 relative">
+                {/* Mobile menu toggle button */}
+                <div className="md:hidden fixed bottom-4 right-4 z-50 flex flex-col gap-3">
+                    {/* Mobile Add Category button - top */}
+                    <button 
+                        onClick={handleAddCategorizer}
+                        className="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
+                        aria-label="Add category"
+                    >
+                        <Plus size={24} />
+                    </button>
+
+                    {/* Mobile Progress toggle button - middle */}
+                    <button 
+                        onClick={toggleProgressBar}
+                        className="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+                        aria-label="Toggle progress"
+                    >
+                        <Activity size={24} />
+                    </button>
+
+                    {/* Mobile menu toggle button - bottom */}
+                    <button 
+                        onClick={toggleMobileSidebar}
+                        className="bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-colors"
+                        aria-label="Toggle menu"
+                    >
+                        <Menu size={24} />
+                    </button>
+                </div>
+
+                {/* Sidebar - hidden on mobile, shown on md+ screens */}
+                <div className="hidden md:block bg-white shadow-md z-5">
+                    <Sidebar 
+                        activeTab={activeTab} 
+                        setActiveTab={setActiveTab}
+                        customNavItems={customNavItems}
+                    />
+                </div>
+                
+                {/* Mobile sidebar - full screen overlay when open */}
+                {isMobileSidebarOpen && (
+                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                        <Sidebar 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab} 
+                            customNavItems={customNavItems}
+                            isMobile={true}
+                            closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+                        />
+                    </div>
+                )}
+
+                {/* Main content area */}
+                <div className="flex-1 overflow-auto">
                     {searchTerm && filteredColumns && filteredColumns.length === 0 && (
                         <div className="flex justify-center items-center p-8 text-gray-500">
                             No results found for "{searchTerm}"
                         </div>
                     )}
+                    
+                    {/* Mobile progress bar - conditionally shown when toggled */}
+                    {showProgressBar && (
+                        <div className="md:hidden mx-4 mt-4">
+                            <div className="bg-white p-4 rounded-lg shadow">
+                                <h3 className="text-md font-semibold mb-2">Project Progress</h3>
+                                <div className="px-2">
+                                    <ProgressBar tasks={displayColumns} isCompact={true} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
                     <div
                         id="columns-container"
                         style={{
@@ -620,13 +777,13 @@ const ProjectDetails = () => {
                             width: '100%',
                             marginBottom: '20px',
                         }}
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 pl-1`}>
+                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-8`}>
                         {displayColumns.map((tasks, columnIndex) => (
                             <div
                                 key={columnIndex}
                                 className={`flex flex-col gap-4 ${isHorizontalLayout
                                     ? 'min-w-[285px] max-w-[285px] flex-shrink-0'
-                                    : 'min-w-[285px] max-w-[285px] flex-1'}`}>
+                                    : 'min-w-[280px] max-w-full md:max-w-[285px] flex-1'}`}>
                                 {tasks.map((task, taskIndex) => (
                                     <Categorizer
                                         onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
@@ -657,7 +814,11 @@ const ProjectDetails = () => {
                         ))}
                     </div>
                 </div>
-                <ProgressBar tasks={displayColumns}/>
+                
+                {/* Desktop progress bar - hidden on mobile */}
+                <div className={`hidden md:block`}>
+                    <ProgressBar tasks={displayColumns} />
+                </div>
             </div>
         </div>
     );

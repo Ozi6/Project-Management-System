@@ -46,15 +46,23 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
         }));
     };
 
+    const warningThreshold = parseInt(formData.warningThreshold, 10);
+    const maxThreshold = 365 * 10; //10 years
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (warningThreshold > maxThreshold) {
+            alert(`Warning threshold cannot be greater than ${maxThreshold} days.`);
+            return;
+        }
+
         const updatedEntry = {
             ...entry,
             text: formData.text,
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
             warningThreshold: parseInt(formData.warningThreshold, 10),
             checked: formData.checked,
-            file: formData.file, // Pass the file (original, new, or null)
+            file: formData.file,
         };
         onSave(updatedEntry);
         onClose();
@@ -74,7 +82,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
-            onClick={onClose}
+            // Remove the onClick={onClose} handler here to prevent closing on backdrop click
         >
             <motion.div
                 initial={{ y: 20 }}

@@ -3,6 +3,7 @@ import { Plus, Settings } from "lucide-react";
 import PropTypes from "prop-types";
 import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
+import { Teams, Users } from './TeamAndUsersTest';
 import { AnimatePresence } from "framer-motion";
 
 const TaskList = ({
@@ -20,7 +21,8 @@ const TaskList = ({
     onDeleteList,
     onDragStart,
     onUpdateEntryCheckedStatus,
-    onFileChange
+    onFileChange,
+    onEntryUpdate
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
@@ -344,7 +346,6 @@ const TaskList = ({
         const index = parseInt(parts[parts.length - 1]);
 
         setEntries(entries.filter((_, i) => i !== index));
-
     };
 
     const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
@@ -352,6 +353,16 @@ const TaskList = ({
         updatedEntries[index].assignedUsers = newAssigneesUsers;
         updatedEntries[index].assignedTeams = newAssigneesTeams;
         setEntries(updatedEntries);
+        
+        // Notify parent component of the changes if needed
+        // This is missing in your current implementation
+        // Add a prop like onEntryUpdate if you need to persist these changes
+        if (onEntryUpdate) {
+            onEntryUpdate(listId, index, {
+                assignedUsers: newAssigneesUsers,
+                assignedTeams: newAssigneesTeams
+            });
+        }
     };
 
     return (
@@ -412,9 +423,9 @@ const TaskList = ({
                                             onEntryDelete(listId, index);
                                         }}
                                         onFileChange={(file) => handleFileChange(index, file)}
-                                        assignedTeams={entry.assignedTeams}
-                                        assignedUsers={entry.assignedUsers}
-                                        onAssign={(newAssigneesUsers, newAssigneesTeams) => handleAssignedChange(index, newAssigneesUsers, newAssigneesTeams)}
+                                        assignedUsers={entry.assignedUsers || []}
+                                        assignedTeams={entry.assignedTeams || []}
+                                        onAssign={(newUsers, newTeams) => handleAssignedChange(index, newUsers, newTeams)}
                                     />
                                 </div>
                             );

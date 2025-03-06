@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   CheckCircle, Clock, AlertCircle,
-  GanttChartSquare
+  GanttChartSquare, Menu
 } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
@@ -14,7 +14,9 @@ const ProjectCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   
   // Sample data for projects and tasks
   useEffect(() => {
@@ -257,6 +259,27 @@ const ProjectCalendar = () => {
     setProjects(sampleProjects);
   }, []);
 
+  // Handle mobile sidebar
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Close mobile sidebar when changing routes
+  useEffect(() => {
+    setIsMobileSidebarOpen(false);
+  }, [location.pathname]);
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
   // Helper functions for dates
   const parseDate = (dateString) => new Date(dateString);
   
@@ -346,8 +369,7 @@ const ProjectCalendar = () => {
       case 'Completed': return 'bg-green-500';
       case 'In Progress': return 'bg-blue-500';
       case 'At Risk': return 'bg-red-500';
-      case 'Not Started': return 'bg-gray-300';
-      default: return 'bg-gray-300';
+      default: return 'bg-gray-300'; // Default case now handles anything else
     }
   };
 
@@ -357,8 +379,7 @@ const ProjectCalendar = () => {
       case 'Completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'In Progress': return <Clock className="h-4 w-4 text-blue-500" />;
       case 'At Risk': return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'Not Started': return <Clock className="h-4 w-4 text-gray-400" />;
-      default: return <Clock className="h-4 w-4 text-gray-400" />;
+      default: return <Clock className="h-4 w-4 text-gray-400" />; // Default case now handles anything else
     }
   };
 
@@ -387,11 +408,32 @@ const ProjectCalendar = () => {
         />
       </div>
       
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="bg-white shadow-md z-5 border-r border-amber-100">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Mobile menu toggle button */}
+        <button 
+          onClick={toggleMobileSidebar}
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-amber-600 text-white p-3 rounded-full shadow-lg hover:bg-amber-700 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Sidebar - hidden on mobile, shown on md+ screens */}
+        <div className="hidden md:block bg-white shadow-md z-5 border-r border-amber-100">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
+        
+        {/* Mobile sidebar - full screen overlay when open */}
+        {isMobileSidebarOpen && (
+          <div className="md:hidden fixed inset-0 z-40 bg-white">
+            <Sidebar 
+              activeTab={activeTab} 
+              setActiveTab={setActiveTab} 
+              isMobile={true}
+              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+            />
+          </div>
+        )}
         
         {/* Main content */}
         <div className="flex-1 overflow-auto bg-amber-50 flex flex-col">
@@ -452,13 +494,21 @@ const ProjectCalendar = () => {
               </div>
             </motion.div>
             
-            {/* Gantt Chart */}
+            {/* Gantt Chart - with mobile-friendly note */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
               className="bg-white rounded-xl shadow-sm border border-amber-200 overflow-hidden"
             >
+              {/* Mobile instruction for horizontal scrolling */}
+              <div className="md:hidden p-3 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="mr-1" viewBox="0 0 16 16">
+                  <path d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.693 3.3 4 3.678 4 4.308v7.384c0 .63.692 1.01 1.233.696L11.5 8.753V12a.5.5 0 0 0 1 0V4z"/>
+                </svg>
+                Scroll horizontally to view the full timeline
+              </div>
+
               <div className="overflow-x-auto">
                 <div className="min-w-max">
                   {/* Gantt header - dates */}
@@ -547,13 +597,13 @@ const ProjectCalendar = () => {
                               }}>
                                 {/* Full task bar background - with improved visibility for Not Started tasks */}
                                 <div
-                                  className={`absolute h-5 rounded flex items-center ${task.status === 'Not Started' ? 'border border-gray-400' : ''}`}
+                                  className="absolute h-5 rounded flex items-center"
                                   style={{
                                     ...getTaskBarStyles(task, getColumnHeaders()),
                                     backgroundColor: task.status === 'Completed' ? '#10b981' : 
-                                                   task.status === 'Not Started' ? '#d1d5db' :
+                                                   task.status === 'At Risk' ? '#ef4444' :
                                                    '#3b82f6',
-                                    opacity: task.status === 'Not Started' ? 0.9 : 0.4
+                                    opacity: 0.4
                                   }}
                                 >
                                 </div>
@@ -566,7 +616,7 @@ const ProjectCalendar = () => {
                                       ...getTaskBarStyles(task, getColumnHeaders()),
                                       width: `${task.progress}%`,
                                       backgroundColor: task.status === 'Completed' ? '#10b981' : 
-                                                     task.status === 'Not Started' ? '#9ca3af' : 
+                                                     task.status === 'At Risk' ? '#ef4444' : 
                                                      '#3b82f6',
                                       zIndex: 5
                                     }}
@@ -581,7 +631,7 @@ const ProjectCalendar = () => {
                                     ...getTaskBarStyles(task, getColumnHeaders()),
                                   }}
                                 >
-                                  <div className={`truncate text-xs font-medium ${task.status === 'Not Started' ? 'text-gray-700' : 'text-white'}`}>
+                                  <div className="truncate text-xs font-medium text-white">
                                     {task.name}
                                   </div>
                                 </div>
@@ -615,10 +665,6 @@ const ProjectCalendar = () => {
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
                   <span className="text-sm text-gray-600">At Risk</span>
-                </div>
-                <div className="flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-gray-300 mr-2"></div>
-                  <span className="text-sm text-gray-600">Not Started</span>
                 </div>
               </div>
             </motion.div>

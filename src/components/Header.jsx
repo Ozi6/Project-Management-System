@@ -82,12 +82,7 @@ const Header = ({ title, action, rightContent }) => {
                     isOpen={activeDropdown === 'resources'}
                     onClick={() => handleDropdownToggle('resources')}
                 />
-                <Link 
-                    to="/about" 
-                    className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
-                >
-                    About Us
-                </Link>
+                
                 
                 {/* Admin-only Issues/Tickets link with enhanced visibility */}
                 {isAdmin && (
@@ -161,10 +156,15 @@ const Header = ({ title, action, rightContent }) => {
             
             <div className="flex items-center gap-4">
                 {rightContent}
-                {action && location.pathname === '/projects' && (
+                {/* Show action button on /projects or /bugs pages */}
+                {action && (location.pathname === '/projects' || location.pathname === '/bugs') && (
                     <button
                         onClick={action.onClick}
-                        className="bg-blue-600 hover:bg-blue-800 text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm"
+                        className={`${
+                            location.pathname === '/bugs' || location.pathname.includes('/incidents')
+                                ? 'bg-rose-600 hover:bg-rose-700'
+                                : 'bg-blue-600 hover:bg-blue-800'
+                        } text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm`}
                     >
                         {action.icon}
                         {action.label}
@@ -235,13 +235,6 @@ const Header = ({ title, action, rightContent }) => {
                                 </div>
                             )}
                             
-                            <Link 
-                                to="/about" 
-                                className="block py-2 border-b border-gray-200 text-lg"
-                            >
-                                About Us
-                            </Link>
-                            
                             {/* Admin-only Issues/Tickets link for mobile */}
                             {isAdmin && (
                                 <Link 
@@ -296,21 +289,9 @@ const Header = ({ title, action, rightContent }) => {
                                     Home
                                 </Link>
                                 
-                                <Link 
-                                    to="/about" 
-                                    className="block py-2 border-b border-gray-200 text-lg"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    About Us
-                                </Link>
                                 
-                                <Link 
-                                    to="/solutions" 
-                                    className="block py-2 border-b border-gray-200 text-lg"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                >
-                                    Solutions
-                                </Link>
+                                
+                                
                                 
                                 {/* Admin-only Issues/Tickets link for mobile */}
                                 {isAdmin && (
