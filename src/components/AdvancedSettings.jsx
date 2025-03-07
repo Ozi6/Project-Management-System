@@ -99,7 +99,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
   const { user } = useUser();
 
   // Hardcoded project owner for demo - replace with actual logic from your backend
-  const projectOwner = "alice@example.com";
+  const projectOwner = "emir.ozen.55.6d@gmail.com";
   
   // Check if current user is the project owner
   const isProjectOwner = user?.primaryEmailAddress?.emailAddress === projectOwner || 
