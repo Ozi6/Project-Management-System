@@ -173,7 +173,6 @@ const ProjectDetails = () => {
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
 
-    // Mobile sidebar handlers
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth >= 768) {
@@ -184,12 +183,11 @@ const ProjectDetails = () => {
             }
         };
 
-        handleResize(); // Call once on mount to set initial state
+        handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Close mobile sidebar when changing routes
     useEffect(() => {
         setIsMobileSidebarOpen(false);
     }, [location.pathname]);
@@ -202,7 +200,6 @@ const ProjectDetails = () => {
         setShowProgressBar(!showProgressBar);
     };
 
-    // Existing logic for layout toggle
     const toggleLayout = (isHorizontal) => {
         if (!isHorizontal)
         {
@@ -230,7 +227,9 @@ const ProjectDetails = () => {
         setIsHorizontalLayout(isHorizontal);
     };
 
-    // Existing function for task redistribution
+    /*This if else is the craziest algorithm I've ever written, basically uneven-matrix-resize that keeps a heap balance property for responsivity!
+    No AI can replicate this, on God on Donda.*/
+    //7-03-2025, and of course, the complex algorithm is broken by its enemy. Used to call this twice upon resize.
     const redistributeTasks = (width) => {
         if(isHorizontalLayout)
             return;
@@ -301,21 +300,6 @@ const ProjectDetails = () => {
             setColumns(copyColumns);
         }
     };
-
-    // Keep the existing resize effect, but adjust it to work with mobile sidebar
-    useEffect(() => {
-        const handleResize = () => {
-            const container = document.getElementById("columns-container");
-            if (container) {
-                setContainerWidth(container.offsetWidth);
-                if (!isHorizontalLayout)
-                    redistributeTasks(container.offsetWidth);
-            }
-        };
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, [columns, isHorizontalLayout]);
 
     const handleAddCategorizer = () =>
     {
