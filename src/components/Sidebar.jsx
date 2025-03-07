@@ -104,11 +104,20 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
 
   useEffect(() => {
     const path = location.pathname;
-    const currentItem = navItems.find(item => path.startsWith(item.path));
-    if (currentItem) {
-      setActiveTab(currentItem.id);
+    
+    // Check both main nav items and issues items
+    const currentNavItem = navItems.find(item => path.startsWith(item.path));
+    const currentIssuesItem = issuesItems.find(item => path.startsWith(item.path));
+    
+    if (currentNavItem) {
+      setActiveTab(currentNavItem.id);
+    } else if (currentIssuesItem) {
+      // If it's an issues item, set active tab to that item's id
+      setActiveTab(currentIssuesItem.id);
+      // Also open the issues menu
+      setShowIssuesMenu(true);
     }
-  }, [location, setActiveTab]);
+  }, [location, navItems, issuesItems]);
 
   const getCurrentLabel = () => {
     const currentItem = navItems.find(item => item.id === activeTab);
@@ -239,7 +248,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
                     to={item.path}
                     onClick={isMobile && closeMobileMenu ? closeMobileMenu : undefined} 
                     className={`flex items-center py-2 px-3 text-sm rounded-md transition-colors
-                      ${item.color}
+                      ${activeTab === item.id ? item.color : ''}
                       hover:bg-${item.iconColor.split('-')[1]}-100`}
                   >
                     <Icon size={16} className={`mr-2 ${item.iconColor}`} />
