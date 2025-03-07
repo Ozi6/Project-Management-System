@@ -286,13 +286,13 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
   return (
     <ErrorBoundary>
-      <div className="p-6 w-full">
+      <div className="p-4 md:p-6 w-full">
         <h2 className="text-xl font-bold mb-4">Advanced Settings</h2>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
           {/* Go Back to General Settings Button */}
           <button
             onClick={() => setShowAdvanced(false)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out w-full sm:w-auto"
           >
             Go Back to General Settings
           </button>
@@ -300,7 +300,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {/* Invite People Button - only fully visible to project owner */}
           <button
             onClick={() => isProjectOwner && setIsModalOpen(true)}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center ${
+            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center justify-center w-full sm:w-auto ${
               !isProjectOwner ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={!isProjectOwner}
@@ -313,8 +313,8 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         {/* Owner status indicator */}
         {!isProjectOwner && (
           <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700 flex items-center">
-            <UserCheck className="w-5 h-5 mr-2 text-yellow-500" />
-            You need to be the project owner to manage access and teams
+            <UserCheck className="w-5 h-5 mr-2 text-yellow-500 flex-shrink-0" />
+            <span>You need to be the project owner to manage access and teams</span>
           </div>
         )}
         
@@ -341,19 +341,19 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {filteredMembers.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg hover:scale-[1.02]"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg"
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4 mb-4 sm:mb-0">
                 <img
                   src={`https://i.pravatar.cc/150?img=${member.id}`}
                   alt={member.name}
-                  className="w-12 h-12 rounded-full"
+                  className="w-12 h-12 rounded-full flex-shrink-0"
                 />
                 <div>
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-wrap gap-2">
                     <p className="text-lg font-medium">{member.name}</p>
                     {member.role === "Owner" && (
-                      <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                      <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
                         <UserCheck className="w-3 h-3 mr-1" />
                         Owner
                       </span>
@@ -364,10 +364,10 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-4">
-                {/* Manage Access Button - transparent for non-owners */}
+              <div className="flex flex-wrap items-center gap-2 sm:space-x-2">
+                {/* Manage Access Button */}
                 <button
-                  className={`bg-green-500 text-white px-4 py-2 rounded-lg transition ${
+                  className={`bg-green-500 text-white px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
                     isProjectOwner ? "hover:bg-green-700" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setSelectedMember(member)}
@@ -376,9 +376,9 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   Manage Access
                 </button>
 
-                {/* Manage Team Button - transparent for non-owners */}
+                {/* Manage Team Button */}
                 <button
-                  className={`text-white bg-blue-500 px-4 py-2 rounded-lg transition ${
+                  className={`text-white bg-blue-500 px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
                     isProjectOwner ? "hover:bg-blue-700" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setMemberToManageTeams(member)}
@@ -387,15 +387,15 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   Manage Team
                 </button>
 
-                {/* Remove Button - transparent for non-owners */}
+                {/* Remove Button */}
                 <button
                   onClick={() => isProjectOwner && handleRemoveClick(member)}
-                  className={`bg-red-500 text-white p-2 rounded-lg flex items-center transition-all ${
-                    isProjectOwner ? "hover:bg-red-700 hover:scale-110" : "opacity-50 cursor-not-allowed"
+                  className={`bg-red-500 text-white px-3 py-1.5 text-sm rounded-lg flex items-center justify-center transition-all flex-1 sm:flex-none ${
+                    isProjectOwner ? "hover:bg-red-700" : "opacity-50 cursor-not-allowed"
                   }`}
                   disabled={!isProjectOwner}
                 >
-                  <Trash className="w-5 h-5 mr-1" />
+                  <Trash className="w-4 h-4 mr-1" />
                   Remove
                 </button>
               </div>
