@@ -10,6 +10,9 @@ CREATE TABLE Users (
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+ALTER TABLE Users
+DROP COLUMN password_hash;
+
 
 CREATE TABLE Projects (
     ProjectID INT PRIMARY KEY AUTO_INCREMENT,
@@ -122,3 +125,4 @@ CREATE INDEX idx_tasklists_category ON TaskLists(CategoryID);
 CREATE INDEX idx_listentries_tasklist ON ListEntries(TaskListID);
 CREATE INDEX idx_listentries_duedate ON ListEntries(DueDate);
 CREATE INDEX idx_files_uploader ON Files(UploadedBy);
+

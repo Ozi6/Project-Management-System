@@ -7,6 +7,7 @@ import ProjectCard from "../components/ProjectCard";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import axios from "axios"; // Make sure to install axios: npm install axios
 
 const ProjectManagement = () => {
     const [activeTab, setActiveTab] = useState("projects");
@@ -56,7 +57,9 @@ const ProjectManagement = () => {
         { id: 3, name: "Database Migration", owner: "Charlie", progress: 100, status: "Completed", isOwner: false }
     ];
 
-    const [activeProjects, setProject] = useState(sampleProjects);
+    const [activeProjects, setActiveProjects] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isAddProjectPopUpOpen, setIsAddProjectPopUpOpen] = useState(false);
     const [filteredProjects, setFilteredProjects] = useState(activeProjects);
 
@@ -106,35 +109,60 @@ const ProjectManagement = () => {
         });
     };
 
-    // Updated addNewProject - removed role property
-    const addNewProject = () => {
-        const newProject = {
-            id: uuidv4(),
-            name: newProjectDetails.name,
-            owner: newProjectDetails.owner,
-            progress: 0,
-            status: "In Progress",
-            isOwner: true,
+    // Fetch projects from API on component mount
+    useEffect(() => {
+        const fetchProjects = async () => {
+            try {
+                setIsLoading(true);
+                const response = await axios.get('http://localhost:8080/api/projects');
+                setActiveProjects(response.data);
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching projects:', err);
+                setError('Failed to load projects. Please try again later.');
+                // Use sample data as fallback in case of error
+                setActiveProjects(sampleProjects);
+            } finally {
+                setIsLoading(false);
+            }
         };
         
-        setProject([...activeProjects, newProject]);
-        setNewProjectDetails({
-            name: "",
-            owner: "",
-            progress: 0,
-            status: "In Progress",
-            isOwner: "",
-        });
-        setIsAddProjectPopUpOpen(false);
-    };
+        fetchProjects();
+    }, []);
 
-    const deleteProject = (projectId) => {
-        // Filter out the project with the given id
-        const updatedProjects = activeProjects.filter(project => project.id !== projectId);
-        setProject(updatedProjects);
-        
-        // Optional: Show a toast notification
-        // toast.success("Project deleted successfully");
+    // Updated to use API
+    const addNewProject = async () => {
+        try {
+            const response = await axios.post('http://localhost:8080/api/projects', {
+                name: newProjectDetails.name,
+                owner: newProjectDetails.owner
+            });
+            
+            setActiveProjects([...activeProjects, response.data]);
+            setNewProjectDetails({
+                name: "",
+                owner: "",
+                progress: 0,
+                status: "In Progress",
+                isOwner: true,
+            });
+            setIsAddProjectPopUpOpen(false);
+        } catch (err) {
+            console.error('Error creating project:', err);
+            alert('Failed to create project. Please try again.');
+        }
+    };
+    
+    // Updated to use API
+    const deleteProject = async (projectId) => {
+        try {
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}`);
+            const updatedProjects = activeProjects.filter(project => project.id !== projectId);
+            setActiveProjects(updatedProjects);
+        } catch (err) {
+            console.error('Error deleting project:', err);
+            alert('Failed to delete project. Please try again.');
+        }
     };
 
     // Handle mobile sidebar
@@ -291,7 +319,22 @@ const ProjectManagement = () => {
                                 {searchTerm || filterStatus !== "all" ? "Filtered Projects" : "All Projects"}
                             </h2>
                             
-                            {filteredProjects.length === 0 ? (
+                            {isLoading ? (
+                                <div className="text-center py-10">
+                                    <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                    <p className="text-purple-600 font-medium">Loading projects...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-10 bg-red-50 rounded-lg p-4">
+                                    <p className="text-red-600">{error}</p>
+                                    <button 
+                                        onClick={() => window.location.reload()} 
+                                        className="mt-3 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200 transition-colors"
+                                    >
+                                        Retry
+                                    </button>
+                                </div>
+                            ) : filteredProjects.length === 0 ? (
                                 <div className="text-center py-10">
                                     <div className="bg-purple-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Search className="h-8 w-8 text-purple-500" />
