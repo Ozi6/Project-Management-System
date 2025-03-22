@@ -4,9 +4,10 @@ import { Plus, Search, Filter, User, Heart, Menu } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ProjectCard from "../components/ProjectCard";
-import { v4 as uuidv4 } from "uuid";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 const ProjectManagement = () => {
     const [activeTab, setActiveTab] = useState("projects");
@@ -15,48 +16,84 @@ const ProjectManagement = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-    // Event Handlers
-    const onTaskChange = (taskId, newStartDate, newEndDate) => {
-        setTasks(prevTasks =>
-            prevTasks.map(task =>
-                task.id === taskId ? { ...task, start: newStartDate, end: newEndDate } : task
-            )
-        );
-    };
-
-    const onProgressChange = (taskId, newProgress) => {
-        setTasks(prevTasks =>
-            prevTasks.map(task =>
-                task.id === taskId ? { ...task, progress: newProgress } : task
-            )
-        );
-    };
-
-    const onTaskDelete = taskId => {
-        setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-    };
-
-    const onDblClick = taskId => {
-        console.log(`Task with ID ${taskId} was double clicked`);
-    };
-
-    const onClick = taskId => {
-        console.log(`Task with ID ${taskId} was clicked`);
-    };
-
-    const handleNewProject = () => {
-        navigate('/project/new');
-    };
+    const [activeProjects, setActiveProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const { user, isLoaded } = useUser();
+    const { getToken } = useAuth();
     
-    // Updated sampleProjects - removed role property
-    const sampleProjects = [
-        { id: 1, name: "Website Redesign", owner: "Alice", progress: 75, status: "In Progress", isOwner: true },
-        { id: 2, name: "Mobile App Development", owner: "Bob", progress: 30, status: "In Progress", isOwner: false },
-        { id: 3, name: "Database Migration", owner: "Charlie", progress: 100, status: "Completed", isOwner: false }
-    ];
+    useEffect(() =>
+    {
+        if (!isLoaded)
+            return;
 
-    const [activeProjects, setProject] = useState(sampleProjects);
+        const fetchProjects = async () =>
+        {
+            try{
+                const token = await getToken();
+                const response = await axios.get('http://localhost:8080/api/projects',
+                {
+                    withCredentials: true,
+                    headers:{
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const projects = response.data.map(project => ({
+                    ProjectID: project.ProjectID,
+                    project_name: project.project_name,
+                    Description: project.Description,
+                    OwnerID: project.OwnerID,
+                    Categories: project.Categories || [],
+                    isOwner: project.OwnerID === user.id,
+                    progress: calculateProgress(project.Categories),
+                    status: determineStatus(project.Categories),
+                }));
+
+                setActiveProjects(projects);
+                setLoading(false);
+            }catch(err){
+                console.error('Error fetching projects:', err);
+                setError('Failed to load projects');
+                setLoading(false);
+            }
+        };
+        fetchProjects();
+    },[isLoaded, getToken, user]);
+
+    const calculateProgress = (categories) =>
+    {
+        if (!categories || categories.length === 0)
+            return 0;
+
+        const allListEntries = categories.flatMap(category =>
+            category.TaskLists.flatMap(taskList => taskList.ListEntries)
+        );
+
+        if (allListEntries.length === 0)
+            return 0;
+
+        const totalEntries = allListEntries.length;
+        const completedEntries = allListEntries.filter(entry => entry.IsChecked).length;
+        return Math.round((completedEntries / totalEntries) * 100);
+    };
+
+    const determineStatus = (categories) =>
+    {
+        if (!categories || categories.length === 0)
+            return "In Progress";
+
+        const allListEntries = categories.flatMap(category =>
+            category.TaskLists.flatMap(taskList => taskList.ListEntries)
+        );
+
+        if (allListEntries.length === 0)
+            return "In Progress";
+
+        const allCompleted = allListEntries.every(entry => entry.IsChecked);
+        return allCompleted ? "Completed" : "In Progress";
+    };
+
     const [isAddProjectPopUpOpen, setIsAddProjectPopUpOpen] = useState(false);
     const [filteredProjects, setFilteredProjects] = useState(activeProjects);
 
@@ -68,19 +105,14 @@ const ProjectManagement = () => {
         setIsAddProjectPopUpOpen(false);
     }
 
-    // Updated newProjectDetails - removed role property
     const [newProjectDetails, setNewProjectDetails] = useState({
-        name: "",
-        owner: "",
-        progress: 0,
-        status: "In Progress",
-        dueDate: "",
+        project_name: "",
+        Description: "",
     });
 
     useEffect(() => {
         let result = activeProjects;
         
-        // Apply search filter
         if (searchTerm) {
             result = result.filter(project => 
                 project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,7 +120,6 @@ const ProjectManagement = () => {
             );
         }
         
-        // Apply status filter
         if (filterStatus !== "all") {
             result = result.filter(project => 
                 project.status.toLowerCase() === filterStatus.toLowerCase()
@@ -106,61 +137,98 @@ const ProjectManagement = () => {
         });
     };
 
-    // Updated addNewProject - removed role property
-    const addNewProject = () => {
-        const newProject = {
-            id: uuidv4(),
-            name: newProjectDetails.name,
-            owner: newProjectDetails.owner,
-            progress: 0,
-            status: "In Progress",
-            isOwner: true,
-        };
-        
-        setProject([...activeProjects, newProject]);
-        setNewProjectDetails({
-            name: "",
-            owner: "",
-            progress: 0,
-            status: "In Progress",
-            isOwner: "",
-        });
-        setIsAddProjectPopUpOpen(false);
+
+    const addNewProject = async () =>
+    {
+        try{
+            const token = await getToken();
+            const projectData =
+            {
+                project_name: newProjectDetails.project_name,
+                Description: newProjectDetails.Description,
+                OwnerID: user.id,
+            };
+
+            const response = await axios.post('http://localhost:8080/api/projects', projectData,
+            {
+                withCredentials: true,
+                headers:{
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            const newProject =
+            {
+                ProjectID: response.data.ProjectID,
+                project_name: response.data.project_name,
+                Description: response.data.Description,
+                OwnerID: user.id,//clerk?
+                Categories: [],
+                isOwner: true,
+                progress: 0,
+                status: "In Progress",
+            };
+
+            setActiveProjects([...activeProjects, newProject]);
+            setNewProjectDetails({
+                project_name: "",
+                Description: "",
+            });
+            setIsAddProjectPopUpOpen(false);
+        }catch(error){
+            console.error("Error creating project:", error);
+            //handle error (show notification, maybe toast)
+        }
     };
 
-    const deleteProject = (projectId) => {
-        // Filter out the project with the given id
-        const updatedProjects = activeProjects.filter(project => project.id !== projectId);
-        setProject(updatedProjects);
-        
-        // Optional: Show a toast notification
-        // toast.success("Project deleted successfully");
+    const deleteProject = async (projectId) =>
+    {
+        if (!isLoaded || !user)
+            return;
+
+        try{
+            const token = await getToken();
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}`,
+            {
+                withCredentials: true,
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const updatedProjects = activeProjects.filter(project => project.id !== projectId);
+            setActiveProjects(updatedProjects);
+        }catch(error){
+            console.error("Error deleting project:", error);
+            //handle error (show notification maybe toast)
+        }
     };
 
-    // Handle mobile sidebar
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 768) {
+    useEffect(() =>
+    {
+        const handleResize = () =>
+        {
+            if (window.innerWidth >= 768)
                 setIsMobileSidebarOpen(false);
-            }
         };
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    // Close mobile sidebar when changing routes
-    useEffect(() => {
+    useEffect(() =>
+    {
         setIsMobileSidebarOpen(false);
     }, [location.pathname]);
 
-    const toggleMobileSidebar = () => {
+    const toggleMobileSidebar = () =>
+    {
         setIsMobileSidebarOpen(!isMobileSidebarOpen);
     };
     
-    return (
+    return(
         <div className="flex flex-col h-screen bg-purple-50">
-            {/* Header with shadow */}
             <div className="w-full bg-white shadow-sm z-10 border-b-2 border-purple-100">
                 <Header
                     title={<span className="text-xl font-semibold text-purple-800">Projects</span>}
@@ -173,7 +241,6 @@ const ProjectManagement = () => {
             </div>
             
             <div className="flex flex-1 overflow-hidden relative">
-                {/* Mobile menu toggle button */}
                 <button 
                     onClick={toggleMobileSidebar}
                     className="md:hidden fixed bottom-4 right-4 z-50 bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-colors"
@@ -182,7 +249,6 @@ const ProjectManagement = () => {
                     <Menu size={24} />
                 </button>
 
-                {/* Mobile New Project button */}
                 <button 
                     onClick={openPopUp}
                     className="md:hidden fixed bottom-4 right-20 z-50 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
@@ -191,12 +257,10 @@ const ProjectManagement = () => {
                     <Plus size={24} />
                 </button>
 
-                {/* Sidebar - hidden on mobile, shown on md+ screens */}
                 <div className="hidden md:block bg-white shadow-md z-5 border-r border-purple-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
                 
-                {/* Mobile sidebar - full screen overlay when open */}
                 {isMobileSidebarOpen && (
                     <div className="md:hidden fixed inset-0 z-40 bg-white">
                         <Sidebar 
@@ -208,9 +272,7 @@ const ProjectManagement = () => {
                     </div>
                 )}
                 
-                {/* Main content area with better organization */}
                 <div className="flex-1 overflow-auto bg-purple-50 flex flex-col">
-                    {/* Mobile quick create card - visible only on mobile */}
                     <div className="md:hidden mx-6 mt-6">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
@@ -291,7 +353,27 @@ const ProjectManagement = () => {
                                 {searchTerm || filterStatus !== "all" ? "Filtered Projects" : "All Projects"}
                             </h2>
                             
-                            {filteredProjects.length === 0 ? (
+                            {loading ? (
+                                <div className="text-center py-10">
+                                    <div className="bg-purple-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg className="animate-spin h-8 w-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-800">Loading projects...</h3>
+                                </div>
+                            ) : error ? (
+                                <div className="text-center py-10">
+                                    <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg className="h-8 w-8 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-800">Error loading projects</h3>
+                                    <p className="text-gray-500">{error}</p>
+                                </div>
+                            ) : filteredProjects.length === 0 ? (
                                 <div className="text-center py-10">
                                     <div className="bg-purple-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Search className="h-8 w-8 text-purple-500" />
@@ -309,14 +391,15 @@ const ProjectManagement = () => {
                                             transition={{ delay: index * 0.05 }}
                                         >
                                             <ProjectCard
-                                                projectIndex={index}
-                                                id={project.id}
-                                                name={project.name}
-                                                owner={project.owner}
+                                                key={project.ProjectID}
+                                                ProjectID={project.ProjectID}
+                                                project_name={project.project_name}
+                                                Description={project.Description}
+                                                OwnerID={project.OwnerID}
+                                                isOwner={project.isOwner}
                                                 progress={project.progress}
                                                 status={project.status}
-                                                isOwner={project.isOwner}
-                                                onDelete={deleteProject} // Pass the delete function here
+                                                onDelete={deleteProject}
                                             />
                                         </motion.div>
                                     ))}
@@ -396,25 +479,6 @@ const ProjectManagement = () => {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="owner" className="block text-sm font-medium text-gray-700 mb-1">Project Owner</label>
-                                    <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <User className="w-4 h-4 text-gray-400" />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            id="owner"
-                                            name="owner"
-                                            value={newProjectDetails.owner}
-                                            onChange={handleInputChange}
-                                            className="w-full pl-10 p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                                            required
-                                            placeholder="Project owner"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
                                     <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
                                     <input
                                         type="date"
@@ -427,6 +491,23 @@ const ProjectManagement = () => {
                                         min={new Date().toISOString().split('T')[0]}
                                     />
                                 </div>
+
+                                {isLoaded && user && (
+                                    <div className="flex items-center mt-1 space-x-2">
+                                        <div className="w-6 h-6 rounded-full overflow-hidden">
+                                            {user.profileImageUrl ? (
+                                                <img src={user.profileImageUrl} alt={user.fullName || "User"} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full bg-purple-200 flex items-center justify-center text-purple-700 text-xs">
+                                                    {(user.fullName || user.username || "U").charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-gray-500">
+                                            Project will be created by {user.fullName || user.username}
+                                        </p>
+                                    </div>
+                                )}
 
                                 <div className="flex justify-end space-x-3 pt-6">
                                     <button
