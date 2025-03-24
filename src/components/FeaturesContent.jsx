@@ -2,24 +2,26 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { LayoutGrid, Users, CheckSquare } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const FeaturesContent = ({ isOpen, setIsOpen }) => {
+    const {t } = useTranslation();
     const features = [
         {
-            title: "Project Management",
-            description: "Efficiently manage your projects with our intuitive tools.",
+            title: t("features1"),
+            description: t("features1d"),
             icon: LayoutGrid,
             link: "/features/project-management"
         },
         {
-            title: "Team Collaboration",
-            description: "Work seamlessly with your team members in real-time.",
+            title: t("features2"),
+            description: t("features2d"),
             icon: Users,
             link: "/features/team-collaboration"
         },
         {
-            title: "Task Tracking",
-            description: "Keep track of all your tasks and deadlines in one place.",
+            title: t("features3"),
+            description: t("features3d"),
             icon: CheckSquare,
             link: "/features/task-tracking"
         }

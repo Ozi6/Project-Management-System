@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
-
-const themes = ["light", "dark", "pink"];
+import { useTranslation } from "react-i18next";
 
 function ThemeSwitcher() {
+    const { t } = useTranslation(); // Call the useTranslation hook here inside the component
     const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
         localStorage.setItem("theme", theme);
     }, [theme]);
+
+    const themes = ["light", "dark", "pink"];
 
     return (
         <div className="relative">
@@ -18,9 +20,9 @@ function ThemeSwitcher() {
                 className="text-white text-xs lg:text-sm px-2 py-1 pr-8 rounded-md border border-solid border-gray-300 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] transition-all duration-300 appearance-none"
                 style={{backgroundColor: "var(--features-icon-color)"}}
             >
-                {themes.map((t) => (
-                    <option key={t} value={t}>
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
+                {themes.map((themeKey) => (
+                    <option key={themeKey} value={themeKey}>
+                        {t(`theme.${themeKey}`).charAt(0).toUpperCase() + t(`theme.${themeKey}`).slice(1)}
                     </option>
                 ))}
             </select>

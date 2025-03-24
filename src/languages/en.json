@@ -1,0 +1,39 @@
+{
+    "header1":"Features",
+    "header2":"Resources",
+    "header3":"Issues",
+    "header4":"Admin",
+
+    "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "pink": "Pink"
+  },
+
+    "login":"Log In",
+    "signup":"Sign Up",
+
+    "features1":"Project Management",
+    "features2":"Team Collabration",
+    "features3":"Task Tracking",
+    "features1d":"Efficiently manage your projects with our intuitive tools.",
+    "features2d":"Work seamlessly with your team member in real-time.",
+    "features3d":"Keep track of all your tasks and deadlines in one place.",
+
+    "resources1":"About Us",
+    "resources2":"FAQ",
+    "resources1d":"Learn more about our team and mission",
+    "resources2d":"Frequently asked questions.",
+
+    "hero1":"Transform Your Project Management with",
+    "hero2":"Manage Projects 27/7",
+    "hero3":"100%",
+    "hero4":"Free",
+    "hero1d":"Streamline collaboration, boost productivity, and deliver projects successfully with our powerful project management solution.",
+    "hero2d":"Stay on Track, Anytime",
+    "hero3d":"Secure",
+    "hero4d":"To Start",
+    "herobutt":"Go to Dashboard",
+    "getStarted": "Get Started Free"
+  }
+  

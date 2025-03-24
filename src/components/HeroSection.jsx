@@ -8,8 +8,10 @@ import image2 from '../assets/webp/2.webp';
 import image3 from '../assets/webp/3.webp';
 import image4 from '../assets/webp/4.webp';
 import image5 from '../assets/webp/5.webp';
+import { useTranslation } from "react-i18next";
 
 const HeroSection = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
@@ -43,15 +45,14 @@ const HeroSection = () => {
           {/* Left Column - Text Content */}
           <div className="space-y-8 text-center lg:text-left">
             <h1 className="text-5xl font-bold leading-tight text-white font-sans tracking-tight">
-              Transform Your Project Management with{' '}
+            {t("hero1")}{' '}
               <span className="font-serif italic"
                  style={{color: "var(--features-icon-color)"}}
               >PlanWise</span>
             </h1>
             <p className="text-xl"
             style={{color: "var(--text-color3)"}}>
-              Streamline collaboration, boost productivity, and deliver projects 
-              successfully with our powerful project management solution.
+              {t("hero1d")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
@@ -64,7 +65,7 @@ const HeroSection = () => {
 
                 }}
               >
-                {isSignedIn ? 'Go to Dashboard' : 'Get Started Free'}
+                {isSignedIn ? t("herobutt") : t("getStarted")}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </div>
@@ -73,26 +74,26 @@ const HeroSection = () => {
               <div>
                 <h3 className="text-3xl font-bold text-green-500 font-mono"
                   style={{color: "var(--homepage-text-bright)"}}
-                >Manage Projects 24/7</h3>
+                >{t("hero2")}</h3>
                 <p className=""
                   style={{color: "var(--text)"}}
-                >Stay on Track, Anytime</p>
+                >{t("hero2d")}</p>
               </div>
               <div>
                 <h3 className="text-3xl font-bold font-mono"
                   style={{color: "var(--homepage-text-bright)"}}
-                >100%</h3>
+                >{t("hero3")}</h3>
                 <p className=""
                 style={{color: "var(--text)"}}
-                >Secure</p>
+                >{t("hero3d")}</p>
               </div>
               <div>
                 <h3 className="text-3xl font-bold font-mono"
                   style={{color: "var(--homepage-text-bright)"}}
-                >Free</h3>
+                >{t("hero4")}</h3>
                 <p className="text-gray-300"
                   style={{color: "var(--text)"}}
-                >To Start</p>
+                >{t("hero4d")}</p>
               </div>
             </div>
           </div>

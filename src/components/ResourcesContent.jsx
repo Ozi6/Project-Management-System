@@ -2,8 +2,10 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Video, FileText, HelpCircle, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const ResourcesContent = ({ isOpen, setIsOpen }) => {
+    const {t}=useTranslation();
     const container = {
         hidden: { 
             opacity: 0,
@@ -52,14 +54,14 @@ const ResourcesContent = ({ isOpen, setIsOpen }) => {
 
     const resources = [
         {
-            title: "About Us",
-            description: "Learn more about our team and mission",
+            title: t("resources1"),
+            description: t("resources1d"),
             icon: Users,
             link: "/about"
         },
         {
-            title: "FAQ",
-            description: "Frequently asked questions.",
+            title: t("resources2"),
+            description: t("resources2d"),
             icon: HelpCircle,
             link: "/faq"
         }

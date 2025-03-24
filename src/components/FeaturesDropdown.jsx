@@ -1,15 +1,18 @@
 import React from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from "react-i18next";
 
 const FeaturesDropdown = ({ isOpen, onClick }) => {
+     const {t } = useTranslation();
+
     return (
         <button
             onClick={onClick}
             className="flex items-center text-lg text-gray-600 hover:text-[var(--features-icon-color)] transition-colors duration-200 relative group"
         >
             <span className="relative">
-                Features
+                {t("header1")}
                 <motion.span 
                     className="absolute bottom-0 left-0 h-0.5 bg-[var(--features-icon-color)]"
                     initial={{ width: 0 }}

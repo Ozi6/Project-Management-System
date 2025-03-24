@@ -9,8 +9,10 @@ import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
 import ThemeSwitcher from '../ThemeSwitcher';
+import { useTranslation } from "react-i18next";
 
 const Header = ({ title, action, rightContent }) => {
+    const { t, i18n } = useTranslation();
     const location = useLocation();
     const [activeDropdown, setActiveDropdown] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -94,7 +96,7 @@ const Header = ({ title, action, rightContent }) => {
                         className="text-sm lg:text-base text-[var(--icon-color)] hover:text-[var(--features-icon-color)] transition-colors duration-200 flex items-center"
                     >
                         <AlertCircle className="mr-1 h-3 w-3" />
-                        Issues
+                        {t("header3")}
                     </Link>
                 )}
             </div>
@@ -102,6 +104,15 @@ const Header = ({ title, action, rightContent }) => {
                 {/* Admin badge - UPDATED FOR LARGER SIZE */}
 
                 <ThemeSwitcher/>
+
+                <div>
+                    <button onClick={() => i18n.changeLanguage("en")}
+                        className="font-bold mx-0 px-2 py-1 hover:bg-[var(--features-icon-color)]/20 rounded transition"
+                    >EN</button>
+                    <button onClick={() => i18n.changeLanguage("tr")}
+                        className="font-bold mx-0 px-2 py-1 hover:bg-[var(--bug-report)]/50 rounded transition"
+                    >TR</button>
+                </div>
 
                 {isAdmin && (
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
@@ -118,14 +129,14 @@ const Header = ({ title, action, rightContent }) => {
                             className="text-sm lg:text-base text-gray-600 hover:text-[var(--features-icon-color)] transition-colors duration-200"
                             onClick={handleLoginRedirect}
                         >
-                            Log In
+                            {t("login")}
                         </button>
                         <Link 
                             to="/signup"
                             className="hover:bg-[var(--features-icon-color)] text-white text-sm lg:text-base px-3 py-1.5 rounded-lg transition-colors duration-200 font-medium"
                             style={{backgroundColor: "var(--features-icon-color)"}}
                         >
-                            Sign Up
+                            {t("signup")}
                         </Link>
                     </div>
                 </SignedOut>
@@ -158,7 +169,7 @@ const Header = ({ title, action, rightContent }) => {
                 {isAdmin && (
                     <div className="ml-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
                         <ShieldAlert className="h-4 w-4 mr-2" />
-                        Admin
+                        {t("header4")}
                     </div>
                 )}
             </div>
@@ -220,7 +231,7 @@ const Header = ({ title, action, rightContent }) => {
                                 onClick={() => handleDropdownToggle('features')}
                                 className="text-left py-2 border-b border-gray-200 text-lg font-medium"
                             >
-                                Features
+                                {t("header1")}
                             </button>
                             {activeDropdown === 'features' && (
                                 <div className="pl-4 py-2">
@@ -236,7 +247,7 @@ const Header = ({ title, action, rightContent }) => {
                                 onClick={() => handleDropdownToggle('resources')}
                                 className="text-left py-2 border-b border-gray-200 text-lg font-medium"
                             >
-                                Resources
+                                {t("header2")}
                             </button>
                             {activeDropdown === 'resources' && (
                                 <div className="pl-4 py-2">
@@ -255,7 +266,7 @@ const Header = ({ title, action, rightContent }) => {
                                     className="block py-2 border-b border-gray-200 text-lg text-orange-600 flex items-center"
                                 >
                                     <AlertCircle className="mr-1 h-4 w-4" />
-                                    Issues
+                                    {t("header3")}
                                 </Link>
                             )}
                             
@@ -265,7 +276,7 @@ const Header = ({ title, action, rightContent }) => {
                                         className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
                                         onClick={handleLoginRedirect}
                                     >
-                                        Log In
+                                        {t("login")}
                                     </button>
                                 </SignedOut>
                                 
@@ -314,7 +325,7 @@ const Header = ({ title, action, rightContent }) => {
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <AlertCircle className="mr-1 h-4 w-4" />
-                                        Issues
+                                        {t("header3")}
                                     </Link>
                                 )}
                             </div>
@@ -325,7 +336,7 @@ const Header = ({ title, action, rightContent }) => {
                                         className="w-full text-center py-3 border border-gray-300 rounded-lg text-lg"
                                         onClick={handleLoginRedirect}
                                     >
-                                        Log In
+                                        {t("login")}
                                     </button>
                                 </SignedOut>
                                 

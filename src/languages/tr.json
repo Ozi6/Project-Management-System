@@ -1,0 +1,39 @@
+{
+  "header1": "Özellikler",
+  "header2": "Kaynaklar",
+  "header3": "Sorunlar",
+  "header4": "Yönetici",
+
+  "theme": {
+    "light": "Acik",
+    "dark": "Karanlik",
+    "pink": "Pembe"
+  },
+
+  "login":"Giris Yap",
+  "signup":"Kayit Ol",
+
+  "features1": "Proje Yönetimi",
+  "features2": "Ekip İş Birliği",
+  "features3": "Görev Takibi",
+  "features1d": "Sezgisel araçlarımızla projelerinizi verimli bir şekilde yönetin.",
+  "features2d": "Ekip üyelerinizle gerçek zamanlı olarak sorunsuz çalışın.",
+  "features3d": "Tüm görevlerinizi ve son teslim tarihlerinizi tek bir yerde takip edin.",
+
+  "resources1": "Hakkımızda",
+  "resources2": "SSS",
+  "resources1d": "Ekibimiz ve misyonumuz hakkında daha fazla bilgi edinin.",
+  "resources2d": "Sıkça sorulan sorular.",
+
+  "hero1": "Proje Yönetiminizi Dönüştürün",
+  "hero2": "Projeleri 7/24 Yönetin",
+  "hero3": "100%",
+  "hero4": "Ücretsiz",
+  "hero1d": "İş birliğini kolaylaştırın, verimliliği artırın ve güçlü proje yönetim çözümümüzle projelerinizi başarıyla tamamlayın.",
+  "hero2d": "Her Zaman Takipte Kalın",
+  "hero3d": "Güvenli",
+  "hero4d": "Başlamak İçin",
+  "herobutt": "Gösterge Paneline Git"
+}
+
+  

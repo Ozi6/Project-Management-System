@@ -28,6 +28,8 @@ import Issues from './pages/admin/Issues';
 import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the top
 import ProjectCalendar from './pages/ProjectCalendar';
 import Teams from './pages/Teams';
+import "./i18n"; 
+
 //import Documentation from "./pages/Documentation";
 
 

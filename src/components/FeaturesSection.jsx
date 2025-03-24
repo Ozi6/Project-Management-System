@@ -7,8 +7,10 @@ import {
   ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
+import { useTranslation } from "react-i18next";
 
 const FeaturesSection = () => {
+  const {t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [featuresPerView, setFeaturesPerView] = useState(3);
   const [isMobile, setIsMobile] = useState(false);
@@ -248,7 +250,7 @@ const FeaturesSection = () => {
               {[
                 { 
                   icon: CheckSquare, 
-                  title: "Task Management", 
+                  title: t("features1"), 
                   description: "Create, assign, and track tasks with customizable workflows" 
                 },
                 { 
