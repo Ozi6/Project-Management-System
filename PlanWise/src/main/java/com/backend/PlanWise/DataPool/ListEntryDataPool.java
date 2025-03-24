@@ -11,7 +11,7 @@ import java.util.List;
 public interface ListEntryDataPool extends JpaRepository<ListEntry, Long>
 {
     List<ListEntry> findByTaskListTaskListId(Long taskListId);
-    List<ListEntry> findByAssignedUsersUserId(Long userId);
+    List<ListEntry> findByAssignedUsersUserId(String userId);
     List<ListEntry> findByAssignedTeamsTeamId(Long teamId);
     List<ListEntry> findByIsChecked(Boolean isChecked);
     List<ListEntry> findByDueDateBefore(LocalDateTime date);

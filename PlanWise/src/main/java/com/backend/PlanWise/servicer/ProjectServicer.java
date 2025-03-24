@@ -31,7 +31,7 @@ public class ProjectServicer
                 .orElse(null);
     }
 
-    public List<ProjectDTO> getProjectsByUserId(Long userId)
+    public List<ProjectDTO> getProjectsByUserId(String userId)
     {
         List<Project> ownedProjects = projectRepository.findByOwnerUserId(userId);
         List<Project> memberProjects = projectRepository.findByMembersUserId(userId);

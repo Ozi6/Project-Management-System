@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface FileDataPool extends JpaRepository<File, Long>
 {
-    List<File> findByUploadedByUserId(Long userId);
+    List<File> findByUploadedByUserId(String userId);
 }

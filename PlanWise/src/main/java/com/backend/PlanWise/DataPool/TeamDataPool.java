@@ -9,5 +9,5 @@ import java.util.List;
 public interface TeamDataPool extends JpaRepository<Team, Long>
 {
     List<Team> findByProjectProjectId(Long projectId);
-    List<Team> findByMembersUserId(Long userId);
+    List<Team> findByMembersUserId(String userId);
 }
