@@ -147,6 +147,8 @@ const ProjectManagement = () => {
                 createdAt: new Date().toISOString(),
                 owner: {
                     userId: user.id,
+                    username: user.fullName || user.username,
+                    email: user.emailAddresses[0].emailAddress
                 },
                 members: [],
                 teams: [],
