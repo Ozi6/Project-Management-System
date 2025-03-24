@@ -6,6 +6,7 @@ import com.backend.PlanWise.DataPool.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,15 +33,6 @@ public class ProjectServicer
         return projectRepository.findById(id)
                 .map(this::convertToDTO)
                 .orElse(null);
-    }
-
-    public List<ProjectDTO> getProjectsByUserId(String userId)
-    {
-        List<Project> ownedProjects = projectRepository.findByOwnerUserId(userId);
-        List<Project> memberProjects = projectRepository.findByMembersUserId(userId);
-        return ownedProjects.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
     }
 
     private ProjectDTO convertToDTO(Project project)
@@ -299,5 +291,35 @@ public class ProjectServicer
             file.setFileData(Base64.getDecoder().decode(fileDTO.getFileDataBase64()));
 
         return file;
+    }
+
+    public List<ProjectDTO> getProjectsByUserId(String userId)
+    {
+        List<Project> ownedProjects = projectRepository.findByOwnerUserId(userId);
+        List<ProjectDTO> ownedProjectDTOs = ownedProjects.stream()
+                .map(project ->
+                {
+                    ProjectDTO dto = convertToDTO(project);
+                    dto.setIsOwner(true);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        List<Project> memberProjects = projectRepository.findByMembersUserId(userId);
+        List<ProjectDTO> memberProjectDTOs = memberProjects.stream()
+                .map(project -> {
+                    ProjectDTO dto = convertToDTO(project);
+                    dto.setIsOwner(project.getOwner().getUserId().equals(userId));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        List<ProjectDTO> allProjects = new ArrayList<>();
+        allProjects.addAll(ownedProjectDTOs);
+        allProjects.addAll(memberProjectDTOs);
+
+        return allProjects.stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 }

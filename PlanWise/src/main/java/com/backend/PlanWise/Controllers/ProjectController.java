@@ -33,10 +33,10 @@ public class ProjectController
             return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<ProjectDTO>> getProjectsByUserId(@PathVariable String userId)
-    {
-        return ResponseEntity.ok(projectService.getProjectsByUserId(userId));
+    @GetMapping("/user/{userId}/related")
+    public ResponseEntity<List<ProjectDTO>> getUserRelatedProjects(@PathVariable String userId) {
+        List<ProjectDTO> projects = projectService.getProjectsByUserId(userId);
+        return ResponseEntity.ok(projects);
     }
 
     @PostMapping

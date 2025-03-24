@@ -14,6 +14,15 @@ public class ProjectDTO
     private Set<UserDTO> members = new HashSet<>();
     private Set<TeamDTO> teams = new HashSet<>();
     private Set<CategoryDTO> categories = new HashSet<>();
+    private boolean isOwner;
+
+    public boolean isOwner() {
+        return isOwner;
+    }
+
+    public void setIsOwner(boolean owner) {
+        isOwner = owner;
+    }
 
     public Long getProjectId()
     {

@@ -8,10 +8,9 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "UserID") // Use exact database column name with same capitalization
+    @Column(name = "UserID")
     private String userId;
     
     @Column(name = "username")
@@ -19,7 +18,6 @@ public class User {
     
     @Column(name = "email")
     private String email;
-    
 
     @OneToMany(mappedBy = "owner")
     private Set<Project> ownedProjects = new HashSet<>();
@@ -58,6 +56,4 @@ public class User {
     {
         this.email = email;
     }
-
-    
 }
