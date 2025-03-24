@@ -138,46 +138,48 @@ const ProjectManagement = () => {
     };
 
 
-    const addNewProject = async () =>
-    {
-        try{
+    const addNewProject = async () => {
+        try {
             const token = await getToken();
-            const projectData =
-            {
-                project_name: newProjectDetails.project_name,
-                Description: newProjectDetails.Description,
-                OwnerID: user.id,
+            const projectData = {
+                projectName: newProjectDetails.project_name,
+                description: newProjectDetails.Description,
+                createdAt: new Date().toISOString(),
+                owner: {
+                    userId: user.id,
+                },
+                members: [],
+                teams: [],
+                categories: []
             };
-
+    
             const response = await axios.post('http://localhost:8080/api/projects', projectData,
             {
                 withCredentials: true,
-                headers:{
+                headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
-
-            const newProject =
-            {
-                ProjectID: response.data.ProjectID,
-                project_name: response.data.project_name,
-                Description: response.data.Description,
-                OwnerID: user.id,//clerk?
+    
+            const newProject = {
+                ProjectID: response.data.projectId, // Note: matching backend response field
+                project_name: response.data.projectName,
+                Description: response.data.description,
+                OwnerID: user.id,
                 Categories: [],
                 isOwner: true,
                 progress: 0,
                 status: "In Progress",
             };
-
+    
             setActiveProjects([...activeProjects, newProject]);
             setNewProjectDetails({
                 project_name: "",
                 Description: "",
             });
             setIsAddProjectPopUpOpen(false);
-        }catch(error){
+        } catch(error) {
             console.error("Error creating project:", error);
-            //handle error (show notification, maybe toast)
         }
     };
 
@@ -468,9 +470,9 @@ const ProjectManagement = () => {
                                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
                                     <input
                                         type="text"
-                                        id="name"
-                                        name="name"
-                                        value={newProjectDetails.name}
+                                        id="project_name"
+                                        name="project_name"
+                                        value={newProjectDetails.project_name}
                                         onChange={handleInputChange}
                                         className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
                                         required
