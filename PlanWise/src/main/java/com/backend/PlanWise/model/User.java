@@ -1,32 +1,25 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "Users")
-public class User
-{
+@Table(name = "users")
+public class User {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "UserID") // Use exact database column name with same capitalization
     private String userId;
-
-    @Column(unique = true, nullable = false)
+    
+    @Column(name = "username")
     private String username;
-
-    @Column(unique = true, nullable = false)
+    
+    @Column(name = "email")
     private String email;
-
-    @Column(nullable = false)
-    private String passwordHash;
-
-    @Column
-    private LocalDateTime createdAt;
-
-    @Column
-    private LocalDateTime updatedAt;
+    
 
     @OneToMany(mappedBy = "owner")
     private Set<Project> ownedProjects = new HashSet<>();
@@ -36,14 +29,13 @@ public class User
 
     @ManyToMany(mappedBy = "members")
     private Set<Team> teams = new HashSet<>();
-
-    public String getUserId()
-    {
+    
+    // Getters and setters
+    public String getUserId() {
         return userId;
     }
-
-    public void setUserId(String userId)
-    {
+    
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -67,33 +59,5 @@ public class User
         this.email = email;
     }
 
-    public String getPasswordHash()
-    {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash)
-    {
-        this.passwordHash = passwordHash;
-    }
-
-    public LocalDateTime getCreatedAt()
-    {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt)
-    {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt()
-    {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt)
-    {
-        this.updatedAt = updatedAt;
-    }
+    
 }

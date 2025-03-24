@@ -17,6 +17,9 @@ public class ProjectServicer
     @Autowired
     private ProjectDataPool projectRepository;
 
+    @Autowired
+    private UserService userService;
+
     public List<ProjectDTO> getAllProjects()
     {
         return projectRepository.findAll().stream()
@@ -182,11 +185,19 @@ public class ProjectServicer
 
     public ProjectDTO createProject(ProjectDTO projectDTO)
     {
-        Project project = convertToEntity(projectDTO);
+        // Create or retrieve local user record from Clerk ID
+        User owner = userService.getOrCreateLocalUser(
+            projectDTO.getOwner().getUserId(),
+            projectDTO.getOwner().getEmail(),
+            projectDTO.getOwner().getUsername()
+        );
 
-        User owner = new User();
-        owner.setUserId(projectDTO.getOwner().getUserId());
+        // Now use the local user ID which exists in your database
+        Project project = new Project();
+        project.setProjectName(projectDTO.getProjectName());
+        project.setDescription(projectDTO.getDescription());
         project.setOwner(owner);
+        // other fields...
 
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);

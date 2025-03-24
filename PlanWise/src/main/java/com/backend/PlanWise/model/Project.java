@@ -20,7 +20,7 @@ public class Project {
     private String Description;
 
     @ManyToOne
-    @JoinColumn(name = "OwnerID", nullable = false)
+    @JoinColumn(name = "OwnerID")
     private User owner;
 
     @Column
