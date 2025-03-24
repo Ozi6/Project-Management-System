@@ -75,11 +75,80 @@ html {
 
 /*For themes */
 [data-theme="dark"] {
-  background-color: #1a202c;
+  background-color: #121212;
   color: white;
 
-  --bg-color: #000000;
+  --dashboard-bg: #1E1E1E; /* Dark gray background */
+
+  --scrollbar-drag-1: #2D3748; /* Darker gray */
+  --scrollbar-drag-2: #4A5568; /* Medium gray */
+
+  --scrollbar-hover-1: #718096; /* Lighter gray */
+  --scrollbar-hover-2: #A0AEC0; /* Even lighter gray */
+
+  --text-color2: #E5E5E5;
+  --text-color3: #A0AEC0;
+  --bg-color: #1A1A1A;
+  --bg-color2: #2A2A2A;
+  --bg-color3: #333333;
+  --alt-card-color: #252525;
+
+  --text: #bebebe;
+
+  --gray-card1: #2D2D2D;
+  --gray-card2: #3B3B3B;
+  --gray-card3: #4A4A4A;
+
+  /* Link Colors */
+  --link-text-color: #90CAF9;  
+  --link-hover-color: #64B5F6;
+  --icon-color: #42A5F5;
+
+  --homepage-card-color: #1F2937;
+  --homepage-text-bright: #4FC65F;
+
+  /* Feature Section */
+  --features-bg: #1E1E1E;
+  --features-border: #3A3A3A;
+  --features-hover-bg: #333333;
+  --features-title-color: #E0E0E0;
+  --features-text-color: #B0BEC5;
+  --features-icon-color: #BB86FC;
+  --features-icon-bg-color: #BB86FC33;
+  --features-section-color: #2A2A2A;
+
+  /* Sidebar */
+  --sidebar-dashboard-color: #BB86FC; /* Soft Purple */
+  --sidebar-projects-color: #64B5F6; /* Light Blue */
+  --sidebar-gantt-color: #FBC02D; /* Yellow */
+  --sidebar-gantt-color2: #FFD54F;
+  --sidebar-teams-color: #66BB6A; /* Green */
+
+  --sidebar-dashboard-bg-color: #1F1F1F;
+  --sidebar-projects-bg-color: #2A2D3A;
+  --sidebar-gantt-bg-color: #3B3B3B;
+  --sidebar-teams-bg-color: #23342E;
+
+  /* Project Background */
+  --projects-bg: #252525;
+
+  /* Login Page */
+  --loginpage-bg: #2A2A2A;
+  --loginpage-bg2: #1F1F1F;
+
+  --hover-color: #BB86FC;
+
+  /* Bug Report */
+  --bug-report: #CF6679;
+  --bug-report-bg: #3A1C1E;
+
+  body {
+    background-color: #121212;
+    color: #E5E5E5;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
 }
+
 
 
 
@@ -110,6 +179,7 @@ html {
     --gray-card2: #f5ccda; /* Soft pastel pink */
     --gray-card3: #F8BBD0; /* Muted pink */
   
+    --text: var(--bg-color);
   
     /*changes the color fo the link component*/
     --link-text-color: #880e4f;  
@@ -179,6 +249,8 @@ html {
   --gray-card1: #ffffff;
   --gray-card2: #F9FAFB;
   --gray-card3: #ebecec;
+
+  --text: var(--bg-color);
 
   /*changes the color fo the link component*/
   --link-text-color: #880e4f;  

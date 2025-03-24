@@ -37,7 +37,7 @@ const FAQPage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex-1 bg-white">
+      <div className="flex-1 bg-[var(--bg-color)]">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-20 pb-16 md:pt-32 md:pb-24">
           <div className="absolute top-0 left-0 w-full h-full bg-[var(--features-icon-color)] opacity-10 z-0"></div>
@@ -76,7 +76,7 @@ const FAQPage = () => {
                 viewport={{ once: true }}
               >
                 <button
-                  className="w-full flex justify-between items-center text-left text-lg font-semibold text-gray-900 focus:outline-none"
+                  className="w-full flex justify-between items-center text-left text-lg font-semibold text-[var(--features-title-color)] focus:outline-none"
                   onClick={() => toggleFAQ(index)}
                 >
                   {faq.question}

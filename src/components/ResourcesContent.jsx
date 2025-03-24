@@ -97,7 +97,7 @@ const ResourcesContent = ({ isOpen, setIsOpen }) => {
                                             className="p-4 rounded-lg transition-all duration-200"
                                             whileHover={{ 
                                                 scale: 1.02, 
-                                                backgroundColor: "var(--features-hover-bg)",
+                                                backgroundColor: "var(--features-icon-bg)",
                                                 transition: { duration: 0.3 }
                                             }}
                                             whileTap={{ scale: 0.98 }}

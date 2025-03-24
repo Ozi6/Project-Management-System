@@ -419,13 +419,13 @@ const ProjectCalendar = () => {
         </button>
 
         {/* Sidebar - hidden on mobile, shown on md+ screens */}
-        <div className="hidden md:block bg-white shadow-md z-5 border-r border-[var(--sidebar-gantt-color2)]">
+        <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5 border-r border-[var(--sidebar-gantt-color2)]">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
         {/* Mobile sidebar - full screen overlay when open */}
         {isMobileSidebarOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-white">
+          <div className="md:hidden fixed inset-0 z-40 bg-[var(--bg-color)]">
             <Sidebar 
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
@@ -650,28 +650,28 @@ const ProjectCalendar = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="bg-white p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
+              className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
-              <h3 className="text-sm font-semibold text-gray-600 mb-3">Legend</h3>
+              <h3 className="text-sm font-semibold text-[var(--features-title-color)]/60 mb-3">Legend</h3>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                  <span className="text-sm text-gray-600">Completed</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">Completed</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                  <span className="text-sm text-gray-600">In Progress</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">In Progress</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                  <span className="text-sm text-gray-600">At Risk</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">At Risk</span>
                 </div>
               </div>
             </motion.div>
           </div>
           
           {/* Footer */}
-          <div className="bg-white border-t border-[var(--sidebar-gantt-color)] py-3 px-6">
+          <div className="bg-[var(--bg-color)] border-t border-[var(--sidebar-gantt-color)] py-3 px-6">
             <div className="flex flex-row justify-between items-center text-xs text-[var(--sidebar-gantt-color)]">
               <div>
                 <span className='text-[var(--sidebar-gantt-color)]'>© 2025 PlanWise</span>

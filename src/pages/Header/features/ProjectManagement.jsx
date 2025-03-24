@@ -66,17 +66,18 @@ const ProjectManagement = () => {
       description="Plan, execute, and track your projects with powerful yet intuitive tools."
     >
       {/* Hero Section */}
-      <div className="bg-blue-50 rounded-3xl p-8 mb-16">
+      <div className="bg-gradient-to-r from-[var(--loginpage-bg)] to-[var(--loginpage-bg2)] rounded-3xl p-8 mb-16">
+
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 font-serif italic">Complete Control Over Your Projects</h2>
-            <p className="text-lg text-gray-700 mb-6">
+            <h2 className="text-3xl font-bold text-[var(--features-title-color)] mb-4 font-serif italic">Complete Control Over Your Projects</h2>
+            <p className="text-lg text-[var(--features-text-color)] mb-6">
               PlanWise gives you everything you need to manage projects effectively, from initial planning to final delivery.
               Our comprehensive suite of project management tools helps you stay on schedule and within budget.
             </p>
             <a 
               href="/signup" 
-              className="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center bg-[var(--features-icon-color)] text-white px-6 py-3 rounded-lg font-medium hover:bg-[var(--hover-color)] transition-colors"
             >
               Start managing projects
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -102,44 +103,44 @@ const ProjectManagement = () => {
         {features.map((feature, index) => (
           <motion.div 
             key={index}
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+            className="bg-[var(--bg-color)] p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
             variants={itemVariants}
           >
-            <feature.icon className="h-10 w-10 text-blue-600 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-            <p className="text-gray-600">{feature.description}</p>
+            <feature.icon className="h-10 w-10 text-[var(--features-icon-color)] mb-4" />
+            <h3 className="text-xl font-semibold text-[var(--features-icon-color)] mb-2">{feature.title}</h3>
+            <p className="text-[var(--features-title-color)]">{feature.description}</p>
           </motion.div>
         ))}
       </motion.div>
 
       {/* How It Works Section */}
-      <div className="bg-white rounded-2xl shadow-md p-8 mb-16">
-        <h2 className="text-3xl font-bold text-center mb-12 font-mono tracking-tight">How It Works</h2>
+      <div className="bg-[var(--bg-color)] rounded-2xl shadow-md p-8 mb-16">
+        <h2 className="text-3xl font-bold text-center mb-12 font-mono text-[var(--features-icon-color)] tracking-tight">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">1</span>
+            <div className="bg-[var(--loginpage-bg)] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-[var(--features-icon-color)]">1</span>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Set Up Your Project</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold text-[var(--features-text-color)] mb-2">Set Up Your Project</h3>
+            <p className="text-[var(--features-title-color)]">
               Define project goals, timelines, and team members with our easy-to-use project creation wizard.
             </p>
           </div>
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">2</span>
+            <div className="bg-[var(--loginpage-bg)] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-[var(--features-icon-color)]">2</span>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Assign & Monitor Tasks</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold text-[var(--features-text-color)] mb-2">Assign & Monitor Tasks</h3>
+            <p className="text-[var(--features-title-color)]">
               Break down projects into tasks, assign them to team members, and track progress in real-time.
             </p>
           </div>
           <div className="text-center">
-            <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl font-bold text-blue-600">3</span>
+            <div className="bg-[var(--loginpage-bg)] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl font-bold text-[var(--features-icon-color)]">3</span>
             </div>
-            <h3 className="text-xl font-semibold mb-2">Deliver Successfully</h3>
-            <p className="text-gray-600">
+            <h3 className="text-xl font-semibold text-[var(--features-text-color)] mb-2">Deliver Successfully</h3>
+            <p className="text-[var(--features-title-color)]">
               Use built-in analytics and reporting tools to ensure projects complete on time and within scope.
             </p>
           </div>
@@ -148,10 +149,10 @@ const ProjectManagement = () => {
 
       {/* CTA Section */}
       <div className="text-center">
-        <h2 className="text-3xl font-bold mb-6 font-sans uppercase tracking-wider">Ready to transform your project management?</h2>
+        <h2 className="text-3xl font-bold mb-6 font-sans uppercase text-[var(--features-icon-color)]/70 tracking-wider">Ready to transform your project management?</h2>
         <a 
           href="/signup" 
-          className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors text-lg"
+          className="inline-block bg-[var(--features-icon-color)] text-white px-8 py-4 rounded-lg font-semibold hover:bg-[var(--hover-color)] transition-colors text-lg"
         >
           Get Started Free
         </a>

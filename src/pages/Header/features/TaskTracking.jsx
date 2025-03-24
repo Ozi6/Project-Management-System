@@ -92,7 +92,7 @@ const TaskTracking = () => {
       </div>
 
       {/* Interactive Demo */}
-      <div className="bg-white rounded-2xl shadow-lg p-8 mb-16">
+      <div className="bg-[var(--bg-color)] rounded-2xl shadow-lg p-8 mb-16">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-[var(--features-title-color)] mb-8 text-center font-mono tracking-tight">
             See Task Tracking in Action
@@ -128,7 +128,7 @@ const TaskTracking = () => {
           {features.map((feature, index) => (
             <motion.div 
               key={index}
-              className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-t-4 border-[var(--features-icon-color)]"
+              className="p-6 bg-[var(--bg-color)] rounded-xl shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-t-4 border-[var(--features-icon-color)]"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
@@ -136,7 +136,7 @@ const TaskTracking = () => {
             >
               <feature.icon className="h-8 w-8 text-[var(--features-icon-color)] mb-4" />
               <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
+              <p className="text-[var(--features-text-color)]">{feature.description}</p>
             </motion.div>
           ))}
         </div>
@@ -176,11 +176,11 @@ const TaskTracking = () => {
                     <div className="font-medium text-[var(--features-icon-color)]">New Task</div>
                     <div className="text-[var(--features-icon-color)] text-sm">Save as template</div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded p-2 mb-2">
+                  <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
                     <div className="text-sm text-gray-500">Task name</div>
                     <div>Prepare client presentation</div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded p-2 mb-2">
+                  <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
                     <div className="text-sm text-gray-500">Assign to</div>
                     <div className="flex">
                       <div className="w-6 h-6 rounded-full bg-[var(--loginpage-bg2)] flex items-center justify-center mr-1">
@@ -190,11 +190,11 @@ const TaskTracking = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white border border-gray-200 rounded p-2">
+                    <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
                       <div className="text-sm text-gray-500">Due date</div>
                       <div>Mar 24, 2025</div>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded p-2">
+                    <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
                       <div className="text-sm text-gray-500">Priority</div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-500 mr-1"></div>
@@ -233,11 +233,11 @@ const TaskTracking = () => {
                     <div className="font-medium text-[var(--features-icon-color)]">New Task</div>
                     <div className="text-[var(--features-icon-color)] text-sm">Save as template</div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded p-2 mb-2">
+                  <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
                     <div className="text-sm text-gray-500">Task name</div>
                     <div>Prepare client presentation</div>
                   </div>
-                  <div className="bg-white border border-gray-200 rounded p-2 mb-2">
+                  <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
                     <div className="text-sm text-gray-500">Assign to</div>
                     <div className="flex">
                       <div className="w-6 h-6 rounded-full bg-[var(--loginpage-bg2)] flex items-center justify-center mr-1">
@@ -247,11 +247,11 @@ const TaskTracking = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white border border-gray-200 rounded p-2">
+                    <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
                       <div className="text-sm text-gray-500">Due date</div>
                       <div>Mar 24, 2025</div>
                     </div>
-                    <div className="bg-white border border-gray-200 rounded p-2">
+                    <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
                       <div className="text-sm text-gray-500">Priority</div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-500 mr-1"></div>

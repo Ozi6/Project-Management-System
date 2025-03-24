@@ -237,7 +237,7 @@ const Issues = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
                 <h3 className="text-[var(--features-text-color)] text-sm font-medium">Total Issues</h3>
                 <p className="text-2xl font-bold text-[var(--features-icon-color)]">{issues.length}</p>
@@ -247,7 +247,7 @@ const Issues = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
                 <h3 className="text-[var(--features-text-color)] text-sm font-medium">Open Issues</h3>
                 <p className="text-2xl font-bold text-red-600">
@@ -259,7 +259,7 @@ const Issues = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
                 <h3 className="text-[var(--features-text-color)] text-sm font-medium">In Progress</h3>
                 <p className="text-2xl font-bold text-amber-600">
@@ -271,7 +271,7 @@ const Issues = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
                 <h3 className="text-[var(--features-text-color)] text-sm font-medium">Resolved</h3>
                 <p className="text-2xl font-bold text-green-600">
@@ -288,7 +288,7 @@ const Issues = () => {
                 </div>
                 <input 
                   type="text" 
-                  className="bg-white border border-[var(--features-icon-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)] block w-full pl-10 p-2.5"
+                  className="bg-[var(--bg-color)] border border-[var(--features-icon-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)] block w-full pl-10 p-2.5"
                   placeholder="Search issues by title, description, or reporter"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -421,7 +421,7 @@ const Issues = () => {
                                 <MessageSquare className="h-4 w-4 text-[var(--features-icon-color)]" />
                               </button>
                               <div className="relative">
-                                <button className="p-1 rounded-full hover:bg-gray-100">
+                                <button className="p-1 rounded-full hover:bg-[var(--hover-color)]/50">
                                   <MoreHorizontal className="h-4 w-4 text-[var(--features-title-color)]" />
                                 </button>
                               </div>

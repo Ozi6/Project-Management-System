@@ -133,7 +133,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col h-screen bg-[var(--loginpage-bg)]">
       {/* Header with blue accent */}
-      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-[var(--loginpage-bg)]">
+      <div className="w-full bg-[var(--bg-color4)] shadow-sm z-10 border-b-2 border-[var(--loginpage-bg)]">
         <Header
           title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">Dashboard</span>}
           action={{
@@ -155,13 +155,13 @@ const Dashboard = () => {
         </button>
 
         {/* Sidebar - hidden on mobile, shown on md+ screens */}
-        <div className="hidden md:block bg-white shadow-md z-5 border-r border-[var(--loginpage-bg)]">
+        <div className="hidden md:block bg-[var(--bg-color4)] shadow-md z-5 border-r border-[var(--loginpage-bg)]">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
         {/* Mobile sidebar - full screen overlay when open */}
         {isMobileSidebarOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-white">
+          <div className="md:hidden fixed inset-0 z-40 bg-[var(--bg-color4)]">
             <Sidebar 
               activeTab={activeTab} 
               setActiveTab={setActiveTab} 
@@ -186,7 +186,7 @@ const Dashboard = () => {
                 Here's an overview of your projects and team's progress.
               </p>
               <div className="mt-4 flex flex-wrap gap-4">
-                <Link to="/projects" className="bg-white/20 hover:bg-white/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
+                <Link to="/projects" className="bg-[var(--bg-color4)]bg-[var(--bg-color4)]/20 hover:bg-[var(--bg-color4)]/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
                   View All Projects <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
                 
@@ -199,7 +199,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -222,7 +222,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -245,7 +245,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
-                className="bg-white p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
+                className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--loginpage-bg2)] w-80"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -282,7 +282,7 @@ const Dashboard = () => {
                 </div>
                 <div className="space-y-4">
                   {projects.slice(0, 4).map(project => (
-                    <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                    <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-[var(--features-icon-color)]/30 rounded-lg transition-colors">
                       <div className="flex flex-col sm:flex-row sm:items-center mb-2 sm:mb-0">
                         <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs mr-3">
                           {project.owner.charAt(0)}
@@ -316,7 +316,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+                className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-[var(--features-title-color)]">Recent Activity</h2>
@@ -362,7 +362,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+                className="[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-[var(--features-title-color)]">Upcoming Deadlines</h2>
@@ -376,10 +376,10 @@ const Dashboard = () => {
                 </div>
                 <div className="space-y-3">
                   {upcomingDeadlines.map(deadline => (
-                    <div key={deadline.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div key={deadline.id} className="flex items-center !bg-[var(--bg-color)] justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                       <div>
-                        <h3 className="font-medium text-gray-800">{deadline.task}</h3>
-                        <p className="text-xs text-gray-500">{deadline.project}</p>
+                        <h3 className="font-medium text-[var(--features-text-color)]">{deadline.task}</h3>
+                        <p className="text-xs text-[var(--features-title-color)]">{deadline.project}</p>
                       </div>
                       <div className="flex flex-col items-end">
                         <div className="flex items-center mb-1">
@@ -388,7 +388,7 @@ const Dashboard = () => {
                             {deadline.status}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-[var(--features-title-color)]">
                           {new Date(deadline.dueDate).toLocaleDateString()}
                         </span>
                       </div>
@@ -402,7 +402,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
-                className="bg-white p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+                className="bg-[var(--bg-color) p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-[var(--features-title-color)]">Recent Documents</h2>
@@ -417,15 +417,15 @@ const Dashboard = () => {
                     { id: 2, name: 'Design Assets.zip', updated: '5 days ago', size: '14.8 MB' },
                     { id: 3, name: 'Client Presentation.pptx', updated: '1 week ago', size: '5.1 MB' },
                   ].map(doc => (
-                    <div key={doc.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                    <div key={doc.id} className="flex items-center justify-between bg-[var(--bg-color)] p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
                       <div className="flex items-center">
                         <FileText className="h-5 w-5 text-[var(--features-icon-color)] mr-3" />
                         <div>
-                          <h3 className="font-medium text-gray-800">{doc.name}</h3>
-                          <p className="text-xs text-gray-500">Updated {doc.updated}</p>
+                          <h3 className="font-medium text-[var(--features-text-color)]">{doc.name}</h3>
+                          <p className="text-xs text-[var(--features-title-color)]">Updated {doc.updated}</p>
                         </div>
                       </div>
-                      <span className="text-xs text-gray-500">{doc.size}</span>
+                      <span className="text-xs text-[var(--features-title-color)]">{doc.size}</span>
                     </div>
                   ))}
                 </div>

@@ -75,7 +75,7 @@ const HeroSection = () => {
                   style={{color: "var(--homepage-text-bright)"}}
                 >Manage Projects 24/7</h3>
                 <p className=""
-                  style={{color: "var(--bg-color)"}}
+                  style={{color: "var(--text)"}}
                 >Stay on Track, Anytime</p>
               </div>
               <div>
@@ -83,7 +83,7 @@ const HeroSection = () => {
                   style={{color: "var(--homepage-text-bright)"}}
                 >100%</h3>
                 <p className=""
-                style={{color: "var(--bg-color)"}}
+                style={{color: "var(--text)"}}
                 >Secure</p>
               </div>
               <div>
@@ -91,7 +91,7 @@ const HeroSection = () => {
                   style={{color: "var(--homepage-text-bright)"}}
                 >Free</h3>
                 <p className="text-gray-300"
-                  style={{color: "var(--bg-color)"}}
+                  style={{color: "var(--text)"}}
                 >To Start</p>
               </div>
             </div>

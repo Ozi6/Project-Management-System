@@ -327,7 +327,7 @@ const TeamCollaboration = () => {
                   </div>
                 </div>
                 
-                <div className="h-32 bg-gray-50 rounded flex items-end justify-between px-2">
+                <div className="h-32 bg-[var(--gray-card3)]/20 rounded flex items-end justify-between px-2">
                   {[35, 45, 30, 60, 75, 50, 40].map((height, i) => (
                     <div key={i} className="w-8 bg-[var(--features-icon-color)] rounded-t" style={{height: `${height}%`}}></div>
                   ))}

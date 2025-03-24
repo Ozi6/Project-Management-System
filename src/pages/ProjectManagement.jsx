@@ -233,7 +233,7 @@ const ProjectManagement = () => {
     
     return(
         <div className="flex flex-col h-screen bg-[var(--sidebar-projects-bg-color)]">
-            <div className="w-full bg-white shadow-sm z-10 border-b-2 border-[var(--sidebar-projects-bg-color)]">
+            <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-[var(--sidebar-projects-bg-color)]">
                 <Header
                     title={<span className="text-xl font-semibold text-[var(--sidebar-projects-color)]">Projects</span>}
                     action={{
@@ -261,12 +261,12 @@ const ProjectManagement = () => {
                     <Plus size={24} />
                 </button>
 
-                <div className="hidden md:block bg-white shadow-md z-5 border-r border-[var(--sidebar-projects-bg-color)]">
+                <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5 border-r border-[var(--sidebar-projects-bg-color)]">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
                 </div>
                 
                 {isMobileSidebarOpen && (
-                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                    <div className="md:hidden fixed inset-0 z-40 bg-[var(--bg-color)]">
                         <Sidebar 
                             activeTab={activeTab} 
                             setActiveTab={setActiveTab} 
@@ -281,7 +281,7 @@ const ProjectManagement = () => {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="bg-white p-4 rounded-xl shadow-lg border-2 border-[var(--sidebar-projects-color)] hover:shadow-xl transition-all duration-300"
+                            className="bg-[var(--bg-color)] p-4 rounded-xl shadow-lg border-2 border-[var(--sidebar-projects-color)] hover:shadow-xl transition-all duration-300"
                             onClick={openPopUp}
                         >
                             <div className="flex items-center justify-between">
@@ -308,7 +308,7 @@ const ProjectManagement = () => {
                                 </div>
                                 <input 
                                     type="text" 
-                                    className="bg-white border border-[var(--sidebar-projects-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2.5"
+                                    className="bg-[var(--bg-color)] border border-[var(--sidebar-projects-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2.5"
                                     placeholder="Search projects or team members"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
