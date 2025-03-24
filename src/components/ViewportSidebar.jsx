@@ -87,8 +87,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                 ${isOpen ? 'w-64' : 'w-16'}`}>
                 <div className="sidebar-content flex flex-col h-full">
                     <Link to="/" className="p-4 flex items-center space-x-2 no-underline hover:bg-gray-50 transition-colors duration-200">
-                        <Layout className="h-8 w-8 text-blue-600" />
-                        {isOpen && <h1 className="text-2xl font-bold text-blue-600">PlanWise</h1>}
+                        <Layout className="h-8 w-8 text-[var(--features-icon-color)]" />
+                        {isOpen && <h1 className="text-2xl font-bold text-[var(--features-icon-color)]">PlanWise</h1>}
                     </Link>
 
                     <nav className="mt-4">
@@ -110,7 +110,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                                         ${isActive
                                             ? `${item.color} ${item.iconColor}` 
                                             : isItemDashboard 
-                                                ? "text-blue-600" 
+                                                ? "text-[var(--features-icon-color)]" 
                                                 : "text-gray-600"} 
                                         hover:${hoverBgColor} hover:${colorClass}
                                         hover:scale-105 hover:shadow-md hover:border hover:border-${item.iconColor.split('-')[1]}-200`}
@@ -119,7 +119,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
                                         isActive
                                             ? item.iconColor 
                                             : isItemDashboard 
-                                                ? 'text-blue-600'
+                                                ? 'text-[var(--features-icon-color)]'
                                                 : ''
                                     }`} />
                                     {isOpen && <span className={`text-base font-medium`}>{item.label}</span>}

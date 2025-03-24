@@ -62,7 +62,7 @@ const IconSelectionModal = ({ onSelectIcon, onClose }) => {
             {/* Button to open menu */}
             <button
               onClick={toggleMenu}
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="bg-[var(--features-icon-color)] text-white px-4 py-2 rounded"
             >
               Choose Icon
             </button>

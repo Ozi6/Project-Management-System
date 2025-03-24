@@ -58,8 +58,8 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       icon: Layout, 
       label: 'Dashboard', 
       path: '/dashboard',
-      color: 'bg-blue-100 text-blue-600',  
-      iconColor: 'text-blue-600',     
+      color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',
+      iconColor: 'text-[var(--sidebar-dashboard-color)]',     
       defaultColor : true
     },
     { 
@@ -67,16 +67,16 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       icon: KanbanSquare, 
       label: 'Projects', 
       path: '/projects',
-      color: 'bg-purple-100 text-purple-600',
-      iconColor: 'text-purple-600'
+      color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
+      iconColor: 'text-[var(--sidebar-projects-color)]'
     },
     { 
       id: 'calendar', 
       icon: Calendar, 
       label: 'Gantt Chart', 
       path: '/calendar',
-      color: 'bg-yellow-100 text-yellow-600',
-      iconColor: 'text-amber-600'
+      color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
+      iconColor: 'text-[var(--sidebar-gantt-color)]'
     }
   ];
 
@@ -140,7 +140,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       {/* Mobile close button */}
       {isMobile && (
         <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-blue-600">Menu</h2>
+          <h2 className="text-lg font-bold text-[var(--features-icon-color)]">Menu</h2>
           <button 
             onClick={closeMobileMenu}
             className="p-1 hover:bg-gray-200 rounded-full"
@@ -152,7 +152,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       )}
       
       {/* User section */}
-      <div className={`p-4 border-b border-gray-200 ${isMobile ? 'flex items-center' : isOpen ? 'flex items-center' : 'flex items-center justify-center'}`}>
+      <div className={`p-4 border-b border-gray-200 bg-[var(--bg-color)] ${isMobile ? 'flex items-center' : isOpen ? 'flex items-center' : 'flex items-center justify-center'}`}>
         <SignedIn>
           <div className={`flex items-center ${isMobile ? 'w-full' : isOpen ? 'w-full' : 'justify-center'}`}>
             <div className="flex-shrink-0">
@@ -201,7 +201,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
                   ${activeTab === item.id 
                     ? `${item.color} ${item.iconColor}` 
                     : isItemDashboard 
-                      ? "text-blue-600" 
+                      ? "text-[var(--sidebar-dashboard-color)]" 
                       : "text-gray-600"} 
                   hover:${hoverBgColor} hover:text-${item.iconColor?.split('-')[1] || 'blue'}-600
                   hover:scale-105 hover:shadow-md hover:border hover:border-${item.iconColor?.split('-')[1] || 'blue'}-200`}
@@ -210,7 +210,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
                   activeTab === item.id 
                     ? item.iconColor 
                     : isItemDashboard 
-                      ? 'text-blue-600'
+                      ? 'text-[var(--homapage-card-color)]'
                       : ''
                 }`} />
                 <span className={`ml-3 text-base font-medium ${!isOpen && !isMobile ? 'hidden' : ''}`}>{item.label}</span>
@@ -247,7 +247,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
                     key={item.id}
                     to={item.path}
                     onClick={isMobile && closeMobileMenu ? closeMobileMenu : undefined} 
-                    className={`flex items-center py-2 px-3 text-sm rounded-md transition-colors
+                    className={`flex items-center py-2 px-3 text-sm text-[var(--text-color3)] rounded-md transition-colors
                       ${activeTab === item.id ? item.color : ''}
                       hover:bg-${item.iconColor.split('-')[1]}-100`}
                   >
@@ -265,7 +265,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       {!isMobile && (
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-blue-700 hover:scale-110 transition-all duration-200"
+          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-[var(--features-icon-color)] rounded-full flex items-center justify-center cursor-pointer shadow-md hover:scale-110 transition-all duration-200"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

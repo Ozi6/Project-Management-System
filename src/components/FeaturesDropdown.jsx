@@ -6,12 +6,12 @@ const FeaturesDropdown = ({ isOpen, onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="flex items-center text-lg text-gray-600 hover:text-blue-600 transition-colors duration-200 relative group"
+            className="flex items-center text-lg text-gray-600 hover:text-[var(--features-icon-color)] transition-colors duration-200 relative group"
         >
             <span className="relative">
                 Features
                 <motion.span 
-                    className="absolute bottom-0 left-0 h-0.5 bg-blue-600"
+                    className="absolute bottom-0 left-0 h-0.5 bg-[var(--features-icon-color)]"
                     initial={{ width: 0 }}
                     animate={{ 
                         width: isOpen ? '100%' : 0,

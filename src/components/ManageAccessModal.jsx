@@ -31,24 +31,24 @@ const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose })
                 damping: 15,
               }}
             >
-              <div className="bg-blue-500 p-4 shadow-md">
+              <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
                 <h3 className="text-xl font-bold text-white text-center">
                   {member.name}'s Access
                 </h3>
               </div>
-              <div className="p-6 flex flex-col gap-4">
+              <div className="p-6 flex flex-col bg-[var(--gray-card2)] gap-4">
                 <ul className="space-y-4">
                   {accessOptions.map((option) => (
                     <li
                       key={option}
                       className="flex justify-between items-center"
                     >
-                      <span className="text-gray-700">{option}</span>
+                      <span className="text-[var(--features-title-color)]">{option}</span>
                       <div
                         className={`w-14 h-7 flex items-center rounded-full p-1 cursor-pointer ${
                           permissions[member.email]?.[option]
                             ? "bg-green-500"
-                            : "bg-red-500"
+                            : "bg-[var(--bug-report)]"
                         }`}
                         onClick={() => onTogglePermission(member.email, option)}
                       >
@@ -62,7 +62,7 @@ const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose })
                           {permissions[member.email]?.[option] ? (
                             <Check className="w-4 h-4 text-green-500" />
                           ) : (
-                            <X className="w-4 h-4 text-red-500" />
+                            <X className="w-4 h-4 text-[var(--bug-report)]" />
                           )}
                         </motion.div>
                       </div>
@@ -70,7 +70,7 @@ const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose })
                   ))}
                 </ul>
                 <button
-                  className="mt-4 bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-all duration-200 hover:scale-105 w-full"
+                  className="mt-4 bg-[var(--bug-report)]/80 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-full"
                   onClick={onClose}
                 >
                   Close

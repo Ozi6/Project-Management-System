@@ -136,7 +136,11 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
                         initial="hidden"
                         animate="show"
                         exit="exit"
-                        className="w-full bg-white border-b border-gray-200 shadow-lg relative z-40"
+                        className="w-full border-b shadow-lg relative z-40"
+                        style={{
+                            backgroundColor: "var(--features-bg)",
+                            borderColor: "var(--features-border)",
+                          }}
                     >
                         <div className="max-w-7xl mx-auto px-4 py-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -151,16 +155,23 @@ const FeaturesContent = ({ isOpen, setIsOpen }) => {
                                             className="feature-item p-6 rounded-lg transition-all duration-200"
                                             whileHover={{ 
                                                 scale: 1.03, 
-                                                backgroundColor: "rgb(249 250 251)",
+                                                backgroundColor: "var(--features-hover-bg)",
                                                 transition: { duration: 0.2 }
                                             }}
                                             whileTap={{ scale: 0.97 }}
                                         >
-                                            <feature.icon className="h-8 w-8 text-blue-600 mb-4" />
-                                            <h3 className="text-lg font-semibold text-gray-900">
+                                            <feature.icon 
+                                                className="h-8 w-8 mb-4" 
+                                                style={{color: "var(--features-icon-color)"}}
+                                            />
+                                            <h3 className="text-lg font-semibold "
+                                                style={{color: "var(--features-title-color)"}}
+                                            >
                                                 {feature.title}
                                             </h3>
-                                            <p className="text-gray-600 mt-1">
+                                            <p className="mt-1"
+                                                style={{color: "var(--features-text-color)"}}
+                                            >
                                                 {feature.description}
                                             </p>
                                         </motion.div>

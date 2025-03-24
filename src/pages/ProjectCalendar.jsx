@@ -397,9 +397,9 @@ const ProjectCalendar = () => {
   return (
     <div className="flex flex-col h-screen bg-amber-50">
       {/* Header */}
-      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-amber-100">
+      <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-[var(--sidebar-gantt-color2)]">
         <Header
-          title={<span className="text-xl font-semibold text-amber-800">Project Timeline</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">Project Timeline</span>}
           action={{
             onClick: handleNewEvent,
             icon: <Plus className="mr-2 h-4 w-4" />,
@@ -412,14 +412,14 @@ const ProjectCalendar = () => {
         {/* Mobile menu toggle button */}
         <button 
           onClick={toggleMobileSidebar}
-          className="md:hidden fixed bottom-4 right-4 z-50 bg-amber-600 text-white p-3 rounded-full shadow-lg hover:bg-amber-700 transition-colors"
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-[var(--sidebar-gantt-color)] text-white p-3 rounded-full shadow-lg hover:bg-[var(--sidebar-gantt-color2)] transition-colors"
           aria-label="Toggle menu"
         >
           <Menu size={24} />
         </button>
 
         {/* Sidebar - hidden on mobile, shown on md+ screens */}
-        <div className="hidden md:block bg-white shadow-md z-5 border-r border-amber-100">
+        <div className="hidden md:block bg-white shadow-md z-5 border-r border-[var(--sidebar-gantt-color2)]">
           <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
         
@@ -436,20 +436,20 @@ const ProjectCalendar = () => {
         )}
         
         {/* Main content */}
-        <div className="flex-1 overflow-auto bg-amber-50 flex flex-col">
+        <div className="flex-1 overflow-auto bg-[var(--sidebar-gantt-bg-color)] flex flex-col">
           <div className="p-6 space-y-6 flex-grow">
             {/* Control header - simplified without view toggle */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-white p-4 rounded-xl shadow-sm border border-amber-200"
+              className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
               <div className="flex items-center space-x-2">
-                <h2 className="text-xl font-semibold text-amber-800">
+                <h2 className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">
                   Project Timeline
                 </h2>
-                <div className="bg-amber-100 text-amber-800 text-xs px-2 py-1 rounded-full">
+                <div className="bg-[var(--sidebar-gantt-color2)] text-white text-xs px-2 py-1 rounded-full">
                   {projects.length} Projects
                 </div>
               </div>
@@ -460,16 +460,16 @@ const ProjectCalendar = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="bg-white p-4 rounded-xl shadow-sm border border-amber-200"
+              className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
-              <h3 className="text-sm font-semibold text-gray-600 mb-3">Filter by Project</h3>
+              <h3 className="text-sm font-semibold text-[var(--features-title-color)] mb-3">Filter by Project</h3>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedProject(null)}
                   className={`px-3 py-1 rounded-full text-sm transition-colors ${
                     selectedProject === null 
-                      ? 'bg-amber-100 text-amber-800 font-medium' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-[var(--sidebar-gantt-color2)] text-[var(--sidebar-gantt-color)] font-medium' 
+                      : 'bg-gray-100 text-[var(--gray-card1)] hover:bg-gray-200'
                   }`}
                 >
                   All Projects
@@ -480,7 +480,7 @@ const ProjectCalendar = () => {
                     onClick={() => setSelectedProject(project.id === selectedProject ? null : project.id)}
                     className={`px-3 py-1 rounded-full text-sm transition-colors ${
                       project.id === selectedProject 
-                        ? 'bg-amber-100 text-amber-800 font-medium' 
+                        ? 'bg-[var(--sidebar-gantt-color2)] text-[var(--sidebar-gantt-color)] font-medium' 
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                     style={project.id === selectedProject ? {
@@ -499,10 +499,10 @@ const ProjectCalendar = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="bg-white rounded-xl shadow-sm border border-amber-200 overflow-hidden"
+              className="bg-[var(--bg-color)] rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)] overflow-hidden"
             >
               {/* Mobile instruction for horizontal scrolling */}
-              <div className="md:hidden p-3 bg-amber-50 border-b border-amber-200 text-amber-800 text-xs flex items-center justify-center">
+              <div className="md:hidden p-3 bg-[var(--sidebar-gantt-color2)] border-b border-[var(--sidebar-gantt-color2)] text-amber-800 text-xs flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="mr-1" viewBox="0 0 16 16">
                   <path d="M12.5 4a.5.5 0 0 0-1 0v3.248L5.233 3.612C4.693 3.3 4 3.678 4 4.308v7.384c0 .63.692 1.01 1.233.696L11.5 8.753V12a.5.5 0 0 0 1 0V4z"/>
                 </svg>
@@ -513,20 +513,20 @@ const ProjectCalendar = () => {
                 <div className="min-w-max">
                   {/* Gantt header - dates */}
                   <div className="flex">
-                    <div className="w-48 shrink-0 p-3 border-r border-gray-200 bg-gray-50 font-semibold text-gray-700">
+                    <div className="w-48 shrink-0 p-3 border-r border-[var(--gray-card2)] bg-[var(--gray-card1)] font-semibold text-[var(--features-title-color)]">
                       Tasks
                     </div>
                     <div className="flex-1 grid" style={{ gridTemplateColumns: `repeat(${getColumnHeaders().length}, minmax(40px, 1fr))` }}>
                       {getColumnHeaders().map((date, index) => (
                         <div 
                           key={index} 
-                          className={`p-2 text-center text-xs font-medium border-r border-gray-100 ${
-                            isToday(date) ? 'bg-amber-50 text-amber-700' : 
-                            date.getDay() === 0 || date.getDay() === 6 ? 'bg-gray-50' : ''
+                          className={`p-2 text-center text-[var(--features-title-color)] text-xs font-medium border-r border-[var(--gray-card2)] ${
+                            isToday(date) ? 'bg-[var(--sidebar-gantt-color2)] text-[var(--sidebar-gantt-color)]' : 
+                            date.getDay() === 0 || date.getDay() === 6 ? 'bg-[var(--gray-card1)]' : ''
                           }`}
                         >
                           <div className={`${isToday(date) ? 'font-bold' : ''}`}>{formatDate(date)}</div>
-                          <div className="text-[10px] text-gray-500">
+                          <div className="text-[10px] text-[var(--features-text-color)]">
                             {date.toLocaleDateString('en-US', { weekday: 'short' })}
                           </div>
                         </div>
@@ -541,16 +541,16 @@ const ProjectCalendar = () => {
                       .map(project => (
                         <div key={project.id}>
                           {/* Project row */}
-                          <div className="flex border-t border-gray-200 bg-gray-50">
-                            <div className="w-48 shrink-0 p-3 border-r border-gray-200">
+                          <div className="flex border-t border-[var(--gray-card2)] bg-[var(--gray-color)]">
+                            <div className="w-48 shrink-0 p-3 border-r border-[var(--gray-card2)]">
                               <div className="flex items-center">
                                 <div
                                   className="w-3 h-3 rounded-sm mr-2"
                                   style={{ backgroundColor: getProjectColor(project) }}
                                 ></div>
-                                <h3 className="font-semibold text-gray-800 truncate">{project.name}</h3>
+                                <h3 className="font-semibold text-[var(--features-title-color)] truncate">{project.name}</h3>
                               </div>
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-[var(--text-color3)] mt-1">
                                 {parseDate(project.startDate).toLocaleDateString()} - {parseDate(project.endDate).toLocaleDateString()}
                               </div>
                             </div>
@@ -577,14 +577,14 @@ const ProjectCalendar = () => {
                           
                           {/* Task rows */}
                           {project.tasks.map(task => (
-                            <div key={task.id} className="flex border-t border-gray-100 hover:bg-gray-50">
-                              <div className="w-48 shrink-0 pl-6 pr-3 py-2 border-r border-gray-200 flex items-center">
+                            <div key={task.id} className="flex border-t text-[var(--features-title-color)] border-gray-100 hover:bg-[var(--gray-card1)]">
+                              <div className="w-48 shrink-0 pl-6 pr-3 py-2 border-r border-[var(--gray-card2)] flex items-center">
                                 <div 
                                   className={`w-2 h-2 rounded-full mr-2 ${getStatusColor(task.status)}`}
                                 ></div>
                                 <div className="truncate">
                                   <div className="text-sm">{task.name}</div>
-                                  <div className="text-xs text-gray-500 flex items-center mt-0.5">
+                                  <div className="text-xs text-[var(--features-text-color)] flex items-center mt-0.5">
                                     {getStatusIcon(task.status)}
                                     <span className="ml-1">{task.status} • {task.progress}%</span>
                                   </div>
@@ -650,7 +650,7 @@ const ProjectCalendar = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.5 }}
-              className="bg-white p-4 rounded-xl shadow-sm border border-amber-200"
+              className="bg-white p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
               <h3 className="text-sm font-semibold text-gray-600 mb-3">Legend</h3>
               <div className="flex flex-wrap gap-4">
@@ -671,15 +671,15 @@ const ProjectCalendar = () => {
           </div>
           
           {/* Footer */}
-          <div className="bg-white border-t border-amber-100 py-3 px-6">
-            <div className="flex flex-row justify-between items-center text-xs text-amber-600">
+          <div className="bg-white border-t border-[var(--sidebar-gantt-color)] py-3 px-6">
+            <div className="flex flex-row justify-between items-center text-xs text-[var(--sidebar-gantt-color)]">
               <div>
-                <span>© 2025 PlanWise</span>
-                <span className="hidden sm:inline"> • All rights reserved</span>
+                <span className='text-[var(--sidebar-gantt-color)]'>© 2025 PlanWise</span>
+                <span className="hidden sm:inline text-[var(--sidebar-gantt-color)]"> • All rights reserved</span>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="flex items-center">
-                  <GanttChartSquare className="h-3 w-3 mr-1" />
+                  <GanttChartSquare className="h-3 w-3 mr-1 text-[var(--sidebar-gantt-color)]" />
                   Project Timeline
                 </span>
               </div>

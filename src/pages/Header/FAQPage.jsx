@@ -40,11 +40,11 @@ const FAQPage = () => {
       <div className="flex-1 bg-white">
         {/* Hero Section */}
         <section className="relative overflow-hidden pt-20 pb-16 md:pt-32 md:pb-24">
-          <div className="absolute top-0 left-0 w-full h-full bg-blue-50 opacity-50 z-0"></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-[var(--features-icon-color)] opacity-10 z-0"></div>
           <div className="container mx-auto px-4 relative z-10">
             <div className="max-w-3xl mx-auto text-center">
               <motion.h1
-                className="text-4xl md:text-5xl font-bold mb-6 text-gray-900"
+                className="text-4xl md:text-5xl font-bold mb-6 text-[var(--features-text-color)]"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -52,7 +52,7 @@ const FAQPage = () => {
                 Frequently Asked Questions
               </motion.h1>
               <motion.p
-                className="text-xl text-gray-700 mb-8"
+                className="text-xl text-[var(--features-text-color)] mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -80,10 +80,10 @@ const FAQPage = () => {
                   onClick={() => toggleFAQ(index)}
                 >
                   {faq.question}
-                  {openIndex === index ? <Minus className="w-5 h-5 text-gray-600" /> : <Plus className="w-5 h-5 text-gray-600" />}
+                  {openIndex === index ? <Minus className="w-5 h-5 text-[var(--features-icon-color)]" /> : <Plus className="w-5 h-5 text-[var(--features-icon-color)]" />}
                 </button>
                 <motion.p
-                  className={`text-gray-700 mt-2 ${openIndex === index ? "block" : "hidden"}`}
+                  className={`text-[var(--text-color3)] mt-2 ${openIndex === index ? "block" : "hidden"}`}
                   initial={{ opacity: 0, height: 0 }}
                   animate={openIndex === index ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}

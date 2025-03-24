@@ -8,6 +8,7 @@ import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
+import ThemeSwitcher from '../ThemeSwitcher';
 
 const Header = ({ title, action, rightContent }) => {
     const location = useLocation();
@@ -82,13 +83,15 @@ const Header = ({ title, action, rightContent }) => {
                     isOpen={activeDropdown === 'resources'}
                     onClick={() => handleDropdownToggle('resources')}
                 />
+
+                
                 
                 
                 {/* Admin-only Issues/Tickets link with enhanced visibility */}
                 {isAdmin && (
                     <Link 
                         to="/admin/issues" 
-                        className="text-sm lg:text-base text-orange-600 hover:text-orange-700 transition-colors duration-200 flex items-center"
+                        className="text-sm lg:text-base text-[var(--icon-color)] hover:text-[var(--features-icon-color)] transition-colors duration-200 flex items-center"
                     >
                         <AlertCircle className="mr-1 h-3 w-3" />
                         Issues
@@ -97,6 +100,9 @@ const Header = ({ title, action, rightContent }) => {
             </div>
             <nav className="flex items-center gap-2 lg:gap-4">
                 {/* Admin badge - UPDATED FOR LARGER SIZE */}
+
+                <ThemeSwitcher/>
+
                 {isAdmin && (
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
                         <ShieldAlert className="h-4 w-4 mr-2" />
@@ -104,17 +110,20 @@ const Header = ({ title, action, rightContent }) => {
                     </div>
                 )}
                 
+                
+
                 <SignedOut>
                     <div className="flex items-center gap-2 lg:gap-3">
                         <button 
-                            className="text-sm lg:text-base text-gray-600 hover:text-blue-600 transition-colors duration-200"
+                            className="text-sm lg:text-base text-gray-600 hover:text-[var(--features-icon-color)] transition-colors duration-200"
                             onClick={handleLoginRedirect}
                         >
                             Log In
                         </button>
                         <Link 
                             to="/signup"
-                            className="bg-blue-600 hover:bg-blue-700 text-white text-sm lg:text-base px-3 py-1.5 rounded-lg transition-colors duration-200 font-medium"
+                            className="hover:bg-[var(--features-icon-color)] text-white text-sm lg:text-base px-3 py-1.5 rounded-lg transition-colors duration-200 font-medium"
+                            style={{backgroundColor: "var(--features-icon-color)"}}
                         >
                             Sign Up
                         </Link>
@@ -140,8 +149,8 @@ const Header = ({ title, action, rightContent }) => {
     // Desktop title and action for non-landing pages
     const renderDesktopTitleAction = () => (
         <div className="hidden md:flex flex-1 justify-between items-center">
-            <div className="flex items-center">
-                <h2 className="text-lg lg:text-2xl font-semibold text-gray-900 hover:text-gray-700 transition duration-200">
+            <div className="flex items-center text-[var(--features-icon-color)]">
+                <h2 className="text-lg lg:text-2xl text-[var(--features-icon-color)] font-semibold hover:text-gray-700 transition duration-200">
                     {title}
                 </h2>
                 
@@ -153,8 +162,10 @@ const Header = ({ title, action, rightContent }) => {
                     </div>
                 )}
             </div>
+
             
             <div className="flex items-center gap-4">
+            <ThemeSwitcher/>
                 {rightContent}
                 {/* Show action button on /projects or /bugs pages */}
                 {action && (location.pathname === '/projects' || location.pathname === '/bugs') && (
@@ -163,13 +174,15 @@ const Header = ({ title, action, rightContent }) => {
                         className={`${
                             location.pathname === '/bugs' || location.pathname.includes('/incidents')
                                 ? 'bg-rose-600 hover:bg-rose-700'
-                                : 'bg-blue-600 hover:bg-blue-800'
-                        } text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm`}
+                                : 'bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)]'
+                        } !text-white px-3 py-1.5 lg:px-5 lg:py-2 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md font-bold text-xs lg:text-sm`}
                     >
                         {action.icon}
                         {action.label}
                     </button>
                 )}
+
+                
             </div>
         </div>
     );
@@ -266,7 +279,7 @@ const Header = ({ title, action, rightContent }) => {
                                 
                                 <Link 
                                     to="/signup" 
-                                    className="w-full text-center bg-blue-600 text-white py-3 rounded-lg text-lg font-medium"
+                                    className="w-full text-center bg-[var(--features-icon-color)] text-white py-3 rounded-lg text-lg font-medium"
                                 >
                                     Start Free
                                 </Link>
@@ -275,7 +288,7 @@ const Header = ({ title, action, rightContent }) => {
                     ) : (
                         // Non-landing page mobile menu
                         <>
-                            <h2 className="text-2xl font-semibold text-gray-900 py-2 border-b border-gray-200">
+                            <h2 className="text-2xl text-[var(--features-icon-color)] font-semibold text-gray-900 py-2 border-b border-gray-200">
                                 {title}
                             </h2>
                             
@@ -326,7 +339,7 @@ const Header = ({ title, action, rightContent }) => {
                                 
                                 <Link 
                                     to="/signup" 
-                                    className="w-full text-center bg-blue-600 text-white py-3 rounded-lg text-lg font-medium"
+                                    className="w-full text-center bg-[var(--features-icon-color)] text-white py-3 rounded-lg text-lg font-medium"
                                 >
                                     Start Free
                                 </Link>
@@ -338,7 +351,7 @@ const Header = ({ title, action, rightContent }) => {
                                         action.onClick();
                                         setIsMobileMenuOpen(false);
                                     }}
-                                    className="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg flex items-center justify-center font-bold"
+                                    className="w-full mt-4 bg-[var(--features-icon-color)] text-white py-3 rounded-lg flex items-center justify-center font-bold"
                                 >
                                     {action.icon}
                                     {action.label}
@@ -353,16 +366,22 @@ const Header = ({ title, action, rightContent }) => {
 
     return (
         <div className="relative">
-            <header className="px-3 md:px-5 py-1.5 flex items-center w-full box-border h-14 bg-white/95 shadow-sm backdrop-blur-sm sticky top-0 z-[1000]">
-                <Link to="/" className="flex items-center mr-3 md:mr-6">
-                    <img 
-                        src={logo} 
-                        alt="PlanWise Logo" 
-                        className="h-[26px] md:h-[32px] w-auto object-contain" 
-                    />
-                </Link>
-                {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
-                {renderMobileMenuButton()}
+            <header className="px-3 md:px-5 py-1.5 flex items-center w-full box-border h-14 bg-[var(--bg-color)]/95 shadow-sm backdrop-blur-sm sticky top-0 z-[1000]">
+               
+                <div className="flex  rounded-lg px-1 h-full bg-white mr-4">
+                    <Link to="/" className="flex items-center ">
+                        <img 
+                            src={logo} 
+                            alt="PlanWise Logo" 
+                            className="h-[26px] md:h-[32px] w-auto object-contain" 
+                        />
+                    </Link>
+                    
+
+                 </div>
+               
+                 {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
+                 {renderMobileMenuButton()}
             </header>
             
             {/* Mobile menu */}

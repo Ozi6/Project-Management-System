@@ -41,7 +41,7 @@ body {
 
 /* Handle (Draggable part) */
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #4299e1, #667eea); /* Beautiful blue gradient */
+  background: linear-gradient(135deg, var(--scrollbar-drag-1), var(--scrollbar-drag-2)); /* Beautiful blue gradient */
   border-radius: 8px;
   min-height: 40px;
   border: 2px solid transparent;
@@ -52,7 +52,7 @@ body {
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #3182ce, #5a67d8); /* Slightly darker gradient on hover */
+  background: linear-gradient(135deg, var(--scrollbar-hover-1), var(--scrollbar-hover-2)); /* Slightly darker gradient on hover */
   box-shadow: 0 2px 8px rgba(90, 103, 216, 0.4); /* Enhanced glow effect */
 }
 
@@ -72,5 +72,156 @@ html {
 }
 
 /* Add JavaScript to hide scrollbar after inactivity */
+
+/*For themes */
+[data-theme="dark"] {
+  background-color: #1a202c;
+  color: white;
+
+  --bg-color: #000000;
+}
+
+
+
+[data-theme="pink"] {
+  background-color: #ffccd5;
+  color: black;
+  button {
+    background-color: none;
+    color: #880e4f;
+    cursor: pointer;
+  }
+    --dashboard-bg: #FEEBF6;
+  
+    --scrollbar-drag-1: #f48fb1;  /* Light pink */
+    --scrollbar-drag-2: #f06292;  /* Medium pink */
+
+    --scrollbar-hover-1: #ec407a;  /* Darker pink for hover */
+    --scrollbar-hover-2: #d81b60;  /* Strong pink for hover */
+
+    --text-color2: #f5ccd9;
+    --text-color3: #ad1457;
+    --bg-color: #ffffff;
+    --bg-color2: rgb(252, 182, 205);
+    --bg-color3: rgb(252, 171, 198);
+    --alt-card-color:#983154;
+
+    --gray-card1: #FFF0F6; /* Lightest pink */
+    --gray-card2: #f5ccda; /* Soft pastel pink */
+    --gray-card3: #F8BBD0; /* Muted pink */
+  
+  
+    /*changes the color fo the link component*/
+    --link-text-color: #880e4f;  
+    --link-hover-color: #7d295e; 
+    --icon-color: #a16e77; 
+
+    --homepage-card-color: #660639;
+    --homepage-text-bright: #7300ff;
+
+    --features-bg: #fce4ec;
+    --features-border: #f8bbd0;
+    --features-hover-bg: #f48fb1;
+    --features-title-color: #400e29;
+    --features-text-color: #ad1457;
+    --features-icon-color: #d81b60;
+    --features-icon-bg-color:#2c071433;
+    --features-section-color: #f8bbd0;
+
+    --sidebar-dashboard-color: var(--features-icon-color); /* Deep Pink */
+    --sidebar-projects-color: #C2185B; /* Dark Pink */
+    --sidebar-gantt-color: #D81B60; /* Bright Pink */
+    --sidebar-gantt-color2: #f4a9c5;
+    --sidebar-teams-color: #AD1457; /* Muted Pink */
+
+    --sidebar-dashboard-bg-color: #FCE4EC; /* Light Pink */
+    --sidebar-projects-bg-color: #F8BBD0; /* Soft Pink */
+    --sidebar-gantt-bg-color: #ffe2ec; /* Mid-tone Pink */
+    --sidebar-teams-bg-color: #ffedf3; /* Vibrant Pink */
+
+    --projects-bg: #f8d5e1; 
+
+    --loginpage-bg:rgb(252, 182, 205);
+    --loginpage-bg2:#FCE4EC;
+
+    --hover-color: #AD1457;
+
+    --bug-report: #d00079;
+    --bug-report-bg: #fae2ef;
+
+  body { /*changes everything that is in body*/
+    background-color: #ffccd5;
+    color: #ffccd5; /*this one changes the color of the theme button text*/
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+}
+
+
+
+[data-theme="light"] {
+  background-color: white;
+  
+  --dashboard-bg: #F0F6FE;
+
+  --scrollbar-drag-1: #4299e1;
+  --scrollbar-drag-2: #667eea;
+
+  --scrollbar-hover-1: #3182ce;
+  --scrollbar-hover-2: #5a67d8;
+
+  --text-color2: #ffffff;
+  --text-color3: #929cad;
+  --bg-color: #ffffff;
+  --bg-color2: #121827;
+  --bg-color3: #ffffff;
+  --alt-card-color:#202937;
+
+  --gray-card1: #ffffff;
+  --gray-card2: #F9FAFB;
+  --gray-card3: #ebecec;
+
+  /*changes the color fo the link component*/
+  --link-text-color: #880e4f;  
+  --link-hover-color: #c2185b; 
+  --icon-color: #d81b60; 
+
+  --homepage-card-color: #111827;
+  --homepage-text-bright: #4FC65F;
+
+  --features-bg: #ffffff;        /* White background */
+  --features-border: #e5e7eb;    /* Light gray border */
+  --features-hover-bg: #f9fafb;  /* Very light gray for hover */
+  --features-title-color: #111827; /* Dark gray (almost black) text */
+  --features-text-color: #4b5563; /* Medium gray text */
+  --features-icon-color: #2563eb; /* Blue icon color */
+  --features-icon-bg-color:#2563eb33;
+
+  --features-section-color: #ffffff;
+
+  --sidebar-dashboard-color: var(--features-icon-color);
+  --sidebar-projects-color: #8600F1;
+  --sidebar-gantt-color: #D37709;
+  --sidebar-gantt-color2: #ecbb40;
+  --sidebar-teams-color: #1D9F34;
+
+  --sidebar-dashboard-bg-color: #DEEAFC;
+  --sidebar-projects-bg-color: #F1E8FD;
+  --sidebar-gantt-bg-color: #fffcd8;
+  --sidebar-teams-bg-color: #f9fffa;
+
+  --projects-bg: #F1E8FD;
+
+  --loginpage-bg:#C4D1FB;
+  --loginpage-bg2:#ffffff;
+
+  --hover-color: #2055c7;
+
+  --bug-report: #D00000;
+  --bug-report-bg: #FAE3E2;
+  
+}
+
+/* Apply styles globally */
+
 
 

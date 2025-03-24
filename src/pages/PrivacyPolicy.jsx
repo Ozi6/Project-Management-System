@@ -7,18 +7,18 @@ const PrivacyPolicy = () => {
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
       <Header />
-      <main className="flex-1 bg-gray-50 pt-16">
-        <div className="bg-blue-600 text-white py-12">
+      <main className="flex-1 bg-[var(--bg-color)] pt-16">
+        <div className="bg-[var(--features-icon-color)] text-[var(--bg-color)] py-12">
           <div className="max-w-4xl mx-auto px-4">
             <h1 className="text-4xl font-bold mb-4">Privacy Policy</h1>
             <p className="text-xl">How we protect and manage your data</p>
           </div>
         </div>
         
-        <div className="max-w-4xl mx-auto px-4 py-12 bg-white shadow-md rounded-md mt-8 mb-12">
-          <p className="text-sm text-gray-500 mb-8">Last updated: March 1, 2025</p>
+        <div className="max-w-4xl mx-auto px-4 py-12 bg-[var(--bg-color)] shadow-md rounded-md mt-8 mb-12">
+          <p className="text-sm text-[var(--text-color3)] mb-8">Last updated: March 1, 2025</p>
           
-          <div className="prose max-w-none">
+          <div className="prose max-w-none text-[var(--features-title-color)]">
             <section className="mb-8">
               <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
               <p>
@@ -79,7 +79,7 @@ const PrivacyPolicy = () => {
               <p>
                 If you have any questions about this Privacy Policy, please contact us at:
                 <br />
-                <a href="mailto:planwise.team@outlook.com" className="text-blue-500 hover:underline">
+                <a href="mailto:planwise.team@outlook.com" className="text-[var(--features-icon-color)] hover:underline">
                   planwise.team@outlook.com
                 </a>
               </p>
@@ -87,7 +87,7 @@ const PrivacyPolicy = () => {
           </div>
           
           <div className="mt-12 border-t border-gray-200 pt-6">
-            <Link to="/" className="text-blue-500 hover:underline">
+            <Link to="/" className="text-[var(--features-icon-color)] hover:underline">
               &larr; Return to Home
             </Link>
           </div>

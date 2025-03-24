@@ -19,7 +19,7 @@ const ProjectSettings = () => {
             icon: Layout, 
             label: 'Dashboard', 
             path: '/dashboard',
-            color: 'bg-blue-100 text-blue-600',  
+            //color: 'bg-blue-100 text-blue-600',  
             iconColor: 'text-blue-600',     
             defaultColor: true
         },
@@ -53,7 +53,7 @@ const ProjectSettings = () => {
             label: 'Settings',
             path: '/project/settings',
             color: 'bg-gray-100 text-gray-600',
-            iconColor: 'text-gray-600'
+            iconColor: 'text-[var(--features-title-color)]'
         }
     ];
 
@@ -83,7 +83,7 @@ const ProjectSettings = () => {
             {/* Header */}
             <div className="w-full bg-white shadow-sm z-10 border-b-2 border-gray-100">
                 <Header
-                    title={<span className="text-xl font-semibold text-gray-800">Project Settings</span>}
+                    title={<span className="text-xl font-semibold text-[var(--features-title-color)]">Project Settings</span>}
                 />
             </div>
 
@@ -91,7 +91,7 @@ const ProjectSettings = () => {
                 {/* Mobile menu toggle button */}
                 <button 
                     onClick={toggleMobileSidebar}
-                    className="md:hidden fixed bottom-4 right-4 z-50 bg-gray-600 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors"
+                    className="md:hidden fixed bottom-4 right-4 z-50 bg-[var(--loginpage-bg)] text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors"
                     aria-label="Toggle menu"
                 >
                     <Menu size={24} />
@@ -120,7 +120,7 @@ const ProjectSettings = () => {
                 )}
                 
                 {/* Main content */}
-                <div className="flex-1 overflow-auto bg-gray-50 flex flex-col">
+                <div className="flex-1 overflow-auto bg-[var(--loginpage-bg)]/40 flex flex-col">
                     <div className="p-6 flex-grow">
                         {showAdvanced ? (
                             <AdvancedSettings setShowAdvanced={setShowAdvanced} />
@@ -130,13 +130,13 @@ const ProjectSettings = () => {
                     </div>
                     
                     {/* Footer - optional, following the pattern from other pages */}
-                    <div className="bg-white border-t border-gray-100 py-3 px-6">
-                        <div className="flex flex-row justify-between items-center text-xs text-gray-600">
+                    <div className="bg-[var(--bg-color)] border-t border-gray-100 py-3 px-6">
+                        <div className="flex flex-row justify-between items-center text-xs text-[var(--features-icon-color)]">
                             <div>
                                 <span>© 2025 PlanWise</span>
                                 <span className="hidden sm:inline"> • All rights reserved</span>
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-[var(--features-icon-color)]">
                                 Project Settings
                             </div>
                         </div>

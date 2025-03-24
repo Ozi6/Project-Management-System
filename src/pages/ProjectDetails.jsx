@@ -635,7 +635,7 @@ const ProjectDetails = () => {
             icon: Layout, 
             label: 'Dashboard', 
             path: '/dashboard',
-            color: 'bg-blue-100 text-blue-600',  
+            //color: 'bg-blue-100 text-blue-600',  
             iconColor: 'text-blue-600',     
             defaultColor: true
         },
@@ -644,8 +644,8 @@ const ProjectDetails = () => {
             icon: KanbanSquare, 
             label: 'This Project', // Changed from "Projects" to "This Project"
             path: '/project/1', // Changed from "/projects" to "/project/1"
-            color: 'bg-purple-100 text-purple-600',
-            iconColor: 'text-purple-600'
+            color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
+            iconColor: 'text-[var(--sidebar-projects-color)]'
         },
         { 
             id: 'activity', 
@@ -712,7 +712,7 @@ const ProjectDetails = () => {
                 </div>
 
                 {/* Sidebar - hidden on mobile, shown on md+ screens */}
-                <div className="hidden md:block bg-white shadow-md z-5">
+                <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5">
                     <Sidebar 
                         activeTab={activeTab} 
                         setActiveTab={setActiveTab}
@@ -745,7 +745,7 @@ const ProjectDetails = () => {
                     {showProgressBar && (
                         <div className="md:hidden mx-4 mt-4">
                             <div className="bg-white p-4 rounded-lg shadow">
-                                <h3 className="text-md font-semibold mb-2">Project Progress</h3>
+                                <h3 className="text-md text-[var(--features-text-color)] font-semibold mb-2">Project Progress</h3>
                                 <div className="px-2">
                                     <ProgressBar tasks={displayColumns} isCompact={true} />
                                 </div>

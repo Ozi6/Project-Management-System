@@ -88,9 +88,13 @@ const FeaturesSection = () => {
 
   return (
     <>
-      <section className="py-8 md:py-16 px-4 md:px-5 text-center bg-white">
+      <section className="py-8 md:py-16 px-4 md:px-5 text-center"
+        style={{backgroundColor: "var(--features-bg)"}}
+      >
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 md:mb-10 ffont-mono tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10 ffont-mono tracking-tight"
+              style={{color: "var(--features-title-color)"}}
+          >
             Why Choose PlanWise?
           </h2>
           
@@ -124,17 +128,24 @@ const FeaturesSection = () => {
                         ? 'w-[calc(50%-0.5rem)]' 
                         : 'w-[calc(33.333%-1rem)]'
                   } flex flex-col items-center text-center 
-                    p-6 md:p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+                    p-6 md:p-8 bg-[var(--bg-color)] rounded-xl shadow-lg hover:shadow-xl transition-all duration-300`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ y: -8, scale: 1.02 }}
                 >
-                  <feature.icon className="h-10 w-10 md:h-12 md:w-12 text-blue-600 mb-4 md:mb-6" />
-                  <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-gray-900 font-sans">
+                  <feature.icon className="h-10 w-10 md:h-12 md:w-12 mb-4 md:mb-6"
+                    style={{color: "var(--features-icon-color)"}}
+                  />
+                  <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-gray-900 font-sans"
+                  style={{color: "var(--features-title-color)"}}
+                  >
                     {feature.title}
                   </h3>
-                  <p className="text-base md:text-lg text-gray-600">
+                  <p className="text-base md:text-lg"
+                    style={{color: "var(--features-text-color)"}}
+                  >
+                    
                     {feature.description}
                   </p>
                 </motion.div>
@@ -157,7 +168,7 @@ const FeaturesSection = () => {
                 onClick={() => setCurrentIndex(index * featuresPerView)}
                 className={`h-2 rounded-full transition-all duration-200 ${
                   Math.floor(currentIndex / featuresPerView) === index 
-                    ? 'w-6 md:w-8 bg-blue-600' 
+                    ? 'w-6 md:w-8 bg-[var(--features-icon-color)]' 
                     : 'w-2 bg-gray-400'
                 }`}
               />
@@ -167,9 +178,13 @@ const FeaturesSection = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-10 md:py-16 bg-white">
+      <section className="py-10 md:py-16"
+        style={{backgroundColor: "var(--features-bg)"}}
+      >
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-gray-900 font-mono tracking-tight">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 font-mono tracking-tight"
+          style={{color: "var(--features-title-color)"}}
+          >
             What Our Users Say
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -193,7 +208,9 @@ const FeaturesSection = () => {
                 avatar: "https://i.pravatar.cc/100?img=45"
               }
             ].map((testimonial, index) => (
-              <div key={index} className="bg-gray-900 p-5 md:p-6 rounded-xl">
+              <div key={index} className="bg-gray-900 p-5 md:p-6 rounded-xl"
+              style={{backgroundColor: "var(--homepage-card-color)"}}
+              >
                 <p className="text-sm md:text-base text-white mb-4">
                   "{testimonial.comment}"
                 </p>
@@ -215,9 +232,13 @@ const FeaturesSection = () => {
       </section>
 
       {/* Replacing Pricing Section with Features Comparison */}
-      <section className="py-10 md:py-16 bg-gray-900">
+      <section className="py-10 md:py-16"
+        style={{backgroundColor: "var(--bg-color2)"}}
+      >
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 text-white font-sans uppercase tracking-wider">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 font-sans uppercase tracking-wider"
+            style={{color: "var(--features-title-color)"}}
+          >
             Everything You Need to Succeed
           </h2>
           
@@ -248,16 +269,24 @@ const FeaturesSection = () => {
               ].map((feature, index) => (
                 <motion.div
                   key={index}
-                  className="bg-gray-800 p-5 md:p-6 rounded-xl hover:bg-gray-700 transition-all duration-300"
+                  className="p-5 md:p-6 rounded-xl hover:bg-gray-700 transition-all duration-300"
+                  style={{backgroundColor: "var(--alt-card-color)"}}
+                  whileHover={{backgroundColor: "var(--features-hover-bg)"}}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   viewport={{ once: true }}
                 >
-                  <div className="bg-blue-600/20 p-3 rounded-lg inline-block mb-4">
-                    <feature.icon className="h-6 w-6 text-blue-500" />
+                  <div className="p-3 rounded-lg inline-block mb-4"
+                    style={{backgroundColor: "var(--features-icon-bg-color)"}}
+                  >
+                    <feature.icon className="h-6 w-6" 
+                      style={{color: "var(--features-icon-color)"}}
+                    />
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold mb-2 text-white">{feature.title}</h3>
+                  <h3 className="text-lg md:text-xl font-bold mb-2"
+                    style={{color: "var(--text-color2)"}}
+                  >{feature.title}</h3>
                   <p className="text-sm md:text-base text-gray-300">{feature.description}</p>
                 </motion.div>
               ))}
@@ -283,16 +312,24 @@ const FeaturesSection = () => {
               ].map((feature, index) => (
                 <motion.div
                   key={index}
-                  className="bg-gray-800 p-5 md:p-6 rounded-xl hover:bg-gray-700 transition-all duration-300"
+                  className="p-5 md:p-6 rounded-xl transition-all duration-300"
+                  style={{backgroundColor: "var(--alt-card-color)"}}
+                  whileHover={{backgroundColor: "var(--features-hover-bg)"}}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ delay: (index + 4) * 0.05 }}
                   viewport={{ once: true }}
                 >
-                  <div className="bg-blue-600/20 p-3 rounded-lg inline-block mb-4">
-                    <feature.icon className="h-6 w-6 text-blue-500" />
+                  <div className="p-3 rounded-lg inline-block mb-4"
+                    style={{backgroundColor: "var(--features-icon-bg-color)"}}
+                  >
+                    <feature.icon className="h-6 w-6" 
+                      style={{color: "var(--features-icon-color)"}}
+                    />
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold mb-2 text-white">{feature.title}</h3>
+                  <h3 className="text-lg md:text-xl font-bold mb-2"
+                    style={{color: "var(--text-color2)"}}
+                  >{feature.title}</h3>
                   <p className="text-sm md:text-base text-gray-300">{feature.description}</p>
                 </motion.div>
               ))}
@@ -304,18 +341,28 @@ const FeaturesSection = () => {
       </section>
 
       {/* Updated Call to Action with Login Link */}
-      <section className="py-10 md:py-16 bg-blue-600">
+      <section className="py-10 md:py-16 bg-blue-600"
+        style={{backgroundColor: "var(--features-icon-color)"}}
+      >
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 md:mb-6 font-serif">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 md:mb-6 font-serif"
+            style={{color: "white"}}
+          >
             Get Started with PlanWise Today!
           </h2>
-          <p className="text-white mb-6 md:mb-8 text-sm md:text-base">
+          <p className="mb-6 md:mb-8 text-sm md:text-base"
+            style={{color: "white"}}
+          >
             Join thousands of teams using PlanWise to boost productivity, enhance collaboration, and achieve more together.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
               href="/login" 
               className="bg-white text-blue-600 px-6 py-2 md:px-8 md:py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors duration-300 text-sm md:text-base w-full sm:w-auto inline-block"
+              style={{
+                color: "var(--features-icon-color)",
+                backgroundColor: "var(--bg-color)",
+              }}
             >
               Get Started
             </a>

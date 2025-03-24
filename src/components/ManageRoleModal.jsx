@@ -36,7 +36,7 @@ const ManageRoleModal = ({
                 damping: 15,
               }}
             >
-              <div className="bg-blue-500 p-4 shadow-md">
+              <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
                 <h3 className="text-xl font-bold text-white text-center">
                   Manage Role
                 </h3>
@@ -47,11 +47,11 @@ const ManageRoleModal = ({
                     <button
                       key={role}
                       onClick={() => onUpdateRole(member.id, role)}
-                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-[var(--features-icon-color)]/10 transition-colors duration-200"
                     >
-                      <span className="text-gray-700">{role}</span>
+                      <span className="text-[var(--gray-card3)]">{role}</span>
                       {currentRole === role && (
-                        <Check className="w-5 h-5 text-green-500" />
+                        <Check className="w-5 h-5 text-[var(--features-icon-color)]" />
                       )}
                     </button>
                   ))}

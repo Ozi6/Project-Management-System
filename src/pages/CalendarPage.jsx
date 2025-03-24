@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
+import ThemeSwitcher from '../ThemeSwitcher';
 
 const CalendarPage = ({ projectData }) => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -22,8 +23,8 @@ const CalendarPage = ({ projectData }) => {
       icon: Layout, 
       label: 'Dashboard', 
       path: '/dashboard',
-      color: 'bg-blue-100 text-blue-600',  
-      iconColor: 'text-blue-600',     
+      color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',  
+      iconColor: 'text-[var(--sidebar-dashboard-color)]',     
       defaultColor: true
     },
     { 
@@ -39,8 +40,8 @@ const CalendarPage = ({ projectData }) => {
       icon: Activity, 
       label: 'Activity', 
       path: '/activity',
-      color: 'bg-yellow-100 text-yellow-600',
-      iconColor: 'text-amber-600'
+      color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
+      iconColor: 'text-[var(--sidebar-gantt-color)]'
     },
     { 
       id: 'teams', 
@@ -291,24 +292,25 @@ const CalendarPage = ({ projectData }) => {
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* Header */}
-      <div className="w-full bg-white shadow-sm z-10 border-b border-gray-100">
+      <div className="w-full bg-white shadow-sm z-10 border-b border-[var(--sidebar-gantt-color2)]">
         <Header
-          title={<span className="text-xl font-semibold text-gray-800">Calendar</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">Calendar</span>}
         />
+        
       </div>
 
       <div className="flex flex-1 overflow-hidden relative">
         {/* Mobile menu toggle button */}
         <button 
           onClick={toggleMobileSidebar}
-          className="md:hidden fixed bottom-4 right-4 z-50 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+          className="md:hidden fixed bottom-4 right-4 z-50 bg-[var(--features-icon-color)] text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
           aria-label="Toggle menu"
         >
           <Menu size={24} />
         </button>
 
         {/* Sidebar - hidden on mobile, shown on md+ screens */}
-        <div className="hidden md:block bg-white shadow-md z-5 border-r border-gray-100">
+        <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5 border-r border-gray-100">
           <Sidebar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
@@ -330,45 +332,46 @@ const CalendarPage = ({ projectData }) => {
         )}
 
         {/* Main content - remains the same */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 flex flex-col items-center h-full mt-0">
+        <div className="flex-1 overflow-y-auto bg-[var(--sidebar-gantt-bg-color)] flex flex-col items-center h-full mt-0">
 
           <div className="p-6 w-full max-w-4xl">
-            <div className="bg-white rounded-lg shadow p-4">
+            <div className="bg-[var(--bg-color)] rounded-lg shadow p-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
                 <div className="flex items-center space-x-2">
-                  <Calendar className="h-5 w-5 text-gray-500" />
-                  <h2 className="text-xl font-semibold text-gray-800">Project Calendar</h2>
+                  <Calendar className="h-5 w-5 text-[var(--features-text-color)]" />
+                  <h2 className="text-xl font-semibold text-[var(--features-icon-color)]">Project Calendar</h2>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button 
                     onClick={goToToday}
-                    className="px-3 py-1 text-sm bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                    className="px-3 py-1 text-sm bg-[var(--loginpage-bg)] text-[var(--features-icon-color)] rounded hover:bg-[var(--loginpage-bg2)] transition-colors"
                   >
                     Today
                   </button>
                   <button
                     onClick={prevMonth}
-                    className="p-1 rounded-full hover:bg-gray-100"
+                    className="p-1 rounded-full hover:bg-[var(--gray-card3)]"
+                    
                   >
-                    <ChevronLeft className="h-5 w-5 text-gray-600" />
+                    <ChevronLeft className="h-5 w-5 text-[var(--features-title-color)]" />
                   </button>
-                  <span className="text-lg font-medium w-40 text-center">
+                  <span className="text-lg text-[var(--features-title-color)] font-medium w-40 text-center">
                     {formatMonthYear(currentMonth)}
                   </span>
                   <button
                     onClick={nextMonth}
-                    className="p-1 rounded-full hover:bg-gray-100"
+                    className="p-1 rounded-full hover:bg-[var(--gray-card3)]"
                   >
-                    <ChevronRight className="h-5 w-5 text-gray-600" />
+                    <ChevronRight className="h-5 w-5 text-[var(--features-title-color)]" />
                   </button>
                 </div>
               </div>
 
               {/* Calendar grid - made more responsive */}
-              <div className="grid grid-cols-7 gap-px bg-gray-200">
+              <div className="grid grid-cols-7 border-1 border-[var(--sidebar-gantt-color2)] gap-px bg-[var(--sidebar-gantt-color2)]">
                 {/* Day headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                  <div key={day} className="bg-gray-100 text-center py-2 font-medium text-gray-500 text-xs sm:text-sm">
+                  <div key={day} className="bg-[var(--gray-card3)] text-center py-2 font-medium text-[var(--features-title-color)] text-xs sm:text-sm">
                     {window.innerWidth < 640 ? day.charAt(0) : day}
                   </div>
                 ))}
@@ -382,16 +385,16 @@ const CalendarPage = ({ projectData }) => {
                     <div
                       key={index}
                       onClick={() => setSelectedDate(day.date)}
-                      className={`min-h-16 sm:min-h-24 bg-white p-1 ${
-                        !day.currentMonth ? 'text-gray-400' : ''
+                      className={`min-h-16 sm:min-h-24 p-1 ${
+                        !day.currentMonth ? 'bg-[var(--gray-card2)] text-[var(--text-color3)]' : 'bg-[var(--gray-card1)] text-[var(--text-color3)]'
                       } ${
-                        isToday(day.date) ? 'bg-blue-50' : ''
+                        isToday(day.date) ? 'bg-[var(--bg-color)]' : 'bg-[var(--bg-color)]'
                       } ${
-                        isSelected(day.date) ? 'ring-2 ring-blue-500' : ''
-                      } hover:bg-gray-50 cursor-pointer`}
+                        isSelected(day.date) ? 'ring-2 ring-[var(--features-icon-color)]' : ''
+                      } hover:bg-[var(--gray-card3)] cursor-pointer`}
                     >
                       <div className="flex justify-between">
-                        <span className={`text-xs sm:text-sm ${isToday(day.date) ? 'font-bold text-blue-600' : ''}`}>
+                        <span className={`text-xs sm:text-sm ${isToday(day.date) ? 'font-bold text-[var(--features-icon-color)]' : ''}`}>
                           {day.date.getDate()}
                         </span>
                         {hasTask && (
@@ -422,10 +425,10 @@ const CalendarPage = ({ projectData }) => {
 
               {/* Task details for selected date */}
               <div className="mt-4">
-                <h3 className="font-medium text-gray-700">
+                <h3 className="font-medium text-[var(--features-text-color)]">
                   Tasks for {selectedDate.toLocaleDateString()}
                 </h3>
-                <div className="mt-2 space-y-2 max-h-64 overflow-y-auto">
+                <div className="mt-2 space-y-2 max-h-64 text-[var(--features-title-color)] overflow-y-auto">
                   {getTasksForDay(selectedDate).length > 0 ? (
                     getTasksForDay(selectedDate).map((task, index) => (
                       <div 
@@ -435,17 +438,17 @@ const CalendarPage = ({ projectData }) => {
                       >
                         <div>
                           <div className="font-medium">{task.text}</div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-[var(--features-text-color)]">
                             {task.category} • {task.taskList}
                           </div>
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-[var(--features-icon-color)]">
                           {/*task.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })*/}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-gray-500 text-center py-4">
+                    <div className="text-[var(--text-color3)] text-center py-4">
                       No tasks scheduled for this date
                     </div>
                   )}
@@ -455,16 +458,17 @@ const CalendarPage = ({ projectData }) => {
           </div>
           
           {/* Footer */}
-          <div className="w-full bg-white border-t border-gray-100 py-3 px-6 mt-auto">
-            <div className="flex flex-row justify-between items-center text-xs text-gray-600">
+          <div className="w-full bg-[var(--bg-color)] border-t border-gray-100 py-3 px-6 mt-auto">
+            <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
               <div>
-                <span>© 2025 PlanWise</span>
-                <span className="hidden sm:inline"> • All rights reserved</span>
+                <span className="text-[var(--features-title-color)]">© 2025 PlanWise</span>
+                <span className="hidden sm:inline text-[var(--features-title-color)]"> • All rights reserved</span>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  Calendar
+                <Link to="/terms" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Terms</Link>
+                <Link to="/privacy" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Privacy</Link>
+                <span className="flex items-center text-[var(--features-title-color)]">
+                  Made with <Heart className="h-3 w-3 text-red-500 mx-1 " /> by PlanWise
                 </span>
               </div>
             </div>

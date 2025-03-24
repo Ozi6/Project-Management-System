@@ -368,7 +368,7 @@ const TaskList = ({
     return (
         <div className="relative" ref={listRef}>
             <div
-                className={`bg-gray-100 rounded-lg shadow-xl p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
+                className={`bg-[var(--gray-card3)] rounded-lg shadow-xl p-2 flex flex-col w-64 transition-all duration-300 ease-in-out
                 ${newEntryId ? "animate-[expand_0.3s_ease-out_forwards]" : ""}`}>
                 <div
                     ref={headerRef}
@@ -431,18 +431,18 @@ const TaskList = ({
                             );
                         })
                     ) : (
-                        <p className="text-center text-gray-500">No entries</p>
+                        <p className="text-center text-[var(--features-text-color)]">No entries</p>
                     )}
                     {draggedOverIndex === entries.length && window.dragState && window.dragState.isDragging && (
-                        <div className="border-2 border-dashed border-blue-500 rounded-md h-10 my-2 flex items-center justify-center bg-blue-50">
-                            <span className="text-blue-500 text-sm">Drop here</span>
+                        <div className="border-2 border-dashed border-[var(--features-icon-color)] rounded-md h-10 my-2 flex items-center justify-center bg-[var(--loginpage-bg)]">
+                            <span className="text-[var(--features-icon-color)] text-sm">Drop here</span>
                         </div>
                     )}
                 </div>
 
                 <button
                     onClick={() => onAddEntry(listId)}
-                    className="mt-2 bg-blue-500 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-blue-600 hover:scale-105">
+                    className="mt-2 bg-[var(--features-icon-color)] !text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-[var(--hover-color)] hover:scale-105">
                     <Plus size={16} /> Add Entry
                 </button>
             </div>

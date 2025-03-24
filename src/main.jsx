@@ -18,9 +18,9 @@ createRoot(document.getElementById('root')).render(
 
         userButton:{
             elements: {
-                variables: { colorPrimary: '#9AC8CD' },
+                variables: { colorPrimary: 'var(--features-title-color)' },
                 rootBox: {
-                    backgroundColor: '#1E0342', 
+                    backgroundColor: 'var(--bg-color2)', 
                     color: '#2D5CF2', 
                     padding: '5px 5px', 
                     borderRadius: '200px', 
@@ -29,11 +29,11 @@ createRoot(document.getElementById('root')).render(
                     width: '40px',
                     height: '40px',
                 },
-                userPreview: {color: '#1E0342',},
-                userButtonPopoverActionButtonIcon__manageAccount: {color: '#5C787B',},
-                userButtonPopoverActionButton__manageAccount: {color: '#7BA0A4',},
-                userButtonPopoverActionButtonIcon__signOut: {color: '#5C787B',},
-                userButtonPopoverActionButton__signOut: {color: '#7BA0A4',},
+                userPreview: {color: 'var(--features-icon-color)',},
+                userButtonPopoverActionButtonIcon__manageAccount: {color: 'var(--features-icon-color)',},
+                userButtonPopoverActionButton__manageAccount: {color: 'var(--features-text-color)',},
+                userButtonPopoverActionButtonIcon__signOut: {color: 'var(--features-icon-color)',},
+                userButtonPopoverActionButton__signOut: {color: 'var(--features-text-color)',},
                 dividerRow: {color: '#FF9494',},
           },
         },
@@ -57,7 +57,7 @@ createRoot(document.getElementById('root')).render(
         },
 
         signUp: {
-          variables: { colorPrimary: '#2D5CF2' },
+          variables: { colorPrimary: '#234124' },
           elements: {
             input: {color: '#1E0342'},
             socialButtonsBlockButton: {

@@ -9,9 +9,9 @@ const AnimatedCheckbox = ({ checked, onChange }) =>
                 checked={checked}
                 onChange={() => onChange(!checked)}
                 className="sr-only peer"/>
-            <div className="p-1 rounded-lg border-2 border-blue-300">
+            <div className="p-1 rounded-lg border-2 border-[var(--features-icon-color)]">
                 <div
-                    className={`w-3 h-3 bg-white dark:bg-gray-800 rounded-md shadow-lg transition-all duration-300 relative z-0
+                    className={`w-3 h-3 bg-white dark:bg-[var(--features-icon-color)]/80 rounded-md shadow-lg transition-all duration-300 relative z-0
                         ${checked ? "bg-transparent shadow-none" : "shadow-md"}`}
                 ></div>
                 <div

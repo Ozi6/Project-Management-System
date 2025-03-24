@@ -90,21 +90,21 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                 className="bg-white rounded-lg shadow-xl w-full max-w-md m-4"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="bg-blue-500 text-white rounded-t-lg p-4">
+                <div className="bg-[var(--features-icon-color)] text-white rounded-t-lg p-4">
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-semibold">Edit Task</h2>
                         <button
                             onClick={onClose}
-                            className="p-2 bg-red-500 rounded-full hover:bg-red-600 transition-all duration-200 transform hover:scale-110"
+                            className="p-2 bg-white rounded-full hover:bg-[var(--hover-color)] transition-all duration-200 transform hover:scale-110"
                         >
-                            <FaTimes className="text-white" />
+                            <FaTimes className="text-[var(--features-icon-color)] hover:text-white transition-colors duration-200" />
                         </button>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6">
+                <form onSubmit={handleSubmit} className="p-6 bg-[var(--bg-color)]">
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="text">
+                        <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="text">
                             Task Name
                         </label>
                         <input
@@ -114,19 +114,19 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                             value={formData.text}
                             onChange={handleChange}
                             placeholder="Enter task name"
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-[var(--gray-card3)] bg-[var(--gray-card1)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                             required
                         />
                     </div>
 
                     <div className="mb-4">
                         <label className="flex justify-between">
-                            <span className="block text-gray-700 text-sm font-medium mb-1">Due Date (Optional)</span>
+                            <span className="block text-[var(--features-title-color)] text-sm font-medium mb-1">Due Date (Optional)</span>
                             {formData.dueDate && (
                                 <button
                                     type="button"
                                     onClick={clearDueDate}
-                                    className="text-xs text-blue-500 hover:text-blue-700"
+                                    className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                 >
                                     Clear
                                 </button>
@@ -139,15 +139,15 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 name="dueDate"
                                 value={formData.dueDate}
                                 onChange={handleChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pl-10"
+                                className="w-full px-3 py-2 border border-[var(--gray-card3)] rounded-md bg-[var(--gray-card1)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] pl-10"
                             />
-                            <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                            <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--features-icon-color)]" />
                         </div>
                     </div>
 
                     {formData.dueDate && (
                         <div className="mb-4">
-                            <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="warningThreshold">
+                            <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="warningThreshold">
                                 Warning Threshold (days)
                             </label>
                             <input
@@ -157,9 +157,9 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 value={formData.warningThreshold}
                                 onChange={handleChange}
                                 min="0"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-[var(--gray-card3)] bg-[var(--gray-card1)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                             />
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-[var(--text-color3)] mt-1">
                                 Show warning when task is due within this many days
                             </p>
                         </div>
@@ -172,19 +172,19 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 name="checked"
                                 checked={formData.checked}
                                 onChange={handleChange}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-[var(--features-icon-color)] bg-[var(--gray-card3)] focus:ring-[var(--features-icon-color)]/70 border-[var(--gray-card3)] rounded"
                             />
-                            <span className="ml-2 text-gray-700 text-sm">Mark as completed</span>
+                            <span className="ml-2 text-[var(--text-color3)] text-sm">Mark as completed</span>
                         </label>
                     </div>
 
                     <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-medium mb-1" htmlFor="file">
+                        <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="file">
                             Attach File
                         </label>
                         {formData.file && (
                             <div className="flex items-center gap-2 mb-2">
-                                <FaPaperclip className="text-gray-500" />
+                                <FaPaperclip className="text-[var(--features-icon-color)]" />
                                 <span className="text-sm text-gray-700">
                                     {formData.file.name.length > 15
                                         ? formData.file.name.substring(0, 15) + "..." + formData.file.name.substring(formData.file.name.lastIndexOf("."))
@@ -193,7 +193,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 <button
                                     type="button"
                                     onClick={handleRemoveFile}
-                                    className="text-red-500 hover:text-red-700"
+                                    className="text-[var(--bug-report)]/70 hover:text-[var(--bug-report)]"
                                     title="Remove file"
                                 >
                                     <FaTrash />
@@ -205,10 +205,10 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                             id="file"
                             name="file"
                             onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-3 py-2 border border-[var(--gray-card3)] bg-[var(--gray-card1)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         />
                         {formData.file && (
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-[var(--text-color3)] mt-1">
                                 Upload a new file to replace the current one.
                             </p>
                         )}
@@ -218,13 +218,13 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="px-4 py-2 bg-[var(--features-icon-color)] !text-white rounded-md hover:bg-[var(--hover-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         >
                             Save Changes
                         </button>

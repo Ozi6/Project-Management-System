@@ -190,7 +190,7 @@ const Categorizer = ({
 
     return (
         <div
-            className="bg-white p-4 rounded-lg flex flex-col items-center w-[290px]"
+            className="bg-[var(--bg-color)] p-4 rounded-lg flex flex-col items-center w-[290px]"
             style={{ boxShadow: '0 30px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)', border: `2px solid ${tagColor}` }}
             ref={categorizerRef}
         >
@@ -243,28 +243,28 @@ const Categorizer = ({
                                     />
                             </div>
                             {showDropIndicator && dragPosition === 'below' && (
-                                <div className="border-2 border-dashed border-blue-500 rounded-md h-4 mt-4 items-center justify-center"></div>
+                                <div className="border-2 border-dashed border-[var(--features-icon-color)] rounded-md h-4 mt-4 items-center justify-center"></div>
                             )}
                         </div>
                     );
                 })}
                 {draggedOverIndex === taskLists.length && window.dragState && window.dragState.isDraggingList && (
-                    <div className="border-2 border-dashed border-blue-500 rounded-md h-16 my-2 flex items-center justify-center bg-blue-50">
-                        <span className="text-blue-500 text-sm">Drop list here</span>
+                    <div className="border-2 border-dashed border-[var(--features-icon-color)] rounded-md h-16 my-2 flex items-center justify-center bg-[var(--loginpage-bg)]">
+                        <span className="text-[var(--features-icon-color)] text-sm">Drop list here</span>
                     </div>
                 )}
             </div>
 
             <button
                 onClick={onAddList}
-                className="mt-4 bg-blue-500 text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-blue-600 hover:scale-105">
+                className="mt-4 bg-[var(--hover-color)] !text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-[var(--alt-card-color)] hover:scale-105">
                 <Plus size={16} /> Add List
             </button>
 
             {isDraggingCategory && window.dragState && (
                 <div
                     ref={dragImageRef}
-                    className="fixed z-50 shadow-lg rounded-md border border-blue-500 pointer-events-none"
+                    className="fixed z-50 shadow-lg rounded-md border border-[var(--features-icon-color)] pointer-events-none"
                     style={{
                         width: window.dragState.originalWidth ? `${window.dragState.originalWidth}px` : 'auto',
                         opacity: 0.8

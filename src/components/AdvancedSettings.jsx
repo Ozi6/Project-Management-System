@@ -36,7 +36,7 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
                 damping: 15,
               }}
             >
-              <div className="bg-red-500 p-4 shadow-md">
+              <div className="bg-[var(--bug-report)] p-4 shadow-md">
                 <h3 className="text-xl font-bold text-white text-center">
                   Confirm Removal
                 </h3>
@@ -47,13 +47,13 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
                 </p>
                 <div className="flex justify-between">
                   <button
-                    className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
+                    className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={onCancel}
                   >
                     Cancel
                   </button>
                   <button
-                    className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-all duration-200 hover:scale-105 w-32"
+                    className="bg-[var(--bug-report)]/50 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
                     onClick={() => onConfirm(member.id)}
                     disabled={!member?.id}
                   >
@@ -287,12 +287,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
   return (
     <ErrorBoundary>
       <div className="p-4 md:p-6 w-full">
-        <h2 className="text-xl font-bold mb-4">Advanced Settings</h2>
+        <h2 className="text-xl font-bold mb-4 text-[var(--features-title-color)]">Advanced Settings</h2>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
           {/* Go Back to General Settings Button */}
           <button
             onClick={() => setShowAdvanced(false)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out w-full sm:w-auto"
+            className="bg-[var(--sidebar-gantt-color)]/80 hover:bg-[var(--sidebar-gantt-color)] !text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out w-full sm:w-auto"
           >
             Go Back to General Settings
           </button>
@@ -300,7 +300,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {/* Invite People Button - only fully visible to project owner */}
           <button
             onClick={() => isProjectOwner && setIsModalOpen(true)}
-            className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center justify-center w-full sm:w-auto ${
+            className={`bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)] !text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out flex items-center justify-center w-full sm:w-auto ${
               !isProjectOwner ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={!isProjectOwner}
@@ -325,12 +325,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         />
 
         {/* Search Input */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-3 text-gray-500 w-5 h-5" />
+        <div className="relative mb-6 bg-[var(--bg-color)] rounded-lg text-[var(--features-title-color)]">
+          <Search className="absolute left-3 top-3 text-[var(--features-icon-color)] w-5 h-5" />
           <input
             type="text"
             placeholder="Search members..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="pl-10 pr-4 py-2 border border-[var(--features-icon-color)]/70 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             disabled={!members.length}
@@ -341,9 +341,9 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {filteredMembers.map((member) => (
             <div
               key={member.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-blue-50 hover:shadow-lg"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-icon-color)]/20 hover:shadow-lg"
             >
-              <div className="flex items-center space-x-4 mb-4 sm:mb-0">
+              <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
                 <img
                   src={`https://i.pravatar.cc/150?img=${member.id}`}
                   alt={member.name}
@@ -359,16 +359,16 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">{member.email}</p>
-                  <p className="text-xs text-gray-400">Team: {member.team || "None"}</p>
+                  <p className="text-sm text-[var(--text-color3)]">{member.email}</p>
+                  <p className="text-xs text-[var(--features-text-color)]">Team: {member.team || "None"}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:space-x-2">
                 {/* Manage Access Button */}
                 <button
-                  className={`bg-green-500 text-white px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
-                    isProjectOwner ? "hover:bg-green-700" : "opacity-50 cursor-not-allowed"
+                  className={`bg-[var(--homepage-text-bright)]/80 !text-white px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
+                    isProjectOwner ? "hover:bg-[var(--homepage-text-bright)]" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setSelectedMember(member)}
                   disabled={!isProjectOwner}
@@ -378,8 +378,8 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
 
                 {/* Manage Team Button */}
                 <button
-                  className={`text-white bg-blue-500 px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
-                    isProjectOwner ? "hover:bg-blue-700" : "opacity-50 cursor-not-allowed"
+                  className={`!text-white bg-[var(--features-icon-color)] px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
+                    isProjectOwner ? "hover:bg-[var(--hover-color)]" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setMemberToManageTeams(member)}
                   disabled={!isProjectOwner}
@@ -390,8 +390,8 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 {/* Remove Button */}
                 <button
                   onClick={() => isProjectOwner && handleRemoveClick(member)}
-                  className={`bg-red-500 text-white px-3 py-1.5 text-sm rounded-lg flex items-center justify-center transition-all flex-1 sm:flex-none ${
-                    isProjectOwner ? "hover:bg-red-700" : "opacity-50 cursor-not-allowed"
+                  className={`bg-[var(--bug-report)]/80 !text-white px-3 py-1.5 text-sm rounded-lg flex items-center justify-center transition-all flex-1 sm:flex-none ${
+                    isProjectOwner ? "hover:bg-[var(--bug-report)]" : "opacity-50 cursor-not-allowed"
                   }`}
                   disabled={!isProjectOwner}
                 >
