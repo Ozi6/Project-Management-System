@@ -35,10 +35,10 @@ const ProjectCard = ({ id, name, owner, progress, status, isOwner, onDelete }) =
     return (
         <>
             <div
-                className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg hover:scale-102 transition-all duration-200 relative overflow-hidden"
+                className="bg-[var(--gray-card1)] rounded-lg shadow p-6 border-1 border-[var(--sidebar-projects-color)] cursor-pointer hover:shadow-lg hover:scale-102 transition-all duration-200 relative overflow-hidden"
                 onClick={() => navigate(`/project/${id}`)}
             >
-                <div className="bg-blue-500 rounded-lg p-3 mb-5">
+                <div className="bg-[var(--features-icon-color)] rounded-lg p-3 mb-5">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-1">
                             <h3 className="text-lg font-semibold text-gray-100">{name}</h3>
@@ -60,27 +60,27 @@ const ProjectCard = ({ id, name, owner, progress, status, isOwner, onDelete }) =
                 
                 {/* Project description */}
                 <div className="mb-4">
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{description}</p>
+                    <p className="text-sm text-[var(--features-title-color)] line-clamp-2 mb-3">{description}</p>
                 </div>
                 
                 {/* Project metadata */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center">
-                        <Users className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-600">Team: {teamMembers}</span>
+                        <Users className="h-4 w-4 text-[var(--text-color3)] mr-2" />
+                        <span className="text-sm text-[var(--features-text-color)]">Team: {teamMembers}</span>
                     </div>
                     <div className="flex items-center">
-                        <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-600">Due: {dueDate}</span>
+                        <Calendar className="h-4 w-4 text-[var(--text-color3)] mr-2" />
+                        <span className="text-sm text-[var(--features-text-color)]">Due: {dueDate}</span>
                     </div>
                     <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                        <span className="text-sm text-gray-600">Updated: {lastUpdated}</span>
+                        <Clock className="h-4 w-4 text-[var(--text-color3)] mr-2" />
+                        <span className="text-sm text-[var(--features-text-color)]">Updated: {lastUpdated}</span>
                     </div>
                 </div>
                 
                 <div className="mb-4">
-                    <p className="text-sm text-gray-600 font-medium mb-1">
+                    <p className="text-sm text-[var(--features-title-color)] font-medium mb-1">
                         Project Owner: {owner}
                     </p>
                 </div>

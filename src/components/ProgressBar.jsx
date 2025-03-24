@@ -87,7 +87,7 @@ const ProgressBar = ({ tasks }) => {
     const getProgressColor = () => {
         if (progress < 30) return 'bg-red-500';
         if (progress < 70) return 'bg-yellow-500';
-        return 'bg-green-500';
+        return 'bg-[var(--features-icon-color)]';
     };
 
     return (
@@ -111,20 +111,20 @@ const ProgressBar = ({ tasks }) => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.5 }}
-                        className="fixed top-10 left-1/2 transform -translate-x-1/2 z-50"
+                        className="fixed inset-0 flex justify-center items-start pt-18 z-[9999] pointer-events-none"
                     >
-                        <div className="bg-white px-8 py-4 rounded-lg shadow-2xl border-2 border-green-500">
+                        <div className="bg-[var(--bg-color)] px-8 py-4 rounded-lg shadow-2xl border-2 border-green-500">
                             <h3 className="text-2xl font-bold text-green-600">All Tasks Complete! 🎉</h3>
-                            <p className="text-gray-600">Great job completing all your tasks!</p>
+                            <p className="text-[var(--text-color3)]">Great job completing all your tasks!</p>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg py-2 px-4 z-40">
+            <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-color)] shadow-lg py-2 px-4 z-40">
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Progress: {progress}%</span>
-                    <div className="w-full mx-4 bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <span className="text-sm font-medium text-[var(--features-title-color)]">Progress: {progress}%</span>
+                    <div className="w-full mx-4 bg-[var(--features-icon-color)]/20 rounded-full h-2.5 overflow-hidden">
                         <motion.div
                             initial={{ width: '0%' }}
                             animate={{ width: `${progress}%` }}
@@ -132,7 +132,7 @@ const ProgressBar = ({ tasks }) => {
                             className={`${getProgressColor()} h-2.5 rounded-full`}
                         />
                     </div>
-                    <span className={`text-sm font-medium ${progress === 100 ? 'text-green-600 font-bold' : 'text-gray-700'}`}>
+                    <span className={`text-sm font-medium ${progress === 100 ? 'text-green-600 font-bold' : 'text-[var(--features-title-color)]'}`}>
                         {progress === 100 ? '🎉 100%' : `${progress}%`}
                     </span>
                 </div>

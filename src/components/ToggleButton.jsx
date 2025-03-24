@@ -22,7 +22,7 @@ const ToggleButton = ({ isChecked }) =>
                 checked={isChecked}
                 readOnly/>
             <div
-                className={`absolute inset-0 rounded-full transition-colors duration-300 ${isChecked ? 'bg-red-50' : 'bg-blue-50'}`}/>
+                className={`absolute inset-0 rounded-full transition-colors duration-300 ${isChecked ? 'bg-red-50' : 'bg-[var(--loginpage-bg)]'}`}/>
             <div
                 className="absolute inset-0"
                 onMouseDown={handleMouseDown}
@@ -44,7 +44,7 @@ const ToggleButton = ({ isChecked }) =>
                         width: isActive ? "112px" : isChecked ? "80px" : "80px",
                         transform: isChecked && isActive ? 'translateX(0px)' : 'translateX(0)',
                         background: isActive
-                            ? 'linear-gradient(to right, rgba(59, 130, 246, 1), rgba(239, 68, 68, 1))' : isChecked ? 'rgba(239, 68, 68, 1)' : 'rgba(59, 130, 246, 1)',
+                            ? 'linear-gradient(to right, [var(--features-title-color)], rgba(239, 68, 68, 1))' : isChecked ? 'rgba(239, 68, 68, 1)' : 'var(--features-icon-color)',
                     }}
                 >
                     {isChecked ? 'Horizontal' : 'Vertical'}

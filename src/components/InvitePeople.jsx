@@ -21,16 +21,16 @@ const InvitePeople = ({ isOpen, onClose }) => {
                     <input
                         type="email"
                         placeholder="Enter email..."
-                        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50"
                     />
-                    <button className="w-full mt-3 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition">
+                    <button className="w-full mt-3 bg-[var(--features-icon-color)] !text-white py-2 rounded hover:bg-[var(--hover-color)] transition">
                         Invite
                     </button>
                 </div>
 
                 {/* Invite by Link Button */}
                 <div className="mt-4 text-center">
-                    <button className="text-blue-600 hover:underline">
+                    <button className="text-[var(--features-icon-color)] hover:underline">
                         Invite by Link
                     </button>
                 </div>

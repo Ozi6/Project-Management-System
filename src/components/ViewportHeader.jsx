@@ -11,6 +11,7 @@ import ResourcesContent from './ResourcesContent';
 import ToggleButton from './ToggleButton';
 import SearchBar from './SearchBar';
 import { useSearch } from '../scripts/SearchContext';
+import ThemeSwitcher from '../ThemeSwitcher';
 
 const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer, zoomLevel = 1, onZoomChange }) => {
     const location = useLocation();
@@ -316,18 +317,22 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
 
     return (
         <div className="relative">
-            <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-white/95 shadow-md backdrop-blur-sm z-[1000]">
+            <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-[var(--bg-color)]/95 shadow-md backdrop-blur-sm z-[1000]">
                 {/* Logo - Always visible but smaller on mobile */}
-                <Link to="/" className="flex items-center mr-2 sm:mr-4 md:mr-8 flex-shrink-0">
-                    <img
-                        src={logo}
-                        alt="PlanWise Logo"
-                        className="h-[28px] sm:h-[32px] md:h-[40px] w-auto object-contain" />
-                </Link>
+                <div className="flex items-center  rounded-lg px-3 h-full bg-white">
+
+                    <Link to="/" className="flex items-center mr-2 sm:mr-4 md:mr-8 flex-shrink-0">
+                        <img
+                            src={logo}
+                            alt="PlanWise Logo"
+                            className="h-[28px] sm:h-[32px] md:h-[40px] w-auto object-contain" />
+                    </Link>
+                </div>
+                
                 
                 {/* Divider - Hide on very small screens */}
                 <div className="hidden sm:block h-6 w-px bg-gray-300 mx-2 sm:mx-4" />
-                
+
                 {/* Toggle button - Always visible */}
                 <div onClick={() => toggleLayout(!isHorizontalLayout)} className="mr-2 flex-shrink-0">
                     <ToggleButton isChecked={isHorizontalLayout} />
@@ -351,11 +356,13 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     {renderZoomControl()}
                     {renderMobileZoomControl()}
                     
+                    <ThemeSwitcher/>
+
                     {/* Create Categorizer Button - Hide text on small screens */}
                     {onAddCategorizer && (
                         <button
                             onClick={onAddCategorizer}
-                            className="bg-green-600 hover:bg-green-700 text-white px-2 py-2 sm:px-3 md:px-4 lg:px-5 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
+                            className="bg-[var(--features-icon-color)] hover:[var(--hover-color)] !text-white px-2 py-2 sm:px-3 md:px-4 lg:px-5 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
                             <PlusCircle size={windowWidth < 640 ? 16 : 20} className="sm:mr-2" />
                             <span className="hidden sm:inline">Create Category</span>
                         </button>
@@ -365,7 +372,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     {action && (
                         <button
                             onClick={action.onClick}
-                            className="bg-blue-600 hover:bg-blue-800 text-white px-2 py-2 sm:px-3 md:px-4 lg:px-6 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
+                            className="bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)] text-white px-2 py-2 sm:px-3 md:px-4 lg:px-6 rounded-lg flex items-center transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg font-bold text-xs md:text-sm lg:text-base">
                             {action.icon}
                             <span className="hidden sm:inline">{action.label}</span>
                         </button>

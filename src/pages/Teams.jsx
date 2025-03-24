@@ -3,13 +3,15 @@ import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import ManageRoleModal from "../components/ManageRoleModal";
-import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck, Menu } from "lucide-react";
+import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck, Menu, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/clerk-react"; // Add this import if using Clerk for auth
+import { Link } from 'react-router-dom';
+
 
 const teamColors = {
-  1: "from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200",
-  4: "from-green-50 to-green-100 hover:from-green-100 hover:to-green-200",
+  1: "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]",
+  4: "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]",
 };
 
 const roles = ["Team Lead", "Senior", "Middle", "Junior"];
@@ -148,7 +150,7 @@ const Teams = () => {
       icon: Layout, 
       label: 'Dashboard', 
       path: '/dashboard',
-      color: 'bg-blue-100 text-blue-600',  
+      //color: 'bg-blue-100 text-blue-600',  
       iconColor: 'text-blue-600',     
       defaultColor: true
     },
@@ -173,8 +175,8 @@ const Teams = () => {
       icon: Users, 
       label: 'Teams',
       path: '/teams',
-      color: 'bg-green-100 text-green-600',
-      iconColor: 'text-green-600'
+      color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
+      iconColor: 'text-[var(--sidebar-teams-color)]'
     },
     { 
       id: 'settings', 
@@ -187,11 +189,11 @@ const Teams = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen bg-blue-50">
+    <div className="flex flex-col h-screen bg-gray-50">
       {/* Header with shadow */}
-      <div className="w-full bg-white shadow-sm z-10 border-b-2 border-blue-100">
+      <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-[var(--sidebar-teams-color)]">
         <Header
-          title={<span className="text-xl font-semibold text-blue-800">Teams</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-teams-color)]">Teams</span>}
           action={{
             onClick: () => console.log("Add team clicked"),
             icon: <Users className="mr-2 h-4 w-4" />,
@@ -233,17 +235,17 @@ const Teams = () => {
         )}
 
         {/* Main content */}
-        <div className="flex-1 py-6 px-6 overflow-auto bg-blue-50 flex flex-col">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto flex-grow">
+        <div className="flex-1 overflow-auto bg-[var(--sidebar-teams-bg-color)] flex flex-col">
+          <div className="grid grid-cols-1 py-6 px-6 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto flex-grow">
             {teams.map((team) => (
               <div
                 key={team.id}
                 className={`rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 bg-gradient-to-br ${
-                  teamColors[team.id] || "from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200"
+                  teamColors[team.id] || "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]"
                 } overflow-hidden`}
               >
                 <div className="w-full p-4 text-left border-b border-gray-100/50">
-                  <span className="font-medium text-gray-700">{team.name}</span>
+                  <span className="font-medium text-[var(--features-text-color)]">{team.name}</span>
                 </div>
 
                 <div className="p-4 backdrop-blur-sm bg-white/30">
@@ -260,15 +262,15 @@ const Teams = () => {
                             className="w-8 h-8 rounded-full shadow-sm hover:shadow-md transition-shadow duration-200"
                           />
                           <div>
-                            <div className="font-medium text-sm text-gray-700">
+                            <div className="font-medium text-sm text-[var(--features-title-color)]">
                               {member.name}
                             </div>
-                            <div className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200">
+                            <div className="text-xs text-[var(--text-color3)] hover:text-gray-700 transition-colors duration-200">
                               {member.email}
                             </div>
                           </div>
                         </div>
-                        <div className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                        <div className="text-xs px-2 py-1 bg-[var(--loginpage-bg)] text-[var(--features-text-color)] rounded-full">
                           {member.role || "Member"}
                         </div>
                       </div>
@@ -280,21 +282,26 @@ const Teams = () => {
           </div>
 
           {/* Footer */}
-          <div className="w-full bg-white border-t border-blue-100 py-3 px-6 mt-auto">
-            <div className="flex flex-row justify-between items-center text-xs text-blue-600">
+          
+          <div className="w-full bg-[var(--bg-color)] border-t border-gray-100 py-3 px-6 mt-auto">
+            <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
               <div>
-                <span>© 2025 PlanWise</span>
-                <span className="hidden sm:inline"> • All rights reserved</span>
+                <span className="text-[var(--sidebar-teams-color)]">© 2025 PlanWise</span>
+                <span className="hidden sm:inline text-[var(--sidebar-teams-color)]"> • All rights reserved</span>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="flex items-center">
-                  <Users className="h-3 w-3 mr-1" />
-                  Team Management
+                <Link to="/terms" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">Terms</Link>
+                <Link to="/privacy" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">Privacy</Link>
+                <span className="flex items-center text-[var(--sidebar-teams-color)]">
+                  Made with <Heart className="h-3 w-3 text-red-500 mx-1 " /> by PlanWise
                 </span>
               </div>
             </div>
           </div>
+
         </div>
+
+        
       </div>
     </div>
   );

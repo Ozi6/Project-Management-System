@@ -41,10 +41,10 @@ const GeneralSettings = ({ setShowAdvanced }) => {
     };
 
     return (
-        <div className="space-y-6 max-w-2xl mx-auto bg-gray-100 p-6 rounded-xl shadow-xl">
+        <div className="space-y-6 max-w-2xl mx-auto bg-[var(--gray-card3)] p-6 rounded-xl shadow-xl">
             <div className="flex items-center space-x-2">
-                <FaCog className="text-gray-600 text-3xl" />
-                <h2 className="text-3xl font-semibold text-gray-800">General Settings</h2>
+                <FaCog className="text-[var(--features-title-color)] text-3xl" />
+                <h2 className="text-3xl font-semibold text-[var(--features-text-color)]">General Settings</h2>
             </div>
 
             {/* Owner status indicator */}
@@ -55,9 +55,9 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                 </div>
             )}
 
-            <div className="bg-white rounded-xl shadow-lg p-8 space-y-6">
+            <div className="bg-[var(--bg-color)] rounded-xl bg-[var(--bg-color)] shadow-lg p-8 space-y-6">
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Project Name</label>
+                    <label className="block text-sm font-medium text-[var(--text-color3)]">Project Name</label>
                     <input
                         type="text"
                         value={projectName}
@@ -65,28 +65,28 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                         className={`block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 ${
                             isProjectOwner 
                                 ? "hover:shadow-lg hover:scale-105 focus:shadow-xl focus:scale-105"
-                                : "bg-gray-50 text-gray-500 cursor-not-allowed"
+                                : "bg-[var(--gray-card3)]/20 text-[var(--text-color3)]/50 cursor-not-allowed"
                         } transition-all duration-300 ease-in-out`}
                         disabled={!isProjectOwner}
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <label className="block text-sm font-medium text-[var(--text-color3)]">Description</label>
                     <textarea
                         value={projectDescription}
                         onChange={(e) => isProjectOwner && setProjectDescription(e.target.value)}
                         className={`block w-full rounded-xl border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-3 ${
                             isProjectOwner 
                                 ? "hover:shadow-lg hover:scale-105 focus:shadow-xl focus:scale-105"
-                                : "bg-gray-50 text-gray-500 cursor-not-allowed"
+                                : "bg-[var(--gray-card3)]/20 text-[var(--text-color3)]/50"
                         } transition-all duration-300 ease-in-out`}
                         disabled={!isProjectOwner}
                     />
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-700">Update Background Image (800x400)</label>
+                    <label className="block text-sm font-medium text-[var(--features-text-color)]">Update Background Image (800x400)</label>
                     <input
                         type="file"
                         accept="image/*"
@@ -98,7 +98,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                         } file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold`}
                         disabled={!isProjectOwner}
                     />
-                    <div className="mt-4 relative w-full h-64 bg-gray-200 rounded-xl shadow-md">
+                    <div className="mt-4 relative w-full h-64 bg-[var(--gray-card3)]/30 rounded-xl shadow-md">
                         <img
                             src={backgroundImage}
                             alt="Project Background"
@@ -111,7 +111,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                     {/* Advanced Settings Button - always available but with different styling based on ownership */}
                     <button
                         onClick={() => setShowAdvanced(true)}
-                        className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
+                        className="bg-[var(--features-icon-color)]/50 hover:bg-[var(--hover-color)] !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
                     >
                         Advanced Settings
                     </button>
@@ -119,7 +119,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                     {/* Delete Project Button - disabled for non-owners */}
                     <button
                         onClick={handleDeleteProject}
-                        className={`bg-red-500 text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out ${
+                        className={`bg-red-500 !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out ${
                             isProjectOwner ? "hover:bg-red-600" : "opacity-50 cursor-not-allowed"
                         }`}
                         disabled={!isProjectOwner}

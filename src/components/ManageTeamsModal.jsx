@@ -73,20 +73,20 @@ const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
             style={{ zIndex: 10003 }}
           >
             <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
-              <div className="bg-red-500 p-4 shadow-md">
-                <h3 className="text-xl font-bold text-white text-center">Confirm Deletion</h3>
+              <div className="bg-[var(--bug-report)] p-4 shadow-md">
+                <h3 className="text-xl font-bold !text-white text-center">Confirm Deletion</h3>
               </div>
               <div className="p-6 flex flex-col gap-4">
                 <p className="text-gray-700 text-center">Are you sure you want to delete the team "{teamName}"?</p>
                 <div className="flex justify-between">
                   <button
-                    className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
+                    className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={onCancel}
                   >
                     Cancel
                   </button>
                   <button
-                    className="bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-all duration-200 hover:scale-105 w-32"
+                    className="bg-[var(--bug-report)]/90 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
                     onClick={() => onConfirm(teamName)}
                   >
                     Delete
@@ -251,8 +251,8 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
           transition={{ type: "spring", stiffness: 150, damping: 15 }}
           style={{ zIndex: 10001 }}
         >
-          <div className="bg-white rounded-lg w-96 flex flex-col shadow-lg overflow-hidden">
-            <div className="bg-blue-500 p-4 shadow-md">
+          <div className="bg-[var(--bg-color)] rounded-lg w-96 flex flex-col shadow-lg overflow-hidden">
+            <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
               <h3 className="text-xl font-bold text-white text-center">
                 Manage Teams for {member?.name || "Unknown"}
               </h3>
@@ -261,7 +261,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
               {localTeams.map((team) => (
                 <div 
                   key={team.id} 
-                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-blue-50"
+                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-[var(--features-icon-color)]/20"
                 >
                   {editingTeamId === team.id ? (
                     <div className="flex flex-col gap-2 w-full">
@@ -290,7 +290,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                           type="text"
                           value={editingTeamName}
                           onChange={handleNameChange}
-                          className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                           onKeyPress={(e) => e.key === 'Enter' && handleSaveTeam(team)}
                         />
                         <label className="flex items-center cursor-pointer">
@@ -301,7 +301,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                             className="hidden"
                           />
                           <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
-                            localMemberTeam === team.name ? "bg-green-500 border-green-600" : "bg-white border-gray-300 hover:border-gray-500"
+                            localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
                           }`}>
                             {localMemberTeam === team.name && <Check size={16} className="text-white" />}
                           </span>
@@ -310,19 +310,19 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                       <div className="flex justify-between gap-2">
                         <button 
                           onClick={() => handleSaveTeam(team)} 
-                          className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 flex-1 transition-all duration-200"
+                          className="bg-[var(--features-icon-color)]/60 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)] flex-1 transition-all duration-200"
                         >
                           Save
                         </button>
                         <button 
                           onClick={() => handleDeleteTeam(team.name)} 
-                          className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 flex-1 transition-all duration-200"
+                          className="bg-[var(--bug-report)]/90 !text-white px-2 py-1 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
                         >
                           Delete
                         </button>
                         <button 
                           onClick={handleCancelEdit} 
-                          className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
+                          className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
                         >
                           Cancel
                         </button>
@@ -339,7 +339,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => handleEditTeam(team)}
-                          className="border p-1 rounded bg-yellow-200 hover:bg-yellow-300 text-gray-700 transition-all duration-200"
+                          className="border p-1 rounded bg-[var(--features-icon-color)]/50 hover:bg-[var(--features-icon-color)]/50 text-gray-700 transition-all duration-200"
                         >
                           <Pencil size={18} />
                         </button>
@@ -351,7 +351,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                             className="hidden"
                           />
                           <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
-                            localMemberTeam === team.name ? "bg-green-500 border-green-600" : "bg-white border-gray-300 hover:border-gray-500"
+                            localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
                           }`}>
                             {localMemberTeam === team.name && <Check size={16} className="text-white" />}
                           </span>
@@ -362,7 +362,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                 </div>
               ))}
               {isAddingTeam && (
-                <div className="flex flex-col gap-2 p-2 border-b bg-gray-50 rounded">
+                <div className="flex flex-col gap-2 p-2 border-b bg-[var(--features-icon-color)]/10 rounded">
                   <div className="flex items-center gap-2 relative">
                     <button
                       onClick={() => setShowIconMenuForTeamId("new")}
@@ -376,7 +376,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                           <button 
                             key={name} 
                             onClick={() => handleIconSelect(name)}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-[var(--features-icon-color)]/10 rounded"
                           >
                             <Icon className="h-5 w-5 text-gray-700" />
                           </button>
@@ -387,20 +387,20 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                       type="text"
                       value={newTeamName}
                       onChange={(e) => setNewTeamName(e.target.value)}
-                      className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                       placeholder="New team name"
                     />
                   </div>
                   <div className="flex justify-between">
                     <button 
                       onClick={handleAddTeam} 
-                      className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-all duration-200"
+                      className="bg-[var(--features-icon-color)]/50 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
                     >
                       Add
                     </button>
                     <button 
                       onClick={() => setIsAddingTeam(false)} 
-                      className="bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600 transition-all duration-200"
+                      className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 transition-all duration-200"
                     >
                       Cancel
                     </button>
@@ -411,13 +411,13 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             <div className="p-4 flex justify-between">
               <button 
                 onClick={() => setIsAddingTeam(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-all duration-200"
+                className="bg-[var(--features-icon-color)] !text-white px-4 py-2 rounded hover:bg-[var(--hover-color)] transition-all duration-200"
               >
                 Add Team
               </button>
               <button 
                 onClick={handleModalClose} 
-                className="bg-amber-300 text-white px-4 py-2 rounded hover:bg-green-600 transition-all duration-200"
+                className="bg-[var(--features-icon-color)]/50 !text-white px-4 py-2 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
               >
                 Done
               </button>

@@ -166,11 +166,11 @@ const ListEntry = ({
                 onMouseDown={handleMouseDown}
                 onClick={handleClick}
                 className={`p-2 shadow rounded-md border border-gray-300 flex flex-col gap-2 transition-all duration-300 ease-out cursor-grab 
-            ${isDueSoon ? "border-red-500 border-2" : "border-gray-300"}
+            ${isDueSoon ? "border-[var(--bug-report)] border-2" : "border-gray-300"}
             ${isNew ? "animate-entryAppear" : ""} 
-            ${isSelected ? "bg-blue-400 border-blue-300" : "bg-white hover:scale-105 hover:shadow-lg"}
+            ${isSelected ? "bg-[var(--homepage-card-color)] border-[var(--loginpage-bg)]" : "bg-white hover:scale-105 hover:shadow-lg"}
             ${isDraggingThis ? "opacity-20" : ""}
-            ${isDraggedOver ? (dragPosition === 'above' ? "border-t-4 border-t-dashed border-t-blue-500 mt-4" : dragPosition === 'below' ? "border-b-4 border-b-dashed border-b-blue-500 mb-4" : "") : ""}`}
+            ${isDraggedOver ? (dragPosition === 'above' ? "border-t-4 border-t-dashed border-t-[var(--features-icon-color)] mt-4" : dragPosition === 'below' ? "border-b-4 border-b-dashed border-b-blue-500 mb-4" : "") : ""}`}
             >
                 <div className="flex items-center gap-2">
                     <div className="checkbox-container" onClick={(e) => e.stopPropagation()}>
@@ -185,7 +185,7 @@ const ListEntry = ({
                             select-none 
                             inline-block
                             ${checked ? "task-completed" : ""}
-                            ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-500" : "text-black")}
+                            ${isSelected ? (checked ? "text-gray-200" : "text-white") : (checked ? "text-gray-500" : "text-[var(--features-title-color)]")}
                         `}>
                             {text}
                         </span>
@@ -193,8 +193,8 @@ const ListEntry = ({
                 </div>
                 {dueDate && (
                     <div className="flex items-center gap-2">
-                        {isDueSoon && <FaExclamationCircle className="text-red-500" />}
-                        <span className={`text-sm ${isDueSoon ? "text-red-500" : "text-gray-500"}`}>
+                        {isDueSoon && <FaExclamationCircle className="text-[var(--bug-report)]" />}
+                        <span className={`text-sm ${isDueSoon ? "text-[var(--bug-report)]" : "text-[var(--features-text-color)]"}`}>
                             {new Date(dueDate).toLocaleDateString()}
                         </span>
                     </div>
@@ -212,14 +212,14 @@ const ListEntry = ({
                                     className="tooltip"
                                     title={team.teamName || 'Unnamed Team'}
                                 >
-                                    {TeamIcon ? <TeamIcon className="text-gray-600 w-4 h-4" /> : 'No icon'}
+                                    {TeamIcon ? <TeamIcon className="text-[var(--text-color3)] w-4 h-4" /> : 'No icon'}
                                 </div>
                             );
                         })}
                         {assignedUsers.map((user) => (
                             <div
                                 key={user.id}
-                                className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold tooltip"
+                                className="w-6 h-6 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs font-bold tooltip"
                                 title={user.name || 'Unknown User'}
                             >
                                 {user.profilePicture ? (

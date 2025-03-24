@@ -24,31 +24,31 @@ const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) => {
                 style={{ zIndex: 60 }} />
             <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 70 }}>
                 <motion.div
-                    className="bg-white rounded-xl w-full max-w-3xl flex flex-col shadow-lg"
+                    className="bg-[var(--bg-color)] rounded-xl w-full max-w-3xl flex flex-col shadow-lg"
                     initial={{ y: "-20%", opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: "100%", opacity: 0 }}
                     transition={{ type: "spring", stiffness: 150, damping: 15 }}>
-                    <div className="bg-blue-500 p-3 rounded-t-xl">
+                    <div className="bg-[var(--features-icon-color)] p-3 rounded-t-xl">
                         <h3 className="text-xl font-bold text-white text-center">Edit Category</h3>
                     </div>
                     <div className="flex">
                         <div className="flex-1 p-4 flex flex-col justify-between">
                             <div className="space-y-2">
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">Title</label>
+                                    <label className="text-sm font-medium text-[var(--features-title-color)]">Title</label>
                                     <input
                                         type="text"
                                         value={editedTitle}
-                                        className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full border border-[var(--gray-card2)] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                                         onChange={(e) => setEditedTitle(e.target.value)} />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-gray-700">Tag Color</label>
+                                    <label className="text-sm font-medium text-[var(--features-title-color)]">Tag Color</label>
                                     <input
                                         type="text"
                                         value={customTagColor}
-                                        className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full border border-[var(--gray-card2)] p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                                         onChange={(e) => setCustomTagColor(e.target.value)} />
                                 </div>
                             </div>
@@ -68,14 +68,14 @@ const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) => {
                                         Cancel
                                     </button>
                                     <button
-                                        className="flex-1 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-700"
+                                        className="flex-1 bg-[var(--features-icon-color)] !text-white py-2 rounded-md hover:bg-[var(--hover-color)]"
                                         onClick={() => onDone(editedTitle, editedTagColor)}>
                                         Done
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div className="p-4">
+                        <div className="p-4 bg-[var(--bg-color)]">
                             <SketchPicker
                                 color={customTagColor}
                                 onChange={handleColorChange}

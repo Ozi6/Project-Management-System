@@ -7,11 +7,11 @@ const TermsOfService = () => {
   return (
     <>
       <Header />
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
-        <p className="text-sm text-gray-500 mb-8">Last updated: March 1, 2025</p>
+      <div className="max-w-4xl mx-auto px-4 py-12 bg-[var(--bg-color)]">
+        <h1 className="text-3xl font-bold mb-6 text-[var(--features-icon-color)] ">Terms of Service</h1>
+        <p className="text-sm text-[var(--features-text-color)] mb-8">Last updated: March 1, 2025</p>
         
-        <div className="prose max-w-none">
+        <div className="prose max-w-none text-[var(--features-title-color)] ">
           <section className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">1. Agreement to Terms</h2>
             <p>
@@ -108,7 +108,7 @@ const TermsOfService = () => {
             <p>
               If you have any questions about these Terms, please contact us at:
               <br />
-              <a href="mailto:planwise.team@outlook.com" className="text-blue-500 hover:underline">
+              <a href="mailto:planwise.team@outlook.com" className="text-[var(--features-icon-color)] hover:underline">
                 planwise.team@outlook.com
               </a>
             </p>
@@ -116,7 +116,7 @@ const TermsOfService = () => {
         </div>
         
         <div className="mt-12 border-t border-gray-200 pt-6">
-          <Link to="/" className="text-blue-500 hover:underline">
+          <Link to="/" className="text-[var(--features-icon-color)] hover:underline">
             &larr; Return to Home
           </Link>
         </div>
