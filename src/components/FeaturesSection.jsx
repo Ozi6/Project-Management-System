@@ -43,33 +43,33 @@ const FeaturesSection = () => {
   const features = [
     {
       icon: CheckSquare,
-      title: "Task Management",
-      description: "Easily create, assign, and track tasks in real-time."
+      title: t("mid1"),
+      description: t("mid1d")
     },
     {
       icon: Users,
-      title: "Team Collaboration",
-      description: "Work seamlessly with your team members across projects."
+      title: t("mid2"),
+      description: t("mid2d")
     },
     {
       icon: Layout,
-      title: "Customizable Boards",
-      description: "Tailor your boards and workflows to fit your needs."
+      title: t("mid3"),
+      description: t("mid3d")
     },
     {
       icon: Clock,
-      title: "Time Tracking",
-      description: "Monitor project hours and team productivity efficiently."
+      title: t("mid4"),
+      description: t("mid4d")
     },
     {
       icon: Shield,
-      title: "Secure Platform",
-      description: "Enterprise-grade security for your project data."
+      title: t("mid5"),
+      description: t("mid5d")
     },
     {
       icon: Globe,
-      title: "Remote Ready",
-      description: "Perfect for distributed teams and remote work."
+      title: t("mid6"),
+      description: t("mid6d"),
     }
   ];
 
@@ -97,7 +97,7 @@ const FeaturesSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10 ffont-mono tracking-tight"
               style={{color: "var(--features-title-color)"}}
           >
-            Why Choose PlanWise?
+            {t("why-planwise")}
           </h2>
           
           <div className="relative overflow-hidden px-4 md:px-16">
@@ -187,26 +187,26 @@ const FeaturesSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 font-mono tracking-tight"
           style={{color: "var(--features-title-color)"}}
           >
-            What Our Users Say
+            {t("what-user")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
             {[
               { 
                 name: "Emir Özen", 
-                role: "Frontend Expert in EVO LAB",
-                comment: "PlanWise has transformed how our team collaborates. The intuitive interface and powerful features have increased our productivity by 30%.",
+                role: t("user1"),
+                comment: t("user1d"),
                 avatar: "https://i.pravatar.cc/100?img=68"
               },
               { 
                 name: "Ozan Nurcan", 
-                role: "Team Lead at Dungeon Adventure Gang", 
-                comment: "As a team lead, I needed a solution that gives me visibility while empowering my team. PlanWise delivers exactly that - it's the backbone of our workflow.",
+                role: t("user2"), 
+                comment: t("user2d"),
                 avatar: "https://i.pravatar.cc/100?img=53"
               },
               { 
                 name: "Elif Batcı", 
-                role: "Developer of Mole-Whacker", 
-                comment: "The customizable workflows in PlanWise align perfectly with our mole bashing methodology. I can finally track product development with confidence and clarity.",
+                role: t("user3"),
+                comment: t("user3d"),
                 avatar: "https://i.pravatar.cc/100?img=45"
               }
             ].map((testimonial, index) => (
@@ -241,7 +241,7 @@ const FeaturesSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-8 md:mb-12 font-sans uppercase tracking-wider"
             style={{color: "var(--features-title-color)"}}
           >
-            Everything You Need to Succeed
+            {t("bottTit")}
           </h2>
           
           {/* Improved alignment for 7 components - 4-3 layout on large screens */}
@@ -251,22 +251,22 @@ const FeaturesSection = () => {
                 { 
                   icon: CheckSquare, 
                   title: t("features1"), 
-                  description: "Create, assign, and track tasks with customizable workflows" 
+                  description: t("bott1d"), 
                 },
                 { 
                   icon: Users, 
-                  title: "Team Collaboration", 
-                  description: "Chat, comment, and share files in real-time" 
+                  title: t("bott2"), 
+                  description: t("bott2d"), 
                 },
                 { 
                   icon: Clock, 
-                  title: "Time Tracking", 
-                  description: "Monitor hours spent on tasks and projects" 
+                  title: t("bott3"), 
+                  description: t("bott3d"), 
                 },
                 { 
                   icon: BarChart2, 
-                  title: "Detailed Analytics", 
-                  description: "Visualize progress with customizable dashboards" 
+                  title: t("bott4"), 
+                  description: t("bott4d"), 
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -298,18 +298,18 @@ const FeaturesSection = () => {
               {[
                 { 
                   icon: Globe, 
-                  title: "Anywhere Access", 
-                  description: "Work from any device, anywhere in the world" 
+                  title: t("bott5"), 
+                  description: t("bott5d"), 
                 },
                 { 
                   icon: Shield, 
-                  title: "Advanced Security", 
-                  description: "Enterprise-level protection for your data" 
+                  title: t("bott6"), 
+                  description: t("bott6d"), 
                 },
                 { 
                   icon: Layout, 
-                  title: "Custom Workflows", 
-                  description: "Design processes that match your team's needs" 
+                  title: t("bott7"), 
+                  description: t("bott7d"), 
                 }
               ].map((feature, index) => (
                 <motion.div
@@ -350,12 +350,12 @@ const FeaturesSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 md:mb-6 font-serif"
             style={{color: "white"}}
           >
-            Get Started with PlanWise Today!
+            {t("startToday")}
           </h2>
           <p className="mb-6 md:mb-8 text-sm md:text-base"
             style={{color: "white"}}
           >
-            Join thousands of teams using PlanWise to boost productivity, enhance collaboration, and achieve more together.
+            {t("startTodayd")}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a 
@@ -366,7 +366,7 @@ const FeaturesSection = () => {
                 backgroundColor: "var(--bg-color)",
               }}
             >
-              Get Started
+              {t("startTodayButt")}
             </a>
             
           </div>

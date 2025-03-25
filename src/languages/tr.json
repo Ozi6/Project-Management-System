@@ -5,13 +5,13 @@
   "header4": "Yönetici",
 
   "theme": {
-    "light": "Acik",
-    "dark": "Karanlik",
+    "light": "Açık",
+    "dark": "Karanlık",
     "pink": "Pembe"
   },
 
-  "login":"Giris Yap",
-  "signup":"Kayit Ol",
+  "login":"Giriş Yap",
+  "signup":"Kayıt Ol",
 
   "features1": "Proje Yönetimi",
   "features2": "Ekip İş Birliği",
@@ -33,7 +33,56 @@
   "hero2d": "Her Zaman Takipte Kalın",
   "hero3d": "Güvenli",
   "hero4d": "Başlamak İçin",
-  "herobutt": "Gösterge Paneline Git"
+  "herobutt": "Gösterge Paneline Git",
+
+  "why-planwise": "Neden PlanWise'ı Seçmelisiniz?",
+  "mid1": "Görev Yönetimi",
+  "mid2": "Ekip İşbirliği",
+  "mid3": "Özelleştirilebilir Panolar",
+  "mid4": "Zaman Takibi",
+  "mid5": "Güvenli Platform",
+  "mid6": "Uzaktan Çalışmaya Uygun",
+  "mid1d": "Gerçek zamanlı olarak görevler oluşturun, atayın ve takip edin.",
+  "mid2d": "Projeler boyunca ekip üyelerinizle sorunsuz çalışın.",
+  "mid3d": "Panolarınızı ve iş akışlarınızı ihtiyaçlarınıza göre uyarlayın.",
+  "mid4d": "Proje saatlerini ve ekip verimliliğini etkili bir şekilde izleyin.",
+  "mid5d": "Proje verileriniz için kurumsal düzeyde güvenlik.",
+  "mid6d": "Dağıtılmış ekipler ve uzaktan çalışma için mükemmel.",
+
+  "what-user": "Kullanıcılarımız Ne Diyor?",
+  "user1": "EVO LAB'de Frontend Uzmanı",
+  "user2": "Dungeon Adventure Gang'de Ekip Lideri",
+  "user3": "Mole-Whacker Geliştiricisi",
+  "user1d": "PlanWise, ekibimizin iş birliğini dönüştürdü. Sezgisel arayüzü ve güçlü özellikleri ile verimliliğimizi %30 artırdı.",
+  "user2d": "Bir ekip lideri olarak, bana görünürlük sağlayan ve ekibimi güçlendiren bir çözüme ihtiyacım vardı. PlanWise tam olarak bunu sunuyor - iş akışımızın temel taşı.",
+  "user3d": "PlanWise'daki özelleştirilebilir iş akışları, köstebek vurma metodolojimize mükemmel uyum sağlıyor. Ürün geliştirmeyi artık güvenle takip edebiliyorum.",
+
+  "bottTit": "BAŞARILI OLMANIZ İÇİN HER ŞEY",
+  "bott2": "Ekip İşbirliği",
+  "bott3": "Zaman Takibi",
+  "bott4": "Detaylı Analiz",
+  "bott5": "Her Yerden Erişim",
+  "bott6": "Gelişmiş Güvenlik",
+  "bott7": "Özel İş Akışları",
+  "bott1d": "Özelleştirilebilir iş akışları ile görevleri oluşturun, atayın ve takip edin.",
+  "bott2d": "Gerçek zamanlı sohbet edin, yorum yapın ve dosya paylaşın.",
+  "bott3d": "Görevler ve projeler için harcanan saatleri izleyin.",
+  "bott4d": "Özelleştirilebilir panolarla ilerlemeyi görselleştirin.",
+  "bott5d": "Dünyanın her yerinden, her cihazdan çalışın.",
+  "bott6d": "Verileriniz için kurumsal düzeyde koruma.",
+  "bott7d": "Ekibinizin ihtiyaçlarına uygun süreçler tasarlayın.",
+
+  "startToday": "Bugün PlanWise ile Başlayın!",
+  "startTodayd": "PlanWise'ı kullanarak verimliliği artıran, iş birliğini geliştiren ve birlikte daha fazlasını başaran binlerce ekibe katılın.",
+  "startTodayButt": "Başlayın",
+
+  "footer1": "Şirket",
+  "footer2": "Gizlilik Politikası",
+  "footer3": "Hizmet Şartları",
+  "footer4": "PlanWise. Tüm hakları saklıdır.",
+  "footer1d": "Sezgisel ve güçlü çözümümüzle proje yönetiminizi kolaylaştırın."
+
+
 }
 
   

@@ -117,7 +117,7 @@ const Header = ({ title, action, rightContent }) => {
                 {isAdmin && (
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
                         <ShieldAlert className="h-4 w-4 mr-2" />
-                        Admin
+                        {t("header4")}
                     </div>
                 )}
                 
