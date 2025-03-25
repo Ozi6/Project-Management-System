@@ -193,16 +193,20 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
             const hoverBgColor = item.color?.replace("100", "50") || "bg-gray-50"; // Create lighter hover background
             // Make Dashboard blue even when not active
             const isItemDashboard = item.id === 'dashboard';
+            const isItemProjects = item.id === 'projects';
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item)}
-                className={`w-full p-4 flex items-center !text-[var(--features-title-color)] text-left transition-all duration-200 
+                className={`w-full p-4 flex items-center text-[var(--features-title-color)] text-left transition-all duration-200 
                   ${activeTab === item.id 
                     ? `${item.color} ${item.iconColor}` 
                     : isItemDashboard 
-                      ? "text-[var(--sidebar-dashboard-color)]" 
-                      : "text-gray-600"} 
+                      ? "text-[var(--sidebar-dashboard-color)]"
+                      : isItemProjects
+                        ? "text-[var(--sidebar-projects-color)]"  
+                        : "text-[var(--sidebar-gantt-color)]"} 
+  
                   hover:${hoverBgColor} hover:text-${item.iconColor?.split('-')[1] || 'blue'}-600
                   hover:scale-105 hover:shadow-md hover:border hover:border-${item.iconColor?.split('-')[1] || 'blue'}-200`}
               >
@@ -223,7 +227,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
         <div className="mt-6 border-t border-gray-200 pt-4 px-4">
           <button 
             onClick={() => (isOpen || isMobile) && setShowIssuesMenu(!showIssuesMenu)}
-            className={`w-full py-3 flex items-center justify-between !text-[var(--bug-report)] hover:text-rose-600 transition-colors rounded-lg ${showIssuesMenu ? '' : ''}`}
+            className={`w-full py-3 flex items-center justify-between !text-[var(--bug-report)] hover:bg-[var(--bug-report)]/30 transition-colors rounded-lg ${showIssuesMenu ? '' : ''}`}
           >
             <div className="flex items-center">
               <AlertTriangle className="min-w-5 h-5 w-5" />
@@ -249,7 +253,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
                     onClick={isMobile && closeMobileMenu ? closeMobileMenu : undefined} 
                     className={`flex items-center py-2 px-3 text-sm text-[var(--text-color3)] rounded-md transition-colors
                       ${activeTab === item.id ? item.color : ''}
-                      hover:bg-${item.iconColor.split('-')[1]}-100`}
+                      hover:bg-[var(--bug-report)]/20`}
                   >
                     <Icon size={16} className={`mr-2 ${item.iconColor}`} />
                     <span className="text-sm font-medium">{item.label}</span>
