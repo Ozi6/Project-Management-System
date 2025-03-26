@@ -2,120 +2,121 @@ DROP DATABASE IF EXISTS planwise;
 CREATE DATABASE planwise;
 USE planwise;
 
-CREATE TABLE Users(
-    UserID VARCHAR(100) PRIMARY KEY,
-    Username VARCHAR(50) NOT NULL UNIQUE,
-    Email VARCHAR(100) NOT NULL UNIQUE
+CREATE TABLE users (
+    user_id VARCHAR(100) PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE
 );
-CREATE TABLE Projects(
-    ProjectID INT PRIMARY KEY AUTO_INCREMENT,
+
+CREATE TABLE projects (
+    project_id INT PRIMARY KEY AUTO_INCREMENT,
     project_name VARCHAR(100) NOT NULL,
-    Description TEXT,
-    OwnerID VARCHAR(100) NOT NULL,
-    dueDate DATE,  -- Added DueDate column
+    description TEXT,
+    owner_id VARCHAR(100) NOT NULL,
+    due_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (OwnerID) REFERENCES Users(UserID) ON DELETE RESTRICT
+    FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE ProjectMembers(
-    ProjectID INT NOT NULL,
-    UserID VARCHAR(100) NOT NULL,
-    JoinedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (ProjectID, UserID),
-    FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+CREATE TABLE project_members (
+    project_id INT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (project_id, user_id),
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Teams(
-    TeamID INT PRIMARY KEY AUTO_INCREMENT,
-    ProjectID INT NOT NULL,
-    TeamName VARCHAR(100) NOT NULL,
-    IconName VARCHAR(50) NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE
+CREATE TABLE teams (
+    team_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    team_name VARCHAR(100) NOT NULL,
+    icon_name VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
-CREATE TABLE TeamMembers(
-    TeamID INT NOT NULL,
-    UserID VARCHAR(100) NOT NULL,
-    JoinedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (TeamID, UserID),
-    FOREIGN KEY (TeamID) REFERENCES Teams(TeamID) ON DELETE CASCADE,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+CREATE TABLE team_members (
+    team_id INT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (team_id, user_id),
+    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Categories(
-    CategoryID INT PRIMARY KEY AUTO_INCREMENT,
-    ProjectID INT NOT NULL,
-    CategoryName VARCHAR(100) NOT NULL,
-    Color VARCHAR(20) NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID) ON DELETE CASCADE
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    category_name VARCHAR(100) NOT NULL,
+    color VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
-CREATE TABLE TaskLists(
-    TaskListID INT PRIMARY KEY AUTO_INCREMENT,
-    CategoryID INT NOT NULL,
-    TaskListName VARCHAR(100) NOT NULL,
-    Color VARCHAR(20) NOT NULL,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID) ON DELETE CASCADE
+CREATE TABLE task_lists (
+    task_list_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT NOT NULL,
+    task_list_name VARCHAR(100) NOT NULL,
+    color VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Files (
-    FileID INT PRIMARY KEY AUTO_INCREMENT,
-    FileName VARCHAR(255) NOT NULL,
-    FileSize INT NOT NULL,
-    FileType VARCHAR(100) NOT NULL,
-    FileData LONGBLOB NOT NULL,
-    UploadedBy VARCHAR(100) NOT NULL,
-    UploadedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (UploadedBy) REFERENCES Users(UserID) ON DELETE RESTRICT
+CREATE TABLE files (
+    file_id INT PRIMARY KEY AUTO_INCREMENT,
+    file_name VARCHAR(255) NOT NULL,
+    file_size INT NOT NULL,
+    file_type VARCHAR(100) NOT NULL,
+    file_data LONGBLOB NOT NULL,
+    uploaded_by VARCHAR(100) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (uploaded_by) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 
-CREATE TABLE ListEntries(
-    EntryID INT PRIMARY KEY AUTO_INCREMENT,
-    TaskListID INT NOT NULL,
-    EntryName VARCHAR(255) NOT NULL,
-    IsChecked BOOLEAN DEFAULT FALSE,
-    FileID INT,
-    DueDate DATE,
-    WarningThreshold INT,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (TaskListID) REFERENCES TaskLists(TaskListID) ON DELETE CASCADE,
-    FOREIGN KEY (FileID) REFERENCES Files(FileID) ON DELETE SET NULL,
+CREATE TABLE list_entries (
+    entry_id INT PRIMARY KEY AUTO_INCREMENT,
+    task_list_id INT NOT NULL,
+    entry_name VARCHAR(255) NOT NULL,
+    is_checked BOOLEAN DEFAULT FALSE,
+    file_id INT,
+    due_date DATE,
+    warning_threshold INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_list_id) REFERENCES task_lists(task_list_id) ON DELETE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES files(file_id) ON DELETE SET NULL,
     CONSTRAINT chk_warning_threshold CHECK (
-        (DueDate IS NULL AND WarningThreshold IS NULL) OR
-        (DueDate IS NOT NULL AND WarningThreshold IS NOT NULL)
+        (due_date IS NULL AND warning_threshold IS NULL) OR
+        (due_date IS NOT NULL AND warning_threshold IS NOT NULL)
     )
 );
 
-CREATE TABLE EntryUserAssignments(
-    EntryID INT NOT NULL,
-    UserID VARCHAR(100) NOT NULL,
-    AssignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (EntryID, UserID),
-    FOREIGN KEY (EntryID) REFERENCES ListEntries(EntryID) ON DELETE CASCADE,
-    FOREIGN KEY (UserID) REFERENCES Users(UserID) ON DELETE CASCADE
+CREATE TABLE entry_user_assignments (
+    entry_id INT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (entry_id, user_id),
+    FOREIGN KEY (entry_id) REFERENCES list_entries(entry_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE EntryTeamAssignments(
-    EntryID INT NOT NULL,
-    TeamID INT NOT NULL,
-    AssignedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (EntryID, TeamID),
-    FOREIGN KEY (EntryID) REFERENCES ListEntries(EntryID) ON DELETE CASCADE,
-    FOREIGN KEY (TeamID) REFERENCES Teams(TeamID) ON DELETE CASCADE
+CREATE TABLE entry_team_assignments (
+    entry_id INT NOT NULL,
+    team_id INT NOT NULL,
+    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (entry_id, team_id),
+    FOREIGN KEY (entry_id) REFERENCES list_entries(entry_id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_projects_owner ON Projects(OwnerID);
-CREATE INDEX idx_categories_project ON Categories(ProjectID);
-CREATE INDEX idx_tasklists_category ON TaskLists(CategoryID);
-CREATE INDEX idx_listentries_tasklist ON ListEntries(TaskListID);
-CREATE INDEX idx_listentries_duedate ON ListEntries(DueDate);
-CREATE INDEX idx_files_uploader ON Files(UploadedBy);
+CREATE INDEX idx_projects_owner ON projects(owner_id);
+CREATE INDEX idx_categories_project ON categories(project_id);
+CREATE INDEX idx_tasklists_category ON task_lists(category_id);
+CREATE INDEX idx_listentries_tasklist ON list_entries(task_list_id);
+CREATE INDEX idx_listentries_duedate ON list_entries(due_date);
+CREATE INDEX idx_files_uploader ON files(uploaded_by);

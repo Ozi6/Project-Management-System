@@ -1,6 +1,8 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,37 +12,40 @@ import java.util.Set;
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ProjectID")
+    @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "ProjectName", nullable = false)
-    private String project_name;
+    @Column(name = "project_name", nullable = false)
+    private String projectName;
 
-    @Column
-    private String Description;
+    @Column(name = "description")
+    private String description;
 
     @ManyToOne
-    @JoinColumn(name = "OwnerID")
+    @JoinColumn(name = "owner_id")
     private User owner;
 
-    @Column
-    private LocalDateTime CreatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-    @Column
-    private LocalDateTime UpdatedAt;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
 
     @ManyToMany
     @JoinTable(
             name = "ProjectMembers",
-            joinColumns = @JoinColumn(name = "projectId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
+            joinColumns = @JoinColumn(name = "ProjectID"),
+            inverseJoinColumns = @JoinColumn(name = "UserID")
     )
     private Set<User> members = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Team> teams = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Category> categories = new HashSet<>();
 
     public Long getProjectId()
@@ -55,22 +60,22 @@ public class Project {
 
     public String getProjectName()
     {
-        return project_name;
+        return projectName;
     }
 
     public void setProjectName(String projectName)
     {
-        this.project_name = projectName;
+        this.projectName = projectName;
     }
 
     public String getDescription()
     {
-        return Description;
+        return description;
     }
 
     public void setDescription(String description)
     {
-        this.Description = description;
+        this.description = description;
     }
 
     public User getOwner()
@@ -85,22 +90,22 @@ public class Project {
 
     public LocalDateTime getCreatedAt()
     {
-        return CreatedAt;
+        return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt)
     {
-        this.CreatedAt = createdAt;
+        this.createdAt = createdAt;
     }
 
     public LocalDateTime getUpdatedAt()
     {
-        return UpdatedAt;
+        return updatedAt;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt)
     {
-        this.UpdatedAt = updatedAt;
+        this.updatedAt = updatedAt;
     }
 
     public Set<User> getMembers()

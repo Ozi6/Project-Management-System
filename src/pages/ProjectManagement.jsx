@@ -22,75 +22,67 @@ const ProjectManagement = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     
-    useEffect(() =>
-    {
-        if (!isLoaded)
-            return;
+    useEffect(() => {
+        if (!isLoaded) return;
 
-        const fetchProjects = async () =>
-        {
-            try{
+        const fetchProjects = async () => {
+            try {
                 const token = await getToken();
-                const response = await axios.get('http://localhost:8080/api/projects',
-                {
+                const response = await axios.get(`http://localhost:8080/api/projects/user/${user.id}/related`, {
                     withCredentials: true,
-                    headers:{
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
                 const projects = response.data.map(project => ({
-                    ProjectID: project.ProjectID,
-                    project_name: project.project_name,
-                    Description: project.Description,
-                    OwnerID: project.OwnerID,
-                    Categories: project.Categories || [],
-                    isOwner: project.OwnerID === user.id,
-                    progress: calculateProgress(project.Categories),
-                    status: determineStatus(project.Categories),
+                    projectId: project.projectId,
+                    projectName: project.projectName,
+                    description: project.description,
+                    ownerId: project.owner?.userId,
+                    categories: project.categories || [],
+                    isOwner: project.owner?.userId === user.id,
+                    progress: calculateProgress(project.categories),
+                    status: determineStatus(project.categories),
                 }));
 
                 setActiveProjects(projects);
                 setLoading(false);
-            }catch(err){
+            } catch (err) {
                 console.error('Error fetching projects:', err);
                 setError('Failed to load projects');
                 setLoading(false);
             }
         };
-        fetchProjects();
-    },[isLoaded, getToken, user]);
 
-    const calculateProgress = (categories) =>
-    {
-        if (!categories || categories.length === 0)
-            return 0;
+        fetchProjects();
+    }, [isLoaded, getToken, user]);
+
+    const calculateProgress = (categories) => {
+        if (!categories?.length) return 0;
 
         const allListEntries = categories.flatMap(category =>
-            category.TaskLists.flatMap(taskList => taskList.ListEntries)
+            category.taskLists?.flatMap(taskList => taskList.entries) || []
         );
 
-        if (allListEntries.length === 0)
-            return 0;
+        if (!allListEntries.length) return 0;
 
         const totalEntries = allListEntries.length;
-        const completedEntries = allListEntries.filter(entry => entry.IsChecked).length;
+        const completedEntries = allListEntries.filter(entry => entry.isChecked).length;
+
         return Math.round((completedEntries / totalEntries) * 100);
     };
 
-    const determineStatus = (categories) =>
-    {
-        if (!categories || categories.length === 0)
-            return "In Progress";
+    const determineStatus = (categories) => {
+        if (!categories?.length) return "In Progress";
 
         const allListEntries = categories.flatMap(category =>
-            category.TaskLists.flatMap(taskList => taskList.ListEntries)
+            category.taskLists?.flatMap(taskList => taskList.entries) || []
         );
 
-        if (allListEntries.length === 0)
-            return "In Progress";
+        if (!allListEntries.length) return "In Progress";
 
-        const allCompleted = allListEntries.every(entry => entry.IsChecked);
+        const allCompleted = allListEntries.every(entry => entry.isChecked);
         return allCompleted ? "Completed" : "In Progress";
     };
 

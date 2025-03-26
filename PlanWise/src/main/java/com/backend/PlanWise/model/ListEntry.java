@@ -1,57 +1,59 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "ListEntries")
-public class ListEntry
-{
+public class ListEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "entry_id")
     private Long entryId;
 
     @ManyToOne
-    @JoinColumn(name = "taskListId", nullable = false)
+    @JoinColumn(name = "task_list_id", nullable = false)
     private TaskList taskList;
 
-    @Column(nullable = false)
+    @Column(name = "EntryName", nullable = false)
     private String entryName;
 
-    @Column
+    @Column(name = "IsChecked")
     private Boolean isChecked = false;
 
     @ManyToOne
-    @JoinColumn(name = "fileId")
+    @JoinColumn(name = "file_id")
     private File file;
 
-    @Column
-    private LocalDateTime dueDate;
+    @Column(name = "DueDate")
+    private LocalDate dueDate;
 
-    @Column
+    @Column(name = "WarningThreshold")
     private Integer warningThreshold;
 
-    @Column
+    @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "UpdatedAt")
     private LocalDateTime updatedAt;
 
     @ManyToMany
     @JoinTable(
-            name = "EntryUserAssignments",
-            joinColumns = @JoinColumn(name = "entryId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
+            name = "entry_user_assignments",
+            joinColumns = @JoinColumn(name = "entry_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> assignedUsers = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
             name = "EntryTeamAssignments",
-            joinColumns = @JoinColumn(name = "entryId"),
-            inverseJoinColumns = @JoinColumn(name = "teamId")
+            joinColumns = @JoinColumn(name = "entry_id"),
+            inverseJoinColumns = @JoinColumn(name = "team_id")
     )
     private Set<Team> assignedTeams = new HashSet<>();
 
@@ -105,12 +107,12 @@ public class ListEntry
         this.file = file;
     }
 
-    public LocalDateTime getDueDate()
+    public LocalDate getDueDate()
     {
         return dueDate;
     }
 
-    public void setDueDate(LocalDateTime dueDate)
+    public void setDueDate(LocalDate dueDate)
     {
         this.dueDate = dueDate;
     }

@@ -7,29 +7,29 @@ import java.util.Set;
 
 @Entity
 @Table(name = "TaskLists")
-public class TaskList
-{
+public class TaskList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "task_list_id")
     private Long taskListId;
 
     @ManyToOne
-    @JoinColumn(name = "categoryId", nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-    @Column(nullable = false)
+    @Column(name = "task_list_name", nullable = false)
     private String taskListName;
 
-    @Column(nullable = false)
+    @Column(name = "color", nullable = false)
     private String color;
 
-    @Column
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Column
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "taskList", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "taskList", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ListEntry> entries = new HashSet<>();
 
     public Long getTaskListId()

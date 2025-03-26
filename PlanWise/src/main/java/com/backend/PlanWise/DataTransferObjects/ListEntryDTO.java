@@ -1,5 +1,6 @@
 package com.backend.PlanWise.DataTransferObjects;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,12 +47,12 @@ public class ListEntryDTO
         this.file = file;
     }
 
-    public LocalDateTime getDueDate()
+    public LocalDate getDueDate()
     {
         return dueDate;
     }
 
-    public void setDueDate(LocalDateTime dueDate)
+    public void setDueDate(LocalDate dueDate)
     {
         this.dueDate = dueDate;
     }
@@ -90,7 +91,7 @@ public class ListEntryDTO
     private String entryName;
     private Boolean isChecked;
     private FileDTO file;
-    private LocalDateTime dueDate;
+    private LocalDate dueDate;
     private Integer warningThreshold;
     private Set<UserDTO> assignedUsers = new HashSet<>();
     private Set<TeamDTO> assignedTeams = new HashSet<>();

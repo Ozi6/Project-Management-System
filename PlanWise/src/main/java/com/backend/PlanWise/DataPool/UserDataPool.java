@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserDataPool extends JpaRepository<User, String> {
+    User findByUserId(String userId);
     User findByUsername(String username);
     User findByEmail(String email);
 }

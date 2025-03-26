@@ -1,7 +1,6 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,7 +9,7 @@ import java.util.Set;
 public class User {
 
     @Id
-    @Column(name = "UserID")
+    @Column(name = "user_id")
     private String userId;
     
     @Column(name = "username")

@@ -17,6 +17,8 @@ public class ProjectServicer
 
     @Autowired
     private ProjectDataPool projectRepository;
+    @Autowired
+    private UserDataPool userDataPool;
 
     @Autowired
     private UserService userService;
@@ -295,10 +297,13 @@ public class ProjectServicer
 
     public List<ProjectDTO> getProjectsByUserId(String userId)
     {
+        User user = userDataPool.findByUserId(userId);
+
         List<Project> ownedProjects = projectRepository.findByOwnerUserId(userId);
         List<ProjectDTO> ownedProjectDTOs = ownedProjects.stream()
                 .map(project ->
                 {
+                    project.setOwner(user);
                     ProjectDTO dto = convertToDTO(project);
                     dto.setIsOwner(true);
                     return dto;
