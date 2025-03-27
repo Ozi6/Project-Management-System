@@ -6,6 +6,15 @@ public class UserDTO
     private String username;
     private String email;
 
+    public UserDTO() {}
+
+    public UserDTO(String userId, String username, String email)
+    {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+    }
+
     public String getUserId()
     {
         return userId;

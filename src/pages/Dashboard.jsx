@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useUser, useAuth } from '@clerk/clerk-react';
+import axios from 'axios';
 import { 
   BarChart3, Activity, PieChart, ChevronRight, 
   Calendar, CheckCircle, Clock, AlertCircle, 
@@ -12,6 +14,38 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
+    const { user, isLoaded } = useUser();
+    const { getToken } = useAuth();
+    useEffect(() => {
+        const syncUserData = async () =>
+        {
+            if (!isLoaded || !user)
+                return;
+
+            try{
+                const token = await getToken();
+                const userDTO =
+                {
+                    userId: user.id,
+                    username: user.username || user.fullName,
+                    email: user.emailAddresses[0].emailAddress
+                };
+
+                await axios.post('http://localhost:8080/api/users/sync', userDTO,{
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } catch (error) {
+                console.error('Error syncing user data:', error);
+            }
+        };
+
+        syncUserData();
+    },[isLoaded, user, getToken]);
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState({
