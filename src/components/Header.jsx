@@ -27,6 +27,8 @@ const Header = ({ title, action, rightContent }) => {
         navigate('/login');
     };
 
+   
+
     // Track window width for responsive behavior
     useEffect(() => {
         const handleResize = () => {
@@ -104,15 +106,6 @@ const Header = ({ title, action, rightContent }) => {
                 {/* Admin badge - UPDATED FOR LARGER SIZE */}
 
                 <ThemeSwitcher/>
-
-                <div>
-                    <button onClick={() => i18n.changeLanguage("en")}
-                        className="font-bold mx-0 px-2 py-1 hover:bg-[var(--features-icon-color)]/20 rounded transition"
-                    >EN</button>
-                    <button onClick={() => i18n.changeLanguage("tr")}
-                        className="font-bold mx-0 px-2 py-1 hover:bg-[var(--bug-report)]/50 rounded transition"
-                    >TR</button>
-                </div>
 
                 {isAdmin && (
                     <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-3 py-1.5 rounded-md flex items-center text-sm font-semibold shadow-md">
