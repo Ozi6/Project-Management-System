@@ -2,8 +2,10 @@ import React from 'react';
 import { Users, UserPlus, UserCheck, List, Tag, Clock, ArrowRight, Shield, Settings } from 'lucide-react';
 import FeaturePageTemplate from '../../../components/FeaturePageTemplate';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const TeamCollaboration = () => {
+  const {t} = useTranslation();
   const collaborationFeatures = [
     {
       icon: Users,

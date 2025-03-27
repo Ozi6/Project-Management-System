@@ -80,7 +80,33 @@
   "footer2": "Gizlilik Politikası",
   "footer3": "Hizmet Şartları",
   "footer4": "PlanWise. Tüm hakları saklıdır.",
-  "footer1d": "Sezgisel ve güçlü çözümümüzle proje yönetiminizi kolaylaştırın."
+  "footer1d": "Sezgisel ve güçlü çözümümüzle proje yönetiminizi kolaylaştırın.",
+
+  "proM1": "Proje Planlama",
+    "proM2": "Kaynak Tahsisi",
+    "proM3": "Zaman Çizelgesi Yönetimi",
+    "proM4": "Proje Şablonları",
+    "proM5": "İş Akışı Otomasyonu",
+    "proM6": "Sürüm Kontrolü",
+    "proM1d": "Kilometre taşları, bağımlılıklar ve kritik yollar ile kapsamlı proje planları oluşturun.",
+    "proM2d": "Ekip üyelerini uygunluk ve becerilere göre projelere kolayca atayın.",
+    "proM3d": "Etkileşimli Gantt şemaları ve takvim görünümleri ile proje zaman çizelgelerini görselleştirin.",
+    "proM4d": "Yaygın proje türleri için yeniden kullanılabilir şablonlar oluşturarak zamandan tasarruf edin.",
+    "proM5d": "Projelerin ilerlemesini sağlamak için rutin görevleri ve bildirimleri otomatikleştirin.",
+    "proM6d": "Kapsamlı sürüm geçmişi ile proje planlarındaki değişiklikleri takip edin.",
+    "proMd": "Projelerinizi güçlü ve sezgisel araçlarla planlayın, yönetin ve takip edin.",
+    "proMH": "Projeleriniz Üzerinde Tam Kontrol",
+    "proMHd": "PlanWise, ilk planlamadan nihai teslimata kadar projeleri etkili bir şekilde yönetmek için ihtiyacınız olan her şeyi sunar. Kapsamlı proje yönetimi araçlarımızla takvime ve bütçeye uygun kalın.",
+    "proMHButt": "Projeleri yönetmeye başlayın",
+    "proMF": "Nasıl Çalışır?",
+    "proMF1": "Projenizi Kurun",
+    "proMF2": "Görevleri Atayın ve Takip Edin",
+    "proMF3": "Başarıyla Teslim Edin",
+    "proMF4": "PROJE YÖNETİMİNİZİ DÖNÜŞTÜRMEYE HAZIR MISINIZ?",
+    "proMF1d": "Kolay kullanımlı proje oluşturma sihirbazımız ile proje hedeflerini, zaman çizelgelerini ve ekip üyelerini belirleyin.",
+    "proMF2d": "Projeleri görevlere ayırın, ekip üyelerine atayın ve ilerlemeyi gerçek zamanlı takip edin.",
+    "proMF3d": "Projelerin zamanında ve belirlenen kapsamda tamamlanmasını sağlamak için yerleşik analiz ve raporlama araçlarını kullanın.",
+    "proMF4Butt": "Ücretsiz Başlayın"
 
 
 }

@@ -82,6 +82,37 @@
     "hero3d":"Secure",
     "hero4d":"To Start",
     "herobutt":"Go to Dashboard",
-    "getStarted": "Get Started Free"
-  }
-  
+    "getStarted": "Get Started Free",
+
+    "proM1":"Project Planning",
+    "proM2":"Resource Allocation",
+    "proM3":"Timeline Management",
+    "proM4":"Project Templates",
+    "proM5":"Workflow Automation",
+    "proM6":"Version Control",
+    "proM1d":"Create comprehensive project plans with milestones, dependencies, and critical paths.",
+    "proM2d":"Easily assign team members to projects based on availability and skills.",
+    "proM3d":"Visualize project timelines with interactive Gantt charts and calendar views.",
+    "proM4d":"Save time by creating reusable templates for common project types.",
+    "proM5d":"Automate routine tasks and notifications to keep projects moving forward.",
+    "proM6d":"Track changes to project plans with comprehensive version history.",
+    "proMd":"Plan, execute, and track your projects with powerful yet intuitive tools.",
+    "proMH":"Complete Control Over Your Projects",
+    "proMHd":"PlanWise gives you everything you need to manage projects effectively, from initial planning to final delivery. Our comprehensive suite of project management tools helps you stay on schedule and within budget.",
+    "proMHButt":"Start managing projects",
+    "proMF":"How It Works",
+    "proMF1":"Set Up Your Project",
+    "proMF2":"Assign & Monitor Tasks",
+    "proMF3":"Deliver Successfully",
+    "proMF4":"READY TO TRANSFORM YOUR PROJECT MANAGEMENT?",
+    "proMF1d":"Define project goals, timelines, and team members with our easy-to-use project creation wizard.",
+    "proMF2d":"Break down projects into tasks, assign them to team members, and track progress in real-time.",
+    "proMF3d":"Use built-in analytics and reporting tools to ensure projects complete on time and within scope.",
+    "proMF4Butt":"Get Started Free",
+
+    "TCH":"",
+    "TCHd":""
+
+    
+    
+}
