@@ -18,9 +18,10 @@ public interface ProjectDataPool extends JpaRepository<Project, Long> {
     List<Project> findByOwnerUserId(@Param("userId") String userId);
 
     @Query("SELECT DISTINCT p FROM Project p " +
+            "JOIN p.members m " +
             "LEFT JOIN FETCH p.categories c " +
             "LEFT JOIN FETCH c.taskLists tl " +
             "LEFT JOIN FETCH tl.entries e " +
-            "WHERE :userId MEMBER OF p.members")
+            "WHERE m.userId = :userId")
     List<Project> findByMembersUserId(@Param("userId") String userId);
 }
