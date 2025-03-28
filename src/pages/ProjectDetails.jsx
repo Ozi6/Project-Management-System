@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid"; // For generating unique IDs
+import { v4 as uuidv4 } from "uuid";
+import axios from 'axios';
+import { useUser, useAuth } from "@clerk/clerk-react";
 import ViewportHeader from "../components/ViewportHeader";
 import Sidebar from "../components/Sidebar";
 import Categorizer from "../components/Categorizer";
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
-import { Teams, Users } from '../components/TeamAndUsersTest';
 import { 
   Activity, 
   KanbanSquare, 
@@ -29,166 +30,75 @@ const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user, isLoaded } = useUser();
+    const { getToken } = useAuth();
     const [activeTab, setActiveTab] = useState("team");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [showProgressBar, setShowProgressBar] = useState(false);
-    const initialColumns = [
-        [
-            {
-                id: "category-a",
-                title: "Backend",
-                tagColor: "#8b5cf6",
-                taskLists: [
-                    {
-                        id: "task-list-1",
-                        title: "SQL",
-                        tagColor: "#8b5cf6",
-                        entries: [
-                            {
-                                text: "Connect API",
-                                entryId: "task-1",
-                                dueDate: new Date("2025-12-15"),
-                                assignedTeams: [Teams[0], Teams[1]],
-                                assignedUsers: [Users[0]]
-                            },
-                            {
-                                text: "Establish Database",
-                                entryId: "task-2",
-                                dueDate: new Date("2025-3-2"),
-                                assignedTeams: [Teams[0], Teams[1]],
-                                assignedUsers: [Users[0]]
-                            },
-                        ],
-                    },
-                    {
-                        id: "task-list-2",
-                        title: "User Establishing",
-                        tagColor: "#8b5cf6",
-                        entries: [
-                            {
-                                text: "Proper Initializations",
-                                entryId: "task-3",
-                                dueDate: new Date("2025-12-10"),
-                            },
-                            {
-                                text: "Authentication",
-                                entryId: "task-4",
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                id: "category-b",
-                title: "Frontend",
-                tagColor: "#f43f5e",
-                taskLists: [
-                    {
-                        id: "task-list-3",
-                        title: "Controls",
-                        tagColor: "#f43f5e",
-                        entries: [
-                            {
-                                text: "Update Website Content",
-                                entryId: "task-5",
-                                dueDate: new Date("2025-12-25"),
-                                assignedTeams: [ Teams[1]],
-                                assignedUsers: [Users[0]]
-                            },
-                            {
-                                text: "Test New Features",
-                                entryId: "task-6",
-                                dueDate: new Date("2025-12-18"), // Due soon
-                            },
-                        ],
-                    },
-                    {
-                        id: "task-list-4",
-                        title: "Extra",
-                        tagColor: "#f43f5e",
-                        entries: [
-                            {
-                                text: "Fix Bugs in Template",
-                                entryId: "task-7",
-                            },
-                            {
-                                text: "Write documentation",
-                                entryId: "task-8",
-                                dueDate: new Date("2025-12-30"),
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                id: "category-c",
-                title: "Management",
-                tagColor: "#f97316",
-                taskLists: [
-                    {
-                        id: "task-list-5",
-                        title: "Office",
-                        tagColor: "#f97316",
-                        entries: [
-                            {
-                                text: "Plan team outing",
-                                entryId: "task-9",
-                                dueDate: new Date("2025-12-22"), // Due soon
-                            },
-                            {
-                                text: "Order office supplies",
-                                entryId: "task-10",
-                            },
-                        ],
-                    },
-                    {
-                        id: "task-list-6",
-                        title: "Employees",
-                        tagColor: "#f97316",
-                        entries: [
-                            {
-                                text: "Conduct performance reviews",
-                                entryId: "task-11",
-                                dueDate: new Date("2025-12-28"),
-                            },
-                            {
-                                text: "Submit quarterly report",
-                                entryId: "task-12",
-                                dueDate: new Date("2025-12-31"),
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-    ];
-
-    const [columns, setColumns] = useState(initialColumns);
+    const [columns, setColumns] = useState([]);
     const [containerWidth, setContainerWidth] = useState(0);
     const [selectedEntryId, setSelectedEntryId] = useState(null);
     const [isHorizontalLayout, setIsHorizontalLayout] = useState(false);
     const [originalColumns, setOriginalColumns] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const { searchTerm, filteredColumns, performSearch } = useSearch();
+
+    useEffect(() =>
+    {
+        if (!isLoaded || !user)
+            return;
+
+        const fetchProjectDetails = async () =>
+        {
+            try{
+                const token = await getToken();
+                const response = await axios.get(`http://localhost:8080/api/projects/${id}`, {
+                    withCredentials: true,
+                    headers:{
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                const projectCategories = response.data.categories || [];
+                const formattedColumns = [projectCategories];
+
+                setColumns(formattedColumns);
+                setLoading(false);
+            }catch(err){
+                console.error('Error fetching project details:', err);
+                setError('Failed to load project details');
+                setLoading(false);
+            }
+        };
+
+        fetchProjectDetails();
+    },[isLoaded, id, user, getToken]);
 
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
 
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 768) {
+    useEffect(() =>
+    {
+        const handleResize = () =>
+        {
+            if (window.innerWidth >= 768)
+            {
                 setIsMobileSidebarOpen(false);
                 setShowProgressBar(true);
-            } else {
-                setShowProgressBar(false);
             }
+            else
+                setShowProgressBar(false);
         };
 
         handleResize();
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    },[]);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
         setIsMobileSidebarOpen(false);
     }, [location.pathname]);
 
