@@ -211,49 +211,53 @@ const ProjectDetails = () => {
         }
     };
 
-    const handleAddCategorizer = async () => {
-        try {
+    const handleAddCategorizer = async () =>
+    {
+        try{
             const token = await getToken();
-            const newCategory = {
-                title: "New Categorizer",
-                tagColor: "red",
-                projectId: id
+            const newCategory ={
+                categoryName: "New Categorizer",
+                color: "red"
             };
-
-            const response = await axios.post(`http://localhost:8080/api/categories`, newCategory, {
-                withCredentials: true,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
+            const response = await axios.post(
+                `http://localhost:8080/api/categories`,
+                newCategory,
+                {
+                    params: { projectId: id },
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                }
+            );
             const newCategorizer = response.data;
             const newColumns = [...columns];
-
-            if (isHorizontalLayout) {
+            if(isHorizontalLayout)
+            {
                 const emptyColumnIndex = newColumns.findIndex(column => column.length === 0);
-
-                if (emptyColumnIndex === -1) {
+                if(emptyColumnIndex === -1)
+                {
                     const newColumn = [newCategorizer];
                     newColumns.push(newColumn);
-                } else {
-                    newColumns[emptyColumnIndex].push(newCategorizer);
                 }
-            } else {
+                else
+                    newColumns[emptyColumnIndex].push(newCategorizer);
+            }
+            else
+            {
                 let smallestColumnIndex = 0;
-                for (let i = 1; i < newColumns.length; i++) {
-                    if (newColumns[i].length < newColumns[smallestColumnIndex].length)
+                for(let i = 1; i < newColumns.length; i++) {
+                    if(newColumns[i].length < newColumns[smallestColumnIndex].length)
                         smallestColumnIndex = i;
                 }
                 newColumns[smallestColumnIndex].push(newCategorizer);
             }
-
             setColumns(newColumns);
-
             if (isHorizontalLayout)
                 setOriginalColumns(newColumns);
-        } catch (err) {
-            console.error('Error adding category:', err);
+        }catch(err){
+            console.error('Error adding category:', err.response ? err.response.data : err);
         }
     };
 
