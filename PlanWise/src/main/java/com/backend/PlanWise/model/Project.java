@@ -34,6 +34,15 @@ public class Project {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    public LocalDate getDueDate() {
+        return this.dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+
+
     @ManyToMany
     @JoinTable(
             name = "project_members",

@@ -6,6 +6,7 @@ import com.backend.PlanWise.DataPool.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ProjectServicer
         dto.setProjectName(project.getProjectName());
         dto.setDescription(project.getDescription());
         dto.setCreatedAt(project.getCreatedAt());
+        dto.setDueDate(project.getDueDate());
 
         UserDTO ownerDTO = new UserDTO();
         ownerDTO.setUserId(project.getOwner().getUserId());
@@ -179,19 +181,19 @@ public class ProjectServicer
 
     public ProjectDTO createProject(ProjectDTO projectDTO)
     {
-        // Create or retrieve local user record from Clerk ID
         User owner = userService.getOrCreateLocalUser(
             projectDTO.getOwner().getUserId(),
             projectDTO.getOwner().getEmail(),
             projectDTO.getOwner().getUsername()
         );
 
-        // Now use the local user ID which exists in your database
         Project project = new Project();
         project.setProjectName(projectDTO.getProjectName());
         project.setDescription(projectDTO.getDescription());
         project.setOwner(owner);
-        // other fields...
+        project.setCreatedAt(projectDTO.getCreatedAt());
+        LocalDate jjj = projectDTO.getDueDate();
+        project.setDueDate(projectDTO.getDueDate());
 
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);

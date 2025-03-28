@@ -1,5 +1,6 @@
 package com.backend.PlanWise.DataTransferObjects;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,7 @@ public class ProjectDTO
     private String description;
     private UserDTO owner;
     private LocalDateTime createdAt;
+    private LocalDate dueDate;
     private Set<UserDTO> members = new HashSet<>();
     private Set<TeamDTO> teams = new HashSet<>();
     private Set<CategoryDTO> categories = new HashSet<>();
@@ -102,5 +104,13 @@ public class ProjectDTO
     public void setCategories(Set<CategoryDTO> categories)
     {
         this.categories = categories;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
     }
 }

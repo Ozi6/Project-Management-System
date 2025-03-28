@@ -44,6 +44,8 @@ const ProjectManagement = () => {
                     isOwner: project.owner?.userId === user.id,
                     progress: calculateProgress(project.categories),
                     status: determineStatus(project.categories),
+                    dueDate: project.dueDate,
+                    lastUpdated: project.lastUpdated
                 }));
 
                 setActiveProjects(projects);
@@ -100,6 +102,7 @@ const ProjectManagement = () => {
     const [newProjectDetails, setNewProjectDetails] = useState({
         project_name: "",
         Description: "",
+        dueDate: new Date(),
     });
 
     useEffect(() => {
@@ -142,38 +145,43 @@ const ProjectManagement = () => {
                     email: user.primaryEmailAddress?.emailAddress || "unknown@example.com",
                     username: user.fullName || user.username || "Unknown User"
                 },
+                dueDate: newProjectDetails.dueDate,
                 members: [],
                 teams: [],
-                categories: []
+                categories: [],
+                isOwner: true
             };
-    
-            const response = await axios.post('http://localhost:8080/api/projects', projectData,
-            {
+
+            const response = await axios.post('http://localhost:8080/api/projects', projectData, {
                 withCredentials: true,
                 headers: {
                     'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 },
             });
-    
+
             const newProject = {
-                ProjectID: response.data.projectId, // Note: matching backend response field
-                project_name: response.data.projectName,
+                projectId: response.data.projectId,
+                projectName: response.data.projectName,
                 Description: response.data.description,
+                dueDate: response.data.dueDate,
                 OwnerID: user.id,
-                Categories: [],
+                Categories: response.data.categories || [],
                 isOwner: true,
                 progress: 0,
                 status: "In Progress",
             };
-    
+
             setActiveProjects([...activeProjects, newProject]);
             setNewProjectDetails({
                 project_name: "",
                 Description: "",
+                dueDate: new Date(),
             });
             setIsAddProjectPopUpOpen(false);
-        } catch(error) {
-            console.error("Error creating project:", error);
+        } catch (error) {
+            console.error("Error creating project:", error.response?.data || error.message);
+            alert(`Failed to create project: ${error.response?.data?.message || 'Unknown error'}`);
         }
     };
 
@@ -380,22 +388,19 @@ const ProjectManagement = () => {
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredProjects.map((project, index) => (
-                                        <motion.div
-                                            key={project.id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.05 }}
-                                        >
+                                        <motion.div key={project.projectId}>
                                             <ProjectCard
-                                                key={project.ProjectID}
-                                                ProjectID={project.ProjectID}
-                                                project_name={project.project_name}
-                                                Description={project.Description}
-                                                OwnerID={project.OwnerID}
-                                                isOwner={project.isOwner}
+                                                id={project.projectId}
+                                                name={project.projectName}
+                                                description={project.description}
+                                                owner={user.fullName || user.username}
                                                 progress={project.progress}
                                                 status={project.status}
+                                                isOwner={project.isOwner}
                                                 onDelete={deleteProject}
+                                                dueDate={project.dueDate}
+                                                teamMembers={project.teamMembers == null ? 1 : project.teamMembers.size + 1}
+                                                lastUpdated={project.lastUpdated}
                                             />
                                         </motion.div>
                                     ))}

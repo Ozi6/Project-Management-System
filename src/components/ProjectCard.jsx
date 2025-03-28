@@ -3,16 +3,22 @@ import { Calendar, Users, Clock, Trash2, AlertTriangle, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const ProjectCard = ({ id, name, owner, progress, status, isOwner, onDelete }) => {
+const ProjectCard = ({
+    id,
+    name,
+    description,
+    owner,
+    progress,
+    status,
+    isOwner,
+    onDelete,
+    teamMembers,
+    dueDate,
+    lastUpdated
+}) => {
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    
-    // Sample data that would come from props in a real implementation
-    const dueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString(); // 14 days from now
-    const teamMembers = 4;
-    const lastUpdated = "2 days ago";
-    const description = "This project aims to improve our customer experience by streamlining the checkout process.";
-    
+
     // Handle delete button click
     const handleDeleteClick = (e) => {
         e.stopPropagation();
@@ -59,9 +65,9 @@ const ProjectCard = ({ id, name, owner, progress, status, isOwner, onDelete }) =
                 </div>
                 
                 {/* Project description */}
-                <div className="mb-4">
-                    <p className="text-sm text-[var(--features-title-color)] line-clamp-2 mb-3">{description}</p>
-                </div>
+                <p className="text-sm text-[var(--features-title-color)] line-clamp-2 mb-3">
+                    {description}
+                </p>
                 
                 {/* Project metadata */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
