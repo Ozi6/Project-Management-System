@@ -1,8 +1,10 @@
 import React from 'react';
 import { UserProfile, SignOutButton } from "@clerk/clerk-react";
 import Header from '../../components/Header';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfilePage() {
+    const {t} = useTranslation();
     return (
         <div className="flex flex-col text-[var(--features-icon-color)] min-h-screen bg-[var(--loginpage-bg2)]">
             <Header title="Profile" />
@@ -16,7 +18,7 @@ export default function ProfilePage() {
                         
                             <SignOutButton>
                                 <button className="text-white bg-[var(--features-icon-color)] px-6 py-3 rounded-lg hover:bg-[var(--hover-color)] transition-colors duration-200 text-lg font-semibold">
-                                    Log Out
+                                    {t("logout")}
                                 </button>
                             </SignOutButton>
                         </div>

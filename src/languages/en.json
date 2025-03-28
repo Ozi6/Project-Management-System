@@ -9,9 +9,43 @@
     "dark": "Dark",
     "pink": "Pink"
   },
+    "sidebar.user":"User",
+    "sidebar.dash":"Dashboard",
+    "sidebar.gantt":"Gantt Chart",
+    "sidebar.pro":"Projects",
+    "sidebar.this":"This Project",
+    "sidebar.act":"Activity",
+    "sidebar.team":"Teams",
+    "sidebar.set":"Settings",
+
+    "sidebar.help":"Issues & Help",
+    "sidebar.iss":"User Issues",
+    "sidebar.bug":"Bug Reports",
+
+
+
 
     "login":"Log In",
     "signup":"Sign Up",
+
+    "login.well":"Welcome Back",
+    "login.into":"Log in to your PlanWise account",
+    "login.forgor":"Forgot your password?",
+    "login.reset":"Reset your password",
+
+    "signup.start":"Get Started with PlanWise",
+    "signup.create":"Create your account and start managing projects today",
+    "logout":"Log Out",
+
+    "forgor.for":"Forgot Password?",
+    "forgor.email":"Provide your email address",
+    "forgor.send":"Send Reset Code",
+    "forgor.pass":"Enter your new password",
+    "forgor.enter":"Enter the reset code from your email",
+    "forgor.reset":"Reset Password",
+    "forgor.back":"Back to Login",
+
+
 
     "features1":"Project Management",
     "features2":"Team Collabration",
@@ -175,8 +209,190 @@
     "TCFd":"Start assigning tasks, managing workloads, and collaborating efficiently with PlanWise's team management tools.",
     "TCFButt":"Get Started",
 
+    "TT.tit":"Task Tracking",
+    "TT.subtit":"Keep your projects on track with comprehensive task management",
+    "TT.head":"NEVER LOSE TRACK OF TASKS AGAIN",
+    "TT.headd":"PlanWise's powerful task tracking system helps you manage everything from small daily activities to complex multi-stage workflows. Keep everyone accountable and ensure nothing falls through the cracks.",
+    "TT.head.task":"Complete visibility of all tasks",
+    "TT.head.prog":"Project progress",
+    "TT.mid.tit":"See Task Tracking in Action",
+    "TT.mid.subtit1":"Todo",
+    "TT.mid.subtit2":"In Progress",
+    "TT.mid.subtit3":"Review",
+    "TT.mid.subtit4":"Done",
+
+    "TT.mid.subtit1.1":"Research market trends",
+    "TT.mid.subtit1.2":"Design new product page",
+    "TT.mid.subtit1.3":"Draft project proposal",
+
+    "TT.mid.subtit2.1":"Update user documentation",
+    "TT.mid.subtit2.2":"Implement new feature",
+
+    "TT.mid.subtit3.1":"Code refactoring",
+    "TT.mid.subtit3.2":"QA testing",
+
+    "TT.mid.subtit4.1":"Initial planning",
+    "TT.mid.subtit4.2":"Stakeholder meeting",
+    "TT.mid.subtit4.3":"Setup project environment",
+
+    "TT.mid.tit2":"Comprehensive Task Management Tools",
+    "TT.mid.tit2.1":"Task Management",
+    "TT.mid.tit2.2":"Time Tracking",
+    "TT.mid.tit2.3":"Notifications",
+    "TT.mid.tit2.4":"Progress Analytics",
+    "TT.mid.tit2.5":"Custom Labels",
+    "TT.mid.tit2.6":"Advanced Filtering",
+    "TT.mid.tit2.1d":"Create and organize tasks with ease",
+    "TT.mid.tit2.2d":"Monitor time spent on tasks",
+    "TT.mid.tit2.3d":"Stay updated on task progress",
+    "TT.mid.tit2.4d":"Visual insights into task completion rates",
+    "TT.mid.tit2.5d":"Organize tasks with customizable tags",
+    "TT.mid.tit2.6d":"Find tasks quickly with powerful filters",
+
+    "TT.foot.tit":"How PlanWise Makes Task Management Easier",
+    "TT.foot.tit1":"Intuitive Task Creation",
+    "TT.foot.tit2":"Real-time Progress Tracking",
+    "TT.foot.tit1d":"Creating new tasks is quick and straightforward. Add descriptions, due dates, priority levels, and assign tasks to team members in seconds.",
+    "TT.foot.tit2d":"Monitor task completion and project progress in real-time with visual dashboards and detailed reports.",
+
+    "TT.task.tit.l":"New Task",
+    "TT.task.tit.r":"Save as template",
+    "TT.task1":"Task name",
+    "TT.task2":"Assign to",
+    "TT.task3":"Due date",
+    "TT.task4":"Priority",
+    "TT.task1.1":"Prepare client presentation",
+    "TT.task3.1":"Mar 24, 2025",
+    "TT.task4.1":"Medium",
+
+    "TT.foot.tit1.1":"Simple drag-and-drop interface",
+    "TT.foot.tit1.2":"Bulk task creation for efficiency",
+    "TT.foot.tit1.3":"Task templates for common activities",
+    "TT.foot.tit2.1":"Customizable progress indicators",
+    "TT.foot.tit2.2":"Burndown charts and velocity tracking",
+    "TT.foot.tit2.3":"Automated status updates",
+
+    "TTFtit":"Ready to Streamline Your Task Management?",
+    "TTFtitd":"Join PlanWise to boost productivity and deliver projects on time.",
+    "TTFtitButt":"Get Started",
+    
+    "ToS":"Terms of Service",
+    "ToS.update":"Last updated: March 1, 2025",
+
+    "ToS1":"Agreement to Terms",
+    "ToS2":"User Accounts",
+    "ToS3":"Acceptable Use",
+    "ToS4":"Intellectual Property",
+    "ToS5":"Limitation of Liability",
+    "ToS6":"Changes to Terms",
+    "ToS7":"Contact Us",
+
+    "ToS1d":"These Terms of Service (\"Terms\") govern your access to and use of the PlanWise platform and services, including our website, mobile applications, and any other software or services offered by PlanWise (\"Services\"). By accessing or using our Services, you agree to be bound by these Terms. If you do not agree to these Terms, you may not access or use the Services.",
+    "ToS2d":"To access certain features of the Services, you may need to create an account. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to:",
+    "ToS3d":"You agree not to use the Services to:",
+    "ToS4d":"The Services and all content, features, and functionality thereof, including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof, are owned by PlanWise or its licensors and are protected by copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.",
+    "ToS5d":"In no event shall PlanWise, its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:",
+    "ToS6d":"We reserve the right to modify these Terms at any time. If we make changes, we will provide notice of such changes, such as by sending an email notification, providing notice through the Services, or updating the \"Last Updated\" date at the top of these Terms. Your continued use of the Services following the posting of revised Terms means that you accept and agree to the changes.",
+    "ToS7d":"If you have any questions about these Terms, please contact us at:",
+
+    "ToS2.1":"Provide accurate and complete information when creating your account",
+    "ToS2.2":"Update your account information to keep it current",
+    "ToS2.3":"Notify us immediately of any unauthorized use of your account",
+    "ToS2.4":"Take responsibility for all activities that occur under your account",
+
+    "ToS3.1":"Violate any applicable laws or regulations",
+    "ToS3.2":"Upload, post, or transmit content that infringes or violates the intellectual property rights or any other rights of others",
+    "ToS3.3":"Upload, post, or transmit any content that is illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable",
+    "ToS3.4":"Attempt to gain unauthorized access to any portion of the Services or any other systems or networks connected to the Services",
+    "ToS3.5":"Interfere with or disrupt the Services or servers or networks connected to the Services",
+
+    "ToS5.1":"Your access to or use of or inability to access or use the Services",
+    "ToS5.2":"Any conduct or content of any third party on the Services",
+    "ToS5.3":"Any content obtained from the Services",
+    "ToS5.4":"Unauthorized access, use, or alteration of your transmissions or content",
+    "ToS.return":"Return to Home",
+
+
+    "PP":"Privacy Policy",
+    "PPd":"How we protect and manage your data",
+    "PP.update":"Last updated: March 1, 2025",
+
+    "PP1":"Introduction",
+    "PP2":"Information We Collect",
+    "PP3":"How We Use Your Information",
+    "PP4":"Data Security",
+    "PP5":"Contact Us",
+
+    "PP1d":"Welcome to PlanWise's Privacy Policy. At PlanWise, we respect your privacy and are committed to protecting your personal data. This Privacy Policy will inform you about how we look after your personal data when you visit our website and use our services, regardless of where you visit it from, and tell you about your privacy rights and how the law protects you.",
+    "PP2d":"We collect several different types of information for various purposes to provide and improve our service to you:",
+    "PP3d":"We use the information we collect in various ways, including to:",
+    "PP4d":"We have implemented appropriate security measures to prevent your personal data from being accidentally lost, used, accessed, altered, or disclosed in an unauthorized way. We limit access to your personal data to those employees, agents, contractors, and other third parties who have a business need to know.",
+    "PP5d":"If you have any questions about this Privacy Policy, please contact us at:",
+
+    "PP2.1":"Personal Information:",
+    "PP2.2":"Usage Information:",
+    "PP2.3":"Device Information:",
+
+    "PP2.1d":"When you register for an account, we collect your name, email address, and other contact details.",
+    "PP2.2d":"We collect information about how you use our services, including your activity on our platform, features you use, and time spent on the platform.",
+    "PP2.3d":"We collect information about the device you use to access our services, including hardware model, operating system, and browser type.",
+
+    "PP3.1":"Provide, operate, and maintain our services",
+    "PP3.2":"Improve, personalize, and expand our services",
+    "PP3.3":"Understand and analyze how you use our services",
+    "PP3.4":"Develop new products, services, features, and functionality",
+    "PP3.5":"Communicate with you about updates, security alerts, and support",
+    "PP3.6":"Find and prevent fraud",
+
+
+
+
+
+    
+    "ASTit":"We're on a mission to make teamwork more efficient",
+    "ASSubtit":"PlanWise is built by a team passionate about helping organizations achieve more through better collaboration and task management.",
+    "ASd":"Our Story",
+    "ASd1":"PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2025, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.",
+    "ASd2":"What started as a simple task board has evolved into a full-featured project management platform that helps thousands of teams organize their work effectively. Our approach focuses on visual workflows inspired by Trello but extended with the features teams actually need.",
+    "ASd3":"Today, PlanWise is used by organizations of all sizes to manage projects, track tasks, and collaborate seamlessly. We're continuously evolving based on user feedback to create the most effective project management experience possible.",
+    "ASMtit":"Our Values",
+    "ASMtitd":"These core principles guide everything we do at PlanWise.",
+    "ASM1":"Collaboration First",
+    "ASM2":"Excellence",
+    "ASM3":"Continuous Improvement",
+    "ASM4":"User-Centered",
+    "ASM1d":"We believe that great things happen when people work together effectively.",
+    "ASM2d":"We're committed to quality in our product and in our support for customers.",
+    "ASM3d":"We're always learning and evolving to better serve our users' needs.",
+    "ASM4d":"Every decision we make starts with understanding our users' challenges.",
+    "AS.user.tit":"What Our Users Say",
+    "AS.user.subtit":"Don't just take our word for it - hear what teams using PlanWise have to say.",
+    "AS.user1":"PlanWise transformed how our marketing team collaborates. We've increased productivity by 30% since switching from our previous tool.",
+    "AS.user2":"The visual workflow and task assignment features are exactly what we needed. Our project delivery time has improved dramatically.",
+    "AS.user3":"As a remote team, we needed something to keep everyone aligned. PlanWise gave us the structure we needed without being restrictive.",
+    "AS.user1d":"Marketing Director",
+    "AS.user2d":"Project Manager",
+    "AS.user3d":"Operations Lead",
+    "ASFtit":"Our Commitment to You",
+    "ASF1":"We'll never stop improving PlanWise based on your feedback and needs.",
+    "ASF2":"Your data security and privacy are our top priorities.",
+    "ASF3":"We're committed to providing responsive support when you need help.",
+    "ASF4":"We design every feature with real workflow efficiency in mind.",
+    "ASFButt":"Join PlanWise Today",
+    
+    "faq1":"What is PlanWise?",
+    "faq2":"How can I get started?",
+    "faq3":"Is there a free plan available?",
+    "faq4":"Can I cancel my subscription?",
+    "faq5":"Is my data secure?",
+    "faq1a":"PlanWise is a project management tool designed to help teams collaborate, organize tasks, and improve productivity.",
+    "faq2a":"Sign up for a free account and start organizing your projects in minutes. No credit card required!",
+    "faq3a":"Yes, we offer a free plan with basic features. You can upgrade anytime for additional functionality.",
+    "faq4a":"Absolutely! You can cancel your subscription anytime from your account settings.",
+    "faq5a":"Yes, we use industry-standard encryption and security measures to protect your data.",
 
     "faq.title":"Frequently Asked Questions",
     "faq.subtitle":"Find answers to the most common questions about PlanWise."
+    
     
 }

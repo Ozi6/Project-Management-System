@@ -3,8 +3,10 @@ import { motion } from 'framer-motion';
 import { Users, Award, TrendingUp, Heart, CheckCircle, ArrowRight } from 'lucide-react';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { useTranslation } from 'react-i18next';
 
 const AboutUs = () => {
+  const {t} = useTranslation();
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -29,7 +31,7 @@ const AboutUs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                We're on a mission to make teamwork more efficient
+                {t("ASTit")}
               </motion.h1>
               <motion.p 
                 className="text-xl text-[var(--text-color3)] mb-8"
@@ -37,7 +39,7 @@ const AboutUs = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
               >
-                PlanWise is built by a team passionate about helping organizations achieve more through better collaboration and task management.
+                {t("ASSubtit")}
               </motion.p>
             </div>
           </div>
@@ -52,16 +54,16 @@ const AboutUs = () => {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-[var(--features-icon-color)] text-center font-mono tracking-tight">Our Story</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-[var(--features-icon-color)] text-center font-mono tracking-tight">{t("ASd")}</h2>
             <div className="space-y-6 text-lg text-[var(--text-color3)]">
               <p>
-                PlanWise was born out of frustration with existing project management tools that were either too complex or too simplistic. In 2025, our founders set out to create a solution that strikes the perfect balance between comprehensive features and intuitive usability.
+                {t("ASd1")}
               </p>
               <p>
-                What started as a simple task board has evolved into a full-featured project management platform that helps thousands of teams organize their work effectively. Our approach focuses on visual workflows inspired by Trello but extended with the features teams actually need.
+                {t("ASd2")}
               </p>
               <p>
-                Today, PlanWise is used by organizations of all sizes to manage projects, track tasks, and collaborate seamlessly. We're continuously evolving based on user feedback to create the most effective project management experience possible.
+                {t("ASd3")}
               </p>
               <div className="pt-6 flex justify-center">
                 <motion.div 
@@ -80,9 +82,9 @@ const AboutUs = () => {
         <section className="py-16 md:py-24 bg-[var(--loginpage-bg)]">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
-              <h2 className="text-3xl font-bold mb-4 text-[var(--features-text-color)] font-mono tracking-tight">Our Values</h2>
+              <h2 className="text-3xl font-bold mb-4 text-[var(--features-text-color)] font-mono tracking-tight">{t("ASMtit")}</h2>
               <p className="text-lg text-[var(--text-color3)]">
-                These core principles guide everything we do at PlanWise.
+              {t("ASMtitd")}
               </p>
             </div>
 
@@ -90,23 +92,23 @@ const AboutUs = () => {
               {[
                 {
                   icon: Users,
-                  title: "Collaboration First",
-                  description: "We believe that great things happen when people work together effectively."
+                  title: t("ASM1"),
+                  description: t("ASM1d")
                 },
                 {
                   icon: Award,
-                  title: "Excellence",
-                  description: "We're committed to quality in our product and in our support for customers."
+                  title: t("ASM2"),
+                  description: t("ASM2d")
                 },
                 {
                   icon: TrendingUp,
-                  title: "Continuous Improvement",
-                  description: "We're always learning and evolving to better serve our users' needs."
+                  title: t("ASM3"),
+                  description: t("ASM3d")
                 },
                 {
                   icon: Heart,
-                  title: "User-Centered",
-                  description: "Every decision we make starts with understanding our users' challenges."
+                  title: t("ASM4"),
+                  description: t("ASM4d")
                 }
               ].map((value, index) => (
                 <motion.div 
@@ -134,30 +136,30 @@ const AboutUs = () => {
         <section className="py-16 md:py-24 bg-[var(--loginpage-bg2)]">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16">
-              <h2 className="text-3xl font-bold mb-4 text-[var(--features-text-color)] font-sans underline decoration-[var(--features-icon-color)] decoration-4 underline-offset-8">What Our Users Say</h2>
+              <h2 className="text-3xl font-bold mb-4 text-[var(--features-text-color)] font-sans underline decoration-[var(--features-icon-color)] decoration-4 underline-offset-8">{t("AS.user.tit")}</h2>
               <p className="text-lg text-[var(--text-color3)]">
-                Don't just take our word for it - hear what teams using PlanWise have to say.
+              {t("AS.user.subtit")}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
                 {
-                  quote: "PlanWise transformed how our marketing team collaborates. We've increased productivity by 30% since switching from our previous tool.",
+                  quote: t("AS.user1"),
                   author: "Jennifer L.",
-                  role: "Marketing Director",
+                  role: t("AS.user1d"),
                   company: "TechCorp Inc."
                 },
                 {
-                  quote: "The visual workflow and task assignment features are exactly what we needed. Our project delivery time has improved dramatically.",
+                  quote: t("AS.user2"),
                   author: "Marcus T.",
-                  role: "Project Manager",
+                  role: t("AS.user2d"),
                   company: "Design Studio Co."
                 },
                 {
-                  quote: "As a remote team, we needed something to keep everyone aligned. PlanWise gave us the structure we needed without being restrictive.",
+                  quote: t("AS.user3"),
                   author: "Sophia K.",
-                  role: "Operations Lead",
+                  role: t("AS.user3d"),
                   company: "Global Services Ltd."
                 }
               ].map((testimonial, index) => (
@@ -200,30 +202,30 @@ const AboutUs = () => {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-3xl font-bold mb-6 font-sans text-[var(--features-icon-color)] drop-shadow-md">Our Commitment to You</h2>
+              <h2 className="text-3xl font-bold mb-6 font-sans text-[var(--features-icon-color)] drop-shadow-md">{t("ASFtit")}</h2>
               <div className="space-y-4 mb-8">
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-[var(--features-icon-color)] mr-3 mt-1 flex-shrink-0" />
-                  <p>We'll never stop improving PlanWise based on your feedback and needs.</p>
+                  <p>{t("ASF1")}</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-[var(--features-icon-color)] mr-3 mt-1 flex-shrink-0" />
-                  <p>Your data security and privacy are our top priorities.</p>
+                  <p>{t("ASF2")}</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-[var(--features-icon-color)] mr-3 mt-1 flex-shrink-0" />
-                  <p>We're committed to providing responsive support when you need help.</p>
+                  <p>{t("ASF3")}</p>
                 </div>
                 <div className="flex items-start">
                   <CheckCircle className="h-6 w-6 text-[var(--features-icon-color)] mr-3 mt-1 flex-shrink-0" />
-                  <p>We design every feature with real workflow efficiency in mind.</p>
+                  <p>{t("ASF4")}</p>
                 </div>
               </div>
               <a 
                 href="/signup" 
                 className="inline-flex items-center bg-[var(--features-icon-color)] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[var(--hover-color)] transition-colors"
               >
-                Join PlanWise Today
+                {t("ASFButt")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </a>
             </motion.div>

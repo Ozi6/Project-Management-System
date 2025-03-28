@@ -2,62 +2,63 @@ import React from 'react';
 import { CheckSquare, Clock, Bell, BarChart2, Tag, Filter, ArrowRight } from 'lucide-react';
 import FeaturePageTemplate from "../../../components/FeaturePageTemplate";
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const TaskTracking = () => {
+  const {t} = useTranslation();
   const features = [
     {
       icon: CheckSquare,
-      title: "Task Management",
-      description: "Create and organize tasks with ease"
+      title: t("TT.mid.tit2.1"),
+      description: t("TT.mid.tit2.1d")
     },
     {
       icon: Clock,
-      title: "Time Tracking",
-      description: "Monitor time spent on tasks"
+      title: t("TT.mid.tit2.2"),
+      description: t("TT.mid.tit2.2d")
     },
     {
       icon: Bell,
-      title: "Notifications",
-      description: "Stay updated on task progress"
+      title: t("TT.mid.tit2.3"),
+      description: t("TT.mid.tit2.3d")
     },
     {
       icon: BarChart2,
-      title: "Progress Analytics",
-      description: "Visual insights into task completion rates"
+      title: t("TT.mid.tit2.4"),
+      description: t("TT.mid.tit2.4d")
     },
     {
       icon: Tag,
-      title: "Custom Labels",
-      description: "Organize tasks with customizable tags"
+      title: t("TT.mid.tit2.5"),
+      description: t("TT.mid.tit2.5d")
     },
     {
       icon: Filter,
-      title: "Advanced Filtering",
-      description: "Find tasks quickly with powerful filters"
+      title: t("TT.mid.tit2.6"),
+      description: t("TT.mid.tit2.6d")
     }
   ];
 
   // Sample tasks for the interactive demo
   const kanbanBoard = {
-    todo: ['Research market trends', 'Design new product page', 'Draft project proposal'],
-    inProgress: ['Update user documentation', 'Implement new feature'],
-    review: ['Code refactoring', 'QA testing'],
-    done: ['Initial planning', 'Stakeholder meeting', 'Setup project environment']
+    [t("TT.mid.subtit1")]: [t("TT.mid.subtit1.1"), t("TT.mid.subtit1.2"), t("TT.mid.subtit1.3")],
+    [t("TT.mid.subtit2")]: [t("TT.mid.subtit2.1"), t("TT.mid.subtit2.2")],
+    [t("TT.mid.subtit3")]: [t("TT.mid.subtit3.1"), t("TT.mid.subtit3.2")],
+    [t("TT.mid.subtit4")]: [t("TT.mid.subtit4.1"), t("TT.mid.subtit4.2"), t("TT.mid.subtit4.3")]
   };
 
   return (
     <FeaturePageTemplate
-      title="Task Tracking"
-      description="Keep your projects on track with comprehensive task management"
+      title={t("TT.tit")}
+      description={t("TT.subtit")}
     >
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-[var(--loginpage-bg)] via-[var(--loginpage-bg2)] to-[var(--gray-card1)] rounded-3xl p-8 mb-16">
         <div className="flex flex-col lg:flex-row items-center gap-12">
           <div className="lg:w-1/2">
-            <h2 className="text-3xl font-bold text-[var(--features-title-color)] mb-4 font-sans uppercase tracking-wide">Never Lose Track of Tasks Again</h2>
+            <h2 className="text-3xl font-bold text-[var(--features-title-color)] mb-4 font-sans uppercase tracking-wide">{t("TT.head")}</h2>
             <p className="text-lg text-[var(--features-text-color)] mb-6">
-              PlanWise's powerful task tracking system helps you manage everything from small daily activities 
-              to complex multi-stage workflows. Keep everyone accountable and ensure nothing falls through the cracks.
+            {t("TT.headd")}
             </p>
             <motion.div 
               className="bg-[var(--bg-color)] p-4 rounded-lg shadow-md mb-6"
@@ -67,13 +68,13 @@ const TaskTracking = () => {
             >
               <div className="flex items-center text-[var(--features-icon-color)] mb-2">
                 <CheckSquare className="h-5 w-5 mr-2" />
-                <span className="font-medium">Complete visibility of all tasks</span>
+                <span className="font-medium">{t("TT.head.task")}</span>
               </div>
               <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                 <div className="bg-[var(--features-icon-color)] h-full rounded-full" style={{ width: "75%" }}></div>
               </div>
               <div className="flex justify-between mt-1 text-sm text-gray-500">
-                <span>Project progress</span>
+                <span>{t("TT.head.prog")}</span>
                 <span>75%</span>
               </div>
             </motion.div>
@@ -95,7 +96,7 @@ const TaskTracking = () => {
       <div className="bg-[var(--bg-color)] rounded-2xl shadow-lg p-8 mb-16">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold text-[var(--features-title-color)] mb-8 text-center font-mono tracking-tight">
-            See Task Tracking in Action
+          {t("TT.mid.tit")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {Object.entries(kanbanBoard).map(([status, tasks], columnIndex) => (
@@ -123,7 +124,7 @@ const TaskTracking = () => {
 
       {/* Features Grid */}
       <div className="mb-16">
-        <h2 className="text-2xl font-bold text-center text-[var(--features-title-color)] mb-10 font-serif italic">Comprehensive Task Management Tools</h2>
+        <h2 className="text-2xl font-bold text-center text-[var(--features-title-color)] mb-10 font-serif italic">{t("TT.mid.tit2")}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <motion.div 
@@ -145,43 +146,42 @@ const TaskTracking = () => {
       {/* Detailed Feature Section */}
       <div className="bg-[var(--loginpage-bg2)] rounded-2xl p-8 mb-16">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12 text-[var(--features-title-color)] font-sans tracking-wider">How PlanWise Makes Task Management Easier</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-[var(--features-title-color)] font-sans tracking-wider">{t("TT.foot.tit")}</h2>
           
           <div className="space-y-12">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               <div className="md:w-1/2">
-                <h3 className="text-2xl font-semibold mb-3 text-[var(--features-icon-color)] font-mono">Intuitive Task Creation</h3>
+                <h3 className="text-2xl font-semibold mb-3 text-[var(--features-icon-color)] font-mono">{t("TT.foot.tit1")}</h3>
                 <p className="text-[var(--features-text-color)] mb-4">
-                  Creating new tasks is quick and straightforward. Add descriptions, due dates, priority levels, 
-                  and assign tasks to team members in seconds.
+                {t("TT.foot.tit1d")}
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Simple drag-and-drop interface</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit1.1")}</span>
                   </li>
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Bulk task creation for efficiency</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit1.2")}</span>
                   </li>
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Task templates for common activities</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit1.3")}</span>
                   </li>
                 </ul>
               </div>
               <div className="md:w-1/2 bg-[var(--gray-card2)] p-4 rounded-lg shadow-md">
                 <div className="bg-[var(--gray-card1)] p-3 rounded mb-3">
                   <div className="flex justify-between mb-2">
-                    <div className="font-medium text-[var(--features-icon-color)]">New Task</div>
-                    <div className="text-[var(--features-icon-color)] text-sm">Save as template</div>
+                    <div className="font-medium text-[var(--features-icon-color)]">{t("TT.task.tit.l")}</div>
+                    <div className="text-[var(--features-icon-color)] text-sm">{t("TT.task.tit.r")}</div>
                   </div>
                   <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
-                    <div className="text-sm text-gray-500">Task name</div>
-                    <div>Prepare client presentation</div>
+                    <div className="text-sm text-gray-500">{t("TT.task1")}</div>
+                    <div>{t("TT.task1.1")}</div>
                   </div>
                   <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
-                    <div className="text-sm text-gray-500">Assign to</div>
+                    <div className="text-sm text-gray-500">{t("TT.task2")}</div>
                     <div className="flex">
                       <div className="w-6 h-6 rounded-full bg-[var(--loginpage-bg2)] flex items-center justify-center mr-1">
                         <span className="text-xs text-[var(--features-icon-color)]">JD</span>
@@ -191,14 +191,14 @@ const TaskTracking = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
-                      <div className="text-sm text-gray-500">Due date</div>
-                      <div>Mar 24, 2025</div>
+                      <div className="text-sm text-gray-500">{t("TT.task3")}</div>
+                      <div>{t("TT.task3.1")}</div>
                     </div>
                     <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
-                      <div className="text-sm text-gray-500">Priority</div>
+                      <div className="text-sm text-gray-500">{t("TT.task4")}</div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-500 mr-1"></div>
-                        <span>Medium</span>
+                        <span>{t("TT.task4.1")}</span>
                       </div>
                     </div>
                   </div>
@@ -208,37 +208,37 @@ const TaskTracking = () => {
             
             <div className="flex flex-col md:flex-row-reverse gap-8 items-center">
               <div className="md:w-1/2">
-                <h3 className="text-2xl font-semibold mb-3 font-mono text-[var(--features-icon-color)]">Real-time Progress Tracking</h3>
+                <h3 className="text-2xl font-semibold mb-3 font-mono text-[var(--features-icon-color)]">{t("TT.foot.tit2")}</h3>
                 <p className="text-[var(--features-text-color)] mb-4">
-                  Monitor task completion and project progress in real-time with visual dashboards and detailed reports.
+                {t("TT.foot.tit2d")}
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Customizable progress indicators</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit2.1")}</span>
                   </li>
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Burndown charts and velocity tracking</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit2.2")}</span>
                   </li>
                   <li className="flex items-start">
                     <CheckSquare className="h-5 w-5 text-[var(--homepage-text-bright)] mr-2 mt-0.5" />
-                    <span className='text-[var(--features-title-color)]'>Automated status updates</span>
+                    <span className='text-[var(--features-title-color)]'>{t("TT.foot.tit2.3")}</span>
                   </li>
                 </ul>
               </div>
               <div className="md:w-1/2 bg-[var(--gray-card2)] p-4 rounded-lg shadow-md">
                 <div className="bg-[var(--gray-card1)] p-3 rounded mb-3">
                   <div className="flex justify-between mb-2">
-                    <div className="font-medium text-[var(--features-icon-color)]">New Task</div>
-                    <div className="text-[var(--features-icon-color)] text-sm">Save as template</div>
+                    <div className="font-medium text-[var(--features-icon-color)]">{t("TT.task.tit.l")}</div>
+                    <div className="text-[var(--features-icon-color)] text-sm">{t("TT.task.tit.r")}</div>
                   </div>
                   <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
-                    <div className="text-sm text-gray-500">Task name</div>
-                    <div>Prepare client presentation</div>
+                    <div className="text-sm text-gray-500">{t("TT.task1")}</div>
+                    <div>{t("TT.task1.1")}</div>
                   </div>
                   <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2 mb-2">
-                    <div className="text-sm text-gray-500">Assign to</div>
+                    <div className="text-sm text-gray-500">{t("TT.task2")}</div>
                     <div className="flex">
                       <div className="w-6 h-6 rounded-full bg-[var(--loginpage-bg2)] flex items-center justify-center mr-1">
                         <span className="text-xs text-[var(--features-icon-color)]">JD</span>
@@ -248,14 +248,14 @@ const TaskTracking = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
-                      <div className="text-sm text-gray-500">Due date</div>
-                      <div>Mar 24, 2025</div>
+                      <div className="text-sm text-gray-500">{t("TT.task3")}</div>
+                      <div>{t("TT.task3.1")}</div>
                     </div>
                     <div className="bg-[var(--bg-color)] border border-gray-200 rounded p-2">
-                      <div className="text-sm text-gray-500">Priority</div>
+                      <div className="text-sm text-gray-500">{t("TT.task4")}</div>
                       <div className="flex items-center">
                         <div className="w-3 h-3 rounded-full bg-orange-500 mr-1"></div>
-                        <span>Medium</span>
+                        <span>{t("TT.task4.1")}</span>
                       </div>
                     </div>
                   </div>
@@ -275,16 +275,16 @@ const TaskTracking = () => {
           viewport={{ once: true }}
           className="max-w-4xl mx-auto"
         >
-          <h2 className="text-3xl font-bold mb-4 font-serif">Ready to Streamline Your Task Management?</h2>
+          <h2 className="text-3xl font-bold mb-4 font-serif">{t("TTFtit")}</h2>
           <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-            Join PlanWise to boost productivity and deliver projects on time.
+          {t("TTFtitd")}
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <a 
               href="/login" 
               className="bg-[var(--bg-color)] text-[var(--features-icon-color)] hover:bg-[var(--loginpage-bg2)] px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center justify-center"
             >
-              Get Started
+              {t("TTFtitButt")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </a>
             

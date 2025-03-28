@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Layout, KanbanSquare, Users, Calendar, Settings, PieChart } from "lucide-react";
 import { SignedIn, SignedOut, useUser, UserButton } from "@clerk/clerk-react";
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ activeTab, setActiveTab }) => {
+    const {t} = useTranslation();
     const [isOpen, setIsOpen] = useState(false); // Default to closed
     const { user } = useUser();
     const navigate = useNavigate();
     const location = useLocation();
     const [currentProjectId, setCurrentProjectId] = useState(null);
+
     
     // Extract current project ID from URL and set it in state
     useEffect(() => {
@@ -31,7 +34,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { 
             id: 'dashboard', 
             icon: Layout, 
-            label: 'Dashboard', 
+            label: t("sidebar.dash"), 
             path: '/dashboard', 
             color: 'bg-blue-100 text-blue-600',
             iconColor: 'text-blue-600',
@@ -40,7 +43,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { 
             id: 'project', 
             icon: KanbanSquare, 
-            label: 'Project', 
+            label: t("sidebar.pro"), 
             path: currentProjectId ? `/project/${currentProjectId}` : '/project/1',
             color: 'bg-purple-100 text-purple-600',
             iconColor: 'text-purple-600'
@@ -48,7 +51,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { 
             id: 'teams', 
             icon: Users, 
-            label: 'Teams', 
+            label: t("sidebar.team"), 
             path: '/teams', 
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
@@ -56,7 +59,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { 
             id: 'calendar', 
             icon: Calendar, 
-            label: 'Calendar', 
+            label: t("sidebar.act"), 
             path: '/activity',
             color: 'bg-yellow-100 text-yellow-600',
             iconColor: 'text-amber-600'
@@ -64,7 +67,7 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
         { 
             id: 'settings', 
             icon: Settings, 
-            label: 'Settings', 
+            label: t("sidebar.set"), 
             path: currentProjectId ? `/project/settings` : '/project/settings/', 
             color: 'bg-slate-100 text-slate-600',
             iconColor: 'text-slate-600'

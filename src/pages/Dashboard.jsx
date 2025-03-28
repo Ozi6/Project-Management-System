@@ -12,8 +12,10 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Dashboard = () => {
+    const {t} = useTranslation();
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     useEffect(() => {
@@ -169,7 +171,7 @@ const Dashboard = () => {
       {/* Header with blue accent */}
       <div className="w-full bg-[var(--bg-color4)] shadow-sm z-10 border-b-2 border-[var(--loginpage-bg)]">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">Dashboard</span>}
+          title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">{t("sidebar.dash")}</span>}
           action={{
             onClick: handleNewProject,
             icon: <Plus className="mr-2 h-4 w-4" />,

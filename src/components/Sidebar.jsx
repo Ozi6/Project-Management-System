@@ -20,8 +20,10 @@ import {
   X
 } from "lucide-react";
 import { SignedIn, SignedOut, useUser, UserButton } from "@clerk/clerk-react";
+import { useTranslation } from 'react-i18next';
 
 const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, closeMobileMenu }) => {
+  const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const { user } = useUser();
   const navigate = useNavigate();
@@ -56,7 +58,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     { 
       id: 'dashboard', 
       icon: Layout, 
-      label: 'Dashboard', 
+      label: t("sidebar.dash"), 
       path: '/dashboard',
       color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',
       iconColor: 'text-[var(--sidebar-dashboard-color)]',     
@@ -65,7 +67,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     { 
       id: 'projects', 
       icon: KanbanSquare, 
-      label: 'Projects', 
+      label: t("sidebar.pro"), 
       path: '/projects',
       color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
       iconColor: 'text-[var(--sidebar-projects-color)]'
@@ -73,7 +75,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     { 
       id: 'calendar', 
       icon: Calendar, 
-      label: 'Gantt Chart', 
+      label: t("sidebar.gantt"), 
       path: '/calendar',
       color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
       iconColor: 'text-[var(--sidebar-gantt-color)]'
@@ -85,7 +87,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     { 
       id: 'adminIssues', 
       icon: ShieldAlert, 
-      label: 'User Issues', 
+      label: t("sidebar.help"), 
       path: '/admin/issues',
       color: 'bg-rose-50 text-rose-600',
       iconColor: 'text-rose-500'
@@ -94,7 +96,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     { 
       id: 'bugs', 
       icon: BugPlay, 
-      label: 'Bug Reports', 
+      label: t("sidebar.bug"), 
       path: '/bugs',
       color: 'bg-rose-50 text-rose-600',
       iconColor: 'text-rose-500'
@@ -160,7 +162,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
             </div>
             {(isOpen || isMobile) && (
               <div className="flex flex-col ml-3 overflow-hidden">
-                <span className="font-medium text-sm truncate">{user?.fullName || 'User'}</span>
+                <span className="font-medium text-sm truncate">{user?.fullName || t("sidebar.user")}</span>
                 <span className="text-xs text-gray-500 truncate">{user?.primaryEmailAddress?.emailAddress || ''}</span>
               </div>
             )}

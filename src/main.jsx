@@ -57,7 +57,7 @@ createRoot(document.getElementById('root')).render(
         },
 
         signUp: {
-          variables: { colorPrimary: '#234124' },
+          variables: { colorPrimary: '#2D5CF2' },
           elements: {
             input: {color: '#1E0342'},
             socialButtonsBlockButton: {

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useSignIn } from "@clerk/clerk-react";
+import { useTranslation } from 'react-i18next';
 
 const ForgotPasswordPage = () => {
+  const {t} = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
@@ -44,13 +46,13 @@ const ForgotPasswordPage = () => {
     <div className="flex justify-center items-center min-h-screen bg-[var(--features-icon-color)]">
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-          Forgot Password?
+          {t("forgor.for")}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {!successfulCreation ? (
             <>
               <label className="block text-sm font-medium text-gray-700">
-                Provide your email address
+              {t("forgor.email")}
               </label>
               <input
                 type="email"
@@ -64,13 +66,13 @@ const ForgotPasswordPage = () => {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
               >
-                Send Reset Code
+                {t("forgor.send")}
               </button>
             </>
           ) : (
             <>
               <label className="block text-sm font-medium text-gray-700">
-                Enter your new password
+              {t("forgor.pass")}
               </label>
               <input
                 type="password"
@@ -81,7 +83,7 @@ const ForgotPasswordPage = () => {
               />
 
               <label className="block text-sm font-medium text-gray-700">
-                Enter the reset code from your email
+              {t("forgor.enter")}
               </label>
               <input
                 type="text"
@@ -95,7 +97,7 @@ const ForgotPasswordPage = () => {
                 type="submit"
                 className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
               >
-                Reset Password
+                {t("forgor.reset")}
               </button>
             </>
           )}
@@ -105,7 +107,7 @@ const ForgotPasswordPage = () => {
 
         <div className="mt-4 text-center">
           <a href="/login" className="text-blue-500 text-sm hover:underline">
-            Back to Login
+            {t("forgor.back")}
           </a>
         </div>
       </div>
