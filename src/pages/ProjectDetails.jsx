@@ -54,17 +54,27 @@ const ProjectDetails = () => {
         {
             try{
                 const token = await getToken();
-                const response = await axios.get(`http://localhost:8080/api/projects/${id}`, {
+                const response = await axios.get(`http://localhost:8080/api/projects/${id}`,{
                     withCredentials: true,
                     headers:{
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
-                const projectCategories = response.data.categories || [];
-                const formattedColumns = [projectCategories];
+                const projectData = response.data;
+                const projectCategories = Array.isArray(projectData.categories)
+                    ? projectData.categories
+                    : (projectData.categories ? [projectData.categories] : []);
 
-                setColumns(formattedColumns);
+                const formattedColumns = projectCategories.map(category => ({
+                    ...category,
+                    title: category.title || category.categoryName || 'Unnamed Category',
+                    tagColor: category.tagColor || category.color || 'gray',
+                    taskLists: category.taskLists || [],
+                    id: category.id || uuidv4()
+                }));
+
+                setColumns([formattedColumns]);
                 setLoading(false);
             }catch(err){
                 console.error('Error fetching project details:', err);
@@ -72,9 +82,8 @@ const ProjectDetails = () => {
                 setLoading(false);
             }
         };
-
         fetchProjectDetails();
-    },[isLoaded, id, user, getToken]);
+    }, [isLoaded, id, user, getToken]);
 
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
@@ -231,7 +240,14 @@ const ProjectDetails = () => {
                     },
                 }
             );
-            const newCategorizer = response.data;
+
+            const newCategorizer =
+            {
+                ...response.data,
+                title: response.data.categoryName,
+                tagColor: response.data.color,
+            };
+
             const newColumns = [...columns];
             if(isHorizontalLayout)
             {
