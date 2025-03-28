@@ -211,45 +211,50 @@ const ProjectDetails = () => {
         }
     };
 
-    const handleAddCategorizer = () =>
-    {
-        const newCategorizer =
-        {
-            id: uuidv4(),
-            title: "New Categorizer",
-            tagColor: "red",
-            taskLists: [],
-        };
+    const handleAddCategorizer = async () => {
+        try {
+            const token = await getToken();
+            const newCategory = {
+                title: "New Categorizer",
+                tagColor: "red",
+                projectId: id
+            };
 
-        const newColumns = [...columns];
+            const response = await axios.post(`http://localhost:8080/api/categories`, newCategory, {
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
 
-        if (isHorizontalLayout)
-        {
-            const emptyColumnIndex = newColumns.findIndex(column => column.length === 0);
+            const newCategorizer = response.data;
+            const newColumns = [...columns];
 
-            if(emptyColumnIndex === -1)
-            {
-                const newColumn = [newCategorizer];
-                newColumns.push(newColumn);
+            if (isHorizontalLayout) {
+                const emptyColumnIndex = newColumns.findIndex(column => column.length === 0);
+
+                if (emptyColumnIndex === -1) {
+                    const newColumn = [newCategorizer];
+                    newColumns.push(newColumn);
+                } else {
+                    newColumns[emptyColumnIndex].push(newCategorizer);
+                }
+            } else {
+                let smallestColumnIndex = 0;
+                for (let i = 1; i < newColumns.length; i++) {
+                    if (newColumns[i].length < newColumns[smallestColumnIndex].length)
+                        smallestColumnIndex = i;
+                }
+                newColumns[smallestColumnIndex].push(newCategorizer);
             }
-            else
-                newColumns[emptyColumnIndex].push(newCategorizer);
-        }
-        else
-        {
-            let smallestColumnIndex = 0;
-            for (let i = 1; i < newColumns.length; i++)
-            {
-                if(newColumns[i].length < newColumns[smallestColumnIndex].length)
-                    smallestColumnIndex = i;
-            }
-            newColumns[smallestColumnIndex].push(newCategorizer);
-        }
 
-        setColumns(newColumns);
+            setColumns(newColumns);
 
-        if (isHorizontalLayout)
-            setOriginalColumns(newColumns);
+            if (isHorizontalLayout)
+                setOriginalColumns(newColumns);
+        } catch (err) {
+            console.error('Error adding category:', err);
+        }
     };
 
     const addEntry = (columnIndex, taskIndex, listId) => {
@@ -582,6 +587,22 @@ const ProjectDetails = () => {
             iconColor: 'text-gray-600'
         }
     ];
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-xl text-gray-500">Loading project details...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="text-xl text-red-500">Error: {error}</div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-screen">
