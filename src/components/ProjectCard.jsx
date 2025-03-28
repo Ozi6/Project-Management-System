@@ -81,7 +81,16 @@ const ProjectCard = ({
                     </div>
                     <div className="flex items-center">
                         <Clock className="h-4 w-4 text-[var(--text-color3)] mr-2" />
-                        <span className="text-sm text-[var(--features-text-color)]">Updated: {lastUpdated}</span>
+                        <span className="text-sm text-[var(--features-text-color)]">Updated:&nbsp;
+                        {new Intl.DateTimeFormat('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        }).format(new Date(lastUpdated))}</span>
                     </div>
                 </div>
                 

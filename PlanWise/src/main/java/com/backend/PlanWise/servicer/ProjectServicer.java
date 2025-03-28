@@ -46,6 +46,7 @@ public class ProjectServicer
         dto.setDescription(project.getDescription());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setDueDate(project.getDueDate());
+        dto.setLastUpdated(project.getUpdatedAt());
 
         UserDTO ownerDTO = new UserDTO();
         ownerDTO.setUserId(project.getOwner().getUserId());
@@ -194,6 +195,7 @@ public class ProjectServicer
         project.setCreatedAt(projectDTO.getCreatedAt());
         LocalDate jjj = projectDTO.getDueDate();
         project.setDueDate(projectDTO.getDueDate());
+        project.setUpdatedAt(projectDTO.getLastUpdated());
 
         Project savedProject = projectRepository.save(project);
         return convertToDTO(savedProject);

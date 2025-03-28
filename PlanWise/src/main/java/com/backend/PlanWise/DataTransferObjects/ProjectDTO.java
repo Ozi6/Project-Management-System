@@ -13,6 +13,7 @@ public class ProjectDTO
     private UserDTO owner;
     private LocalDateTime createdAt;
     private LocalDate dueDate;
+    private LocalDateTime lastUpdated;
     private Set<UserDTO> members = new HashSet<>();
     private Set<TeamDTO> teams = new HashSet<>();
     private Set<CategoryDTO> categories = new HashSet<>();
@@ -112,5 +113,13 @@ public class ProjectDTO
 
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public LocalDateTime getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(LocalDateTime lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }

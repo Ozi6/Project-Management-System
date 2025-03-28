@@ -134,12 +134,14 @@ const ProjectManagement = () => {
 
 
     const addNewProject = async () => {
-        try {
+        try{
             const token = await getToken();
+            const creationTime = new Date().toISOString();
             const projectData = {
                 projectName: newProjectDetails.project_name,
                 description: newProjectDetails.Description,
-                createdAt: new Date().toISOString(),
+                lastUpdated: creationTime,
+                createdAt: creationTime,
                 owner: {
                     userId: user.id,
                     email: user.primaryEmailAddress?.emailAddress || "unknown@example.com",
@@ -167,6 +169,7 @@ const ProjectManagement = () => {
                 dueDate: response.data.dueDate,
                 OwnerID: user.id,
                 Categories: response.data.categories || [],
+                lastUpdated: response.data.lastUpdated,
                 isOwner: true,
                 progress: 0,
                 status: "In Progress",
