@@ -204,8 +204,9 @@ const ProjectManagement = () => {
                 }
             });
 
-            const updatedProjects = activeProjects.filter(project => project.id !== projectId);
+            const updatedProjects = activeProjects.filter(project => project.projectId !== projectId);
             setActiveProjects(updatedProjects);
+            setFilteredProjects(updatedProjects);
         }catch(error){
             console.error("Error deleting project:", error);
             //handle error (show notification maybe toast)

@@ -45,4 +45,11 @@ public class ProjectController
         ProjectDTO createdProject = projectService.createProject(projectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
+
+    @DeleteMapping("/{projectId}")
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId)
+    {
+        projectService.deleteProject(projectId);
+        return ResponseEntity.ok().build();
+    }
 }

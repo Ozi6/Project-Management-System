@@ -331,4 +331,9 @@ public class ProjectServicer
                 .distinct()
                 .collect(Collectors.toList());
     }
+
+    public void deleteProject(Long projectId)
+    {
+        projectRepository.deleteById(projectId);
+    }
 }
