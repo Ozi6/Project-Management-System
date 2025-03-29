@@ -61,6 +61,8 @@ const ProjectDetails = () => {
                     },
                 });
 
+                console.log(response);
+
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
@@ -78,8 +80,8 @@ const ProjectDetails = () => {
                                 ...taskList,
                                 title: taskList.taskListName || 'Unnamed Task List',
                                 tagColor: taskList.color || 'gray',
-                                entries: Array.isArray(taskList.listEntries)
-                                    ? taskList.listEntries.map(entry => ({
+                                entries: Array.isArray(taskList.entries)
+                                    ? taskList.entries.map(entry => ({
                                         ...entry,
                                         title: entry.entryName || 'Unnamed Entry',
                                         isChecked: entry.isChecked || false,
@@ -299,17 +301,50 @@ const ProjectDetails = () => {
         }
     };
 
-    const addEntry = (columnIndex, taskIndex, listId) => {
+    const addEntry = async (columnIndex, taskIndex, listId) =>
+    {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
-        if (taskList) {
-            const newEntry = {
-                text: `New Entry ${taskList.entries.length + 1}`,
-                checked: false
-            };
-            taskList.entries.push(newEntry);
-            setColumns(newColumns);
+
+        if(taskList)
+        {
+            try{
+                const token = await getToken();
+                const newEntryData =
+                {
+                    entryName: `New Entry ${taskList.entries.length + 1}`,
+                    isChecked: false,
+                    dueDate: null
+                };
+
+                const response = await axios.post(
+                    `http://localhost:8080/api/entries`,
+                    newEntryData,
+                    {
+                        params: { taskListId: listId },
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                const savedEntry =
+                {
+                    ...response.data,
+                    title: response.data.entryName,
+                    id: response.data.entryId,
+                    isChecked: response.data.isChecked || false,
+                    dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null
+                };
+
+                taskList.entries.push(savedEntry);
+                setColumns(newColumns);
+            }catch(err){
+                console.error('Error adding entry:', err.response ? err.response.data : err);
+            }
         }
     };
 
