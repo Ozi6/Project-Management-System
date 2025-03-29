@@ -91,4 +91,19 @@ public class CategoryService
             return categoryDTO;
         }).collect(Collectors.toSet());
     }
+
+    public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO)
+    {
+        Category existingCategory = categoryDataPool.findById(categoryId)
+                .orElseThrow(() -> new RuntimeException("Category not found"));
+        existingCategory.setCategoryName(categoryDTO.getCategoryName());
+        existingCategory.setColor(categoryDTO.getColor());
+        existingCategory.setUpdatedAt(LocalDateTime.now());
+        Category updatedCategory = categoryDataPool.save(existingCategory);
+        CategoryDTO updatedCategoryDTO = new CategoryDTO();
+        updatedCategoryDTO.setCategoryId(updatedCategory.getCategoryId());
+        updatedCategoryDTO.setCategoryName(updatedCategory.getCategoryName());
+        updatedCategoryDTO.setColor(updatedCategory.getColor());
+        return updatedCategoryDTO;
+    }
 }

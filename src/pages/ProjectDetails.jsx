@@ -61,8 +61,6 @@ const ProjectDetails = () => {
                     },
                 });
 
-                console.log(response);
-
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
@@ -587,16 +585,40 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
-    const updateCategory = (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
+    const updateCategory = async (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
     {
-        const updatedColumns = [...displayColumns];
-        const category = updatedColumns[columnIndex][taskIndex];
-        if (category && category.id === categoryId)
-        {
-            category.title = newTitle;
-            category.tagColor = newTagColor;
+        try{
+            const token = await getToken();
+            const response = await axios.put(
+                `http://localhost:8080/api/categories/${categoryId}`,
+                {
+                    categoryName: newTitle,
+                    color: newTagColor
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const updatedCategory = response.data;
+
+            const updatedColumns = [...displayColumns];
+            const category = updatedColumns[columnIndex][taskIndex];
+            if(category && category.id === categoryId)
+            {
+                category.title = updatedCategory.categoryName;
+                category.tagColor = updatedCategory.color;
+                category.categoryName = updatedCategory.categoryName;
+                category.color = updatedCategory.color;
+            }
+            setColumns(updatedColumns);
+        }catch(err){
+            console.error('Error updating category:', err);
         }
-        setColumns(updatedColumns);
     };
 
     useEffect(() => {
@@ -637,8 +659,6 @@ const ProjectDetails = () => {
     }
 
     const displayColumns = filteredColumns || columns;
-
-    console.log(displayColumns);
 
     // Custom navigation items for the sidebar
     const customNavItems = [
