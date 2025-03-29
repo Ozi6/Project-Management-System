@@ -60,6 +60,9 @@ const ProjectDetails = () => {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
+
+                console.log(response);
+
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
@@ -400,7 +403,7 @@ const ProjectDetails = () => {
                 }
             );
             return response.data;
-        } catch (err) {
+        }catch(err){
             console.error('Error saving new task list:', err);
             throw err;
         }

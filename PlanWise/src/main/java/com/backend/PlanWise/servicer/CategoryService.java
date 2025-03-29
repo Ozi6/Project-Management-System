@@ -4,6 +4,7 @@ import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
 import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
+import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.Project;
@@ -66,6 +67,23 @@ public class CategoryService
             Set<TaskList> taskLists = new HashSet<>(taskListDataPool.findByCategoryCategoryId(category.getCategoryId()));
             Set<TaskListDTO> taskListDTOs = taskLists.stream().map(taskList -> {
                 TaskListDTO taskListDTO = new TaskListDTO();
+                taskListDTO.setTaskListId(taskList.getTaskListId());
+                taskListDTO.setTaskListName(taskList.getTaskListName());
+                taskListDTO.setColor(taskList.getColor());
+
+                if(taskList.getEntries() != null)
+                {
+                    Set<ListEntryDTO> entryDTOs = taskList.getEntries().stream().map(entry -> {
+                        ListEntryDTO entryDTO = new ListEntryDTO();
+                        entryDTO.setEntryId(entry.getEntryId());
+                        entryDTO.setEntryName(entry.getEntryName());
+                        entryDTO.setIsChecked(entry.getIsChecked());
+                        entryDTO.setDueDate(entry.getDueDate());
+                        return entryDTO;
+                    }).collect(Collectors.toSet());
+                    taskListDTO.setEntries(entryDTOs);
+                }
+
                 return taskListDTO;
             }).collect(Collectors.toSet());
 
