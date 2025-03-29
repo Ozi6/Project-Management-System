@@ -49,34 +49,55 @@ const ProjectDetails = () => {
     {
         if (!isLoaded || !user)
             return;
-
         const fetchProjectDetails = async () =>
         {
             try{
                 const token = await getToken();
-                const response = await axios.get(`http://localhost:8080/api/projects/${id}`,{
+                const response = await axios.get(`http://localhost:8080/api/projects/${id}/details`,{
                     withCredentials: true,
-                    headers:{
+                    headers:
+                    {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
-
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
                     : (projectData.categories ? [projectData.categories] : []);
 
-                const formattedColumns = projectCategories.map(category => ({
-                    ...category,
-                    title: category.title || category.categoryName || 'Unnamed Category',
-                    tagColor: category.tagColor || category.color || 'gray',
-                    taskLists: category.taskLists || [],
-                    id: category.id || uuidv4()
-                }));
+                const formattedColumns = projectCategories.map(category =>
+                {
+                    const formattedCategory =
+                    {
+                        ...category,
+                        title: category.categoryName || 'Unnamed Category',
+                        tagColor: category.color || 'gray',
+                        taskLists: Array.isArray(category.taskLists)
+                            ? category.taskLists.map(taskList => ({
+                                ...taskList,
+                                title: taskList.taskListName || 'Unnamed Task List',
+                                tagColor: taskList.color || 'gray',
+                                entries: Array.isArray(taskList.listEntries)
+                                    ? taskList.listEntries.map(entry => ({
+                                        ...entry,
+                                        title: entry.entryName || 'Unnamed Entry',
+                                        isChecked: entry.isChecked || false,
+                                        dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
+                                        id: entry.entryId || uuidv4()
+                                    }))
+                                    : [],
+                                id: taskList.taskListId || uuidv4()
+                            }))
+                            : [],
+                        id: category.categoryId || uuidv4()
+                    };
 
-                setColumns([formattedColumns]);
+                    return [formattedCategory];
+                });
+
+                setColumns(formattedColumns);
                 setLoading(false);
-            }catch(err){
+            } catch (err) {
                 console.error('Error fetching project details:', err);
                 setError('Failed to load project details');
                 setLoading(false);
@@ -320,18 +341,69 @@ const ProjectDetails = () => {
         }
     };
 
-    const addList = (columnIndex, taskIndex) =>
+    const addList = async (columnIndex, categoryIndex) =>
     {
         const newColumns = [...columns];
+        const category = newColumns[columnIndex][categoryIndex];
+
         const newList =
         {
             id: uuidv4(),
-            title: `Task List ${newColumns[columnIndex][taskIndex].taskLists.length + 1}`,
-            tagColor: newColumns[columnIndex][taskIndex].tagColor,
-            entries: [],
+            title: `Task List ${category.taskLists.length + 1}`,
+            taskListName: `Task List ${category.taskLists.length + 1}`,
+            color: category.tagColor,
+            tagColor: category.tagColor,
+            entries: []
         };
-        newColumns[columnIndex][taskIndex].taskLists.push(newList);
+
+        category.taskLists.push(newList);
         setColumns(newColumns);
+
+        try{
+            const response = await saveNewTaskList(category.id, newList);
+            if(response && response.taskListId)
+            {
+                const updatedColumns = [...columns];
+                const updatedCategory = updatedColumns[columnIndex][categoryIndex];
+                const listIndex = updatedCategory.taskLists.findIndex(list => list.id === newList.id);
+                if(listIndex !== -1)
+                {
+                    updatedCategory.taskLists[listIndex].id = response.taskListId;
+                    setColumns(updatedColumns);
+                }
+            }
+        }catch(err){
+            console.error('Failed to save task list:', err);
+            const rollbackColumns = [...columns];
+            rollbackColumns[columnIndex][categoryIndex].taskLists =
+                rollbackColumns[columnIndex][categoryIndex].taskLists.filter(list => list.id !== newList.id);
+            setColumns(rollbackColumns);
+        }
+    };
+
+    const saveNewTaskList = async (categoryId, taskList) => {
+        try {
+            const token = await getToken();
+            const response = await axios.post(
+                `http://localhost:8080/api/tasklists`,
+                {
+                    taskListName: taskList.taskListName,
+                    color: taskList.color
+                },
+                {
+                    params: { categoryId },
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response.data;
+        } catch (err) {
+            console.error('Error saving new task list:', err);
+            throw err;
+        }
     };
 
     const onSelectEntry = (entryId) =>
@@ -562,6 +634,8 @@ const ProjectDetails = () => {
     }
 
     const displayColumns = filteredColumns || columns;
+
+    console.log(displayColumns);
 
     // Custom navigation items for the sidebar
     const customNavItems = [

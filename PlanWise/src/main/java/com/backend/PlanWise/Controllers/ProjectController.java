@@ -1,6 +1,8 @@
 package com.backend.PlanWise.Controllers;
 
+import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
+import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -51,5 +54,19 @@ public class ProjectController
     {
         projectService.deleteProject(projectId);
         return ResponseEntity.ok().build();
+    }
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @GetMapping("/{id}/details")
+    public ResponseEntity<ProjectDTO> getProjectDetails(@PathVariable("id") Long projectId)
+    {
+        ProjectDTO projectDTO = projectService.getProjectById(projectId);
+        if(projectDTO == null)
+            return ResponseEntity.notFound().build();
+        Set<CategoryDTO> categories = categoryService.getCategoriesByProjectId(projectId);
+        projectDTO.setCategories(categories);
+        return ResponseEntity.ok(projectDTO);
     }
 }
