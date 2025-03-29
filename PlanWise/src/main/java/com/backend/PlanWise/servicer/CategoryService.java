@@ -79,6 +79,7 @@ public class CategoryService
                         entryDTO.setEntryName(entry.getEntryName());
                         entryDTO.setIsChecked(entry.getIsChecked());
                         entryDTO.setDueDate(entry.getDueDate());
+                        entryDTO.setWarningThreshold(entry.getWarningThreshold());
                         return entryDTO;
                     }).collect(Collectors.toSet());
                     taskListDTO.setEntries(entryDTOs);

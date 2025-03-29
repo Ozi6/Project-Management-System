@@ -86,6 +86,7 @@ const ProjectDetails = () => {
                                         text: entry.entryName || 'Unnamed Entry',
                                         checked: entry.isChecked || false,
                                         dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
+                                        warningThreshold: entry.warningThreshold || null,
                                         id: entry.entryId || uuidv4()
                                     }))
                                     : [],

@@ -340,25 +340,59 @@ const TaskList = ({
         };
     }, [listId, categoryId, onMoveEntry, entries.length]);
 
-    // Callback to update entry text
-    const handleTextChange = (index, newText) => {
+
+    const handleTextChange = async (index, newText) =>
+    {
         const updatedEntries = [...entries];
-        updatedEntries[index].text = newText;
+        const entry = updatedEntries[index];
+
+        entry.text = newText;
         setEntries(updatedEntries);
+
+        try
+        {
+            if(entry.id)
+                await updateEntryInBackend(entry.id, { ...entry, text: newText });
+        }catch(error){
+            const originalEntries = [...entries];
+            setEntries(originalEntries);
+        }
     };
 
-    // Callback to update entry due date
-    const handleDueDateChange = (index, newDueDate) => {
+
+    const handleDueDateChange = async (index, newDueDate) =>
+    {
         const updatedEntries = [...entries];
-        updatedEntries[index].dueDate = newDueDate;
+        const entry = updatedEntries[index];
+
+        entry.dueDate = newDueDate;
         setEntries(updatedEntries);
+
+        try{
+            if (entry.id)
+                await updateEntryInBackend(entry.id, { ...entry, dueDate: newDueDate });
+        }catch(error){
+            const originalEntries = [...entries];
+            setEntries(originalEntries);
+        }
     };
 
-    // Callback to update entry warning threshold
-    const handleWarningThresholdChange = (index, newWarningThreshold) => {
+
+    const handleWarningThresholdChange = async (index, newWarningThreshold) =>
+    {
         const updatedEntries = [...entries];
-        updatedEntries[index].warningThreshold = newWarningThreshold;
+        const entry = updatedEntries[index];
+
+        entry.warningThreshold = newWarningThreshold;
         setEntries(updatedEntries);
+
+        try{
+            if (entry.id)
+                await updateEntryInBackend(entry.id, { ...entry, warningThreshold: newWarningThreshold });
+        }catch(error){
+            const originalEntries = [...entries];
+            setEntries(originalEntries);
+        }
     };
 
     const handleFileChange = (index, file) => {
@@ -366,6 +400,64 @@ const TaskList = ({
         updatedEntries[index].file = file && file.name ? file : null;
         setEntries(updatedEntries);
         onFileChange?.(listId, index, updatedEntries[index].file);
+    };
+
+    const updateEntryInBackend = async (entryId, updatedData) =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.put(
+                `http://localhost:8080/api/entries/${entryId}`,
+                {
+                    entryName: updatedData.text,
+                    isChecked: updatedData.checked,
+                    dueDate: updatedData.dueDate,
+                    warningThreshold: updatedData.warningThreshold,
+                    // Add other fields as needed
+                },
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response.data;
+        }catch(error){
+            console.error('Error updating entry:', error.response ? error.response.data : error);
+            throw error;
+        }
+    };
+
+    const uploadFileToBackend = async (entryId, file) =>
+    {
+        if(!file)
+            return null;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try{
+            const token = await getToken();
+            const response = await axios.post(
+                `http://localhost:8080/api/entries/${entryId}/file`,
+                formData,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            return response.data;
+        }catch(error){
+            console.error('Error uploading file:', error.response ? error.response.data : error);
+            throw error;
+        }
     };
 
     const handleDelete = (entryId) =>
