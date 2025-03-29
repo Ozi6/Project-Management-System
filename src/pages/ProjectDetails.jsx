@@ -83,8 +83,8 @@ const ProjectDetails = () => {
                                 entries: Array.isArray(taskList.entries)
                                     ? taskList.entries.map(entry => ({
                                         ...entry,
-                                        title: entry.entryName || 'Unnamed Entry',
-                                        isChecked: entry.isChecked || false,
+                                        text: entry.entryName || 'Unnamed Entry',
+                                        checked: entry.isChecked || false,
                                         dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
                                         id: entry.entryId || uuidv4()
                                     }))
@@ -348,32 +348,72 @@ const ProjectDetails = () => {
         }
     };
 
-    const handleEntryDelete = (columnIndex, taskIndex, listId, entryIndex) =>
+    const handleEntryDelete = async (columnIndex, taskIndex, listId, entryIndex) =>
     {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
         if(taskList && taskList.entries.length > entryIndex)
         {
-            taskList.entries.splice(entryIndex, 1);
-            setColumns(newColumns);
+            const entryToDelete = taskList.entries[entryIndex];
+
+            try{
+                const token = await getToken();
+                await axios.delete(
+                    `http://localhost:8080/api/entries/${entryToDelete.id}`,
+                    {
+                        withCredentials: true,
+                        headers:
+                        {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                taskList.entries.splice(entryIndex, 1);
+                setColumns(newColumns);
+            }catch(err){
+                console.error('Error deleting entry:', err.response ? err.response.data : err);
+            }
         }
     };
 
-    const updateEntryCheckedStatus = (columnIndex, taskIndex, listId, entryIndex, isChecked) => {
+    const updateEntryCheckedStatus = async (columnIndex, taskIndex, listId, entryIndex, isChecked) => {
         const newColumns = [...columns];
         const category = newColumns[columnIndex][taskIndex];
         const taskList = category.taskLists.find((list) => list.id === listId);
-        if (taskList && taskList.entries[entryIndex]) {
-            if (typeof taskList.entries[entryIndex] === 'string') {
-                taskList.entries[entryIndex] = {
-                    text: taskList.entries[entryIndex],
-                    checked: isChecked
-                };
-            } else {
-                taskList.entries[entryIndex].checked = isChecked;
+        if (taskList && taskList.entries[entryIndex])
+        {
+            const entry = taskList.entries[entryIndex];
+            try{
+                const token = await getToken();
+                await axios.put(
+                    `http://localhost:8080/api/entries/${entry.id}/check`,
+                    null,
+                    {
+                        params: { isChecked },
+                        withCredentials: true,
+                        headers:
+                        {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                if (typeof taskList.entries[entryIndex] === 'string') {
+                    taskList.entries[entryIndex] =
+                    {
+                        text: taskList.entries[entryIndex],
+                        checked: isChecked
+                    };
+                }
+                else
+                    taskList.entries[entryIndex].checked = isChecked;
+                entry.isChecked = isChecked;
+                setColumns(newColumns);
+            }catch(err){
+                console.error('Error updating entry check status:', err.response ? err.response.data : err);
             }
-            setColumns(newColumns);
+
         }
     };
 
