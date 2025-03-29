@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '@clerk/clerk-react'; // Add this import
 import {
   AlertCircle,
   Clock,
@@ -78,6 +79,9 @@ const IncidentsBugs = () => {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commentError, setCommentError] = useState('');
+  const { userId } = useAuth(); // Get current user ID from Clerk
+  const [isLoading, setIsLoading] = useState(true);
+  const [apiError, setApiError] = useState(null);
 
   // Handle mobile sidebar
   useEffect(() => {
@@ -99,6 +103,61 @@ const IncidentsBugs = () => {
   const toggleMobileSidebar = () => {
     setIsMobileSidebarOpen(!isMobileSidebarOpen);
   };
+
+    // Fetch bug reports from backend
+  useEffect(() => {
+    const fetchBugReports = async () => {
+      if (!userId) return;
+      
+      setIsLoading(true);
+      setApiError(null);
+      
+      try {
+        const response = await fetch(`http://localhost:8080/api/bugreports/user/${userId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Transform backend data to frontend format
+        const transformedData = data.map(item => ({
+          id: item.bugId,
+          title: item.issueTitle,
+          description: item.description,
+          reportedBy: item.reportedBy?.username || 'You',
+          date: item.reportedAt,
+          status: item.status.toLowerCase(),
+          priority: item.priority.toLowerCase(),
+          category: item.category.toLowerCase(),
+          replies: item.commentCount || 0,
+          comments: item.comments?.map(comment => ({
+            id: comment.commentId,
+            text: comment.comment,
+            author: comment.author?.username || 'Unknown',
+            date: comment.commentedAt
+          })) || []
+        }));
+        
+        setIncidents(transformedData);
+        setFilteredIncidents(transformedData);
+      } catch (error) {
+        console.error("Error fetching bug reports:", error);
+        setApiError("Failed to load your reports. Please try again later.");
+        
+        // If API fails, use sample data
+        setIncidents(sampleIncidents);
+        setFilteredIncidents(sampleIncidents);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (userId) {
+      fetchBugReports();
+    }
+  }, [userId]);
 
   // Add this function to handle viewing incident details
   const handleViewDetails = (incident) => {
@@ -133,8 +192,7 @@ const IncidentsBugs = () => {
     return errors;
   };
 
-  // Submit form handler
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     // Validate form
@@ -144,32 +202,61 @@ const IncidentsBugs = () => {
       return;
     }
     
-    // Create new incident object with current date and default values
-    const newIncidentObject = {
-      id: Date.now(), // Use timestamp as unique ID
-      title: newIncident.title,
-      description: newIncident.description,
-      reportedBy: 'You',
-      date: new Date().toISOString().split('T')[0],
-      status: 'open',
-      priority: newIncident.priority,
-      category: newIncident.category,
-      replies: 0
-    };
-    
-    // Add to incidents array
-    setIncidents(prev => [newIncidentObject, ...prev]);
-    
-    // Reset form and close modal
-    setNewIncident({
-      title: '',
-      description: '',
-      category: '',
-      priority: ''
-    });
-    setShowReportModal(false);
-    
-    // Show success notification (can be implemented later)
+    try {
+      const bugReportDTO = {
+        issueTitle: newIncident.title,
+        description: newIncident.description,
+        category: newIncident.category.toUpperCase(),
+        priority: newIncident.priority.toUpperCase()
+      };
+      
+      const response = await fetch(`http://localhost:8080/api/bugreports/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bugReportDTO)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      
+      const createdReport = await response.json();
+      
+      // Transform to frontend format
+      const newIncidentObject = {
+        id: createdReport.bugId,
+        title: createdReport.issueTitle,
+        description: createdReport.description,
+        reportedBy: 'You',
+        date: createdReport.reportedAt,
+        status: createdReport.status.toLowerCase(),
+        priority: createdReport.priority.toLowerCase(),
+        category: createdReport.category.toLowerCase(),
+        replies: 0,
+        comments: []
+      };
+      
+      // Add to incidents array
+      setIncidents(prev => [newIncidentObject, ...prev]);
+      
+      // Reset form and close modal
+      setNewIncident({
+        title: '',
+        description: '',
+        category: '',
+        priority: ''
+      });
+      setShowReportModal(false);
+      
+    } catch (error) {
+      console.error("Error creating bug report:", error);
+      // Show error message to user
+      setFormErrors({
+        submit: "Failed to submit your report. Please try again later."
+      });
+    }
   };
 
   // Apply filters
@@ -240,48 +327,72 @@ const IncidentsBugs = () => {
   };
 
   // Add this function to handle adding comments
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     // Validate comment
     if (!commentText.trim()) {
       setCommentError('Comment cannot be empty');
       return;
     }
     
-    // Create a new comment
-    const newComment = {
-      id: Date.now(),
-      text: commentText,
-      author: 'You',
-      date: new Date().toISOString().split('T')[0]
-    };
-    
-    // Update the incident with the new comment
-    const updatedIncidents = incidents.map(inc => {
-      if (inc.id === selectedIncident.id) {
-        // Initialize comments array if it doesn't exist
-        const comments = inc.comments ? [...inc.comments, newComment] : [newComment];
-        return {
-          ...inc,
-          replies: inc.replies + 1,
-          comments: comments
-        };
+    try {
+      const commentDTO = {
+        comment: commentText,
+        bugId: selectedIncident.id
+      };
+      
+      const response = await fetch(`http://localhost:8080/api/bugreports/${selectedIncident.id}/comments/user/${userId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentDTO)
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
       }
-      return inc;
-    });
-    
-    // Update selected incident for UI
-    const updatedIncident = {
-      ...selectedIncident,
-      replies: selectedIncident.replies + 1,
-      comments: selectedIncident.comments ? [...selectedIncident.comments, newComment] : [newComment]
-    };
-    
-    // Update state
-    setIncidents(updatedIncidents);
-    setSelectedIncident(updatedIncident);
-    setCommentText('');
-    setShowCommentForm(false);
-    setCommentError('');
+      
+      const createdComment = await response.json();
+      
+      // Transform to frontend format
+      const newComment = {
+        id: createdComment.commentId,
+        text: createdComment.comment,
+        author: 'You',
+        date: createdComment.commentedAt
+      };
+      
+      // Update the incident with the new comment
+      const updatedIncidents = incidents.map(inc => {
+        if (inc.id === selectedIncident.id) {
+          const comments = inc.comments ? [...inc.comments, newComment] : [newComment];
+          return {
+            ...inc,
+            replies: inc.replies + 1,
+            comments: comments
+          };
+        }
+        return inc;
+      });
+      
+      // Update selected incident for UI
+      const updatedIncident = {
+        ...selectedIncident,
+        replies: selectedIncident.replies + 1,
+        comments: selectedIncident.comments ? [...selectedIncident.comments, newComment] : [newComment]
+      };
+      
+      // Update state
+      setIncidents(updatedIncidents);
+      setSelectedIncident(updatedIncident);
+      setCommentText('');
+      setShowCommentForm(false);
+      setCommentError('');
+      
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      setCommentError('Failed to post your comment. Please try again.');
+    }
   };
 
   return (
@@ -463,13 +574,23 @@ const IncidentsBugs = () => {
                   : "Your Reports"}
               </h2>
               
-              {filteredIncidents.length === 0 ? (
+              {isLoading ? (
+                <div className="flex justify-center items-center py-20">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
+                </div>
+              ) : apiError ? (
                 <div className="text-center py-10">
-                  <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <AlertCircle className="h-8 w-8 text-orange-500" />
+                  <div className="bg-red-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="h-8 w-8 text-red-500" />
                   </div>
-                  <h3 className="text-lg font-medium text-[var(--features-title-color)]">No reports found</h3>
-                  <p className="text-[var(--features-text-color)]">Try adjusting your search or filter settings</p>
+                  <h3 className="text-lg font-medium text-[var(--features-title-color)]">Unable to load reports</h3>
+                  <p className="text-[var(--features-text-color)] mb-4">{apiError}</p>
+                  <button 
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-[var(--features-icon-color)] text-white rounded-lg hover:bg-[var(--hover-color)] transition-colors"
+                  >
+                    Retry
+                  </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -626,6 +747,12 @@ const IncidentsBugs = () => {
                 </select>
                 {formErrors.priority && <p className="mt-1 text-xs text-red-600">{formErrors.priority}</p>}
               </div>
+
+              {formErrors.submit && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                  {formErrors.submit}
+                </div>
+              )}
 
               <div className="flex justify-end space-x-3 pt-6">
                 <button
