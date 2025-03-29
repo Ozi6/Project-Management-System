@@ -3,6 +3,8 @@ import { Plus, Settings } from "lucide-react";
 import PropTypes from "prop-types";
 import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
+import axios from 'axios';
+import { useUser, useAuth } from "@clerk/clerk-react";
 import { Teams, Users } from './TeamAndUsersTest';
 import { AnimatePresence } from "framer-motion";
 
@@ -22,7 +24,8 @@ const TaskList = ({
     onDragStart,
     onUpdateEntryCheckedStatus,
     onFileChange,
-    onEntryUpdate
+    onEntryUpdate,
+    onUpdateTaskList
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
@@ -30,6 +33,7 @@ const TaskList = ({
     const [newEntryId, setNewEntryId] = useState(null);
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
+    const { getToken } = useAuth();
     const [entries, setEntries] = useState(() =>
         initialEntries.map(entry => ({
             ...entry,
@@ -43,10 +47,34 @@ const TaskList = ({
         setEntries(initialEntries);
     }, [initialEntries]);
 
-    const handleDone = (newTitle, newTagColor) => {
-        setEditableTitle(newTitle);
-        setEditableTagColor(newTagColor);
-        setIsEditing(false);
+    const handleDone = async (newTitle, newTagColor) =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.put(
+                `http://localhost:8080/api/tasklists/${listId}`,
+                {
+                    taskListName: newTitle,
+                    color: newTagColor
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setEditableTitle(newTitle);
+            setEditableTagColor(newTagColor);
+            setIsEditing(false);
+
+            if (onUpdateTaskList)
+                onUpdateTaskList(listId, newTitle, newTagColor);
+        }catch(error){
+            console.error('Error updating task list:', error);
+        }
     };
 
     const handleCancel = () => {

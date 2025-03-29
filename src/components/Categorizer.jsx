@@ -22,7 +22,8 @@ const Categorizer = ({
     onDeleteList,
     onDeleteCategory,
     onUpdateEntryCheckedStatus,
-    onUpdateCategory
+    onUpdateCategory,
+    onUpdateTaskList
 }) => {
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
@@ -237,6 +238,7 @@ const Categorizer = ({
                                     onDeleteList={(listId) => onDeleteList(columnIndex, taskIndex, listId)}
                                     onEditCardOpen={onEditCardOpen}
                                     onMoveEntry={onMoveEntry}
+                                    onUpdateTaskList={onUpdateTaskList}
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
                                     onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
                                         onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)}

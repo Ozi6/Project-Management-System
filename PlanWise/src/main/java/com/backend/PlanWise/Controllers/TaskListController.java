@@ -22,4 +22,13 @@ public class TaskListController
         TaskListDTO createdTaskList = taskListService.createTaskList(taskListDTO, categoryId);
         return ResponseEntity.ok(createdTaskList);
     }
+
+    @PutMapping("/{taskListId}")
+    public ResponseEntity<TaskListDTO> updateTaskList(
+            @PathVariable Long taskListId,
+            @RequestBody TaskListDTO taskListDTO)
+    {
+        TaskListDTO updatedTaskList = taskListService.updateTaskList(taskListId, taskListDTO);
+        return ResponseEntity.ok(updatedTaskList);
+    }
 }

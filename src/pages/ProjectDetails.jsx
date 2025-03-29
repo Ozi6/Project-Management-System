@@ -417,6 +417,52 @@ const ProjectDetails = () => {
         setSelectedEntryId(null);
     };
 
+    const handleUpdateTaskList = async (listId, newTitle, newColor) =>
+    {
+        try{
+            const token = await getToken();
+            await axios.put(
+                `http://localhost:8080/api/tasklists/${listId}`,
+                {
+                    taskListName: newTitle,
+                    color: newColor
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const updatedColumns = [...columns];
+            updatedColumns.forEach(column =>
+            {
+                column.forEach(category =>
+                {
+                    category.taskLists = category.taskLists.map(list =>
+                    {
+                        if (list.id === listId)
+                        {
+                            return{
+                                ...list,
+                                title: newTitle,
+                                taskListName: newTitle,
+                                tagColor: newColor,
+                                color: newColor
+                            };
+                        }
+                        return list;
+                    });
+                });
+            });
+            setColumns(updatedColumns);
+        }catch(error){
+            console.error('Error updating task list:', error);
+        }
+    };
+
     const deepCopyColumns = (columns) => {
         return columns.map(column => {
             return column.map(category => {
@@ -840,6 +886,7 @@ const ProjectDetails = () => {
                                             updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
                                         }}
                                         onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex)}
+                                        onUpdateTaskList={handleUpdateTaskList}
                                     />
                                 ))}
                             </div>

@@ -63,4 +63,16 @@ public class TaskListService
         dto.setColor(taskList.getColor());
         return dto;
     }
+
+    public TaskListDTO updateTaskList(Long taskListId, TaskListDTO taskListDTO)
+    {
+        TaskList existingTaskList = taskListDataPool.findById(taskListId)
+                .orElseThrow(() -> new RuntimeException("TaskList not found with id: " + taskListId));
+
+        existingTaskList.setTaskListName(taskListDTO.getTaskListName());
+        existingTaskList.setColor(taskListDTO.getColor());
+
+        TaskList updatedTaskList = taskListDataPool.save(existingTaskList);
+        return convertToDTO(updatedTaskList);
+    }
 }
