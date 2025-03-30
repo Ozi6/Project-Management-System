@@ -284,12 +284,13 @@ const IncidentsBugs = () => {
     setFilteredIncidents(result);
   }, [incidents, searchTerm, statusFilter, priorityFilter]);
 
-  // Get status badge color
+  // Update the getStatusBadge function
   const getStatusBadge = (status) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'open':
         return <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs font-medium">Open</span>;
       case 'in-progress':
+      case 'in progress':
         return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-medium">In Progress</span>;
       case 'resolved':
         return <span className="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">Resolved</span>;
@@ -328,6 +329,12 @@ const IncidentsBugs = () => {
 
   // Add this function to handle adding comments
   const handleAddComment = async () => {
+    // Prevent comments on resolved/closed issues
+    if (selectedIncident.status === 'resolved' || selectedIncident.status === 'closed') {
+      setCommentError('Cannot add comments to resolved or closed issues');
+      return;
+    }
+    
     // Validate comment
     if (!commentText.trim()) {
       setCommentError('Comment cannot be empty');
@@ -781,120 +788,123 @@ const IncidentsBugs = () => {
       
       {/* Incident Details Modal */}
       {showDetailModal && selectedIncident && (
-        <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50">
+        <div className="fixed inset-0 bg-transparent backdrop-blur-sm flex justify-center items-center z-50 p-4">
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-[var(--bg-color)] p-7 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-2 border-[var(--gray-card3)] w-full max-w-md ring-2 ring-[var(--gray-card3)]/50 ring-opacity-75"
+            className="bg-[var(--bg-color)] rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.2)] border-2 border-[var(--gray-card3)] w-full max-w-2xl max-h-[90vh] overflow-y-auto flex flex-col ring-2 ring-[var(--gray-card3)]/50 ring-opacity-75"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <span className="inline-block w-12 h-1.5 bg-[var(--features-icon-color)] rounded-full mb-2"></span>
-                <h2 className="text-2xl font-bold text-[var(--features-title-color)] truncate pr-4">{selectedIncident.title}</h2>
-              </div>
-              <button 
-                onClick={() => setShowDetailModal(false)}
-                className="p-2 rounded-full hover:bg-[var(--gray-card3)]/50 transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--gray-card3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Badge row */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {getCategoryBadge(selectedIncident.category)}
-              {getStatusBadge(selectedIncident.status)}
-              {getPriorityBadge(selectedIncident.priority)}
-            </div>
-
-            {/* Description */}
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-[var(--features-text-color)] mb-2">Description</h3>
-              <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg text-[var(--text-color3)]/70">
-                {selectedIncident.description}
-              </div>
-            </div>
-
-            {/* Meta information */}
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--features-text-color)]">Reported by:</span>
-                <span className="font-medium text-[var(--features-title-color)]/70">{selectedIncident.reportedBy}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--features-text-color)]">Date reported:</span>
-                <span className="font-medium text-[var(--features-title-color)]/70">{new Date(selectedIncident.date).toLocaleDateString()}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[var(--features-text-color)]">Incident ID:</span>
-                <span className="font-medium text-[var(--features-title-color)]/70">#{selectedIncident.id}</span>
-              </div>
-            </div>
-
-            {/* Comments section */}
-            <div className="border-t border-[var(--gray-card3)] pt-5 mb-5">
-              <h3 className="text-sm font-medium text-[var(--features-title-color)] mb-3">Comments ({selectedIncident.replies})</h3>
-              
-              {selectedIncident.replies === 0 && !showCommentForm ? (
-                <div className="text-center py-4 bg-[var(--gray-card2)]/70 rounded-lg">
-                  <p className="text-[var(--features-text-color)] text-sm">No comments yet</p>
+            <div className="p-7 border-b">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <span className="inline-block w-12 h-1.5 bg-[var(--features-icon-color)] rounded-full mb-2"></span>
+                  <h2 className="text-2xl font-bold text-[var(--features-title-color)] truncate pr-4">{selectedIncident.title}</h2>
                 </div>
-              ) : (
-                <div className="space-y-4 mb-4">
-                  {selectedIncident.comments && selectedIncident.comments.map(comment => (
-                    <div key={comment.id} className="bg-[var(--gray-card3)]/60 p-4 rounded-lg">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-[var(--text-color3)]">{comment.author}</span>
-                        <span className="text-xs text-[var(--text-color3)]">{new Date(comment.date).toLocaleDateString()}</span>
+                <button 
+                  onClick={() => setShowDetailModal(false)}
+                  className="p-2 rounded-full hover:bg-[var(--gray-card3)]/50 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[var(--gray-card3)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Badge row */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {getCategoryBadge(selectedIncident.category)}
+                {getStatusBadge(selectedIncident.status)}
+                {getPriorityBadge(selectedIncident.priority)}
+              </div>
+
+              {/* Description */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-[var(--features-text-color)] mb-2">Description</h3>
+                <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg text-[var(--text-color3)]/70">
+                  {selectedIncident.description}
+                </div>
+              </div>
+
+              {/* Meta information */}
+              <div className="space-y-3 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--features-text-color)]">Reported by:</span>
+                  <span className="font-medium text-[var(--features-title-color)]/70">{selectedIncident.reportedBy}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--features-text-color)]">Date reported:</span>
+                  <span className="font-medium text-[var(--features-title-color)]/70">{new Date(selectedIncident.date).toLocaleDateString()}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-[var(--features-text-color)]">Incident ID:</span>
+                  <span className="font-medium text-[var(--features-title-color)]/70">#{selectedIncident.id}</span>
+                </div>
+              </div>
+
+              {/* Comments section */}
+              <div className="border-t border-[var(--gray-card3)] pt-5">
+                <h3 className="text-sm font-medium text-[var(--features-title-color)] mb-3">Comments ({selectedIncident.replies})</h3>
+                
+                {selectedIncident.replies === 0 && !showCommentForm ? (
+                  <div className="text-center py-4 bg-[var(--gray-card2)]/70 rounded-lg">
+                    <p className="text-[var(--features-text-color)] text-sm">No comments yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-1">
+                    {selectedIncident.comments && selectedIncident.comments.map(comment => (
+                      <div key={comment.id} className="bg-[var(--gray-card3)]/60 p-4 rounded-lg">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="font-medium text-[var(--text-color3)]">{comment.author}</span>
+                          <span className="text-xs text-[var(--text-color3)]">{new Date(comment.date).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-sm text-[var(--features-text-color)]/70">{comment.text}</p>
                       </div>
-                      <p className="text-sm text-[var(--features-text-color)]/70">{comment.text}</p>
-                    </div>
-                  ))}
-                  
-                  {showCommentForm && (
-                    <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg">
-                      <textarea
-                        value={commentText}
-                        onChange={(e) => {
-                          setCommentText(e.target.value);
-                          if (commentError) setCommentError('');
+                    ))}
+                  </div>
+                )}
+                
+                {/* Comment form */}
+                {showCommentForm && (
+                  <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg mt-4">
+                    <textarea
+                      value={commentText}
+                      onChange={(e) => {
+                        setCommentText(e.target.value);
+                        if (commentError) setCommentError('');
+                      }}
+                      placeholder="Write your comment here..."
+                      rows="3"
+                      className={`w-full p-3 bg-[var(--bg-color)] border ${commentError ? 'border-red-500' : 'border-gray-200'} text-[var(--text-color3)]/70 rounded-lg focus:ring-2 focus:ring-[var(--features-icon-color)]/20 focus:border-transparent transition-all duration-200 mb-2`}
+                    ></textarea>
+                    {commentError && <p className="text-xs text-red-600 mb-2">{commentError}</p>}
+                    
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCommentForm(false);
+                          setCommentText('');
+                          setCommentError('');
                         }}
-                        placeholder="Write your comment here..."
-                        rows="3"
-                        className={`w-full p-3 bg-[var(--bg-color)] border ${commentError ? 'border-red-500' : 'border-gray-200'} text-[var(--text-color3)]/70 rounded-lg focus:ring-2 focus:ring-[var(--features-icon-color)]/20 focus:border-transparent transition-all duration-200 mb-2`}
-                      ></textarea>
-                      {commentError && <p className="text-xs text-red-600 mb-2">{commentError}</p>}
-                      
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setShowCommentForm(false);
-                            setCommentText('');
-                            setCommentError('');
-                          }}
-                          className="px-3 py-1.5 text-sm rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleAddComment}
-                          className="px-3 py-1.5 text-sm rounded-lg bg-[var(--features-icon-color)]/40 text-white hover:bg-[var(--features-icon-color)]/80 transition-colors shadow-sm"
-                        >
-                          Submit
-                        </button>
-                      </div>
+                        className="px-3 py-1.5 text-sm rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleAddComment}
+                        className="px-3 py-1.5 text-sm rounded-lg bg-[var(--features-icon-color)]/40 text-white hover:bg-[var(--features-icon-color)]/80 transition-colors shadow-sm"
+                      >
+                        Submit
+                      </button>
                     </div>
-                  )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end space-x-3">
+            <div className="p-4 border-t mt-auto flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={() => setShowDetailModal(false)}
@@ -902,15 +912,22 @@ const IncidentsBugs = () => {
               >
                 Close
               </button>
-              <button
-                type="button"
-                onClick={() => setShowCommentForm(true)}
-                className={`px-5 py-2.5 rounded-lg ${showCommentForm ? 'bg-[var(--gray-card3)] text-gray-600' : 'bg-[var(--features-icon-color)]/20 text-white hover:bg-[var(--hover-color)]/20'} transition-colors flex items-center shadow-sm hover:shadow-md font-medium ${showCommentForm ? 'cursor-not-allowed' : ''}`}
-                disabled={showCommentForm}
-              >
-                <MessageSquare className="h-4 w-4 mr-1.5" />
-                Add Comment
-              </button>
+              {!showCommentForm && selectedIncident.status !== 'resolved' && selectedIncident.status !== 'closed' && (
+                <button
+                  type="button"
+                  onClick={() => setShowCommentForm(true)}
+                  className="px-5 py-2.5 rounded-lg bg-[var(--features-icon-color)]/20 text-white hover:bg-[var(--hover-color)]/20 transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
+                >
+                  <MessageSquare className="h-4 w-4 mr-1.5" />
+                  Add Comment
+                </button>
+              )}
+              {(selectedIncident.status === 'resolved' || selectedIncident.status === 'closed') && (
+                <div className="px-5 py-2.5 text-sm text-gray-500 italic flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1.5" />
+                  Comments disabled for {selectedIncident.status} issues
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
