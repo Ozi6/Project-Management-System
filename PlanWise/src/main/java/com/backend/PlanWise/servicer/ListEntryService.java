@@ -130,4 +130,11 @@ public class ListEntryService
 
         return dto;
     }
+
+    public ListEntryDTO getEntryById(Long entryId)
+    {
+        ListEntry entry = listEntryDataPool.findById(entryId)
+                .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
+        return convertToDTO(entry);
+    }
 }

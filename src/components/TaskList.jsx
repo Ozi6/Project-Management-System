@@ -396,22 +396,64 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = async (index, userId, file) =>
-    {
+    const handleFileChange = async (index, entryId, userId, file) => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('userId', userId);
 
-        try{
-            const response = await axios.post('http://localhost:8080/api/files/upload', formData,
-            {
-                headers:
-                {
+        try {
+            const fileResponse = await axios.post('http://localhost:8080/api/files/upload', formData, {
+                headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            return response.data;
-        }catch(error){
+
+            const uploadedFile = fileResponse.data;
+
+            const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
+            const currentEntry = currentEntryResponse.data;
+
+            const updatedEntry = {
+                ...currentEntry,
+                file: {
+                    fileId: uploadedFile.fileId,
+                    fileName: uploadedFile.fileName,
+                    fileSize: uploadedFile.fileSize,
+                    fileType: uploadedFile.fileType,
+                    fileDataBase64: uploadedFile.fileDataBase64 // Make sure this is included from backend
+                }
+            };
+
+            const entryResponse = await axios.put(
+                `http://localhost:8080/api/entries/${entryId}`,
+                updatedEntry
+            );
+
+            // Create the properly formatted file object for the frontend
+            let fileObject = null;
+            if (uploadedFile.fileDataBase64) {
+                const binaryString = atob(uploadedFile.fileDataBase64);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: uploadedFile.fileType });
+                fileObject = new File([blob], uploadedFile.fileName, {
+                    type: uploadedFile.fileType,
+                    lastModified: new Date().getTime()
+                });
+            }
+
+            // Update the entries state with the properly formatted file
+            const updatedEntries = [...entries];
+            updatedEntries[index] = {
+                ...updatedEntries[index],
+                file: fileObject
+            };
+            setEntries(updatedEntries);
+
+            return entryResponse.data;
+        } catch (error) {
             console.error('Error uploading file:', error);
             throw error;
         }
@@ -557,7 +599,7 @@ const TaskList = ({
                                         onDelete={(entryId) => {
                                             onEntryDelete(listId, index);
                                         }}
-                                        onFileChange={(file) => handleFileChange(index, user.id, file)}
+                                        onFileChange={(file) => handleFileChange(index, entry.entryId, user.id, file)}
                                         assignedUsers={entry.assignedUsers || []}
                                         assignedTeams={entry.assignedTeams || []}
                                         onAssign={(newUsers, newTeams) => handleAssignedChange(index, newUsers, newTeams)}

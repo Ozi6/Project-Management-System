@@ -62,7 +62,6 @@ const ProjectDetails = () => {
                     },
                 });
 
-                console.log(response);
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
