@@ -35,7 +35,10 @@ public class TaskListService
             entryDTO.setEntryName(entry.getEntryName());
             entryDTO.setIsChecked(entry.getIsChecked());
             entryDTO.setDueDate(entry.getDueDate());
-            entryDTO.setWarningThreshold(entry.getWarningThreshold());
+            if(entry.getDueDate() != null)
+                entryDTO.setWarningThreshold(entry.getWarningThreshold());
+            else
+                entryDTO.setWarningThreshold(null);
 
             return entryDTO;
         }).collect(Collectors.toList());

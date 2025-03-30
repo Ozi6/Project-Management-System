@@ -12,8 +12,10 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
         file: null,
     });
 
+    const [hasInitialized, setHasInitialized] = useState(false);
+
     useEffect(() => {
-        if (entry) {
+        if (entry && !hasInitialized) {
             setFormData({
                 text: entry.text || "",
                 dueDate: entry.dueDate ? new Date(entry.dueDate).toISOString().split("T")[0] : "",
@@ -21,15 +23,21 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                 checked: entry.checked || false,
                 file: entry.file || null,
             });
+            setHasInitialized(true);
         }
-    }, [entry]);
+    }, [entry, hasInitialized]);
+
+    const handleClose = () => {
+        setHasInitialized(false);
+        onClose();
+    };
 
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
         if (type === "file") {
             setFormData((prev) => ({
                 ...prev,
-                file: files[0] || null, // Set to new file or null if no file selected
+                file: files[0] || null, 
             }));
         } else {
             setFormData((prev) => ({
@@ -82,7 +90,6 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-xs"
-            // Remove the onClick={onClose} handler here to prevent closing on backdrop click
         >
             <motion.div
                 initial={{ y: 20 }}
@@ -217,7 +224,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                     <div className="flex justify-end space-x-3">
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={handleClose}
                             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         >
                             Cancel

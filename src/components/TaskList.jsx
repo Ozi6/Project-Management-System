@@ -396,50 +396,36 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = async (index, file) =>
+    const handleFileChange = async (file, userId) =>
     {
-        if(file)
-        {
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('userId', user.id);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('userId', userId);
 
-            try{
-                const response = await axios.post('/api/files/upload', formData,
+        try{
+            const response = await axios.post('http://localhost:8080/api/files/upload', formData, {
+                headers:
                 {
-                    headers:
-                    {
-                        'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${await user.getToken()}`
-                    }
-                });
-
-                const updatedEntries = [...entries];
-                updatedEntries[index].file = response.data;
-                setEntries(updatedEntries);
-                onFileChange?.(listId, index, updatedEntries[index].file);
-            }catch(error){
-                console.error('Error uploading file:', error);
-            }
-        }
-        else
-        {
-            const updatedEntries = [...entries];
-            updatedEntries[index].file = null;
-            setEntries(updatedEntries);
-            onFileChange?.(listId, index, null);
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
+        }catch(error){
+            console.error('Error uploading file:', error);
+            throw error;
         }
     };
 
     const updateEntryInBackend = async (entryId, updatedData) =>
     {
+        console.log(updatedData);
         try{
             const token = await getToken();
             const response = await axios.put(
                 `http://localhost:8080/api/entries/${entryId}`,
                 {
                     entryName: updatedData.text,
-                    isChecked: updatedData.checked,
+                    isChecked: updatedData.checked || false,
                     dueDate: updatedData.dueDate,
                     warningThreshold: updatedData.warningThreshold,
                     // Add other fields as needed
@@ -453,6 +439,7 @@ const TaskList = ({
                     }
                 }
             );
+            console.log(response.data);
             return response.data;
         }catch(error){
             console.error('Error updating entry:', error.response ? error.response.data : error);

@@ -150,7 +150,10 @@ public class ProjectServicer
         dto.setEntryName(entry.getEntryName());
         dto.setIsChecked(entry.getIsChecked());
         dto.setDueDate(entry.getDueDate());
-        dto.setWarningThreshold(entry.getWarningThreshold());
+        if(entry.getDueDate() != null)
+            dto.setWarningThreshold(entry.getWarningThreshold());
+        else
+            dto.setWarningThreshold(null);
 
         if (entry.getFile() != null)
             dto.setFile(convertFileToDTO(entry.getFile()));
@@ -274,7 +277,10 @@ public class ProjectServicer
         entry.setEntryName(entryDTO.getEntryName());
         entry.setIsChecked(entryDTO.getIsChecked());
         entry.setDueDate(entryDTO.getDueDate());
-        entry.setWarningThreshold(entryDTO.getWarningThreshold());
+        if(entryDTO.getDueDate() != null)
+            entry.setWarningThreshold(entryDTO.getWarningThreshold());
+        else
+            entry.setWarningThreshold(null);
         if(entryDTO.getFile() != null)
             entry.setFile(convertFileToEntity(entryDTO.getFile()));
         entry.setAssignedUsers(entryDTO.getAssignedUsers().stream()

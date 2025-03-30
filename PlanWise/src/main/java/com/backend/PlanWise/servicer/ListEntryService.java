@@ -34,7 +34,10 @@ public class ListEntryService
         entry.setEntryName(listEntryDTO.getEntryName());
         entry.setIsChecked(listEntryDTO.getIsChecked() != null ? listEntryDTO.getIsChecked() : false);
         entry.setDueDate(listEntryDTO.getDueDate());
-        entry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+        if(listEntryDTO.getDueDate() != null)
+            entry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+        else
+            entry.setWarningThreshold(null);
         entry.setTaskList(taskList);
 
         if (listEntryDTO.getFile() != null && listEntryDTO.getFile().getFileId() != null)
@@ -110,7 +113,10 @@ public class ListEntryService
         dto.setEntryName(entry.getEntryName());
         dto.setIsChecked(entry.getIsChecked());
         dto.setDueDate(entry.getDueDate());
-        dto.setWarningThreshold(entry.getWarningThreshold());
+        if(entry.getDueDate() != null)
+            dto.setWarningThreshold(entry.getWarningThreshold());
+        else
+            dto.setWarningThreshold(null);
 
         if (entry.getFile() != null)
         {
