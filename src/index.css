@@ -97,7 +97,7 @@ html {
 
   --gray-card1: #2D2D2D;
   --gray-card2: #3B3B3B;
-  --gray-card3: #4A4A4A;
+  --gray-card3: #888888;
 
   /* Link Colors */
   --link-text-color: #90CAF9;  
@@ -110,7 +110,7 @@ html {
   /* Feature Section */
   --features-bg: #1E1E1E;
   --features-border: #3A3A3A;
-  --features-hover-bg: #333333;
+  --features-hover-bg: #000000;
   --features-title-color: #E0E0E0;
   --features-text-color: #B0BEC5;
   --features-icon-color: #BB86FC;
@@ -120,14 +120,14 @@ html {
   /* Sidebar */
   --sidebar-dashboard-color: #BB86FC; /* Soft Purple */
   --sidebar-projects-color: #64B5F6; /* Light Blue */
-  --sidebar-gantt-color: #FBC02D; /* Yellow */
+  --sidebar-gantt-color: #c5951e; /* Yellow */
   --sidebar-gantt-color2: #FFD54F;
   --sidebar-teams-color: #66BB6A; /* Green */
 
   --sidebar-dashboard-bg-color: #1F1F1F;
   --sidebar-projects-bg-color: #2A2D3A;
   --sidebar-gantt-bg-color: #3B3B3B;
-  --sidebar-teams-bg-color: #23342E;
+  --sidebar-teams-bg-color: #4a5753;
 
   /* Project Background */
   --projects-bg: #252525;

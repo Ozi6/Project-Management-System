@@ -5,8 +5,10 @@ import AdvancedSettings from "../components/AdvancedSettings";
 import GeneralSettings from "../components/GeneralSettings";
 import Header from "../components/Header";
 import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity, Menu } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ProjectSettings = () => {
+    const {t} = useTranslation();
     const [activeTab, setActiveTab] = useState("settings");
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -17,7 +19,7 @@ const ProjectSettings = () => {
         { 
             id: 'dashboard', 
             icon: Layout, 
-            label: 'Dashboard', 
+            label: t("sidebar.dash"), 
             path: '/dashboard',
             //color: 'bg-blue-100 text-blue-600',  
             iconColor: 'text-blue-600',     
@@ -26,7 +28,7 @@ const ProjectSettings = () => {
         { 
             id: 'projects', 
             icon: KanbanSquare, 
-            label: 'This Project', 
+            label: t("sidebar.this"), 
             path: '/project/1',
             color: 'bg-purple-100 text-purple-600',
             iconColor: 'text-purple-600'
@@ -34,7 +36,7 @@ const ProjectSettings = () => {
         { 
             id: 'activity', 
             icon: Activity, 
-            label: 'Activity',
+            label: t("sidebar.act"),
             path: '/activity',
             color: 'bg-yellow-100 text-yellow-600',
             iconColor: 'text-amber-600'
@@ -42,7 +44,7 @@ const ProjectSettings = () => {
         { 
             id: 'teams', 
             icon: UsersIcon, 
-            label: 'Teams',
+            label: t("sidebar.team"),
             path: '/teams',
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
@@ -50,7 +52,7 @@ const ProjectSettings = () => {
         { 
             id: 'settings', 
             icon: Settings, 
-            label: 'Settings',
+            label: t("sidebar.set"),
             path: '/project/settings',
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-[var(--features-title-color)]'
@@ -83,7 +85,7 @@ const ProjectSettings = () => {
             {/* Header */}
             <div className="w-full bg-white shadow-sm z-10 border-b-2 border-gray-100">
                 <Header
-                    title={<span className="text-xl font-semibold text-[var(--features-title-color)]">Project Settings</span>}
+                    title={<span className="text-xl font-semibold text-[var(--features-title-color)]">{t("set.tit")}</span>}
                 />
             </div>
 
@@ -134,10 +136,10 @@ const ProjectSettings = () => {
                         <div className="flex flex-row justify-between items-center text-xs text-[var(--features-icon-color)]">
                             <div>
                                 <span>© 2025 PlanWise</span>
-                                <span className="hidden sm:inline"> • All rights reserved</span>
+                                <span className="hidden sm:inline"> • {t("dashboard.rights")}</span>
                             </div>
                             <div className="text-xs text-[var(--features-icon-color)]">
-                                Project Settings
+                            {t("set.tit")}
                             </div>
                         </div>
                     </div>

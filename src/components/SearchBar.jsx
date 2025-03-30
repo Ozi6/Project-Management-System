@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const SearchBar = ({ onSearch }) =>
 {
+    const {t} = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleSearch = (e) =>
@@ -23,7 +25,7 @@ const SearchBar = ({ onSearch }) =>
             <div className="flex items-center rounded-lg bg-[var(--loginpage-bg2)] relative">
                 <input
                     type="text"
-                    placeholder="Search categories, tasks, entries..."
+                    placeholder={t("prode.search")}
                     value={searchTerm}
                     onChange={handleSearch}
                     className="w-full px-4 py-2 pr-10 text-sm text-[var(--features-text-color)] rounded-lg border-2 border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)]/50"/>

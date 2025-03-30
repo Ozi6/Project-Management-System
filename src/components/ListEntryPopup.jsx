@@ -3,8 +3,10 @@
     import PropTypes from "prop-types";
     import ListEntryEditPopup from "./ListEntryEditPopup";
     import ListEntryAssignPopup from "./ListEntryAssignPopup";
+    import { useTranslation } from "react-i18next";
 
     const ListEntryPopup = ({ entry, onClose, onEdit, onDelete, onAssign, teams, users}) => {
+        const {t} = useTranslation();
         const [showEditPopup, setShowEditPopup] = useState(false);
         const [showAssignPopup, setShowAssignPopup] = useState(false);
         const [isProcessing, setIsProcessing] = useState(false);
@@ -57,20 +59,20 @@
                         <button
                             onClick={handleEditClick}
                             className="w-full px-4 py-2 text-left hover:bg-[var(--features-icon-color)]/10 transition-colors duration-200">
-                            Edit
+                            {t("prode.edit")}
                         </button>
                         {onAssign && (
                             <button
                                 onClick={handleAssignClicked}
                                 className="w-full px-4 py-2 text-left hover:bg-[var(--features-icon-color)]/10 transition-colors duration-200">
-                                Assign
+                                {t("prode.ass")}
                             </button>
                         )}
                         {onDelete && (
                             <button
                                 onClick={() => onDelete(entry.entryId)}
                                 className="w-full px-4 py-2 text-left bg-[var(--bg-color)] hover:bg-[var(--features-icon-color)]/10 transition-colors duration-200 !text-[var(--bug-report)]">
-                                Delete
+                                {t("prode.delete")}
                             </button>
                         )}
                     </div>

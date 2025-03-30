@@ -1,19 +1,37 @@
-import { StrictMode } from 'react'
+import { StrictMode, useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { ClerkProvider } from '@clerk/clerk-react'
 import { dark, neobrutalism, shadesOfPurple } from '@clerk/themes'
+import {trTR, enUS} from '@clerk/localizations'
+import { I18nextProvider, useTranslation } from "react-i18next";
+import i18n from "./i18n"; 
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key")
-}
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ClerkProvider 
+const ClerkWrapper = () => {
+  const { i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
+
+  useEffect(() => {
+    const handleLanguageChange = (lng) => {
+      setLang(lng); // Update state dynamically
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n]);
+
+  // Determine Clerk localization dynamically
+  const clerkLocalization = lang === 'tr' ? trTR : enUS;
+
+    return(
+      <ClerkProvider localization={clerkLocalization}
       appearance={{
 
         userButton:{
@@ -85,5 +103,20 @@ createRoot(document.getElementById('root')).render(
     >
       <App />
     </ClerkProvider>
+
+    );
+
+};
+
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key")
+}
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <I18nextProvider i18n={i18n}>
+      <ClerkWrapper />
+    </I18nextProvider>
   </StrictMode>,
 )

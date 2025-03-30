@@ -66,11 +66,11 @@ const Dashboard = () => {
   useEffect(() => {
     // Simulate API call to fetch projects
     const sampleProjects = [
-      { id: 1, name: 'Website Redesign', progress: 75, status: 'In Progress', dueDate: '2025-04-15', owner: 'Alice' },
-      { id: 2, name: 'Mobile App Development', progress: 30, status: 'In Progress', dueDate: '2025-05-01', owner: 'Bob' },
-      { id: 3, name: 'Database Migration', progress: 100, status: 'Completed', dueDate: '2025-03-28', owner: 'Charlie' },
-      { id: 4, name: 'Marketing Campaign', progress: 50, status: 'In Progress', dueDate: '2025-03-18', owner: 'Diana' },
-      { id: 5, name: 'Product Launch', progress: 10, status: 'In Progress', dueDate: '2025-06-01', owner: 'Emma' },
+      { id: 1, name: 'Website Redesign', progress: 75, status: t("dashboard.progress"), dueDate: '2025-04-15', owner: 'Alice' },
+      { id: 2, name: 'Mobile App Development', progress: 30, status: t("dashboard.progress"), dueDate: '2025-05-01', owner: 'Bob' },
+      { id: 3, name: 'Database Migration', progress: 100, status: t("dashboard.complete"), dueDate: '2025-03-28', owner: 'Charlie' },
+      { id: 4, name: 'Marketing Campaign', progress: 50, status: t("dashboard.progress"), dueDate: '2025-03-18', owner: 'Diana' },
+      { id: 5, name: 'Product Launch', progress: 10, status: t("dashboard.progress"), dueDate: '2025-06-01', owner: 'Emma' },
     ];
     
     setProjects(sampleProjects);
@@ -112,16 +112,16 @@ const Dashboard = () => {
 
   // Upcoming deadlines
   const upcomingDeadlines = [
-    { id: 1, task: 'Submit Final Designs', project: 'Website Redesign', dueDate: '2025-03-15', status: 'At Risk' },
-    { id: 2, task: 'Client Presentation', project: 'Mobile App Development', dueDate: '2025-03-18', status: 'On Track' },
-    { id: 3, task: 'Complete Testing', project: 'Database Migration', dueDate: '2025-03-20', status: 'On Track' }
+    { id: 1, task: 'Submit Final Designs', project: 'Website Redesign', dueDate: '2025-03-15', status: t("dashboard.risk") },
+    { id: 2, task: 'Client Presentation', project: 'Mobile App Development', dueDate: '2025-03-18', status: t("dashboard.track")},
+    { id: 3, task: 'Complete Testing', project: 'Database Migration', dueDate: '2025-03-20', status: t("dashboard.track") }
   ];
 
   // Determine task status color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'At Risk': return 'text-red-500';
-      case 'On Track': return 'text-green-500';
+      case t("dashboard.risk"): return 'text-red-500';
+      case t("dashboard.track"): return 'text-green-500';
       default: return 'text-[var(--features-icon-color)]';
     }
   };
@@ -129,8 +129,8 @@ const Dashboard = () => {
   // Get status icon
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'At Risk': return <AlertCircle className="h-4 w-4 text-red-500" />;
-      case 'On Track': return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case t("dashboard.risk"): return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case t("dashboard.track"): return <CheckCircle className="h-4 w-4 text-green-500" />;
       default: return <Clock className="h-4 w-4 text-[var(--features-icon-color)]" />;
     }
   };
@@ -217,13 +217,13 @@ const Dashboard = () => {
               transition={{ duration: 0.5 }}
               className="bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--homepage-card-color)] rounded-xl shadow-md p-6 text-white"
             >
-              <h1 className="text-2xl font-bold mb-2">Welcome to your Dashboard</h1>
+              <h1 className="text-2xl font-bold mb-2">{t("dashboard.well")}</h1>
               <p className="opacity-90">
-                Here's an overview of your projects and team's progress.
+              {t("dashboard.welld")}
               </p>
               <div className="mt-4 flex flex-wrap gap-4">
                 <Link to="/projects" className="bg-[var(--bg-color4)]bg-[var(--bg-color4)]/20 hover:bg-[var(--bg-color4)]/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
-                  View All Projects <ChevronRight className="h-4 w-4 ml-1" />
+                {t("dashboard.view")} <ChevronRight className="h-4 w-4 ml-1" />
                 </Link>
                 
               </div>
@@ -239,7 +239,7 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-[var(--features-icon-color)] font-medium">Total Projects</p>
+                    <p className="text-sm text-[var(--features-icon-color)] font-medium">{t("dashboard.total")}</p>
                     <h3 className="text-2xl font-bold text-[var(--features-icon-color)]">{stats.totalProjects}</h3>
                   </div>
                   <span className="p-2 bg-[var(--loginpage-bg)] rounded-md">
@@ -250,7 +250,7 @@ const Dashboard = () => {
                   <span className="flex items-center text-[var(--homepage-text-bright)]">
                     <ArrowUp className="h-3 w-3 mr-1 text-[var(--homepage-text-bright)]" /> 12% 
                   </span>
-                  <span className="ml-1 text-[var(--homepage-text-bright)]">since last month</span>
+                  <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
                 </div>
               </motion.div>
               
@@ -262,7 +262,7 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-[var(--features-icon-color)] font-medium">In Progress</p>
+                    <p className="text-sm text-[var(--features-icon-color)] font-medium">{t("dashboard.progress")}</p>
                     <h3 className="text-2xl font-bold text-[var(--features-icon-color)]">{stats.inProgress}</h3>
                   </div>
                   <span className="p-2 bg-[var(--loginpage-bg)] rounded-md">
@@ -273,7 +273,7 @@ const Dashboard = () => {
                   <span className="flex items-center text-red-500">
                     <ArrowDown className="h-3 w-3 mr-1 text-red-500" /> 5% 
                   </span>
-                  <span className="ml-1 text-red-500">since last week</span>
+                  <span className="ml-1 text-red-500">{t("dashboard.week")}</span>
                 </div>
               </motion.div>
               
@@ -285,7 +285,7 @@ const Dashboard = () => {
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-sm text-[var(--features-icon-color)] font-medium">Completed</p>
+                    <p className="text-sm text-[var(--features-icon-color)] font-medium">{t("dashboard.complete")}</p>
                     <h3 className="text-2xl font-bold text-[var(--features-icon-color)]">{stats.completed}</h3>
                   </div>
                   <span className="p-2 bg-[var(--loginpage-bg)] rounded-md">
@@ -296,7 +296,7 @@ const Dashboard = () => {
                   <span className="flex items-center text-[var(--homepage-text-bright)]">
                     <ArrowUp className="h-3 w-3 mr-1 text-[var(--homepage-text-bright)]" /> 8% 
                   </span>
-                  <span className="ml-1 text-[var(--homepage-text-bright)]">since last month</span>
+                  <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
                 </div>
               </motion.div>
             </div>
@@ -311,9 +311,9 @@ const Dashboard = () => {
                 className="bg-[var(--bg-color)] p-5 rounded-xl text-[var(--features-title-color)] shadow-sm border border-[var(--loginpage-bg)] lg:col-span-2"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-[var(--features-title-color)]">Project Progress</h2>
+                  <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.proprog")}</h2>
                   <Link to="/projects" className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center">
-                    View All <ChevronRight className="h-4 w-4" />
+                  {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
                   </Link>
                 </div>
                 <div className="space-y-4">
@@ -325,7 +325,7 @@ const Dashboard = () => {
                         </div>
                         <div>
                           <h3 className="font-medium">{project.name}</h3>
-                          <p className="text-xs text-[var(--features-text-color)]">{`Due: ${new Date(project.dueDate).toLocaleDateString()}`}</p>
+                          <p className="text-xs text-[var(--features-text-color)]">{t("dashboard.due")}{`: ${new Date(project.dueDate).toLocaleDateString()}`}</p>
                         </div>
                       </div>
                       <div className="w-full sm:w-1/3">
@@ -355,7 +355,7 @@ const Dashboard = () => {
                 className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-[var(--features-title-color)]">Recent Activity</h2>
+                  <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.recent")}</h2>
                                   {/*<button className="text-sm text-blue-600 hover:underline flex items-center">
                     <Eye className="h-4 w-4 mr-1" /> View All
                   </button>*/}
@@ -401,13 +401,13 @@ const Dashboard = () => {
                 className="[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-[var(--features-title-color)]">Upcoming Deadlines</h2>
+                  <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.upcoming")}</h2>
                   <button 
                     onClick={navigateToCalendar} 
                     className="text-sm flex items-center text-[var(--features-icon-color)] hover:underline"
                   >
                     <Calendar className="h-4 w-4 mr-1" />
-                    View Timeline
+                    {t("dashboard.view.timeline")}
                   </button>
                 </div>
                 <div className="space-y-3">
@@ -441,7 +441,7 @@ const Dashboard = () => {
                 className="bg-[var(--bg-color) p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-[var(--features-title-color)]">Recent Documents</h2>
+                  <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.doc")}</h2>
                                   {/*<button className="text-sm flex items-center text-blue-600 hover:underline">
                     <FileText className="h-4 w-4 mr-1" />
                     All Documents
@@ -458,7 +458,7 @@ const Dashboard = () => {
                         <FileText className="h-5 w-5 text-[var(--features-icon-color)] mr-3" />
                         <div>
                           <h3 className="font-medium text-[var(--features-text-color)]">{doc.name}</h3>
-                          <p className="text-xs text-[var(--features-title-color)]">Updated {doc.updated}</p>
+                          <p className="text-xs text-[var(--features-title-color)]">{t("dashboard.update")} {doc.updated}</p>
                         </div>
                       </div>
                       <span className="text-xs text-[var(--features-title-color)]">{doc.size}</span>
@@ -474,13 +474,13 @@ const Dashboard = () => {
             <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
               <div>
                 <span className="text-[var(--features-title-color)]">© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--features-title-color)]"> • All rights reserved</span>
+                <span className="hidden sm:inline text-[var(--features-title-color)]"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4">
-                <Link to="/terms" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Terms</Link>
-                <Link to="/privacy" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Privacy</Link>
+                <Link to="/terms" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.terms")}</Link>
+                <Link to="/privacy" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.pri")}</Link>
                 <span className="flex items-center text-[var(--features-title-color)]">
-                  Made with <Heart className="h-3 w-3 text-red-500 mx-1 " /> by PlanWise
+                {t("dashboard.made")} <Heart className="h-3 w-3 text-red-500 mx-1 " /> {t("dashboard.by")}
                 </span>
               </div>
             </div>

@@ -8,6 +8,7 @@ import {
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const ProjectCalendar = () => {
   const [activeTab, setActiveTab] = useState('calendar');
@@ -17,6 +18,28 @@ const ProjectCalendar = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const {t, i18n}=useTranslation();
+  const [language, setLanguage] = useState(i18n.language);
+
+  
+
+  useEffect(() => {
+    
+    setLanguage(i18n.language);
+    
+  }, [i18n.language]);
+
+  useEffect(() => {
+    const handleLanguageChange = () => {
+      window.location.reload();
+    };
+
+    i18n.on('languageChanged', handleLanguageChange);
+
+    return () => {
+      i18n.off('languageChanged', handleLanguageChange);
+    };
+  }, [i18n])
   
   // Sample data for projects and tasks
   useEffect(() => {
@@ -27,7 +50,7 @@ const ProjectCalendar = () => {
         startDate: '2025-03-01',
         endDate: '2025-04-15',
         progress: 75,
-        status: 'In Progress',
+        status: t("gantt.in"),
         color: '#3b82f6', // blue
         tasks: [
           { 
@@ -36,7 +59,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-01', 
             endDate: '2025-03-05', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: []
           },
           { 
@@ -45,7 +68,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-06', 
             endDate: '2025-03-10', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [101]
           },
           { 
@@ -54,7 +77,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-11', 
             endDate: '2025-03-20', 
             progress: 85, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [102]
           },
           { 
@@ -63,7 +86,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-15', 
             endDate: '2025-04-05', 
             progress: 60, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [102]
           },
           { 
@@ -72,7 +95,7 @@ const ProjectCalendar = () => {
             startDate: '2025-04-06', 
             endDate: '2025-04-15', 
             progress: 0, 
-            status: 'Not Started',
+            status: t("gantt.not"),
             dependencies: [103, 104]
           }
         ]
@@ -83,7 +106,7 @@ const ProjectCalendar = () => {
         startDate: '2025-02-15',
         endDate: '2025-05-01',
         progress: 30,
-        status: 'In Progress',
+        status: t("gantt.in"),
         color: '#8b5cf6', // purple
         tasks: [
           { 
@@ -92,7 +115,7 @@ const ProjectCalendar = () => {
             startDate: '2025-02-15', 
             endDate: '2025-02-25', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: []
           },
           { 
@@ -101,7 +124,7 @@ const ProjectCalendar = () => {
             startDate: '2025-02-26', 
             endDate: '2025-03-10', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [201]
           },
           { 
@@ -110,7 +133,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-11', 
             endDate: '2025-03-25', 
             progress: 80, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [202]
           },
           { 
@@ -119,7 +142,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-18', 
             endDate: '2025-03-18', 
             progress: 0, 
-            status: 'Not Started',
+            status: t("gantt.not"),
             dependencies: [203]
           },
           { 
@@ -128,7 +151,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-20', 
             endDate: '2025-04-20', 
             progress: 10, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [203]
           },
           { 
@@ -137,7 +160,7 @@ const ProjectCalendar = () => {
             startDate: '2025-04-21', 
             endDate: '2025-05-01', 
             progress: 0, 
-            status: 'Not Started',
+            status: t("gantt.not"),
             dependencies: [205]
           }
         ]
@@ -148,7 +171,7 @@ const ProjectCalendar = () => {
         startDate: '2025-03-01',
         endDate: '2025-03-28',
         progress: 100,
-        status: 'Completed',
+        status: t("dashboard.complete"),
         color: '#10b981', // green
         tasks: [
           { 
@@ -157,7 +180,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-01', 
             endDate: '2025-03-05', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: []
           },
           { 
@@ -166,7 +189,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-06', 
             endDate: '2025-03-10', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [301]
           },
           { 
@@ -175,7 +198,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-11', 
             endDate: '2025-03-20', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [302]
           },
           { 
@@ -184,7 +207,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-21', 
             endDate: '2025-03-25', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [303]
           },
           { 
@@ -193,7 +216,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-26', 
             endDate: '2025-03-28', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: [304]
           }
         ]
@@ -204,7 +227,7 @@ const ProjectCalendar = () => {
         startDate: '2025-03-01',
         endDate: '2025-04-10',
         progress: 50,
-        status: 'In Progress',
+        status: t("gantt.in"),
         color: '#f59e0b', // amber
         tasks: [
           { 
@@ -213,7 +236,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-01', 
             endDate: '2025-03-10', 
             progress: 100, 
-            status: 'Completed',
+            status: t("dashboard.complete"),
             dependencies: []
           },
           { 
@@ -222,7 +245,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-11', 
             endDate: '2025-03-25', 
             progress: 80, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [401]
           },
           { 
@@ -231,7 +254,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-20', 
             endDate: '2025-03-20', 
             progress: 0, 
-            status: 'Not Started',
+            status: t("gantt.not"),
             dependencies: [402]
           },
           { 
@@ -240,7 +263,7 @@ const ProjectCalendar = () => {
             startDate: '2025-03-21', 
             endDate: '2025-04-05', 
             progress: 30, 
-            status: 'In Progress',
+            status: t("gantt.in"),
             dependencies: [403]
           },
           { 
@@ -249,7 +272,7 @@ const ProjectCalendar = () => {
             startDate: '2025-04-06', 
             endDate: '2025-04-10', 
             progress: 0, 
-            status: 'Not Started',
+            status: t("gantt.not"),
             dependencies: [404]
           }
         ]
@@ -330,8 +353,8 @@ const ProjectCalendar = () => {
   };
 
   // Format date for display
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const formatDate = (date, language = 'en') => {
+    return date.toLocaleDateString(language === 'tr' ? 'tr-TR': 'en-US', { month: 'short', day: 'numeric' });
   };
 
   // Check if a date is today
@@ -366,9 +389,9 @@ const ProjectCalendar = () => {
   // Get status color
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Completed': return 'bg-green-500';
-      case 'In Progress': return 'bg-blue-500';
-      case 'At Risk': return 'bg-red-500';
+      case t("dashboard.complete"): return 'bg-green-500';
+      case t("gantt.in"): return 'bg-blue-500';
+      case t("gantt.risk"): return 'bg-red-500';
       default: return 'bg-gray-300'; // Default case now handles anything else
     }
   };
@@ -376,9 +399,9 @@ const ProjectCalendar = () => {
   // Get status icon
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'Completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'In Progress': return <Clock className="h-4 w-4 text-blue-500" />;
-      case 'At Risk': return <AlertCircle className="h-4 w-4 text-red-500" />;
+      case t("dashboard.complete"): return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case t("gantt.in"): return <Clock className="h-4 w-4 text-blue-500" />;
+      case t("gantt.risk"): return <AlertCircle className="h-4 w-4 text-red-500" />;
       default: return <Clock className="h-4 w-4 text-gray-400" />; // Default case now handles anything else
     }
   };
@@ -399,7 +422,7 @@ const ProjectCalendar = () => {
       {/* Header */}
       <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-[var(--sidebar-gantt-color2)]">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">Project Timeline</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">{t("gantt.tit")}</span>}
           action={{
             onClick: handleNewEvent,
             icon: <Plus className="mr-2 h-4 w-4" />,
@@ -447,10 +470,10 @@ const ProjectCalendar = () => {
             >
               <div className="flex items-center space-x-2">
                 <h2 className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">
-                  Project Timeline
+                {t("gantt.tit")}
                 </h2>
                 <div className="bg-[var(--sidebar-gantt-color2)] text-white text-xs px-2 py-1 rounded-full">
-                  {projects.length} Projects
+                  {projects.length} {t("gantt.projects")}
                 </div>
               </div>
             </motion.div>
@@ -462,7 +485,7 @@ const ProjectCalendar = () => {
               transition={{ delay: 0.1, duration: 0.5 }}
               className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
-              <h3 className="text-sm font-semibold text-[var(--features-title-color)] mb-3">Filter by Project</h3>
+              <h3 className="text-sm font-semibold text-[var(--features-title-color)] mb-3">{t("gantt.filter")}</h3>
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedProject(null)}
@@ -472,7 +495,7 @@ const ProjectCalendar = () => {
                       : 'bg-gray-100 text-[var(--gray-card1)] hover:bg-gray-200'
                   }`}
                 >
-                  All Projects
+                  {t("gantt.all")}
                 </button>
                 {projects.map(project => (
                   <button
@@ -514,7 +537,7 @@ const ProjectCalendar = () => {
                   {/* Gantt header - dates */}
                   <div className="flex">
                     <div className="w-48 shrink-0 p-3 border-r border-[var(--gray-card2)] bg-[var(--gray-card1)] font-semibold text-[var(--features-title-color)]">
-                      Tasks
+                    {t("gantt.task")}
                     </div>
                     <div className="flex-1 grid" style={{ gridTemplateColumns: `repeat(${getColumnHeaders().length}, minmax(40px, 1fr))` }}>
                       {getColumnHeaders().map((date, index) => (
@@ -525,9 +548,9 @@ const ProjectCalendar = () => {
                             date.getDay() === 0 || date.getDay() === 6 ? 'bg-[var(--gray-card1)]' : ''
                           }`}
                         >
-                          <div className={`${isToday(date) ? 'font-bold' : ''}`}>{formatDate(date)}</div>
+                          <div className={`${isToday(date) ? 'font-bold' : ''}`}>{formatDate(date, language)}</div>
                           <div className="text-[10px] text-[var(--features-text-color)]">
-                            {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                            {date.toLocaleDateString(language === 'tr' ? 'tr-TR': 'en-US', { weekday: 'short' })}
                           </div>
                         </div>
                       ))}
@@ -600,8 +623,8 @@ const ProjectCalendar = () => {
                                   className="absolute h-5 rounded flex items-center"
                                   style={{
                                     ...getTaskBarStyles(task, getColumnHeaders()),
-                                    backgroundColor: task.status === 'Completed' ? '#10b981' : 
-                                                   task.status === 'At Risk' ? '#ef4444' :
+                                    backgroundColor: task.status === t("dashboard.complete") ? '#10b981' : 
+                                                   task.status === t("gantt.risk") ? '#ef4444' :
                                                    '#3b82f6',
                                     opacity: 0.4
                                   }}
@@ -615,8 +638,8 @@ const ProjectCalendar = () => {
                                     style={{
                                       ...getTaskBarStyles(task, getColumnHeaders()),
                                       width: `${task.progress}%`,
-                                      backgroundColor: task.status === 'Completed' ? '#10b981' : 
-                                                     task.status === 'At Risk' ? '#ef4444' : 
+                                      backgroundColor: task.status === t("dashboard.complete") ? '#10b981' : 
+                                                     task.status === t("gantt.risk") ? '#ef4444' : 
                                                      '#3b82f6',
                                       zIndex: 5
                                     }}
@@ -652,19 +675,19 @@ const ProjectCalendar = () => {
               transition={{ delay: 0.3, duration: 0.5 }}
               className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--sidebar-gantt-color2)]"
             >
-              <h3 className="text-sm font-semibold text-[var(--features-title-color)]/60 mb-3">Legend</h3>
+              <h3 className="text-sm font-semibold text-[var(--features-title-color)]/60 mb-3">{t("gantt.leg")}</h3>
               <div className="flex flex-wrap gap-4">
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-                  <span className="text-sm text-[var(--features-title-color)]/60">Completed</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">{t("gantt.comp")}</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-blue-500 mr-2"></div>
-                  <span className="text-sm text-[var(--features-title-color)]/60">In Progress</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">{t("gantt.in")}</span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-red-500 mr-2"></div>
-                  <span className="text-sm text-[var(--features-title-color)]/60">At Risk</span>
+                  <span className="text-sm text-[var(--features-title-color)]/60">{t("gantt.risk")}</span>
                 </div>
               </div>
             </motion.div>
@@ -675,12 +698,12 @@ const ProjectCalendar = () => {
             <div className="flex flex-row justify-between items-center text-xs text-[var(--sidebar-gantt-color)]">
               <div>
                 <span className='text-[var(--sidebar-gantt-color)]'>© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--sidebar-gantt-color)]"> • All rights reserved</span>
+                <span className="hidden sm:inline text-[var(--sidebar-gantt-color)]"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="flex items-center">
                   <GanttChartSquare className="h-3 w-3 mr-1 text-[var(--sidebar-gantt-color)]" />
-                  Project Timeline
+                  {t("gantt.tit")}
                 </span>
               </div>
             </div>

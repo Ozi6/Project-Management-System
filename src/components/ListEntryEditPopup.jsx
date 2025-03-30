@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import { FaCalendarAlt, FaTimes, FaPaperclip, FaTrash } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
+    const {t} = useTranslation();
     const [formData, setFormData] = useState({
         text: "",
         dueDate: "",
@@ -99,7 +101,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
             >
                 <div className="bg-[var(--features-icon-color)] text-white rounded-t-lg p-4">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold">Edit Task</h2>
+                        <h2 className="text-xl font-semibold">{t("prode.edit.tit")}</h2>
                         <button
                             onClick={onClose}
                             className="p-2 bg-white rounded-full hover:bg-[var(--hover-color)] transition-all duration-200 transform hover:scale-110"
@@ -112,7 +114,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                 <form onSubmit={handleSubmit} className="p-6 bg-[var(--bg-color)]">
                     <div className="mb-4">
                         <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="text">
-                            Task Name
+                            {t("prode.edit.name")}
                         </label>
                         <input
                             type="text"
@@ -128,14 +130,14 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
 
                     <div className="mb-4">
                         <label className="flex justify-between">
-                            <span className="block text-[var(--features-title-color)] text-sm font-medium mb-1">Due Date (Optional)</span>
+                            <span className="block text-[var(--features-title-color)] text-sm font-medium mb-1">{t("prode.edit.due")}</span>
                             {formData.dueDate && (
                                 <button
                                     type="button"
                                     onClick={clearDueDate}
                                     className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                 >
-                                    Clear
+                                    {t("prode.edit.clr")}
                                 </button>
                             )}
                         </label>
@@ -155,7 +157,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                     {formData.dueDate && (
                         <div className="mb-4">
                             <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="warningThreshold">
-                                Warning Threshold (days)
+                                {t("prode.edit.warn")}
                             </label>
                             <input
                                 type="number"
@@ -167,7 +169,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 className="w-full px-3 py-2 border border-[var(--gray-card3)] bg-[var(--gray-card1)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                             />
                             <p className="text-xs text-[var(--text-color3)] mt-1">
-                                Show warning when task is due within this many days
+                            {t("prode.edit.warnd")}
                             </p>
                         </div>
                     )}
@@ -181,13 +183,13 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                                 onChange={handleChange}
                                 className="h-4 w-4 text-[var(--features-icon-color)] bg-[var(--gray-card3)] focus:ring-[var(--features-icon-color)]/70 border-[var(--gray-card3)] rounded"
                             />
-                            <span className="ml-2 text-[var(--text-color3)] text-sm">Mark as completed</span>
+                            <span className="ml-2 text-[var(--text-color3)] text-sm">{t("prode.edit.mark")}</span>
                         </label>
                     </div>
 
                     <div className="mb-6">
                         <label className="block text-[var(--features-title-color)] text-sm font-medium mb-1" htmlFor="file">
-                            Attach File
+                        {t("prode.edit.att")}
                         </label>
                         {formData.file && (
                             <div className="flex items-center gap-2 mb-2">
@@ -216,7 +218,7 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                         />
                         {formData.file && (
                             <p className="text-xs text-[var(--text-color3)] mt-1">
-                                Upload a new file to replace the current one.
+                                {t("prode.edit.attd3")}
                             </p>
                         )}
                     </div>
@@ -225,15 +227,15 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
                         <button
                             type="button"
                             onClick={handleClose}
-                            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
+                            className="px-4 py-2 border border-gray-300 rounded-md text-[var(--features-text-colro)] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         >
-                            Cancel
+                            {t("prode.can")}
                         </button>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-[var(--features-icon-color)] !text-white rounded-md hover:bg-[var(--hover-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                         >
-                            Save Changes
+                            {t("prode.edit.save")}
                         </button>
                     </div>
                 </form>

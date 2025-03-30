@@ -7,6 +7,7 @@ import axios from 'axios';
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { Teams, Users } from './TeamAndUsersTest';
 import { AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const TaskList = ({
     title,
@@ -27,6 +28,7 @@ const TaskList = ({
     onEntryUpdate,
     onUpdateTaskList
 }) => {
+    const {t} = useTranslation();
     const [isEditing, setIsEditing] = useState(false);
     const [editableTitle, setEditableTitle] = useState(title);
     const [editableTagColor, setEditableTagColor] = useState(tagColor);
@@ -610,7 +612,7 @@ const TaskList = ({
                             );
                         })
                     ) : (
-                        <p className="text-center text-[var(--features-text-color)]">No entries</p>
+                        <p className="text-center text-[var(--features-text-color)]">{t("prode.no.ent")}</p>
                     )}
                     {draggedOverIndex === entries.length && window.dragState && window.dragState.isDragging && (
                         <div className="border-2 border-dashed border-[var(--features-icon-color)] rounded-md h-10 my-2 flex items-center justify-center bg-[var(--loginpage-bg)]">
@@ -622,7 +624,7 @@ const TaskList = ({
                 <button
                     onClick={() => onAddEntry(listId)}
                     className="mt-2 bg-[var(--features-icon-color)] !text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-[var(--hover-color)] hover:scale-105">
-                    <Plus size={16} /> Add Entry
+                    <Plus size={16} /> {t("prode.addent")}
                 </button>
             </div>
 

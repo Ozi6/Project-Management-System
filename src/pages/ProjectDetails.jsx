@@ -17,6 +17,7 @@ import {
   Menu, 
   Plus 
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ProjectDetailsWrapper = () => {
     return(
@@ -27,6 +28,7 @@ const ProjectDetailsWrapper = () => {
 };
 
 const ProjectDetails = () => {
+    const {t} = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -266,7 +268,7 @@ const ProjectDetails = () => {
         try{
             const token = await getToken();
             const newCategory ={
-                categoryName: "New Categorizer",
+                categoryName: t("prode.new"),
                 color: "red",
             };
             const response = await axios.post(
@@ -804,7 +806,7 @@ const ProjectDetails = () => {
         { 
             id: 'dashboard', 
             icon: Layout, 
-            label: 'Dashboard', 
+            label: t("sidebar.dash"), 
             path: '/dashboard',
             //color: 'bg-blue-100 text-blue-600',  
             iconColor: 'text-blue-600',     
@@ -813,7 +815,7 @@ const ProjectDetails = () => {
         { 
             id: 'projects', 
             icon: KanbanSquare, 
-            label: 'This Project', // Changed from "Projects" to "This Project"
+            label: t("sidebar.this"), // Changed from "Projects" to "This Project"
             path: '/project/1', // Changed from "/projects" to "/project/1"
             color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
             iconColor: 'text-[var(--sidebar-projects-color)]'
@@ -821,7 +823,7 @@ const ProjectDetails = () => {
         { 
             id: 'activity', 
             icon: Activity, 
-            label: 'Activity',
+            label: t("sidebar.act"),
             path: '/activity',
             color: 'bg-yellow-100 text-yellow-600',
             iconColor: 'text-amber-600'
@@ -829,7 +831,7 @@ const ProjectDetails = () => {
         { 
             id: 'teams', 
             icon: UsersIcon, 
-            label: 'Teams',
+            label: t("sidebar.team"),
             path: '/teams',
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
@@ -837,7 +839,7 @@ const ProjectDetails = () => {
         { 
             id: 'settings', 
             icon: Settings, 
-            label: 'Settings',
+            label: t("sidebar.set"),
             path: '/project/settings',
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-gray-600'
@@ -847,7 +849,7 @@ const ProjectDetails = () => {
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="text-xl text-gray-500">Loading project details...</div>
+                <div className="text-xl text-gray-500">{t("prode.load")}</div>
             </div>
         );
     }

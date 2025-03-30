@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Confetti from 'react-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const ProgressBar = ({ tasks }) => {
+    const {t} = useTranslation();
     const [progress, setProgress] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
     const prevProgressRef = useRef(0);
@@ -114,8 +116,8 @@ const ProgressBar = ({ tasks }) => {
                         className="fixed inset-0 flex justify-center items-start pt-18 z-[9999] pointer-events-none"
                     >
                         <div className="bg-[var(--bg-color)] px-8 py-4 rounded-lg shadow-2xl border-2 border-green-500">
-                            <h3 className="text-2xl font-bold text-green-600">All Tasks Complete! 🎉</h3>
-                            <p className="text-[var(--text-color3)]">Great job completing all your tasks!</p>
+                            <h3 className="text-2xl font-bold text-green-600">{t("prode.fin")}! 🎉</h3>
+                            <p className="text-[var(--text-color3)]">{t("prode.find")}!</p>
                         </div>
                     </motion.div>
                 )}
@@ -123,7 +125,7 @@ const ProgressBar = ({ tasks }) => {
 
             <div className="fixed bottom-0 left-0 right-0 bg-[var(--bg-color)] shadow-lg py-2 px-4 z-40">
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[var(--features-title-color)]">Progress: {progress}%</span>
+                    <span className="text-sm font-medium text-[var(--features-title-color)]">{t("prode.prog")}: {progress}%</span>
                     <div className="w-full mx-4 bg-[var(--features-icon-color)]/20 rounded-full h-2.5 overflow-hidden">
                         <motion.div
                             initial={{ width: '0%' }}

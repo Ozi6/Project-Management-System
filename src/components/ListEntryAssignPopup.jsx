@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import { FaTimes } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
+    const {t} = useTranslation();
     // Initialize with the full team/user objects or empty arrays
     const [formData, setFormData] = useState({
         assignedTeams: entry.assignedTeams || [],
@@ -83,7 +85,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
             >
                 <div className="bg-[var(--features-icon-color)] text-white rounded-t-lg p-4">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-semibold">Assign Task</h2>
+                        <h2 className="text-xl font-semibold">{t("prode.ass.tit")}</h2>
                         <button
                             onClick={onClose}
                             className="p-2 bg-[var(--bg-color)] rounded-full hover:bg-[var(--hover-color)] transition-colors duration-200 transform hover:scale-110"
@@ -97,7 +99,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                     <div className="mb-4 flex">
                         <div className="w-1/2 pr-2">
                             <label className="block text-[var(--features-title-color)] text-sm font-medium mb-2">
-                                Assigned Teams
+                            {t("prode.ass.1")}
                             </label>
                             <div className="max-h-40 overflow-y-auto">
                                 {formData.assignedTeams.map((team) => (
@@ -120,7 +122,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                         <div className="w-px bg-gray-300 mx-2"></div>
                         <div className="w-1/2 pl-2">
                             <label className="block text-[var(--features-title-color)] text-sm font-medium mb-2">
-                                Available Teams
+                            {t("prode.ass.2")}
                             </label>
                             <div className="max-h-40 overflow-y-auto">
                                 {availableTeams.map((z) => (
@@ -134,7 +136,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                                             onClick={() => addTeam(z.id)}
                                             className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                         >
-                                            Add
+                                            {t("prode.ass.add")}
                                         </button>
                                     </div>
                                 ))}
@@ -145,7 +147,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                     <div className="mb-4 flex">
                         <div className="w-1/2 pr-2">
                             <label className="block text-[var(--features-title-color)] text-sm font-medium mb-2">
-                                Assigned Users
+                            {t("prode.ass.3")}
                             </label>
                             <div className="max-h-40 overflow-y-auto">
                                 {formData.assignedUsers.map((user) => (
@@ -169,7 +171,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                         {/* Available Users */}
                         <div className="w-1/2 pl-2">
                             <label className="block text-[var(--features-title-color)] text-sm font-medium mb-2">
-                                Available Users
+                                {t("prode.ass.4")}
                             </label>
                             <div className="max-h-40 overflow-y-auto">
                                 {availableUsers.map((user) => (
@@ -183,7 +185,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                                             onClick={() => addUser(user.id)}
                                             className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                         >
-                                            Add
+                                            {t("prode.ass.add")}
                                         </button>
                                     </div>
                                 ))}
@@ -197,13 +199,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                             onClick={onClose}
                             className="px-4 py-2 border border-gray-300 rounded-md text-[var(--features-title-color)] hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         >
-                            Cancel
+                            {t("prode.can")}
                         </button>
                         <button
                             type="submit"
                             className="px-4 py-2 bg-[var(--features-icon-color)] !text-white rounded-md hover:bg-[var(--hover-color)] focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
-                            Assign Task
+                            {t("prode.ass.ass")}
                         </button>
                     </div>
                 </form>

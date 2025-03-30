@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const SimpleModal = ({ isOpen, onClose }) => {
+  const {t} = useTranslation();
   const [inputValue, setInputValue] = useState("");
 
   if (!isOpen) return null;
@@ -34,7 +36,7 @@ const SimpleModal = ({ isOpen, onClose }) => {
             className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md w-full"
             onClick={onClose}
           >
-            Close
+            {t("bug.close")}
           </button>
         </motion.div>
       </motion.div>

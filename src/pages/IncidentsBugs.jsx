@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
+import { useTranslation } from 'react-i18next';
 
 // Sample data for incidents and bugs
 const sampleIncidents = [
@@ -55,6 +56,7 @@ const sampleIncidents = [
 ];
 
 const IncidentsBugs = () => {
+  const {t} = useTranslation();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [incidents, setIncidents] = useState(sampleIncidents);
   const [filteredIncidents, setFilteredIncidents] = useState(sampleIncidents);
@@ -288,12 +290,12 @@ const IncidentsBugs = () => {
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
       case 'open':
-        return <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs font-medium">Open</span>;
+        return <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs font-medium">{t("bug.op")}</span>;
       case 'in-progress':
       case 'in progress':
-        return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-medium">In Progress</span>;
+        return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-medium">{t("bug.in")}</span>;
       case 'resolved':
-        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">Resolved</span>;
+        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">{t("bug.res")}</span>;
       default:
         return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{status}</span>;
     }
@@ -303,11 +305,11 @@ const IncidentsBugs = () => {
   const getPriorityBadge = (priority) => {
     switch (priority) {
       case 'high':
-        return <span className="flex items-center text-red-600 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>High</span>;
+        return <span className="flex items-center text-red-600 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>{t("bug.hi")}</span>;
       case 'medium':
-        return <span className="flex items-center text-amber-600 text-xs"><span className="w-2 h-2 bg-amber-600 rounded-full mr-1"></span>Medium</span>;
+        return <span className="flex items-center text-amber-600 text-xs"><span className="w-2 h-2 bg-amber-600 rounded-full mr-1"></span>{t("bug.med")}</span>;
       case 'low':
-        return <span className="flex items-center text-green-600 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>Low</span>;
+        return <span className="flex items-center text-green-600 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>{t("bug.low")}</span>;
       default:
         return <span className="flex items-center text-gray-600 text-xs"><span className="w-2 h-2 bg-gray-600 rounded-full mr-1"></span>{priority}</span>;
     }
@@ -317,11 +319,11 @@ const IncidentsBugs = () => {
   const getCategoryBadge = (category) => {
     switch (category) {
       case 'bug':
-        return <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs rounded-full">Bug</span>;
+        return <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs rounded-full">{t("bug.bug")}</span>;
       case 'feature':
-        return <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full">Feature</span>;
+        return <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full">{t("bug.feature")}</span>;
       case 'enhancement':
-        return <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">Enhancement</span>;
+        return <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">{t("bug.ench")}</span>;
       default:
         return <span className="px-2 py-0.5 bg-gray-50 text-gray-700 text-xs rounded-full">{category}</span>;
     }
@@ -407,11 +409,11 @@ const IncidentsBugs = () => {
       {/* Header */}
       <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-[var(--bug-report)]/50">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--features-title-color)]">Bugs & Incidents</span>}
+          title={<span className="text-xl font-semibold text-[var(--features-title-color)]">{t("bug.bugs")}</span>}
           action={{
             onClick: () => setShowReportModal(true),
             icon: <Plus className="mr-2 h-4 w-4" />,
-            label: "Report Issue"
+            label: t("bug.report")
           }}
         />
       </div>
@@ -486,7 +488,7 @@ const IncidentsBugs = () => {
                 transition={{ delay: 0.1 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border-2 border-[var(--bug-report)]/50"
               >
-                <h3 className="text-[var(--text-color3)] text-sm font-medium">Your Reports</h3>
+                <h3 className="text-[var(--text-color3)] text-sm font-medium">{t("bug.rep")}</h3>
                 <p className="text-2xl font-bold text-gray-800">{incidents.length}</p>
               </motion.div>
               
@@ -496,7 +498,7 @@ const IncidentsBugs = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--bug-report)]/50"
               >
-                <h3 className="text-[var(--text-color3)] text-sm font-medium">Open Issues</h3>
+                <h3 className="text-[var(--text-color3)] text-sm font-medium">{t("bug.open")}</h3>
                 <p className="text-2xl font-bold text-red-600">
                   {incidents.filter(incident => incident.status === 'open').length}
                 </p>
@@ -508,7 +510,7 @@ const IncidentsBugs = () => {
                 transition={{ delay: 0.3 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--bug-report)]/50"
               >
-                <h3 className="text-[var(--text-color3)] text-sm font-medium">In Progress</h3>
+                <h3 className="text-[var(--text-color3)] text-sm font-medium">{t("bug.in")}</h3>
                 <p className="text-2xl font-bold text-amber-600">
                   {incidents.filter(incident => incident.status === 'in-progress').length}
                 </p>
@@ -520,7 +522,7 @@ const IncidentsBugs = () => {
                 transition={{ delay: 0.4 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-[var(--bug-report)]/50"
               >
-                <h3 className="text-[var(--text-color3)] text-sm font-medium">Resolved</h3>
+                <h3 className="text-[var(--text-color3)] text-sm font-medium">{t("bug.res")}</h3>
                 <p className="text-2xl font-bold text-green-600">
                   {incidents.filter(incident => incident.status === 'resolved').length}
                 </p>
@@ -536,7 +538,7 @@ const IncidentsBugs = () => {
                 <input 
                   type="text" 
                   className="bg-[var(--bg-color)] border-2 border-[var(--bug-report)]/70 text-[var(--text-color3)] text-sm rounded-lg focus:ring-[var(--bug-report)] focus:border-[var(--bug-report)]/50 block w-full pl-10 p-2.5"
-                  placeholder="Search reports by title or description"
+                  placeholder={t("bug.search")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -549,10 +551,10 @@ const IncidentsBugs = () => {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     value={statusFilter}
                   >
-                    <option value="all">All Statuses</option>
-                    <option value="open">Open</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
+                    <option value="all">{t("bug.stat")}</option>
+                    <option value="open">{t("bug.op")}</option>
+                    <option value="in-progress">{t("bug.in")}</option>
+                    <option value="resolved">{t("bug.res")}</option>
                   </select>
                   <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-[var(--bug-report)] pointer-events-none" />
                 </div>
@@ -563,10 +565,10 @@ const IncidentsBugs = () => {
                     onChange={(e) => setPriorityFilter(e.target.value)}
                     value={priorityFilter}
                   >
-                    <option value="all">All Priorities</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="all">{t("bug.pri")}</option>
+                    <option value="high">{t("bug.hi")}</option>
+                    <option value="medium">{t("bug.med")}</option>
+                    <option value="low">{t("bug.low")}</option>
                   </select>
                   <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-[var(--bug-report)] pointer-events-none" />
                 </div>
@@ -577,8 +579,8 @@ const IncidentsBugs = () => {
             <div>
               <h2 className="text-lg font-semibold text-[var(--features-title-color)] mb-4">
                 {searchTerm || statusFilter !== "all" || priorityFilter !== "all" 
-                  ? "Filtered Reports" 
-                  : "Your Reports"}
+                  ? t("bug.filtered")
+                  : t("bug.rep")}
               </h2>
               
               {isLoading ? (
@@ -623,20 +625,20 @@ const IncidentsBugs = () => {
                         </div>
                         
                         <div className="text-xs text-[var(--features-text-color)] mb-4">
-                          Reported on {new Date(incident.date).toLocaleDateString()}
+                          {t("bug.reported")} {new Date(incident.date).toLocaleDateString()}
                         </div>
                         
                         <div className="flex justify-between items-center">
                           <div className="flex items-center text-xs text-[var(--text-color3)]">
                             <MessageSquare className="h-3.5 w-3.5 mr-1 text-[var(--features-icon-color)]" />
-                            {incident.replies} {incident.replies === 1 ? 'reply' : 'replies'}
+                            {incident.replies} {incident.replies === 1 ? t("bug.reply") : t("bug.replies")}
                           </div>
                           
                           <button 
                             className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)] font-medium"
                             onClick={() => handleViewDetails(incident)}
                           >
-                            View Details
+                            {t("bug.view")}
                           </button>
                         </div>
                       </div>
@@ -652,12 +654,12 @@ const IncidentsBugs = () => {
             <div className="flex flex-row justify-between items-center text-xs text-red-600">
               <div>
                 <span>© 2025 PlanWise</span>
-                <span className="hidden sm:inline"> • All rights reserved</span>
+                <span className="hidden sm:inline"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="flex items-center">
                   <AlertTriangle className="h-3 w-3 mr-1" />
-                  Issue Tracker
+                  {t("bug.foot")}
                 </span>
               </div>
             </div>
@@ -676,7 +678,7 @@ const IncidentsBugs = () => {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <span className="inline-block w-12 h-1.5 bg-[var(--bug-report)] rounded-full mb-2"></span>
-                <h2 className="text-2xl font-bold text-[var(--features-title-color)]">Report an Issue</h2>
+                <h2 className="text-2xl font-bold text-[var(--features-title-color)]">{t("bug.report")}</h2>
               </div>
               <button 
                 onClick={() => {
@@ -694,7 +696,7 @@ const IncidentsBugs = () => {
 
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="title" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">Issue Title</label>
+                <label htmlFor="title" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("bug.tit")}</label>
                 <input
                   type="text"
                   id="title"
@@ -702,13 +704,13 @@ const IncidentsBugs = () => {
                   onChange={handleInputChange}
                   className={`w-full p-3 bg-[var(--gray-card3)]/20 border ${formErrors.title ? 'border-[var(--bug-report)]/90' : 'border-[var(--gray-card3)]/20'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--bug-report)] focus:border-transparent transition-all duration-200`}
                   required
-                  placeholder="Brief summary of the issue"
+                  placeholder={t("bug.titd")}
                 />
                 {formErrors.title && <p className="mt-1 text-xs text-[var(--bug-report)]">{formErrors.title}</p>}
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">Description</label>
+                <label htmlFor="description" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("bug.d")}</label>
                 <textarea
                   id="description"
                   rows="4"
@@ -716,13 +718,13 @@ const IncidentsBugs = () => {
                   onChange={handleInputChange}
                   className={`w-full p-3 bg-[var(--gray-card3)]/20 border ${formErrors.title ? 'border-[var(--bug-report)]/90' : 'border-[var(--gray-card3)]/20'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--bug-report)] focus:border-transparent transition-all duration-200`}
                   required
-                  placeholder="Please provide details about what happened and how to reproduce the issue"
+                  placeholder={t("bug.dd")}
                 ></textarea>
                 {formErrors.description && <p className="mt-1 text-xs text-red-600">{formErrors.description}</p>}
               </div>
 
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">Category</label>
+                <label htmlFor="category" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("bug.cat")}</label>
                 <select
                   id="category"
                   value={newIncident.category}
@@ -730,16 +732,16 @@ const IncidentsBugs = () => {
                   className={`w-full p-3 bg-[var(--gray-card3)]/20 border ${formErrors.title ? 'border-[var(--bug-report)]/90' : 'border-[var(--gray-card3)]/20'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--bug-report)] focus:border-transparent transition-all duration-200`}
                   required
                 >
-                  <option value="">Select category</option>
-                  <option value="bug">Bug</option>
-                  <option value="feature">Feature Request</option>
-                  <option value="enhancement">Enhancement</option>
+                  <option value="">{t("bug.cat.sel")}</option>
+                  <option value="bug">{t("bug.cat.bug")}</option>
+                  <option value="feature">{t("bug.cat.feature")}</option>
+                  <option value="enhancement">{t("bug.cat.ench")}</option>
                 </select>
                 {formErrors.category && <p className="mt-1 text-xs text-red-600">{formErrors.category}</p>}
               </div>
 
               <div>
-                <label htmlFor="priority" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">Priority</label>
+                <label htmlFor="priority" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("bug.priority")}</label>
                 <select
                   id="priority"
                   value={newIncident.priority}
@@ -747,10 +749,10 @@ const IncidentsBugs = () => {
                   className={`w-full p-3 bg-[var(--gray-card3)]/20 border ${formErrors.title ? 'border-[var(--bug-report)]/90' : 'border-[var(--gray-card3)]/20'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--bug-report)] focus:border-transparent transition-all duration-200`}
                   required
                 >
-                  <option value="">Select priority</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
+                  <option value="">{t("bug.pri.sel")}</option>
+                  <option value="low">{t("bug.low")}</option>
+                  <option value="medium">{t("bug.med")}</option>
+                  <option value="high">{t("bug.hi")}</option>
                 </select>
                 {formErrors.priority && <p className="mt-1 text-xs text-red-600">{formErrors.priority}</p>}
               </div>
@@ -771,14 +773,14 @@ const IncidentsBugs = () => {
                   }}
                   className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                 >
-                  Cancel
+                  {t("bug.can")}
                 </button>
                 <button
                   type="submit"
                   className="px-7 py-2.5 rounded-lg bg-rose-600 !text-white hover:bg-rose-700 transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
                 >
                   <AlertTriangle className="h-4 w-4 mr-1.5" />
-                  Submit Report
+                  {t("bug.sub")}
                 </button>
               </div>
             </form>
@@ -819,7 +821,7 @@ const IncidentsBugs = () => {
 
               {/* Description */}
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-[var(--features-text-color)] mb-2">Description</h3>
+                <h3 className="text-sm font-medium text-[var(--features-text-color)] mb-2">{t("bug.d")}</h3>
                 <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg text-[var(--text-color3)]/70">
                   {selectedIncident.description}
                 </div>
@@ -828,26 +830,26 @@ const IncidentsBugs = () => {
               {/* Meta information */}
               <div className="space-y-3 mb-6">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--features-text-color)]">Reported by:</span>
+                  <span className="text-[var(--features-text-color)]">{t("bug.by")}:</span>
                   <span className="font-medium text-[var(--features-title-color)]/70">{selectedIncident.reportedBy}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--features-text-color)]">Date reported:</span>
+                  <span className="text-[var(--features-text-color)]">{t("bug.reported")}:</span>
                   <span className="font-medium text-[var(--features-title-color)]/70">{new Date(selectedIncident.date).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[var(--features-text-color)]">Incident ID:</span>
+                  <span className="text-[var(--features-text-color)]">{t("bug.id")}:</span>
                   <span className="font-medium text-[var(--features-title-color)]/70">#{selectedIncident.id}</span>
                 </div>
               </div>
 
               {/* Comments section */}
               <div className="border-t border-[var(--gray-card3)] pt-5">
-                <h3 className="text-sm font-medium text-[var(--features-title-color)] mb-3">Comments ({selectedIncident.replies})</h3>
+                <h3 className="text-sm font-medium text-[var(--features-title-color)] mb-3">{t("bug.com")} ({selectedIncident.replies})</h3>
                 
                 {selectedIncident.replies === 0 && !showCommentForm ? (
                   <div className="text-center py-4 bg-[var(--gray-card2)]/70 rounded-lg">
-                    <p className="text-[var(--features-text-color)] text-sm">No comments yet</p>
+                    <p className="text-[var(--features-text-color)] text-sm">{t("bug.nocom")}</p>
                   </div>
                 ) : (
                   <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-1">
@@ -910,7 +912,7 @@ const IncidentsBugs = () => {
                 onClick={() => setShowDetailModal(false)}
                 className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
               >
-                Close
+                {t("bug.close")}
               </button>
               {!showCommentForm && selectedIncident.status !== 'resolved' && selectedIncident.status !== 'closed' && (
                 <button
@@ -919,7 +921,7 @@ const IncidentsBugs = () => {
                   className="px-5 py-2.5 rounded-lg bg-[var(--features-icon-color)]/20 text-white hover:bg-[var(--hover-color)]/20 transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
                 >
                   <MessageSquare className="h-4 w-4 mr-1.5" />
-                  Add Comment
+                  {t("bug.add")}
                 </button>
               )}
               {(selectedIncident.status === 'resolved' || selectedIncident.status === 'closed') && (

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
+import { useTranslation } from 'react-i18next';
 
 // Sample data as fallback
 const sampleIssues = [
@@ -77,6 +78,7 @@ const sampleIssues = [
 ];
 
 const Issues = () => {
+  const {t} = useTranslation();
   const [activeTab, setActiveTab] = useState('admin');
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
@@ -206,14 +208,14 @@ const Issues = () => {
   const getStatusBadge = (status) => {
     switch (status) {
       case 'open':
-        return <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs font-medium">Open</span>;
+        return <span className="px-2 py-1 rounded-full bg-red-100 text-red-600 text-xs font-medium">{t("bug.op")}</span>;
       case 'in-progress':
       case 'in progress':
-        return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-medium">In Progress</span>;
+        return <span className="px-2 py-1 rounded-full bg-amber-100 text-amber-600 text-xs font-medium">{t("bug.in")}</span>;
       case 'resolved':
-        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">Resolved</span>;
+        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-600 text-xs font-medium">{t("bug.res")}</span>;
       case 'closed':
-        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">Closed</span>;
+        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{t("bug.clo")}</span>;
       default:
         return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">{status}</span>;
     }
@@ -224,11 +226,11 @@ const Issues = () => {
     switch (priority) {
       case 'high':
       case 'critical':
-        return <span className="flex items-center text-red-600 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>{priority === 'critical' ? 'Critical' : 'High'}</span>;
+        return <span className="flex items-center text-red-600 text-xs"><span className="w-2 h-2 bg-red-600 rounded-full mr-1"></span>{priority === 'critical' ? t("admin.cri") : t("bug.hi")}</span>;
       case 'medium':
-        return <span className="flex items-center text-amber-600 text-xs"><span className="w-2 h-2 bg-amber-600 rounded-full mr-1"></span>Medium</span>;
+        return <span className="flex items-center text-amber-600 text-xs"><span className="w-2 h-2 bg-amber-600 rounded-full mr-1"></span>{t("bug.med")}</span>;
       case 'low':
-        return <span className="flex items-center text-green-600 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>Low</span>;
+        return <span className="flex items-center text-green-600 text-xs"><span className="w-2 h-2 bg-green-600 rounded-full mr-1"></span>{t("bug.low")}</span>;
       default:
         return <span className="flex items-center text-gray-600 text-xs"><span className="w-2 h-2 bg-gray-600 rounded-full mr-1"></span>{priority}</span>;
     }
@@ -238,11 +240,11 @@ const Issues = () => {
   const getCategoryBadge = (category) => {
     switch (category.toLowerCase()) {
       case 'bug':
-        return <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs rounded-full">Bug</span>;
+        return <span className="px-2 py-0.5 bg-red-50 text-red-700 text-xs rounded-full">{t("bug.bug")}</span>;
       case 'feature':
-        return <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full">Feature</span>;
+        return <span className="px-2 py-0.5 bg-purple-50 text-purple-700 text-xs rounded-full">{t("bug.feature")}</span>;
       case 'enhancement':
-        return <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">Enhancement</span>;
+        return <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs rounded-full">{t("bug.ench")}</span>;
       default:
         return <span className="px-2 py-0.5 bg-gray-50 text-gray-700 text-xs rounded-full">{category}</span>;
     }
@@ -452,7 +454,7 @@ const Issues = () => {
     return (
       <div className="flex flex-col h-screen bg-gray-50">
         <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-gray-100">
-          <Header title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">Admin - User Issues</span>} />
+          <Header title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">{t("admin.tit")}</span>} />
         </div>
         <div className="flex items-center justify-center flex-grow">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
@@ -466,7 +468,7 @@ const Issues = () => {
       {/* Header */}
       <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-gray-100">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">Admin - User Issues</span>}
+          title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">{t("admin.tit")}</span>}
         />
       </div>
       
@@ -519,7 +521,7 @@ const Issues = () => {
                 transition={{ delay: 0.1 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
-                <h3 className="text-[var(--features-text-color)] text-sm font-medium">Total Issues</h3>
+                <h3 className="text-[var(--features-text-color)] text-sm font-medium">{t("admin.total")}</h3>
                 <p className="text-2xl font-bold text-[var(--features-icon-color)]">{issues.length}</p>
               </motion.div>
               
@@ -529,7 +531,7 @@ const Issues = () => {
                 transition={{ delay: 0.2 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
-                <h3 className="text-[var(--features-text-color)] text-sm font-medium">Open Issues</h3>
+                <h3 className="text-[var(--features-text-color)] text-sm font-medium">{t("bug.open")}</h3>
                 <p className="text-2xl font-bold text-red-600">
                   {issues.filter(issue => issue.status === 'open').length}
                 </p>
@@ -541,7 +543,7 @@ const Issues = () => {
                 transition={{ delay: 0.3 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
-                <h3 className="text-[var(--features-text-color)] text-sm font-medium">In Progress</h3>
+                <h3 className="text-[var(--features-text-color)] text-sm font-medium">{t("bug.in")}</h3>
                 <p className="text-2xl font-bold text-amber-600">
                   {issues.filter(issue => issue.status === 'in-progress' || issue.status === 'in progress').length}
                 </p>
@@ -553,7 +555,7 @@ const Issues = () => {
                 transition={{ delay: 0.4 }}
                 className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border border-gray-100"
               >
-                <h3 className="text-[var(--features-text-color)] text-sm font-medium">Resolved</h3>
+                <h3 className="text-[var(--features-text-color)] text-sm font-medium">{t("bug.res")}</h3>
                 <p className="text-2xl font-bold text-green-600">
                   {issues.filter(issue => issue.status === 'resolved').length}
                 </p>
@@ -569,7 +571,7 @@ const Issues = () => {
                 <input 
                   type="text" 
                   className="bg-[var(--bg-color)] border border-[var(--features-icon-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)] block w-full pl-10 p-2.5"
-                  placeholder="Search issues by title, description, or reporter"
+                  placeholder={t("admin.search")}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -582,11 +584,11 @@ const Issues = () => {
                     onChange={(e) => setStatusFilter(e.target.value)}
                     value={statusFilter}
                   >
-                    <option value="all">All Statuses</option>
-                    <option value="open">Open</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="resolved">Resolved</option>
-                    <option value="closed">Closed</option>
+                    <option value="all">{t("bug.stat")}</option>
+                    <option value="open">{t("bug.op")}</option>
+                    <option value="in-progress">{t("bug.in")}</option>
+                    <option value="resolved">{t("bug.res")}</option>
+                    <option value="closed">{t("bug.clo")}</option>
                   </select>
                   <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-[var(--features-icon-color)] pointer-events-none" />
                 </div>
@@ -597,11 +599,11 @@ const Issues = () => {
                     onChange={(e) => setPriorityFilter(e.target.value)}
                     value={priorityFilter}
                   >
-                    <option value="all">All Priorities</option>
-                    <option value="critical">Critical</option>
-                    <option value="high">High</option>
-                    <option value="medium">Medium</option>
-                    <option value="low">Low</option>
+                    <option value="all">{t("bug.priority")}</option>
+                    <option value="critical">{t("bug.cri")}</option>
+                    <option value="high">{t("bug.hi")}</option>
+                    <option value="medium">{t("bug.med")}</option>
+                    <option value="low">{t("bug.low")}</option>
                   </select>
                   <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-[var(--features-icon-color)] pointer-events-none" />
                 </div>
@@ -612,8 +614,8 @@ const Issues = () => {
             <div>
               <h2 className="text-lg font-semibold text-[var(--features-icon-color)] mb-4">
                 {searchTerm || statusFilter !== "all" || priorityFilter !== "all" 
-                  ? "Filtered Issues" 
-                  : "All Issues"}
+                  ? t("admin.filtered")
+                  : t("admin.all")}
               </h2>
               
               {filteredIssues.length === 0 ? (
@@ -621,21 +623,21 @@ const Issues = () => {
                   <div className="bg-orange-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                     <AlertCircle className="h-8 w-8 text-orange-500" />
                   </div>
-                  <h3 className="text-lg font-medium text-[var(--features-icon-color)]">No issues found</h3>
-                  <p className="text-[var(--features-text-color)]">Try adjusting your search or filter settings</p>
+                  <h3 className="text-lg font-medium text-[var(--features-icon-color)]">{t("admin.noiss")}</h3>
+                  <p className="text-[var(--features-text-color)]">{t("admin.try")}</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full bg-[var(--gray-card1)] shadow-sm rounded-lg overflow-hidden">
                     <thead className="bg-[var(--loginpage-bg)] text-[var(--features-text-color)] uppercase text-xs">
                       <tr>
-                        <th className="py-3 px-4 text-left">Issue</th>
-                        <th className="py-3 px-4 text-left">Reported By</th>
-                        <th className="py-3 px-4 text-left">Date</th>
-                        <th className="py-3 px-4 text-left">Status</th>
-                        <th className="py-3 px-4 text-left">Priority</th>
-                        <th className="py-3 px-4 text-left">Category</th>
-                        <th className="py-3 px-4 text-left">Actions</th>
+                        <th className="py-3 px-4 text-left">{t("admin.iss")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.by")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.date")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.stat")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.pri")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.cat")}</th>
+                        <th className="py-3 px-4 text-left">{t("admin.act")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -723,12 +725,12 @@ const Issues = () => {
             <div className="flex flex-row justify-between items-center text-xs text-gray-600">
               <div>
                 <span className="text-[var(--features-icon-color)] sm:inline">© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--features-icon-color)]"> • All rights reserved</span>
+                <span className="hidden sm:inline text-[var(--features-icon-color)]"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4 text-[var(--features-icon-color)]">
                 <span className="flex items-center">
                   <AlertCircle className="h-3 w-3 mr-1 text-[var(--features-icon-color)]" />
-                  Admin Panel
+                  {t("admin.admin")}
                 </span>
               </div>
             </div>
@@ -741,19 +743,19 @@ const Issues = () => {
         <div className="fixed inset-0 bg-transparent backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="p-4 border-b">
-              <h3 className="text-lg font-medium text-gray-900">Reply to Issue</h3>
+              <h3 className="text-lg font-medium text-gray-900">{t("admin.reply")}</h3>
             </div>
             
             <form onSubmit={handleReplySubmit} className="p-4">
               <div className="mb-4">
                 <label htmlFor="reply" className="block text-sm font-medium text-gray-700 mb-2">
-                  Your Response
+                {t("admin.res")}
                 </label>
                 <textarea
                   id="reply"
                   rows="4"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)]"
-                  placeholder="Type your reply here..."
+                  placeholder={t("admin.type")}
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   required
@@ -766,13 +768,13 @@ const Issues = () => {
                   className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
                   onClick={() => setReplyModal({ isOpen: false, issueId: null })}
                 >
-                  Cancel
+                  {t("bug.can")}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)] focus:outline-none"
                 >
-                  Send Reply
+                  {t("admin.send")}
                 </button>
               </div>
             </form>

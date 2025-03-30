@@ -1,9 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { SketchPicker } from "react-color";
+import { useTranslation } from "react-i18next";
 
 const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) =>
 {
+    const {t} = useTranslation();
     const [editedTitle, setEditedTitle] = useState(title);
     const [editedTagColor, setEditedTagColor] = useState(tagColor);
     const [customTagColor, setCustomTagColor] = useState(tagColor);
@@ -32,13 +34,13 @@ const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) =>
                     exit={{ y: "100%", opacity: 0 }}
                     transition={{ type: "spring", stiffness: 150, damping: 15 }}>
                     <div className="bg-[var(--features-icon-color)] p-3 rounded-t-xl">
-                        <h3 className="text-xl font-bold text-white text-center">Edit Task List</h3>
+                        <h3 className="text-xl font-bold text-white text-center">{t("prode.edit.task")}</h3>
                     </div>
                     <div className="flex">
                         <div className="flex-1 p-4 flex flex-col justify-between">
                             <div className="space-y-2">
                                 <div>
-                                    <label className="text-sm font-medium text-[var(--features-title-color)]">Title</label>
+                                    <label className="text-sm font-medium text-[var(--features-title-color)]">{t("prode.e")}</label>
                                     <input
                                         type="text"
                                         value={editedTitle}
@@ -46,7 +48,7 @@ const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) =>
                                         onChange={(e) => setEditedTitle(e.target.value)} />
                                 </div>
                                 <div>
-                                    <label className="text-sm font-medium text-[var(--features-title-color)]">Tag Color</label>
+                                    <label className="text-sm font-medium text-[var(--features-title-color)]">{t("prode.e.tag")}</label>
                                     <input
                                         type="text"
                                         value={customTagColor}
@@ -61,18 +63,18 @@ const EditCard = ({ title, tagColor, onDone, onCancel, onDelete }) =>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                                     </svg>
-                                    Delete
+                                    {t("prode.del")}
                                 </button>
                                 <div className="flex gap-2">
                                     <button
                                         className="flex-1 bg-red-500 text-white py-2 rounded-md hover:bg-red-700"
                                         onClick={onCancel}>
-                                        Cancel
+                                        {t("prode.can")}
                                     </button>
                                     <button
                                         className="flex-1 bg-[var(--features-icon-color)] !text-white py-2 rounded-md hover:bg-[var(--hover-color)]"
                                         onClick={() => onDone(editedTitle, editedTagColor)}>
-                                        Done
+                                        {t("prode.done")}
                                     </button>
                                 </div>
                             </div>

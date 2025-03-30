@@ -4,6 +4,7 @@ import { Pencil, Check } from "lucide-react";
 import { FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase, FaServer, FaCode, FaCog, FaDesktop, FaPaintBrush } from "react-icons/fa";
 import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
 import { IoMdPeople, IoMdSettings } from "react-icons/io";
+import { useTranslation } from "react-i18next";
 
 const iconMap = {
   Users: FaUsers,
@@ -49,6 +50,7 @@ const allIcons = [
 
 // TeamDeleteConfirmation Component
 const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
+  const {t} = useTranslation();
   if (!teamName || typeof teamName !== "string") return null;
 
   return (
@@ -74,22 +76,22 @@ const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
           >
             <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
               <div className="bg-[var(--bug-report)] p-4 shadow-md">
-                <h3 className="text-xl font-bold !text-white text-center">Confirm Deletion</h3>
+                <h3 className="text-xl font-bold !text-white text-center">{t("adset.conf")}</h3>
               </div>
               <div className="p-6 flex flex-col gap-4">
-                <p className="text-gray-700 text-center">Are you sure you want to delete the team "{teamName}"?</p>
+                <p className="text-gray-700 text-center">{t("adset.remteam")} "{teamName}"?</p>
                 <div className="flex justify-between">
                   <button
                     className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={onCancel}
                   >
-                    Cancel
+                    {t("bug.can")}
                   </button>
                   <button
                     className="bg-[var(--bug-report)]/90 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
                     onClick={() => onConfirm(teamName)}
                   >
-                    Delete
+                    {t("adset.del")}
                   </button>
                 </div>
               </div>
@@ -102,6 +104,7 @@ const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
 };
 
 const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose }) => {
+  const {t} = useTranslation();
   const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
   const [localTeams, setLocalTeams] = useState(Array.isArray(teams) ? [...teams] : []);
   const [editingTeamId, setEditingTeamId] = useState(null);
@@ -254,14 +257,14 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
           <div className="bg-[var(--bg-color)] rounded-lg w-96 flex flex-col shadow-lg overflow-hidden">
             <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
               <h3 className="text-xl font-bold text-white text-center">
-                Manage Teams for {member?.name || "Unknown"}
+              {t("adset.teaman")} {member?.name || "Unknown"}
               </h3>
             </div>
             <div className="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
               {localTeams.map((team) => (
                 <div 
                   key={team.id} 
-                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-[var(--features-icon-color)]/20"
+                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-gray-200"
                 >
                   {editingTeamId === team.id ? (
                     <div className="flex flex-col gap-2 w-full">
@@ -312,19 +315,19 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                           onClick={() => handleSaveTeam(team)} 
                           className="bg-[var(--features-icon-color)]/60 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)] flex-1 transition-all duration-200"
                         >
-                          Save
+                          {t("adset.save")}
                         </button>
                         <button 
                           onClick={() => handleDeleteTeam(team.name)} 
                           className="bg-[var(--bug-report)]/90 !text-white px-2 py-1 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
                         >
-                          Delete
+                          {t("prode.del")}
                         </button>
                         <button 
                           onClick={handleCancelEdit} 
                           className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
                         >
-                          Cancel
+                          {t("bug.can")}
                         </button>
                       </div>
                     </div>
@@ -387,8 +390,8 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                       type="text"
                       value={newTeamName}
                       onChange={(e) => setNewTeamName(e.target.value)}
-                      className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
-                      placeholder="New team name"
+                      className="border p-1 rounded w-full text-[var(--features-text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
+                      placeholder={t("adset.text")}
                     />
                   </div>
                   <div className="flex justify-between">
@@ -396,13 +399,13 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                       onClick={handleAddTeam} 
                       className="bg-[var(--features-icon-color)]/50 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
                     >
-                      Add
+                      {t("adset.add2")}
                     </button>
                     <button 
                       onClick={() => setIsAddingTeam(false)} 
                       className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 transition-all duration-200"
                     >
-                      Cancel
+                      {t("bug.can")}
                     </button>
                   </div>
                 </div>
@@ -413,13 +416,13 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                 onClick={() => setIsAddingTeam(true)}
                 className="bg-[var(--features-icon-color)] !text-white px-4 py-2 rounded hover:bg-[var(--hover-color)] transition-all duration-200"
               >
-                Add Team
+                {t("adset.add")}
               </button>
               <button 
                 onClick={handleModalClose} 
                 className="bg-[var(--features-icon-color)]/50 !text-white px-4 py-2 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
               >
-                Done
+                {t("adset.done")}
               </button>
             </div>
           </div>

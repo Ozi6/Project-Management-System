@@ -234,7 +234,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
             <div className="flex items-center">
               <AlertTriangle className="min-w-5 h-5 w-5" />
               <span className={`ml-3 text-base font-medium ${!isOpen && !isMobile ? 'hidden' : ''}`}>
-                Issues & Help
+                {t("sidebar.help")}
               </span>
             </div>
             {(isOpen || isMobile) && (

@@ -1,7 +1,8 @@
 ﻿import { useNavigate } from "react-router-dom";
 import { Calendar, Users, Clock, Trash2, AlertTriangle, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const ProjectCard = ({
     id,
@@ -16,8 +17,16 @@ const ProjectCard = ({
     dueDate,
     lastUpdated
 }) => {
+    const {t, i18n} = useTranslation();
     const navigate = useNavigate();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [language, setLanguage] = useState(i18n.language);
+
+    useEffect(() => {
+          
+          setLanguage(i18n.language);
+          
+        }, [i18n.language]);
 
     // Handle delete button click
     const handleDeleteClick = (e) => {
@@ -59,7 +68,7 @@ const ProjectCard = ({
                                     : "bg-red-200 text-red-900"
                             }`}
                         >
-                            {status === "Completed" ? "Completed" : "In Progress"}
+                            {status === "Completed" ? t("procard.comp") : t("procard.in")}
                         </span>
                     </div>
                 </div>
@@ -73,16 +82,16 @@ const ProjectCard = ({
                 <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="flex items-center">
                         <Users className="h-4 w-4 text-[var(--text-color3)] mr-2" />
-                        <span className="text-sm text-[var(--features-text-color)]">Team: {teamMembers}</span>
+                        <span className="text-sm text-[var(--features-text-color)]">{t("procard.team")}: {teamMembers}</span>
                     </div>
                     <div className="flex items-center">
                         <Calendar className="h-4 w-4 text-[var(--text-color3)] mr-2" />
-                        <span className="text-sm text-[var(--features-text-color)]">Due: {dueDate}</span>
+                        <span className="text-sm text-[var(--features-text-color)]">{t("procard.due")}: {dueDate}</span>
                     </div>
                     <div className="flex items-center">
                         <Clock className="h-4 w-4 text-[var(--text-color3)] mr-2" />
-                        <span className="text-sm text-[var(--features-text-color)]">Updated:&nbsp;
-                        {new Intl.DateTimeFormat('en-US', {
+                        <span className="text-sm text-[var(--features-text-color)]">{t("procard.upd")}:&nbsp;
+                        {new Intl.DateTimeFormat(language === 'tr' ? 'tr-TR': 'en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: '2-digit',
@@ -96,14 +105,14 @@ const ProjectCard = ({
                 
                 <div className="mb-4">
                     <p className="text-sm text-[var(--features-title-color)] font-medium mb-1">
-                        Project Owner: {owner}
+                        {t("procard.own")}: {owner}
                     </p>
                 </div>
                 
                 <div>
                     <div className="flex justify-between mb-2">
-                        <span className="text-sm text-gray-600">Progress</span>
-                        <span className="text-sm text-gray-600">{progress}%</span>
+                        <span className="text-sm text-[var(--features-icon-color)]">{t("procard.prog")}</span>
+                        <span className="text-sm text-[var(--features-icon-color)]">{progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
@@ -124,7 +133,7 @@ const ProjectCard = ({
                         className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors flex items-center"
                     >
                         <Trash2 className="h-3.5 w-3.5 mr-1" />
-                        Delete Project
+                        {t("procard.del")}
                     </button>
                 </div>
             </div>
@@ -150,7 +159,7 @@ const ProjectCard = ({
                                 <div className="bg-red-100 p-2 rounded-full">
                                     <AlertTriangle className="h-6 w-6 text-red-600" />
                                 </div>
-                                <h3 className="text-lg font-bold ml-3 text-gray-800">Delete Project</h3>
+                                <h3 className="text-lg font-bold ml-3 text-gray-800">{t("procard.del")}</h3>
                                 <button 
                                     onClick={cancelDelete}
                                     className="ml-auto p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
@@ -161,7 +170,7 @@ const ProjectCard = ({
                             
                             <div className="mb-6">
                                 <p className="text-gray-600">
-                                    Are you sure you want to delete <span className="font-semibold">{name}</span>? This action cannot be undone.
+                                {t("procard.deld")} <span className="font-semibold">{name}</span>? {t("procard.deld2")}
                                 </p>
                             </div>
                             
@@ -170,14 +179,14 @@ const ProjectCard = ({
                                     onClick={cancelDelete}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                                 >
-                                    Cancel
+                                    {t("prode.can")}
                                 </button>
                                 <button
                                     onClick={confirmDelete}
                                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center"
                                 >
                                     <Trash2 className="h-4 w-4 mr-1.5" />
-                                    Delete Project
+                                    {t("procard.del")}
                                 </button>
                             </div>
                         </motion.div>

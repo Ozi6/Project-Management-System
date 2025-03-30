@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
 import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an icon library for the red exclamation mark
 import { Teams, Users } from './TeamAndUsersTest';
+import { useTranslation } from "react-i18next";
 
 const ListEntry = ({
     text = "",
@@ -32,6 +33,7 @@ const ListEntry = ({
     onFileChange = () => { },
     onDelete = () => { },
 }) => {
+    const {t} = useTranslation();
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isDraggingThis, setIsDraggingThis] = useState(false);
     const entryRef = useRef(null);

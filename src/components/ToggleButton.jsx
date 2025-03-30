@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const ToggleButton = ({ isChecked }) =>
 {
+    const {t} = useTranslation();
     const [isActive, setIsActive] = useState(false);
 
     const handleMouseDown = () =>
@@ -22,7 +24,7 @@ const ToggleButton = ({ isChecked }) =>
                 checked={isChecked}
                 readOnly/>
             <div
-                className={`absolute inset-0 rounded-full transition-colors duration-300 ${isChecked ? 'bg-red-50' : 'bg-[var(--loginpage-bg)]'}`}/>
+                className={`absolute inset-0 rounded-full transition-colors duration-300 ${isChecked ? 'bg-[var(--bug-report)]/20' : 'bg-[var(--loginpage-bg)]'}`}/>
             <div
                 className="absolute inset-0"
                 onMouseDown={handleMouseDown}
@@ -47,7 +49,7 @@ const ToggleButton = ({ isChecked }) =>
                             ? 'linear-gradient(to right, [var(--features-title-color)], rgba(239, 68, 68, 1))' : isChecked ? 'rgba(239, 68, 68, 1)' : 'var(--features-icon-color)',
                     }}
                 >
-                    {isChecked ? 'Horizontal' : 'Vertical'}
+                    {isChecked ? t("toggle.h") : t("toggle.v")}
                 </div>
             </div>
         </div>

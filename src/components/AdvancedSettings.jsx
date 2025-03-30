@@ -9,8 +9,10 @@ import ErrorBoundary from "./ErrorBoundary";
 import Dropdown from "./Dropdown";
 import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
+import { useTranslation } from "react-i18next";
 
 const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
+  const {t} = useTranslation();
   return (
     <AnimatePresence mode="wait">
       {member && (
@@ -38,26 +40,27 @@ const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
             >
               <div className="bg-[var(--bug-report)] p-4 shadow-md">
                 <h3 className="text-xl font-bold text-white text-center">
-                  Confirm Removal
+                {t("adset.conf")}
                 </h3>
               </div>
               <div className="p-6 flex flex-col gap-4">
                 <p className="text-gray-700 text-center">
-                  Are you sure you want to remove {member.name || "Unknown"}?
+                
+                {t("adset.confm")} {member.name || "Unknown"}?
                 </p>
                 <div className="flex justify-between">
                   <button
                     className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                     onClick={onCancel}
                   >
-                    Cancel
+                    {t("prode.can")}
                   </button>
                   <button
                     className="bg-[var(--bug-report)]/50 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
                     onClick={() => onConfirm(member.id)}
                     disabled={!member?.id}
                   >
-                    Remove
+                    {t("adset.rem")}
                   </button>
                 </div>
               </div>
@@ -95,6 +98,7 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
 };
 
 const AdvancedSettings = ({ setShowAdvanced }) => {
+  const {t} = useTranslation();
   // Get current user from Clerk
   const { user } = useUser();
 
@@ -149,9 +153,9 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
       (acc, member) => ({
         ...acc,
         [member.email]: {
-          "View Project": true,
-          "Edit Project": false,
-          "Delete Project": false,
+          [t("adset.view")]: true,
+          [t("adset.edit")]: false,
+          [t("adset.del")]: false,
         },
       }),
       {}
@@ -287,14 +291,14 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
   return (
     <ErrorBoundary>
       <div className="p-4 md:p-6 w-full">
-        <h2 className="text-xl font-bold mb-4 text-[var(--features-title-color)]">Advanced Settings</h2>
+        <h2 className="text-xl font-bold mb-4 text-[var(--features-title-color)]">{t("adset.tit")}</h2>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
           {/* Go Back to General Settings Button */}
           <button
             onClick={() => setShowAdvanced(false)}
             className="bg-[var(--sidebar-gantt-color)]/80 hover:bg-[var(--sidebar-gantt-color)] !text-white font-semibold py-2 px-4 rounded-xl transition duration-200 ease-in-out w-full sm:w-auto"
           >
-            Go Back to General Settings
+            {t("adset.back")}
           </button>
 
           {/* Invite People Button - only fully visible to project owner */}
@@ -306,7 +310,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
             disabled={!isProjectOwner}
           >
             <UserPlus className="w-5 h-5 mr-2" />
-            Invite People
+            {t("adset.inv")}
           </button>
         </div>
         
@@ -314,7 +318,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
         {!isProjectOwner && (
           <div className="mb-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700 flex items-center">
             <UserCheck className="w-5 h-5 mr-2 text-yellow-500 flex-shrink-0" />
-            <span>You need to be the project owner to manage access and teams</span>
+            <span>{t("set.per")}</span>
           </div>
         )}
         
@@ -329,7 +333,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           <Search className="absolute left-3 top-3 text-[var(--features-icon-color)] w-5 h-5" />
           <input
             type="text"
-            placeholder="Search members..."
+            placeholder={t("adset.search")}
             className="pl-10 pr-4 py-2 border border-[var(--features-icon-color)]/70 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -341,7 +345,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
           {filteredMembers.map((member) => (
             <div
               key={member.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-icon-color)]/20 hover:shadow-lg"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-hover-bg)] hover:shadow-lg"
             >
               <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
                 <img
@@ -355,12 +359,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                     {member.role === "Owner" && (
                       <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
                         <UserCheck className="w-3 h-3 mr-1" />
-                        Owner
+                        {t("adset.own")}
                       </span>
                     )}
                   </div>
                   <p className="text-sm text-[var(--text-color3)]">{member.email}</p>
-                  <p className="text-xs text-[var(--features-text-color)]">Team: {member.team || "None"}</p>
+                  <p className="text-xs text-[var(--features-text-color)]">{t("adset.team2")}: {member.team || "None"}</p>
                 </div>
               </div>
 
@@ -368,12 +372,12 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                 {/* Manage Access Button */}
                 <button
                   className={`bg-[var(--homepage-text-bright)]/80 !text-white px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
-                    isProjectOwner ? "hover:bg-[var(--homepage-text-bright)]" : "opacity-50 cursor-not-allowed"
+                    isProjectOwner ? "hover:bg-[var(--homepage-text-bright)]/50" : "opacity-50 cursor-not-allowed"
                   }`}
                   onClick={() => isProjectOwner && setSelectedMember(member)}
                   disabled={!isProjectOwner}
                 >
-                  Manage Access
+                  {t("adset.acc")}
                 </button>
 
                 {/* Manage Team Button */}
@@ -384,7 +388,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   onClick={() => isProjectOwner && setMemberToManageTeams(member)}
                   disabled={!isProjectOwner}
                 >
-                  Manage Team
+                  {t("adset.teaman")}
                 </button>
 
                 {/* Remove Button */}
@@ -396,7 +400,7 @@ const AdvancedSettings = ({ setShowAdvanced }) => {
                   disabled={!isProjectOwner}
                 >
                   <Trash className="w-4 h-4 mr-1" />
-                  Remove
+                  {t("adset.rem")}
                 </button>
               </div>
             </div>

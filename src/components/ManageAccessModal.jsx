@@ -1,10 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Check, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // New separate component for Manage Access Modal
 const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose }) => {
-  const accessOptions = ["View Project", "Edit Project", "Delete Project"];
+  const {t} = useTranslation();
+  const accessOptions = [t("adset.view"), t("adset.edit"), t("adset.del")];
 
   return (
     <AnimatePresence mode="wait">
@@ -33,7 +35,7 @@ const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose })
             >
               <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
                 <h3 className="text-xl font-bold text-white text-center">
-                  {member.name}'s Access
+                  {member.name}{t("adset.access")}
                 </h3>
               </div>
               <div className="p-6 flex flex-col bg-[var(--gray-card2)] gap-4">
@@ -73,7 +75,7 @@ const ManageAccessModal = ({ member, permissions, onTogglePermission, onClose })
                   className="mt-4 bg-[var(--bug-report)]/80 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-full"
                   onClick={onClose}
                 >
-                  Close
+                  {t("bug.close")}
                 </button>
               </div>
             </motion.div>

@@ -8,8 +8,10 @@ import { useUser, useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import axios from 'axios';
+import { useTranslation } from "react-i18next";
 
 const ProjectManagement = () => {
+    const {t} = useTranslation();
     const [activeTab, setActiveTab] = useState("projects");
     const [searchTerm, setSearchTerm] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
@@ -52,7 +54,7 @@ const ProjectManagement = () => {
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching projects:', err);
-                setError('Failed to load projects');
+                setError(t("pro.errd"));
                 setLoading(false);
             }
         };
@@ -239,11 +241,11 @@ const ProjectManagement = () => {
         <div className="flex flex-col h-screen bg-[var(--sidebar-projects-bg-color)]">
             <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b-2 border-[var(--sidebar-projects-bg-color)]">
                 <Header
-                    title={<span className="text-xl font-semibold text-[var(--sidebar-projects-color)]">Projects</span>}
+                    title={<span className="text-xl font-semibold text-[var(--sidebar-projects-color)]">{t("sidebar.pro")}</span>}
                     action={{
                         onClick: openPopUp,
                         icon: <Plus className="mr-2 h-4 w-4" />,
-                        label: "New Project"
+                        label: t("pro.new")
                     }}
                 />
             </div>
@@ -313,7 +315,7 @@ const ProjectManagement = () => {
                                 <input 
                                     type="text" 
                                     className="bg-[var(--bg-color)] border border-[var(--sidebar-projects-color)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full pl-10 p-2.5"
-                                    placeholder="Search projects or team members"
+                                    placeholder={t("pro.search")}
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -326,9 +328,9 @@ const ProjectManagement = () => {
                                         onChange={(e) => setFilterStatus(e.target.value)}
                                         value={filterStatus}
                                     >
-                                        <option value="all">All Status</option>
-                                        <option value="in progress">In Progress</option>
-                                        <option value="completed">Completed</option>
+                                        <option value="all">{t("pro.stat")}</option>
+                                        <option value="in progress">{t("pro.in")}</option>
+                                        <option value="completed">{t("pro.comp")}</option>
                                     </select>
                                     <Filter className="absolute right-2.5 top-2.5 h-4 w-4 text-[var(--features-icon-color)] pointer-events-none" />
                                 </div>
@@ -338,17 +340,17 @@ const ProjectManagement = () => {
                         {/* Project stats summary */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border-1 border-[var(--sidebar-projects-color)]">
-                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">Total Projects</h3>
+                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">{t("pro.total")}</h3>
                                 <p className="text-2xl font-bold text-[var(--sidebar-projects-color)]">{activeProjects.length}</p>
                             </div>
                             <div className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border-1 border-[var(--sidebar-projects-color)]">
-                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">In Progress</h3>
+                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">{t("pro.in")}</h3>
                                 <p className="text-2xl font-bold text-[var(--sidebar-projects-color)]">
                                     {activeProjects.filter(p => p.status === "In Progress").length}
                                 </p>
                             </div>
                             <div className="bg-[var(--bg-color)] p-4 rounded-xl shadow-sm border-1 border-[var(--sidebar-projects-color)]">
-                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">Completed</h3>
+                                <h3 className="text-sm text-[var(--sidebar-projects-color)] font-medium">{t("pro.comp")}</h3>
                                 <p className="text-2xl font-bold text-green-600">
                                     {activeProjects.filter(p => p.status === "Completed").length}
                                 </p>
@@ -358,7 +360,7 @@ const ProjectManagement = () => {
                         {/* Projects grid with animations */}
                         <div>
                             <h2 className="text-lg font-semibold text-[var(--sidebar-projects-color)] mb-4">
-                                {searchTerm || filterStatus !== "all" ? "Filtered Projects" : "All Projects"}
+                                {searchTerm || filterStatus !== "all" ? t("pro.filtered") : t("pro.all")}
                             </h2>
                             
                             {loading ? (
@@ -369,7 +371,7 @@ const ProjectManagement = () => {
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
                                     </div>
-                                    <h3 className="text-lg font-medium text-gray-800">Loading projects...</h3>
+                                    <h3 className="text-lg font-medium text-[var(--features-icon-color)]">{t("pro.loading")}</h3>
                                 </div>
                             ) : error ? (
                                 <div className="text-center py-10">
@@ -378,7 +380,7 @@ const ProjectManagement = () => {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-lg font-medium text-[var(--features-title-color)]">Error loading projects</h3>
+                                    <h3 className="text-lg font-medium text-[var(--features-title-color)]">{t("pro.err")}</h3>
                                     <p className="text-[var(--text-color3)]">{error}</p>
                                 </div>
                             ) : filteredProjects.length === 0 ? (
@@ -386,8 +388,8 @@ const ProjectManagement = () => {
                                     <div className="bg-purple-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                                         <Search className="h-8 w-8 text-[var(--sidebar-projects-color)]" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-[var(--features-text-color)]">No projects found</h3>
-                                    <p className="text-[var(--features-title-color)]">Try adjusting your search or filter settings</p>
+                                    <h3 className="text-lg font-medium text-[var(--features-text-color)]">{t("pro.no")}</h3>
+                                    <p className="text-[var(--features-title-color)]">{t("pro.try")}</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -418,13 +420,13 @@ const ProjectManagement = () => {
                         <div className="flex flex-row justify-between items-center text-xs text-[var(--sidebar-projects-color)]">
                             <div>
                                 <span>© 2025 PlanWise</span>
-                                <span className="hidden sm:inline"> • All rights reserved</span>
+                                <span className="hidden sm:inline"> • {t("dashboard.rights")}</span>
                             </div>
                             <div className="flex items-center space-x-4">
-                                <Link to="/terms" className="hover:text-[var(--features-title-color)] transition-colors">Terms</Link>
-                                <Link to="/privacy" className="hover:text-[var(--features-text-color)] transition-colors">Privacy</Link>
+                                <Link to="/terms" className="hover:text-[var(--features-title-color)] transition-colors">{t("dashboard.terms")}</Link>
+                                <Link to="/privacy" className="hover:text-[var(--features-text-color)] transition-colors">{t("dashboard.pri")}</Link>
                                 <span className="flex items-center">
-                                    Made with <Heart className="h-3 w-3 text-red-500 mx-1" /> by PlanWise
+                                {t("dashboard.made")} <Heart className="h-3 w-3 text-red-500 mx-1" /> {t("dashboard.by")}
                                 </span>
                             </div>
                         </div>
@@ -450,7 +452,7 @@ const ProjectManagement = () => {
                             <div className="flex items-center justify-between mb-6">
                                 <div>
                                     <span className="inline-block w-12 h-1.5 bg-[var(--sidebar-projects-color)] rounded-full mb-2"></span>
-                                    <h2 className="text-2xl font-bold text-[var(--features-text-color)]">Create New Project</h2>
+                                    <h2 className="text-2xl font-bold text-[var(--features-text-color)]">{t("procard.add")}</h2>
                                 </div>
                                 <button 
                                     onClick={closePopUp}
@@ -470,28 +472,28 @@ const ProjectManagement = () => {
                                 className="space-y-5"
                             >
                                 <div>
-                                    <label htmlFor="name" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">Project Name</label>
+                                    <label htmlFor="name" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("procard.add.tit")}</label>
                                     <input
                                         type="text"
                                         id="project_name"
                                         name="project_name"
                                         value={newProjectDetails.project_name}
                                         onChange={handleInputChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-[var(--features-text-color)] rounded-lg focus:ring-2 focus:ring-[var(--sidebar-projects-color)] focus:border-transparent transition-all duration-200"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-[var(--sidebar-projects-color)] focus:border-transparent transition-all duration-200"
                                         required
-                                        placeholder="Enter project name"
+                                        placeholder={t("procard.add.titd")}
                                     />
                                 </div>
 
                                 <div>
-                                    <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                                    <label htmlFor="dueDate" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("procard.due")}</label>
                                     <input
                                         type="date"
                                         id="dueDate"
                                         name="dueDate"
                                         value={newProjectDetails.dueDate}
                                         onChange={handleInputChange}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-[var(--features-text-color)] rounded-lg focus:ring-2 focus:ring-[var(--sidebar-projects-color)] focus:border-transparent transition-all duration-200"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-[var(--sidebar-projects-color)] focus:border-transparent transition-all duration-200"
                                         required
                                         min={new Date().toISOString().split('T')[0]}
                                     />
@@ -509,7 +511,7 @@ const ProjectManagement = () => {
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-500">
-                                            Project will be created by {user.fullName || user.username}
+                                        {t("procard.add.desc")} {user.fullName || user.username}
                                         </p>
                                     </div>
                                 )}
@@ -520,14 +522,14 @@ const ProjectManagement = () => {
                                         onClick={closePopUp}
                                         className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                                     >
-                                        Cancel
+                                        {t("prode.can")}
                                     </button>
                                     <button
                                         type="submit"
                                         className="px-7 !text-white py-2.5 rounded-lg bg-[var(--sidebar-projects-color)] hover:bg-[var(--hover-color)] transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
                                     >
                                         <Plus className="h-4 w-4 mr-1.5 text-white" />
-                                        Create Project
+                                        {t("procard.add.create")}
                                     </button>
                                 </div>
                             </form>

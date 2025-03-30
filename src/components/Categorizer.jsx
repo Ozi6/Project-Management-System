@@ -3,6 +3,7 @@ import TaskList from "./TaskList";
 import { Plus, Settings } from "lucide-react";
 import EditCategorizerCard from "./EditCategorizerCard";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 
 const Categorizer = ({
     title,
@@ -25,6 +26,7 @@ const Categorizer = ({
     onUpdateCategory,
     onUpdateTaskList
 }) => {
+    const {t} = useTranslation();
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
     const [isDraggingCategory, setIsDraggingCategory] = useState(false);
@@ -260,7 +262,7 @@ const Categorizer = ({
             <button
                 onClick={onAddList}
                 className="mt-4 bg-[var(--hover-color)] !text-white py-2 px-4 rounded-md flex items-center justify-center gap-1 transition-all duration-300 hover:bg-[var(--alt-card-color)] hover:scale-105">
-                <Plus size={16} /> Add List
+                <Plus size={16} /> {t("prode.add")}
             </button>
 
             {isDraggingCategory && window.dragState && (

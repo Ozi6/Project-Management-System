@@ -7,6 +7,7 @@ import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVer
 import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/clerk-react"; // Add this import if using Clerk for auth
 import { Link } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
 
 
 const teamColors = {
@@ -116,6 +117,7 @@ const teamsData = [
 ];
 
 const Teams = () => {
+  const {t} = useTranslation();
   const [activeTab, setActiveTab] = useState("teams");
   const [teams, setTeams] = useState(teamsData);
   const [selectedMember, setSelectedMember] = useState(null);
@@ -148,7 +150,7 @@ const Teams = () => {
     { 
       id: 'dashboard', 
       icon: Layout, 
-      label: 'Dashboard', 
+      label: t("sidebar.dash"), 
       path: '/dashboard',
       //color: 'bg-blue-100 text-blue-600',  
       iconColor: 'text-blue-600',     
@@ -157,7 +159,7 @@ const Teams = () => {
     { 
       id: 'projects', 
       icon: KanbanSquare, 
-      label: 'This Project', 
+      label: t("sidebar.this"), 
       path: '/project/1',
       color: 'bg-purple-100 text-purple-600',
       iconColor: 'text-purple-600'
@@ -165,7 +167,7 @@ const Teams = () => {
     { 
       id: 'activity', 
       icon: Activity, 
-      label: 'Activity',
+      label: t("sidebar.act"),
       path: '/activity',
       color: 'bg-yellow-100 text-yellow-600',
       iconColor: 'text-amber-600'
@@ -173,7 +175,7 @@ const Teams = () => {
     { 
       id: 'teams', 
       icon: Users, 
-      label: 'Teams',
+      label: t("sidebar.team"),
       path: '/teams',
       color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
       iconColor: 'text-[var(--sidebar-teams-color)]'
@@ -181,7 +183,7 @@ const Teams = () => {
     { 
       id: 'settings', 
       icon: Settings, 
-      label: 'Settings',
+      label: t("sidebar.set"),
       path: '/project/settings',
       color: 'bg-gray-100 text-gray-600',
       iconColor: 'text-gray-600'
@@ -193,7 +195,7 @@ const Teams = () => {
       {/* Header with shadow */}
       <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-[var(--sidebar-teams-color)]">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--sidebar-teams-color)]">Teams</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-teams-color)]">{t("sidebar.team")}</span>}
           action={{
             onClick: () => console.log("Add team clicked"),
             icon: <Users className="mr-2 h-4 w-4" />,
@@ -271,7 +273,7 @@ const Teams = () => {
                           </div>
                         </div>
                         <div className="text-xs px-2 py-1 bg-[var(--loginpage-bg)] text-[var(--features-text-color)] rounded-full">
-                          {member.role || "Member"}
+                          {member.role || t("team.mem")}
                         </div>
                       </div>
                     ))}
@@ -287,13 +289,13 @@ const Teams = () => {
             <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
               <div>
                 <span className="text-[var(--sidebar-teams-color)]">© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--sidebar-teams-color)]"> • All rights reserved</span>
+                <span className="hidden sm:inline text-[var(--sidebar-teams-color)]"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4">
-                <Link to="/terms" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">Terms</Link>
-                <Link to="/privacy" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">Privacy</Link>
+                <Link to="/terms" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.terms")}</Link>
+                <Link to="/privacy" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.pri")}</Link>
                 <span className="flex items-center text-[var(--sidebar-teams-color)]">
-                  Made with <Heart className="h-3 w-3 text-red-500 mx-1 " /> by PlanWise
+                {t("dashboard.made")} <Heart className="h-3 w-3 text-red-500 mx-1 " /> {t("dashboard.by")}
                 </span>
               </div>
             </div>

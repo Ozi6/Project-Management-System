@@ -2,8 +2,10 @@ import { useState } from "react";
 import { FaCog } from "react-icons/fa"; 
 import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
 import { UserCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const GeneralSettings = ({ setShowAdvanced }) => {
+    const {t} = useTranslation();
     // Get current user from Clerk
     const { user } = useUser();
 
@@ -14,8 +16,8 @@ const GeneralSettings = ({ setShowAdvanced }) => {
     const isProjectOwner = user?.primaryEmailAddress?.emailAddress === projectOwner || 
                           user?.publicMetadata?.role === "admin";
     
-    const [projectName, setProjectName] = useState("My Project");
-    const [projectDescription, setProjectDescription] = useState("A brief description of my project.");
+    const [projectName, setProjectName] = useState(t("set.named"));
+    const [projectDescription, setProjectDescription] = useState(t("set.dd"));
     const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg"); // Default image
     const [isPublic, setIsPublic] = useState(false);
 
@@ -33,9 +35,9 @@ const GeneralSettings = ({ setShowAdvanced }) => {
         // Only project owners can delete projects
         if (!isProjectOwner) return;
         
-        if (window.confirm("Are you sure you want to delete this project?")) {
+        if (window.confirm(t("set.warn"))) {
             // Implement your delete project logic here
-            console.log("Project deleted!");
+            console.log(t("set.warn.ok"));
             // Redirect or perform other actions after deletion
         }
     };
@@ -44,20 +46,20 @@ const GeneralSettings = ({ setShowAdvanced }) => {
         <div className="space-y-6 max-w-2xl mx-auto bg-[var(--gray-card3)] p-6 rounded-xl shadow-xl">
             <div className="flex items-center space-x-2">
                 <FaCog className="text-[var(--features-title-color)] text-3xl" />
-                <h2 className="text-3xl font-semibold text-[var(--features-text-color)]">General Settings</h2>
+                <h2 className="text-3xl font-semibold text-[var(--features-text-color)]">{t("set.gen")}</h2>
             </div>
 
             {/* Owner status indicator */}
             {!isProjectOwner && (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700 flex items-center">
                     <UserCheck className="w-5 h-5 mr-2 text-yellow-500" />
-                    You need to be the project owner to modify these settings
+                    {t("set.per")}
                 </div>
             )}
 
             <div className="bg-[var(--bg-color)] rounded-xl bg-[var(--bg-color)] shadow-lg p-8 space-y-6">
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-[var(--text-color3)]">Project Name</label>
+                    <label className="block text-sm font-medium text-[var(--text-color3)]">{t("set.name")}</label>
                     <input
                         type="text"
                         value={projectName}
@@ -72,7 +74,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-[var(--text-color3)]">Description</label>
+                    <label className="block text-sm font-medium text-[var(--text-color3)]">{t("set.d")}</label>
                     <textarea
                         value={projectDescription}
                         onChange={(e) => isProjectOwner && setProjectDescription(e.target.value)}
@@ -86,7 +88,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="block text-sm font-medium text-[var(--features-text-color)]">Update Background Image (800x400)</label>
+                    <label className="block text-sm font-medium text-[var(--features-text-color)]">{t("set.update")} (800x400)</label>
                     <input
                         type="file"
                         accept="image/*"
@@ -113,7 +115,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                         onClick={() => setShowAdvanced(true)}
                         className="bg-[var(--features-icon-color)]/50 hover:bg-[var(--hover-color)] !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out"
                     >
-                        Advanced Settings
+                        {t("set.advanced")}
                     </button>
 
                     {/* Delete Project Button - disabled for non-owners */}
@@ -124,7 +126,7 @@ const GeneralSettings = ({ setShowAdvanced }) => {
                         }`}
                         disabled={!isProjectOwner}
                     >
-                        Delete Project
+                        {t("set.delete")}
                     </button>
                 </div>
             </div>

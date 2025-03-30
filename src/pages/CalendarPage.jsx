@@ -5,8 +5,11 @@ import Header from "../components/Header";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
 import ThemeSwitcher from '../ThemeSwitcher';
+import { useTranslation } from 'react-i18next';
+
 
 const CalendarPage = ({ projectData }) => {
+  const {t, i18n} = useTranslation();
   const [activeTab, setActiveTab] = useState("calendar");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -15,13 +18,21 @@ const CalendarPage = ({ projectData }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [language, setLanguage] = useState(i18n.language);
+  
+    
+  
+    useEffect(() => {
+      
+      setLanguage(i18n.language);
+      
+    }, [i18n.language]);
   // Custom navigation items for the sidebar (similar to ProjectDetails.jsx)
   const customNavItems = [
     { 
       id: 'dashboard', 
       icon: Layout, 
-      label: 'Dashboard', 
+      label: t("sidebar.dash"), 
       path: '/dashboard',
       color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',  
       iconColor: 'text-[var(--sidebar-dashboard-color)]',     
@@ -30,7 +41,7 @@ const CalendarPage = ({ projectData }) => {
     { 
       id: 'projects', 
       icon: KanbanSquare, 
-      label: 'This Project', 
+      label: t("sidebar.this"), 
       path: '/project/1',
       color: 'bg-purple-100 text-purple-600',
       iconColor: 'text-purple-600'
@@ -38,7 +49,7 @@ const CalendarPage = ({ projectData }) => {
     { 
       id: 'activity', 
       icon: Activity, 
-      label: 'Activity', 
+      label: t("sidebar.act"), 
       path: '/activity',
       color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
       iconColor: 'text-[var(--sidebar-gantt-color)]'
@@ -46,7 +57,7 @@ const CalendarPage = ({ projectData }) => {
     { 
       id: 'teams', 
       icon: UsersIcon, 
-      label: 'Teams',
+      label: t("sidebar.team"),
       path: '/teams',
       color: 'bg-green-100 text-green-600',
       iconColor: 'text-green-600'
@@ -54,7 +65,7 @@ const CalendarPage = ({ projectData }) => {
     { 
       id: 'settings', 
       icon: Settings, 
-      label: 'Settings',
+      label: t("sidebar.set"),
       path: '/project/settings',
       color: 'bg-gray-100 text-gray-600',
       iconColor: 'text-gray-600'
@@ -270,8 +281,8 @@ const CalendarPage = ({ projectData }) => {
   };
 
   // Format date as Month Year
-  const formatMonthYear = (date) => {
-    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const formatMonthYear = (date, language) => {
+    return date.toLocaleDateString(language === 'tr' ? 'tr-TR': 'en-US', { month: 'long', year: 'numeric' });
   };
 
   // Check if a date is today
@@ -294,7 +305,7 @@ const CalendarPage = ({ projectData }) => {
       {/* Header */}
       <div className="w-full bg-white shadow-sm z-10 border-b border-[var(--sidebar-gantt-color2)]">
         <Header
-          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">Calendar</span>}
+          title={<span className="text-xl font-semibold text-[var(--sidebar-gantt-color)]">{t("cal.tit")}</span>}
         />
         
       </div>
@@ -339,14 +350,14 @@ const CalendarPage = ({ projectData }) => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
                 <div className="flex items-center space-x-2">
                   <Calendar className="h-5 w-5 text-[var(--features-text-color)]" />
-                  <h2 className="text-xl font-semibold text-[var(--features-icon-color)]">Project Calendar</h2>
+                  <h2 className="text-xl font-semibold text-[var(--features-icon-color)]">{t("cal.cal")}</h2>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button 
                     onClick={goToToday}
                     className="px-3 py-1 text-sm bg-[var(--loginpage-bg)] text-[var(--features-icon-color)] rounded hover:bg-[var(--loginpage-bg2)] transition-colors"
                   >
-                    Today
+                    {t("cal.today")}
                   </button>
                   <button
                     onClick={prevMonth}
@@ -356,7 +367,7 @@ const CalendarPage = ({ projectData }) => {
                     <ChevronLeft className="h-5 w-5 text-[var(--features-title-color)]" />
                   </button>
                   <span className="text-lg text-[var(--features-title-color)] font-medium w-40 text-center">
-                    {formatMonthYear(currentMonth)}
+                    {formatMonthYear(currentMonth, language)}
                   </span>
                   <button
                     onClick={nextMonth}
@@ -370,7 +381,7 @@ const CalendarPage = ({ projectData }) => {
               {/* Calendar grid - made more responsive */}
               <div className="grid grid-cols-7 border-1 border-[var(--sidebar-gantt-color2)] gap-px bg-[var(--sidebar-gantt-color2)]">
                 {/* Day headers */}
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                {[t("gantt.sun"), t("gantt.mon"), t("gantt.tue"), t("gantt.wed"), t("gantt.thu"), t("gantt.fri"), t("gantt.sat")].map(day => (
                   <div key={day} className="bg-[var(--gray-card3)] text-center py-2 font-medium text-[var(--features-title-color)] text-xs sm:text-sm">
                     {window.innerWidth < 640 ? day.charAt(0) : day}
                   </div>
@@ -426,7 +437,7 @@ const CalendarPage = ({ projectData }) => {
               {/* Task details for selected date */}
               <div className="mt-4">
                 <h3 className="font-medium text-[var(--features-text-color)]">
-                  Tasks for {selectedDate.toLocaleDateString()}
+                  {t("cal.tasks")} {selectedDate.toLocaleDateString()}
                 </h3>
                 <div className="mt-2 space-y-2 max-h-64 text-[var(--features-title-color)] overflow-y-auto">
                   {getTasksForDay(selectedDate).length > 0 ? (
@@ -449,7 +460,7 @@ const CalendarPage = ({ projectData }) => {
                     ))
                   ) : (
                     <div className="text-[var(--text-color3)] text-center py-4">
-                      No tasks scheduled for this date
+                      {t("cal.tasks.no")}
                     </div>
                   )}
                 </div>
@@ -462,13 +473,13 @@ const CalendarPage = ({ projectData }) => {
             <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
               <div>
                 <span className="text-[var(--features-title-color)]">© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--features-title-color)]"> • All rights reserved</span>
+                <span className="hidden sm:inline text-[var(--features-title-color)]"> • {t("dashboard.rights")}</span>
               </div>
               <div className="flex items-center space-x-4">
-                <Link to="/terms" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Terms</Link>
-                <Link to="/privacy" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">Privacy</Link>
+                <Link to="/terms" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.terms")}</Link>
+                <Link to="/privacy" className="text-[var(--features-title-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.pri")}</Link>
                 <span className="flex items-center text-[var(--features-title-color)]">
-                  Made with <Heart className="h-3 w-3 text-red-500 mx-1 " /> by PlanWise
+                {t("dashboard.made")} <Heart className="h-3 w-3 text-red-500 mx-1 " /> {t("dashboard.by")}
                 </span>
               </div>
             </div>
