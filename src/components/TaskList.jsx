@@ -396,14 +396,15 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = async (file, userId) =>
+    const handleFileChange = async (userId, file) =>
     {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('userId', userId);
 
         try{
-            const response = await axios.post('http://localhost:8080/api/files/upload', formData, {
+            const response = await axios.post('http://localhost:8080/api/files/upload', formData,
+            {
                 headers:
                 {
                     'Content-Type': 'multipart/form-data'
@@ -418,7 +419,6 @@ const TaskList = ({
 
     const updateEntryInBackend = async (entryId, updatedData) =>
     {
-        console.log(updatedData);
         try{
             const token = await getToken();
             const response = await axios.put(
@@ -439,7 +439,6 @@ const TaskList = ({
                     }
                 }
             );
-            console.log(response.data);
             return response.data;
         }catch(error){
             console.error('Error updating entry:', error.response ? error.response.data : error);
