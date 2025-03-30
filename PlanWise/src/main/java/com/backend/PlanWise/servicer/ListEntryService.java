@@ -128,8 +128,6 @@ public class ListEntryService
             dto.setFile(fileDTO);
         }
 
-        //need to include assigned users/teams here
-
         return dto;
     }
 }

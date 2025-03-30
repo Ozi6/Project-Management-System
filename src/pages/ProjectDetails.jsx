@@ -49,18 +49,20 @@ const ProjectDetails = () => {
     {
         if (!isLoaded || !user)
             return;
+
         const fetchProjectDetails = async () =>
         {
             try{
                 const token = await getToken();
-                const response = await axios.get(`http://localhost:8080/api/projects/${id}/details`,{
+                const response = await axios.get(`http://localhost:8080/api/projects/${id}/details`,
+                {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
+                console.log(response);
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
@@ -68,8 +70,7 @@ const ProjectDetails = () => {
 
                 const formattedColumns = projectCategories.map(category =>
                 {
-                    const formattedCategory =
-                    {
+                    const formattedCategory = {
                         ...category,
                         title: category.categoryName || 'Unnamed Category',
                         tagColor: category.color || 'gray',
@@ -79,34 +80,52 @@ const ProjectDetails = () => {
                                 title: taskList.taskListName || 'Unnamed Task List',
                                 tagColor: taskList.color || 'gray',
                                 entries: Array.isArray(taskList.entries)
-                                    ? taskList.entries.map(entry => ({
-                                        ...entry,
-                                        text: entry.entryName || 'Unnamed Entry',
-                                        checked: entry.isChecked || false,
-                                        dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
-                                        warningThreshold: entry.warningThreshold || null,
-                                        id: entry.entryId || uuidv4()
-                                    }))
+                                    ? taskList.entries.map(entry =>
+                                    {
+                                        let fileObject = null;
+                                        if (entry.file && entry.file.fileDataBase64)
+                                        {
+                                            const binaryString = atob(entry.file.fileDataBase64);
+                                            const bytes = new Uint8Array(binaryString.length);
+                                            for (let i = 0; i < binaryString.length; i++)
+                                                bytes[i] = binaryString.charCodeAt(i);
+                                            const blob = new Blob([bytes], { type: entry.file.fileType });
+                                            fileObject = new File([blob], entry.file.fileName,
+                                            {
+                                                type: entry.file.fileType,
+                                                lastModified: new Date().getTime()
+                                            });
+                                        }
+
+                                        return{
+                                            ...entry,
+                                            text: entry.entryName || 'Unnamed Entry',
+                                            checked: entry.isChecked || false,
+                                            dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
+                                            warningThreshold: entry.warningThreshold || null,
+                                            id: entry.entryId || uuidv4(),
+                                            file: fileObject
+                                        };
+                                    })
                                     : [],
                                 id: taskList.taskListId || uuidv4()
                             }))
                             : [],
                         id: category.categoryId || uuidv4()
                     };
-
                     return [formattedCategory];
                 });
 
                 setColumns(formattedColumns);
                 setLoading(false);
-            } catch (err) {
+            }catch(err){
                 console.error('Error fetching project details:', err);
                 setError('Failed to load project details');
                 setLoading(false);
             }
         };
         fetchProjectDetails();
-    }, [isLoaded, id, user, getToken]);
+    },[isLoaded, id, user, getToken]);
 
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;

@@ -4,15 +4,18 @@ import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
 import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
+import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
 import com.backend.PlanWise.model.Category;
+import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -83,6 +86,10 @@ public class CategoryService
                             entryDTO.setWarningThreshold(entry.getWarningThreshold());
                         else
                             entryDTO.setWarningThreshold(null);
+                        if(entry.getFile() != null)
+                        {
+                            entryDTO.setFile(toDTO(entry.getFile()));
+                        }
                         return entryDTO;
                     }).collect(Collectors.toSet());
                     taskListDTO.setEntries(entryDTOs);
@@ -94,6 +101,21 @@ public class CategoryService
             categoryDTO.setTaskLists(taskListDTOs);
             return categoryDTO;
         }).collect(Collectors.toSet());
+    }
+
+    public static FileDTO toDTO(File file)
+    {
+        FileDTO fileDTO = new FileDTO();
+        fileDTO.setFileId(file.getFileId());
+        fileDTO.setFileName(file.getFileName());
+        fileDTO.setFileSize(file.getFileSize());
+        fileDTO.setFileType(file.getFileType());
+
+        if (file.getFileData() != null)
+            fileDTO.setFileDataBase64(Base64.getEncoder().encodeToString(file.getFileData()));
+
+
+        return fileDTO;
     }
 
     public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO)
