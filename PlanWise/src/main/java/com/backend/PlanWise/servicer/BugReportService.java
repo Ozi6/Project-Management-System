@@ -99,7 +99,30 @@ public class BugReportService {
         BugReport bugReport = bugReportDataPool.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bug report not found with ID: " + id));
         
-        bugReport.setStatus(status);
+        // Normalize the status value to match database ENUM constraints
+        String normalizedStatus;
+        switch (status.toLowerCase()) {
+            case "in-progress":
+            case "in progress":
+            case "in_progress":
+                normalizedStatus = "In Progress"; // Must match ENUM value exactly
+                break;
+            case "open":
+                normalizedStatus = "Open";
+                break;
+            case "resolved":
+                normalizedStatus = "Resolved";
+                break;
+            case "closed":
+                normalizedStatus = "Closed";
+                break;
+            default:
+                // Default to Open if unknown status is provided
+                normalizedStatus = "Open";
+                break;
+        }
+        
+        bugReport.setStatus(normalizedStatus);
         
         BugReport updatedReport = bugReportDataPool.save(bugReport);
         return convertToDTO(updatedReport);
