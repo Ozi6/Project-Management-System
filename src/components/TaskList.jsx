@@ -34,6 +34,7 @@ const TaskList = ({
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
     const [dragPosition, setDragPosition] = useState(null);
     const { getToken } = useAuth();
+    const { user } = useUser();
     const [entries, setEntries] = useState(() =>
         initialEntries.map(entry => ({
             ...entry,
@@ -395,11 +396,39 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = (index, file) => {
-        const updatedEntries = [...entries];
-        updatedEntries[index].file = file && file.name ? file : null;
-        setEntries(updatedEntries);
-        onFileChange?.(listId, index, updatedEntries[index].file);
+    const handleFileChange = async (index, file) =>
+    {
+        if(file)
+        {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', user.id);
+
+            try{
+                const response = await axios.post('/api/files/upload', formData,
+                {
+                    headers:
+                    {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${await user.getToken()}`
+                    }
+                });
+
+                const updatedEntries = [...entries];
+                updatedEntries[index].file = response.data;
+                setEntries(updatedEntries);
+                onFileChange?.(listId, index, updatedEntries[index].file);
+            }catch(error){
+                console.error('Error uploading file:', error);
+            }
+        }
+        else
+        {
+            const updatedEntries = [...entries];
+            updatedEntries[index].file = null;
+            setEntries(updatedEntries);
+            onFileChange?.(listId, index, null);
+        }
     };
 
     const updateEntryInBackend = async (entryId, updatedData) =>
@@ -599,8 +628,8 @@ TaskList.propTypes = {
     tagColor: PropTypes.string.isRequired,
     entries: PropTypes.array.isRequired,
     onAddEntry: PropTypes.func.isRequired,
-    listId: PropTypes.string.isRequired,
-    categoryId: PropTypes.string.isRequired,
+    listId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    categoryId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     selectedEntryId: PropTypes.string,
     onSelectEntry: PropTypes.func.isRequired,
     onEditCardOpen: PropTypes.func.isRequired,

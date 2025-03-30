@@ -1,18 +1,20 @@
 package com.backend.PlanWise.Controllers;
 
+import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.servicer.ListEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/entries")
 public class ListEntryController
 {
-
     @Autowired
     private ListEntryService listEntryService;
 
@@ -21,6 +23,7 @@ public class ListEntryController
             @RequestBody ListEntryDTO listEntryDTO,
             @RequestParam Long taskListId)
     {
+
         ListEntryDTO createdEntry = listEntryService.createEntry(listEntryDTO, taskListId);
         return ResponseEntity.ok(createdEntry);
     }

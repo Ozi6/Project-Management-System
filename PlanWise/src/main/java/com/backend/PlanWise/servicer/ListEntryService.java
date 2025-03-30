@@ -2,7 +2,9 @@ package com.backend.PlanWise.servicer;
 
 import com.backend.PlanWise.DataPool.ListEntryDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
+import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
+import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
 import com.backend.PlanWise.model.TaskList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class ListEntryService
     @Autowired
     private TaskListDataPool taskListDataPool;
 
+    @Autowired
+    private FileService fileService;
+
     public ListEntryDTO createEntry(ListEntryDTO listEntryDTO, Long taskListId) {
         TaskList taskList = taskListDataPool.findById(taskListId)
                 .orElseThrow(() -> new RuntimeException("TaskList not found with id: " + taskListId));
@@ -31,6 +36,12 @@ public class ListEntryService
         entry.setDueDate(listEntryDTO.getDueDate());
         entry.setWarningThreshold(listEntryDTO.getWarningThreshold());
         entry.setTaskList(taskList);
+
+        if (listEntryDTO.getFile() != null && listEntryDTO.getFile().getFileId() != null)
+        {
+            File file = fileService.getFileEntity(listEntryDTO.getFile().getFileId());
+            entry.setFile(file);
+        }
 
         ListEntry savedEntry = listEntryDataPool.save(entry);
         return convertToDTO(savedEntry);
@@ -45,7 +56,21 @@ public class ListEntryService
             existingEntry.setIsChecked(listEntryDTO.getIsChecked());
         }
         existingEntry.setDueDate(listEntryDTO.getDueDate());
-        existingEntry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+        if(listEntryDTO.getDueDate() != null)
+            existingEntry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+        else
+            existingEntry.setWarningThreshold(null);
+
+        if (listEntryDTO.getFile() != null)
+        {
+            if (listEntryDTO.getFile().getFileId() != null)
+            {
+                File file = fileService.getFileEntity(listEntryDTO.getFile().getFileId());
+                existingEntry.setFile(file);
+            }
+            else
+                existingEntry.setFile(null);
+        }
 
         ListEntry updatedEntry = listEntryDataPool.save(existingEntry);
         return convertToDTO(updatedEntry);
@@ -86,6 +111,16 @@ public class ListEntryService
         dto.setIsChecked(entry.getIsChecked());
         dto.setDueDate(entry.getDueDate());
         dto.setWarningThreshold(entry.getWarningThreshold());
+
+        if (entry.getFile() != null)
+        {
+            FileDTO fileDTO = new FileDTO();
+            fileDTO.setFileId(entry.getFile().getFileId());
+            fileDTO.setFileName(entry.getFile().getFileName());
+            fileDTO.setFileSize(entry.getFile().getFileSize());
+            fileDTO.setFileType(entry.getFile().getFileType());
+            dto.setFile(fileDTO);
+        }
 
         //need to include assigned users/teams here
 

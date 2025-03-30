@@ -61,8 +61,6 @@ const ProjectDetails = () => {
                     },
                 });
 
-                console.log(response);
-
                 const projectData = response.data;
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
@@ -251,7 +249,7 @@ const ProjectDetails = () => {
             const token = await getToken();
             const newCategory ={
                 categoryName: "New Categorizer",
-                color: "red"
+                color: "red",
             };
             const response = await axios.post(
                 `http://localhost:8080/api/categories`,
@@ -271,6 +269,7 @@ const ProjectDetails = () => {
                 ...response.data,
                 title: response.data.categoryName,
                 tagColor: response.data.color,
+                id: response.data.categoryId
             };
 
             const newColumns = [...columns];
@@ -335,7 +334,7 @@ const ProjectDetails = () => {
                 const savedEntry =
                 {
                     ...response.data,
-                    title: response.data.entryName,
+                    text: response.data.entryName,
                     id: response.data.entryId,
                     isChecked: response.data.isChecked || false,
                     dueDate: response.data.dueDate ? new Date(response.data.dueDate) : null
