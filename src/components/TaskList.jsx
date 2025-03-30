@@ -396,7 +396,7 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = async (userId, file) =>
+    const handleFileChange = async (index, userId, file) =>
     {
         const formData = new FormData();
         formData.append('file', file);
@@ -557,7 +557,7 @@ const TaskList = ({
                                         onDelete={(entryId) => {
                                             onEntryDelete(listId, index);
                                         }}
-                                        onFileChange={(file) => handleFileChange(index, file)}
+                                        onFileChange={(file) => handleFileChange(index, user.id, file)}
                                         assignedUsers={entry.assignedUsers || []}
                                         assignedTeams={entry.assignedTeams || []}
                                         onAssign={(newUsers, newTeams) => handleAssignedChange(index, newUsers, newTeams)}
