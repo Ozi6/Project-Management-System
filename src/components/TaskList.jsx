@@ -413,14 +413,16 @@ const TaskList = ({
             const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
             const currentEntry = currentEntryResponse.data;
 
-            const updatedEntry = {
+            const updatedEntry =
+            {
                 ...currentEntry,
-                file: {
+                file:
+                {
                     fileId: uploadedFile.fileId,
                     fileName: uploadedFile.fileName,
                     fileSize: uploadedFile.fileSize,
                     fileType: uploadedFile.fileType,
-                    fileDataBase64: uploadedFile.fileDataBase64 // Make sure this is included from backend
+                    fileDataBase64: uploadedFile.fileDataBase64
                 }
             };
 
@@ -429,31 +431,31 @@ const TaskList = ({
                 updatedEntry
             );
 
-            // Create the properly formatted file object for the frontend
             let fileObject = null;
-            if (uploadedFile.fileDataBase64) {
+            if (uploadedFile.fileDataBase64)
+            {
                 const binaryString = atob(uploadedFile.fileDataBase64);
                 const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++) {
+                for (let i = 0; i < binaryString.length; i++)
                     bytes[i] = binaryString.charCodeAt(i);
-                }
                 const blob = new Blob([bytes], { type: uploadedFile.fileType });
-                fileObject = new File([blob], uploadedFile.fileName, {
+                fileObject = new File([blob], uploadedFile.fileName,
+                {
                     type: uploadedFile.fileType,
                     lastModified: new Date().getTime()
                 });
             }
 
-            // Update the entries state with the properly formatted file
             const updatedEntries = [...entries];
-            updatedEntries[index] = {
+            updatedEntries[index] =
+            {
                 ...updatedEntries[index],
                 file: fileObject
             };
             setEntries(updatedEntries);
 
             return entryResponse.data;
-        } catch (error) {
+        }catch(error){
             console.error('Error uploading file:', error);
             throw error;
         }
