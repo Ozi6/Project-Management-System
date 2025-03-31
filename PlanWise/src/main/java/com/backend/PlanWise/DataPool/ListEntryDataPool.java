@@ -25,4 +25,11 @@ public interface ListEntryDataPool extends JpaRepository<ListEntry, Long>
 
     @Query("SELECT e.file.fileId FROM ListEntry e WHERE e.taskList.taskListId = :taskListId AND e.file IS NOT NULL")
     List<Long> findFileIdsByTaskListId(@Param("taskListId") Long taskListId);
+
+    @Query("SELECT e.file.fileId FROM ListEntry e WHERE e.taskList.taskListId IN :taskListIds AND e.file IS NOT NULL")
+    List<Long> findFileIdsByTaskListIds(@Param("taskListIds") List<Long> taskListIds);
+
+    @Modifying
+    @Query("DELETE FROM ListEntry e WHERE e.taskList.taskListId IN :taskListIds")
+    void deleteByTaskListIdIn(@Param("taskListIds") List<Long> taskListIds);
 }

@@ -800,20 +800,42 @@ const ProjectDetails = () => {
         }
     },[searchTerm, columns]);
 
-    const handleDeleteCategory = (columnIndex, taskIndex) =>
+    const handleDeleteCategory = async (columnIndex, taskIndex, categoryId) =>
     {
-        const newColumns = [...columns];
+        try{
+            const token = await getToken();
+            const response = await axios.delete(
+                `http://localhost:8080/api/categories/${categoryId}`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-        if (newColumns[columnIndex] && newColumns[columnIndex][taskIndex])
-        {
-            newColumns[columnIndex].splice(taskIndex, 1);
+            if (response.status !== 204)
+                throw new Error('Failed to delete category');
 
-            if (newColumns[columnIndex].length === 0)
-                newColumns.splice(columnIndex, 1);
+            const newColumns = [...columns];
+
+            if (newColumns[columnIndex] && newColumns[columnIndex][taskIndex])
+            {
+                newColumns[columnIndex].splice(taskIndex, 1);
+                if (newColumns[columnIndex].length === 0)
+                    newColumns.splice(columnIndex, 1);
+            }
+
+            setColumns(newColumns);
+            alert('Category and all its contents deleted successfully');
+
+        }catch(error){
+            console.error('Error deleting category:', error);
+            alert('Failed to delete category. Please try again.');
         }
-
-        setColumns(newColumns);
-    }
+    };
 
     const displayColumns = filteredColumns || columns;
 
@@ -996,7 +1018,7 @@ const ProjectDetails = () => {
                                         onUpdateCategory={(categoryId, newTitle, newTagColor) => {
                                             updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
                                         }}
-                                        onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex)}
+                                        onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex, task.id)}
                                         onUpdateTaskList={handleUpdateTaskList}
                                     />
                                 ))}

@@ -170,4 +170,13 @@ public class ListEntryService
         if(!fileIds.isEmpty())
             fileService.deleteAllFilesByIds(fileIds);
     }
+
+    @Transactional
+    public void deleteAllByTaskListIds(List<Long> taskListIds)
+    {
+        List<Long> fileIds = listEntryDataPool.findFileIdsByTaskListIds(taskListIds);
+        listEntryDataPool.deleteByTaskListIdIn(taskListIds);
+        if (!fileIds.isEmpty())
+            fileService.deleteAllFilesByIds(fileIds);
+    }
 }

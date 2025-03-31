@@ -11,6 +11,7 @@ import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,9 @@ public class CategoryService
 
     @Autowired
     private TaskListDataPool taskListDataPool;
+
+    @Autowired
+    private ListEntryService listEntryService;
 
     public CategoryDTO createCategory(CategoryDTO categoryDTO, Long projectId)
     {
@@ -131,5 +135,17 @@ public class CategoryService
         updatedCategoryDTO.setCategoryName(updatedCategory.getCategoryName());
         updatedCategoryDTO.setColor(updatedCategory.getColor());
         return updatedCategoryDTO;
+    }
+
+    @Transactional
+    public void deleteCategory(Long categoryId)
+    {
+        List<Long> taskListIds = taskListDataPool.findTaskListIdsByCategoryId(categoryId);
+        if (!taskListIds.isEmpty())
+        {
+            listEntryService.deleteAllByTaskListIds(taskListIds);
+            taskListDataPool.deleteByCategoryId(categoryId);
+        }
+        categoryDataPool.deleteById(categoryId);
     }
 }
