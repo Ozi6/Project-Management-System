@@ -429,147 +429,20 @@ const TaskList = ({
         }
     };
 
-    const handleFileChange = async (index, entryId, userId, file) => {
-        try{
-            const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
-            const currentEntry = currentEntryResponse.data;
-
-            if (file === null)
+    const handleFileChange = (index, entryId, userId, file) =>
+    {
+        if(onEntryUpdate)
+        {
+            onEntryUpdate(listId, index,
             {
-                if (currentEntry.file?.fileId)
+                fileOperation:
                 {
-                    try{
-                        await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
-                    }catch(error){
-                        console.error('Error deleting file:', error);
-                    }
+                    type: file === null ? 'delete' : 'upload',
+                    file,
+                    userId,
+                    entryId
                 }
-
-                const updatedEntry =
-                {
-                    ...currentEntry,
-                    file: null
-                };
-
-                const token = await getToken();
-                const entryResponse = await axios.put(
-                    `http://localhost:8080/api/entries/${entryId}`,
-                    updatedEntry,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        withCredentials: true
-                    }
-                );
-
-                const updatedEntries = [...entries];
-                updatedEntries[index] = {
-                    ...updatedEntries[index],
-                    file: null
-                };
-
-                if (onEntryUpdate)
-                    onEntryUpdate(listId, index, { file: fileObject });
-
-                return entryResponse.data;
-            }
-
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('userId', userId);
-
-            if (currentEntry.file?.fileId)
-            {
-                try{
-                    await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
-                }catch(error){
-                    console.error('Error deleting old file:', error);
-                }
-            }
-
-            const token = await getToken();
-            const config =
-            {
-                headers:
-                {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
-                },
-                withCredentials: true
-            };
-
-            const fileResponse = await axios.post(
-                'http://localhost:8080/api/files/upload',
-                formData,
-                config
-            );
-
-            const uploadedFile = fileResponse.data;
-
-            const updatedEntry =
-            {
-                ...currentEntry,
-                file:
-                {
-                    fileId: uploadedFile.fileId,
-                    fileName: uploadedFile.fileName,
-                    fileSize: uploadedFile.fileSize,
-                    fileType: uploadedFile.fileType,
-                    fileDataBase64: uploadedFile.fileDataBase64
-                }
-            };
-
-            const entryResponse = await axios.put(
-                `http://localhost:8080/api/entries/${entryId}`,
-                updatedEntry,
-                {
-                    headers:
-                    {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                }
-            );
-
-            let fileObject = null;
-            if (uploadedFile.fileDataBase64)
-            {
-                const binaryString = atob(uploadedFile.fileDataBase64);
-                const bytes = new Uint8Array(binaryString.length);
-                for (let i = 0; i < binaryString.length; i++)
-                    bytes[i] = binaryString.charCodeAt(i);
-                const blob = new Blob([bytes], { type: uploadedFile.fileType });
-                fileObject = new File([blob], uploadedFile.fileName,
-                    {
-                    type: uploadedFile.fileType,
-                    lastModified: new Date().getTime()
-                });
-            }
-
-            const updatedEntries = [...entries];
-            updatedEntries[index] =
-            {
-                ...updatedEntries[index],
-                file: fileObject
-            };
-            setEntries(updatedEntries);
-
-            if (onEntryUpdate)
-                onEntryUpdate(listId, index, { file: fileObject });
-
-            return entryResponse.data;
-        }catch(error){
-            console.error('Error in file operation:', error);
-            if(error.response)
-            {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-                console.error('Response headers:', error.response.headers);
-            }
-            throw error;
+            });
         }
     };
 
