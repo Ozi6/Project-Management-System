@@ -454,21 +454,81 @@ const TaskList = ({
     };
 
     const handleFileChange = async (index, entryId, userId, file) => {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('userId', userId);
-
-        try {
-            const fileResponse = await axios.post('http://localhost:8080/api/files/upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            const uploadedFile = fileResponse.data;
-
+        try{
             const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
             const currentEntry = currentEntryResponse.data;
+
+            if (file === null)
+            {
+                if (currentEntry.file?.fileId)
+                {
+                    try{
+                        await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
+                    }catch(error){
+                        console.error('Error deleting file:', error);
+                    }
+                }
+
+                const updatedEntry =
+                {
+                    ...currentEntry,
+                    file: null
+                };
+
+                const token = await getToken();
+                const entryResponse = await axios.put(
+                    `http://localhost:8080/api/entries/${entryId}`,
+                    updatedEntry,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        withCredentials: true
+                    }
+                );
+
+                const updatedEntries = [...entries];
+                updatedEntries[index] = {
+                    ...updatedEntries[index],
+                    file: null
+                };
+                setEntries(updatedEntries);
+
+                return entryResponse.data;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('userId', userId);
+
+            if (currentEntry.file?.fileId)
+            {
+                try{
+                    await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
+                }catch(error){
+                    console.error('Error deleting old file:', error);
+                }
+            }
+
+            const token = await getToken();
+            const config =
+            {
+                headers:
+                {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                },
+                withCredentials: true
+            };
+
+            const fileResponse = await axios.post(
+                'http://localhost:8080/api/files/upload',
+                formData,
+                config
+            );
+
+            const uploadedFile = fileResponse.data;
 
             const updatedEntry =
             {
@@ -485,7 +545,15 @@ const TaskList = ({
 
             const entryResponse = await axios.put(
                 `http://localhost:8080/api/entries/${entryId}`,
-                updatedEntry
+                updatedEntry,
+                {
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    withCredentials: true
+                }
             );
 
             let fileObject = null;
@@ -497,7 +565,7 @@ const TaskList = ({
                     bytes[i] = binaryString.charCodeAt(i);
                 const blob = new Blob([bytes], { type: uploadedFile.fileType });
                 fileObject = new File([blob], uploadedFile.fileName,
-                {
+                    {
                     type: uploadedFile.fileType,
                     lastModified: new Date().getTime()
                 });
@@ -513,7 +581,13 @@ const TaskList = ({
 
             return entryResponse.data;
         }catch(error){
-            console.error('Error uploading file:', error);
+            console.error('Error in file operation:', error);
+            if(error.response)
+            {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+                console.error('Response headers:', error.response.headers);
+            }
             throw error;
         }
     };

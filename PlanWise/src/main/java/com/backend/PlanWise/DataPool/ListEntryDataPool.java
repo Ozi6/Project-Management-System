@@ -18,6 +18,7 @@ public interface ListEntryDataPool extends JpaRepository<ListEntry, Long>
     List<ListEntry> findByAssignedTeamsTeamId(Long teamId);
     List<ListEntry> findByIsChecked(Boolean isChecked);
     List<ListEntry> findByDueDateBefore(LocalDateTime date);
+    List<ListEntry> findByFileFileId(Long fileId);
 
     @Modifying
     @Query("DELETE FROM ListEntry e WHERE e.taskList.taskListId = :taskListId")

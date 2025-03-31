@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import PropTypes from "prop-types";
 import { FaCalendarAlt, FaTimes, FaPaperclip, FaTrash } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import axios from 'axios';
 
 const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
     const {t} = useTranslation();
@@ -49,8 +50,17 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
         }
     };
 
-    const handleRemoveFile = () => {
-        setFormData((prev) => ({
+    const handleRemoveFile = async () =>
+    {
+        if (entry.file?.fileId)
+        {
+            try{
+                await axios.delete(`http://localhost:8080/api/files/${entry.file.fileId}`);
+            }catch(error){
+                console.error('Error deleting file:', error);
+            }
+        }
+        setFormData(prev => ({
             ...prev,
             file: null,
         }));
@@ -59,14 +69,26 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
     const warningThreshold = parseInt(formData.warningThreshold, 10);
     const maxThreshold = 365 * 10; //10 years
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) =>
+    {
         e.preventDefault();
-        if (warningThreshold > maxThreshold) {
+        if(warningThreshold > maxThreshold)
+        {
             alert(`Warning threshold cannot be greater than ${maxThreshold} days.`);
             return;
         }
 
-        const updatedEntry = {
+        if(formData.file && entry.file?.fileId)
+        {
+            try{
+                await axios.delete(`http://localhost:8080/api/files/${entry.file.fileId}`);
+            }catch(error){
+                console.error('Error deleting old file:', error);
+            }
+        }
+
+        const updatedEntry =
+        {
             ...entry,
             text: formData.text,
             dueDate: formData.dueDate ? new Date(formData.dueDate) : null,
@@ -74,7 +96,8 @@ const ListEntryEditPopup = ({ entry, onSave, onClose }) => {
             checked: formData.checked,
             file: formData.file,
         };
-        onSave(updatedEntry);
+
+        await onSave(updatedEntry);
         onClose();
     };
 

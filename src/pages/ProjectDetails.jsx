@@ -829,7 +829,6 @@ const ProjectDetails = () => {
             }
 
             setColumns(newColumns);
-            alert('Category and all its contents deleted successfully');
 
         }catch(error){
             console.error('Error deleting category:', error);

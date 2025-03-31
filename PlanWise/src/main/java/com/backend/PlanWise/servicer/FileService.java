@@ -1,9 +1,11 @@
 package com.backend.PlanWise.servicer;
 
 import com.backend.PlanWise.DataPool.FileDataPool;
+import com.backend.PlanWise.DataPool.ListEntryDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.model.File;
+import com.backend.PlanWise.model.ListEntry;
 import com.backend.PlanWise.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class FileService
 
     @Autowired
     private UserDataPool userDataPool;
+
+    @Autowired
+    private ListEntryDataPool listEntryDataPool;
 
     public FileDTO uploadFile(MultipartFile file, String userId) throws IOException
     {
@@ -50,8 +55,17 @@ public class FileService
         return convertToDTO(file);
     }
 
+    @Transactional
     public void deleteFile(Long fileId)
     {
+        List<ListEntry> entriesWithFile = listEntryDataPool.findByFileFileId(fileId);
+
+        for (ListEntry entry : entriesWithFile)
+        {
+            entry.setFile(null);
+            listEntryDataPool.save(entry);
+        }
+
         fileDataPool.deleteById(fileId);
     }
 
