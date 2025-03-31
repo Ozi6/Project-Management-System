@@ -24,7 +24,8 @@ const Categorizer = ({
     onDeleteCategory,
     onUpdateEntryCheckedStatus,
     onUpdateCategory,
-    onUpdateTaskList
+    onUpdateTaskList,
+    onEntryUpdate
 }) => {
     const {t} = useTranslation();
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
@@ -108,6 +109,9 @@ const Categorizer = ({
                                     onDragStart={(event) => handleTaskListDragStart(taskList.id, taskList.title, event)}
                                     onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
                                         onUpdateEntryCheckedStatus(listId, entryIndex, isChecked)}
+                                    onEntryUpdate={(listId, entryIndex, updateData) =>
+                                        onEntryUpdate(listId, entryIndex, updateData)
+                                    }
                                     />
                             </div>
                             {showDropIndicator && dragPosition === 'below' && (

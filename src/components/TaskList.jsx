@@ -399,57 +399,33 @@ const TaskList = ({
     }, [listId, categoryId, onMoveEntry, entries.length]);
 
 
-    const handleTextChange = async (index, newText) =>
+    const handleTextChange = (index, newText) =>
     {
-        const updatedEntries = [...entries];
-        const entry = updatedEntries[index];
+        if (onEntryUpdate)
+            onEntryUpdate(listId, index, { text: newText });
+    };
 
-        entry.text = newText;
-        setEntries(updatedEntries);
+    const handleDueDateChange = (index, newDueDate) =>
+    {
+        if (onEntryUpdate)
+            onEntryUpdate(listId, index, { dueDate: newDueDate });
+    };
 
-        try
+    const handleWarningThresholdChange = (index, newWarningThreshold) =>
+    {
+        if(onEntryUpdate)
+            onEntryUpdate(listId, index, { warningThreshold: newWarningThreshold });
+    };
+
+    const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) =>
+    {
+        if (onEntryUpdate)
         {
-            if(entry.id)
-                await updateEntryInBackend(entry.id, { ...entry, text: newText });
-        }catch(error){
-            const originalEntries = [...entries];
-            setEntries(originalEntries);
-        }
-    };
-
-
-    const handleDueDateChange = async (index, newDueDate) =>
-    {
-        const updatedEntries = [...entries];
-        const entry = updatedEntries[index];
-
-        entry.dueDate = newDueDate;
-        setEntries(updatedEntries);
-
-        try{
-            if (entry.id)
-                await updateEntryInBackend(entry.id, { ...entry, dueDate: newDueDate });
-        }catch(error){
-            const originalEntries = [...entries];
-            setEntries(originalEntries);
-        }
-    };
-
-
-    const handleWarningThresholdChange = async (index, newWarningThreshold) =>
-    {
-        const updatedEntries = [...entries];
-        const entry = updatedEntries[index];
-
-        entry.warningThreshold = newWarningThreshold;
-        setEntries(updatedEntries);
-
-        try{
-            if (entry.id)
-                await updateEntryInBackend(entry.id, { ...entry, warningThreshold: newWarningThreshold });
-        }catch(error){
-            const originalEntries = [...entries];
-            setEntries(originalEntries);
+            onEntryUpdate(listId, index,
+            {
+                assignedUsers: newAssigneesUsers,
+                assignedTeams: newAssigneesTeams
+            });
         }
     };
 
@@ -493,7 +469,9 @@ const TaskList = ({
                     ...updatedEntries[index],
                     file: null
                 };
-                setEntries(updatedEntries);
+
+                if (onEntryUpdate)
+                    onEntryUpdate(listId, index, { file: fileObject });
 
                 return entryResponse.data;
             }
@@ -578,6 +556,9 @@ const TaskList = ({
                 file: fileObject
             };
             setEntries(updatedEntries);
+
+            if (onEntryUpdate)
+                onEntryUpdate(listId, index, { file: fileObject });
 
             return entryResponse.data;
         }catch(error){
@@ -687,22 +668,6 @@ const TaskList = ({
                 config: error.config
             });
             throw error;
-        }
-    };
-
-    const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
-        const updatedEntries = [...entries];
-        updatedEntries[index].assignedUsers = newAssigneesUsers;
-        updatedEntries[index].assignedTeams = newAssigneesTeams;
-        setEntries(updatedEntries);
-
-        if (onEntryUpdate)
-        {
-            onEntryUpdate(listId, index,
-            {
-                assignedUsers: newAssigneesUsers,
-                assignedTeams: newAssigneesTeams
-            });
         }
     };
 

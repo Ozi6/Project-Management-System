@@ -836,6 +836,53 @@ const ProjectDetails = () => {
         }
     };
 
+    const handleEntryUpdate = async (columnIndex, taskIndex, listId, entryIndex, updateData) =>
+    {
+        const newColumns = [...columns];
+        const category = newColumns[columnIndex][taskIndex];
+        const taskList = category.taskLists.find((list) => list.id === listId);
+
+        if (taskList && taskList.entries[entryIndex]) {
+            const entry = taskList.entries[entryIndex];
+
+            taskList.entries[entryIndex] =
+            {
+                ...entry,
+                ...updateData
+            };
+
+            try{
+                const token = await getToken();
+                await axios.put(
+                    `http://localhost:8080/api/entries/${entry.id}`,
+                    {
+                        entryName: updateData.text !== undefined ? updateData.text : entry.text,
+                        isChecked: updateData.checked !== undefined ? updateData.checked : entry.checked,
+                        dueDate: updateData.dueDate !== undefined ? updateData.dueDate : entry.dueDate,
+                        warningThreshold: updateData.warningThreshold !== undefined ? updateData.warningThreshold : entry.warningThreshold,
+                        // Other fields as needed
+                    },
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                if (updateData.file !== undefined)
+                {
+
+                }
+
+                setColumns(newColumns);
+            }catch(error){
+                console.error('Error updating entry:', error);
+            }
+        }
+    };
+
     const displayColumns = filteredColumns || columns;
 
     // Custom navigation items for the sidebar
@@ -1019,6 +1066,9 @@ const ProjectDetails = () => {
                                         }}
                                         onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex, task.id)}
                                         onUpdateTaskList={handleUpdateTaskList}
+                                        onEntryUpdate={(listId, entryIndex, updateData) =>
+                                            handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
+                                        }
                                     />
                                 ))}
                             </div>
