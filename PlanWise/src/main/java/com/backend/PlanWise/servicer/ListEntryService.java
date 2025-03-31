@@ -7,6 +7,7 @@ import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
 import com.backend.PlanWise.model.TaskList;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -136,5 +137,19 @@ public class ListEntryService
         ListEntry entry = listEntryDataPool.findById(entryId)
                 .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
         return convertToDTO(entry);
+    }
+
+    public ListEntryDTO moveEntryToNewList(Long entryId, Long newTaskListId)
+    {
+        ListEntry entry = listEntryDataPool.findById(entryId)
+                .orElseThrow(() -> new EntityNotFoundException("Entry not found with id: " + entryId));
+
+        TaskList newTaskList = taskListDataPool.findById(newTaskListId)
+                .orElseThrow(() -> new EntityNotFoundException("Task list not found with id: " + newTaskListId));
+
+        entry.setTaskList(newTaskList);
+        ListEntry updatedEntry = listEntryDataPool.save(entry);
+
+        return convertToDTO(updatedEntry);
     }
 }

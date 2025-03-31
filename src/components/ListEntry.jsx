@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 
 const ListEntry = ({
     text = "",
+    trueId = 0,
     dueDate,
     warningThreshold = 1,
     assignedUsers = [],
@@ -102,7 +103,7 @@ const ListEntry = ({
                 dragStarted = true;
                 isDragOperation.current = true;
                 setIsDraggingThis(true);
-                onDragStart(entryId, text);
+                onDragStart(entryId, text, trueId);
                 document.addEventListener('mousemove', handleMouseMove);
                 document.body.classList.add('dragging');
             }
@@ -334,55 +335,55 @@ const ListEntry = ({
 
             <style jsx>
                 {`
-    @keyframes entryAppear {
-        0% {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
+                @keyframes entryAppear {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(-20px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
     
-    .animate-entryAppear {
-        animation: entryAppear 0.3s ease-out forwards;
-    }
+                .animate-entryAppear {
+                    animation: entryAppear 0.3s ease-out forwards;
+                }
     
-    .task-completed {
-        position: relative;
-        opacity: 0.65;
-        font-style: italic;
-        color: #9ca3af;
-        text-decoration: line-through;
-        background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.2), transparent);
-        padding: 1px 4px;
-        border-radius: 4px;
-        transform: scale(0.98);
-    }
+                .task-completed {
+                    position: relative;
+                    opacity: 0.65;
+                    font-style: italic;
+                    color: #9ca3af;
+                    text-decoration: line-through;
+                    background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.2), transparent);
+                    padding: 1px 4px;
+                    border-radius: 4px;
+                    transform: scale(0.98);
+                }
     
-    .task-completed::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 50%;
-        height: 2px;
-        background: linear-gradient(to right, transparent, #ef4444, transparent);
-        transform: scaleX(0);
-        transform-origin: left;
-        animation: strikethrough 0.3s ease-out forwards;
-    }
+                .task-completed::after {
+                    content: '';
+                    position: absolute;
+                    left: 0;
+                    right: 0;
+                    top: 50%;
+                    height: 2px;
+                    background: linear-gradient(to right, transparent, #ef4444, transparent);
+                    transform: scaleX(0);
+                    transform-origin: left;
+                    animation: strikethrough 0.3s ease-out forwards;
+                }
     
-    @keyframes strikethrough {
-        0% {
-            transform: scaleX(0);
-        }
-        100% {
-            transform: scaleX(1);
-        }
-    }
-    `}
+                @keyframes strikethrough {
+                    0% {
+                        transform: scaleX(0);
+                    }
+                    100% {
+                        transform: scaleX(1);
+                    }
+                }
+                `}
             </style>
         </div>
     );
@@ -390,6 +391,7 @@ const ListEntry = ({
 
 ListEntry.propTypes = {
     text: PropTypes.string.isRequired,
+    trueId: PropTypes.number.isRequired,
     dueDate: PropTypes.instanceOf(Date),
     warningThreshold: PropTypes.number,
     assignedUsers: PropTypes.arrayOf(PropTypes.shape({

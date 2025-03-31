@@ -63,4 +63,13 @@ public class ListEntryController
         ListEntryDTO entry = listEntryService.getEntryById(entryId);
         return ResponseEntity.ok(entry);
     }
+
+    @PutMapping("/{entryId}/move")
+    public ResponseEntity<ListEntryDTO> moveEntryToNewList(
+            @PathVariable Long entryId,
+            @RequestParam Long taskListId)
+    {
+        ListEntryDTO movedEntry = listEntryService.moveEntryToNewList(entryId, taskListId);
+        return ResponseEntity.ok(movedEntry);
+    }
 }

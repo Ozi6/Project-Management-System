@@ -155,17 +155,24 @@ const TaskList = ({
         document.addEventListener('mouseup', handleMouseUp);
     };
 
-    const handleEntryDragStart = (entryId, text) => {
-        if (window.dragState) {
+    const handleEntryDragStart = (entryId, text, trueId) =>
+    {
+        if(window.dragState)
+        {
             window.dragState.isDragging = true;
             window.dragState.draggedEntryId = entryId;
+            window.dragState.draggedEntryTrueId = trueId;
             window.dragState.draggedEntryText = text;
             window.dragState.sourceListId = listId;
             window.dragState.sourceCategoryId = categoryId;
-        } else {
-            window.dragState = {
+        }
+        else
+        {
+            window.dragState =
+            {
                 isDragging: true,
                 draggedEntryId: entryId,
+                draggedEntryTrueId: trueId,
                 draggedEntryText: text,
                 sourceListId: listId,
                 sourceCategoryId: categoryId,
@@ -176,40 +183,56 @@ const TaskList = ({
         }
     };
 
-    const handleEntryDragEnd = () => {
-        if (window.dragState && draggedOverIndex !== null) {
+    const handleEntryDragEnd = async () =>
+    {
+        if (window.dragState && draggedOverIndex !== null)
+        {
+            
             const sourceEntryId = window.dragState.draggedEntryId;
             const sourceListId = window.dragState.sourceListId;
+            const sourceEntryTrueId = window.dragState.draggedEntryTrueId;
             const sourceCategoryId = window.dragState.sourceCategoryId;
             const sourceIndex = parseInt(sourceEntryId.split('-').pop());
             const sourceEntry = entries[sourceIndex];
 
-            onMoveEntry({
-                sourceEntryId,
-                sourceListId,
-                sourceCategoryId,
-                targetListId: listId,
-                targetCategoryId: categoryId,
-                targetIndex: draggedOverIndex,
-                entry: sourceEntry
-            });
+            try {
+                console.log(sourceEntryTrueId);
+                if (sourceEntry.id && listId !== sourceListId && sourceEntryTrueId)
+                    await moveEntryToNewList(sourceEntryTrueId, listId);
+
+                onMoveEntry({
+                    sourceEntryId,
+                    sourceListId,
+                    sourceCategoryId,
+                    targetListId: listId,
+                    targetCategoryId: categoryId,
+                    targetIndex: draggedOverIndex,
+                    entry: sourceEntry
+                });
+            }catch(error){
+                console.error('Failed to move entry:', error);
+            }
         }
         setDraggedOverIndex(null);
         setDragPosition(null);
     };
 
-    const handleMouseMove = (e) => {
-        if (!window.dragState || !window.dragState.isDragging || !listRef.current)
+    const handleMouseMove = (e) =>
+    {
+        if(!window.dragState || !window.dragState.isDragging || !listRef.current)
             return;
 
         const rect = listRef.current.getBoundingClientRect();
-        if (e.clientX >= rect.left &&
+        if(e.clientX >= rect.left &&
             e.clientX <= rect.right &&
             e.clientY >= rect.top &&
-            e.clientY <= rect.bottom) {
+            e.clientY <= rect.bottom)
+        {
+
             const entryElements = listRef.current.querySelectorAll('.entry-container');
 
-            if (entryElements.length === 0) {
+            if(entryElements.length === 0)
+            {
                 setDraggedOverIndex(0);
                 setDragPosition('below');
 
@@ -223,12 +246,14 @@ const TaskList = ({
             let closestDistance = Infinity;
             let position = 'below';
 
-            entryElements.forEach((el, index) => {
+            entryElements.forEach((el, index) =>
+            {
                 const entryRect = el.getBoundingClientRect();
                 const entryMiddle = entryRect.top + entryRect.height / 2;
                 const distance = Math.abs(e.clientY - entryMiddle);
 
-                if (distance < closestDistance) {
+                if(distance < closestDistance)
+                {
                     closestDistance = distance;
                     closestIndex = index;
                     position = e.clientY < entryMiddle ? 'above' : 'below';
@@ -238,13 +263,15 @@ const TaskList = ({
             const isSameList = window.dragState.sourceListId === listId &&
                 window.dragState.sourceCategoryId === categoryId;
 
-            if (isSameList) {
+            if(isSameList)
+            {
                 const draggedIdParts = window.dragState.draggedEntryId.split('-');
                 const draggedIndex = parseInt(draggedIdParts[draggedIdParts.length - 1]);
 
                 const targetIndex = position === 'below' ? closestIndex + 1 : closestIndex;
 
-                if (targetIndex === draggedIndex || targetIndex === draggedIndex + 1) {
+                if(targetIndex === draggedIndex || targetIndex === draggedIndex + 1)
+                {
                     setDraggedOverIndex(null);
                     setDragPosition(null);
                     window.dragState.currentHoverListId = listId;
@@ -259,12 +286,15 @@ const TaskList = ({
             window.dragState.currentHoverListId = listId;
             window.dragState.currentHoverCategoryId = categoryId;
             window.dragState.currentHoverIndex = targetIndex;
-        } else {
+        }
+        else
+        {
             setDraggedOverIndex(null);
             setDragPosition(null);
 
-            if (window.dragState.currentHoverListId === listId &&
-                window.dragState.currentHoverCategoryId === categoryId) {
+            if(window.dragState.currentHoverListId === listId &&
+                window.dragState.currentHoverCategoryId === categoryId)
+            {
                 window.dragState.currentHoverListId = null;
                 window.dragState.currentHoverCategoryId = null;
                 window.dragState.currentHoverIndex = null;
@@ -275,7 +305,7 @@ const TaskList = ({
     useEffect(() => {
         document.addEventListener('mousemove', handleMouseMove);
 
-        const handleMouseUp = () => {
+        const handleMouseUp = async () => {
             if (window.dragState && window.dragState.isDragging) {
                 const isTargetingThisList = window.dragState.currentHoverListId === listId &&
                     window.dragState.currentHoverCategoryId === categoryId;
@@ -285,23 +315,43 @@ const TaskList = ({
                 if (isTargetingThisList) {
                     const sourceEntryId = window.dragState.draggedEntryId;
                     const sourceListId = window.dragState.sourceListId;
+                    const sourceEntryTrueId = window.dragState.draggedEntryTrueId;
                     const sourceCategoryId = window.dragState.sourceCategoryId;
                     const sourceEntryText = window.dragState.draggedEntryText;
 
-                    const sourceEntryIdParts = sourceEntryId.split('-');
-                    const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
-
-                    if (window.dragState.currentHoverIndex === null && isSourceList) {
-                        // Do nothing
+                    // Get the source entry properly
+                    let sourceEntry;
+                    if (isSourceList) {
+                        const sourceEntryIdParts = sourceEntryId.split('-');
+                        const sourceEntryIndex = parseInt(sourceEntryIdParts[sourceEntryIdParts.length - 1]);
+                        sourceEntry = entries[sourceEntryIndex];
                     } else {
-                        let targetIndex = window.dragState.currentHoverIndex;
+                        // For entries coming from other lists, use the minimal required data
+                        sourceEntry = {
+                            text: sourceEntryText,
+                            entryId: sourceEntryTrueId,
+                            // Add other required properties with default values
+                            checked: false,
+                            dueDate: null,
+                            warningThreshold: 1,
+                            assignedUsers: [],
+                            assignedTeams: []
+                        };
+                    }
 
-                        if (isSourceList && targetIndex > sourceEntryIndex) {
-                            targetIndex -= 1;
-                        }
+                    let targetIndex = window.dragState.currentHoverIndex;
 
-                        if (targetIndex === null) {
-                            targetIndex = entries.length - (isSourceList ? 1 : 0);
+                    if (isSourceList && targetIndex !== null && targetIndex > sourceEntryIndex) {
+                        targetIndex -= 1;
+                    }
+
+                    if (targetIndex === null) {
+                        targetIndex = entries.length;
+                    }
+
+                    try {
+                        if (sourceEntryTrueId && listId !== sourceListId) {
+                            await moveEntryToNewList(sourceEntryTrueId, listId);
                         }
 
                         onMoveEntry({
@@ -311,14 +361,18 @@ const TaskList = ({
                             targetListId: listId,
                             targetCategoryId: categoryId,
                             targetIndex: targetIndex,
-                            entryText: sourceEntryText
+                            entryText: sourceEntryText,
+                            entry: sourceEntry
                         });
+                    } catch (error) {
+                        console.error('Failed to move entry:', error);
                     }
                     window.dragState = null;
                 } else if (isSourceList && !window.dragState.currentHoverListId) {
                     const sourceEntryId = window.dragState.draggedEntryId;
                     const sourceEntryText = window.dragState.draggedEntryText;
-
+                    const sourceEntryIndex = parseInt(sourceEntryId.split('-').pop());
+                    const sourceEntry = entries[sourceEntryIndex];
                     onMoveEntry({
                         sourceEntryId,
                         sourceListId: listId,
@@ -326,7 +380,8 @@ const TaskList = ({
                         targetListId: listId,
                         targetCategoryId: categoryId,
                         targetIndex: -1,
-                        entryText: sourceEntryText
+                        entryText: sourceEntryText,
+                        entry: sourceEntry
                     });
                     window.dragState = null;
                 }
@@ -529,17 +584,48 @@ const TaskList = ({
         setEntries(entries.filter((_, i) => i !== index));
     };
 
+    const moveEntryToNewList = async (entryId, newTaskListId) =>
+    {
+        console.log(`Moving entry ${entryId} to list ${newTaskListId}`);
+        try{
+            const token = await getToken();
+            const url = `http://localhost:8080/api/entries/${entryId}/move?taskListId=${newTaskListId}`;
+            console.log("Request URL:", url);
+
+            const response = await axios.put(
+                url,
+                {},
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response.data;
+        }catch(error){
+            console.error('Error moving entry:',
+            {
+                message: error.message,
+                response: error.response?.data,
+                config: error.config
+            });
+            throw error;
+        }
+    };
+
     const handleAssignedChange = (index, newAssigneesUsers, newAssigneesTeams) => {
         const updatedEntries = [...entries];
         updatedEntries[index].assignedUsers = newAssigneesUsers;
         updatedEntries[index].assignedTeams = newAssigneesTeams;
         setEntries(updatedEntries);
-        
-        // Notify parent component of the changes if needed
-        // This is missing in your current implementation
-        // Add a prop like onEntryUpdate if you need to persist these changes
-        if (onEntryUpdate) {
-            onEntryUpdate(listId, index, {
+
+        if (onEntryUpdate)
+        {
+            onEntryUpdate(listId, index,
+            {
                 assignedUsers: newAssigneesUsers,
                 assignedTeams: newAssigneesTeams
             });
@@ -570,7 +656,8 @@ const TaskList = ({
                             const entryId = `cat-${categoryId}-list-${listId}-entry-${index}`;
                             const isCurrentlyDragged = window.dragState &&
                                 window.dragState.isDragging &&
-                                window.dragState.draggedEntryId === entryId;
+                                window.dragState.draggedEntryId === entryId &&
+                                window.dragState.draggedEntryTrueId === entry.entryId;
                             const showDropIndicator = draggedOverIndex === index &&
                                 window.dragState &&
                                 window.dragState.isDragging &&
@@ -581,6 +668,7 @@ const TaskList = ({
                                 <div key={entryId} className="entry-container">
                                     <ListEntry
                                         entryId={entryId}
+                                        trueId={entry.entryId}
                                         text={entry.text}
                                         checked={entry.checked}
                                         onCheckChange={(isChecked) => {
@@ -655,7 +743,8 @@ const TaskList = ({
     );
 };
 
-TaskList.propTypes = {
+TaskList.propTypes =
+{
     title: PropTypes.string.isRequired,
     tagColor: PropTypes.string.isRequired,
     entries: PropTypes.array.isRequired,
