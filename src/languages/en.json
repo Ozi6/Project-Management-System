@@ -38,6 +38,8 @@
     "procard.add.due":"Due Date",
     "procard.add.desc":"Project will be created by",
     "procard.add.create":"Create Project",
+    "procard.drop":"Drop Here",
+    "procard.drop.add":"Add Drop ",
 
     "toggle.h":"Horizontal",
     "toggle.v":"Vertical",

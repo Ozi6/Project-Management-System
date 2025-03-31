@@ -35,6 +35,8 @@
   "procard.add.due": "Son Tarih",
   "procard.add.desc": "Proje şu kişi tarafından oluşturulacak:",
   "procard.add.create": "Proje Oluştur",
+  "procard.drop": "Buraya Bırak",
+  "procard.drop.add": "Bırakma Alanı Ekle",
 
   "dashboard.well": "Gösterge Panelinize Hoş Geldiniz",
   "dashboard.welld": "İşte projelerinizin ve ekibinizin ilerlemesine genel bir bakış.",

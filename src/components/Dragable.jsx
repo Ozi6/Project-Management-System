@@ -1,7 +1,9 @@
 import React, { useRef, useState } from 'react';
 import './Dragable.css';
+import { useTranslation } from 'react-i18next';
 
 const Dragable = () => {
+    const {t} = useTranslatio();
     const [dragging, setDragging] = useState(false); //at the beginning the ddragging is off
     const [taskPosition, setTaskPosition] = useState({ left: -200, top: 0 }); //this is the test task box gonna need changes
     const [dropAreas, setDropAreas] = useState([ //drop areas where we will be storing tasks
@@ -85,7 +87,7 @@ const Dragable = () => {
                     onDrop={(e) => handleDrop(e, dropArea.id)} // Handle drop for each drop area
                     style={{ left: `${dropArea.left}px`, top: `${dropArea.top}px` }}
                 >
-                    Drop Here {dropArea.id}
+                    {t("procard.drop")} {dropArea.id}
                 </div>
             ))}
             
@@ -95,7 +97,7 @@ const Dragable = () => {
                 width: '200px',
                 height: '200px'
             }}
-            >Add Drop Area</button>
+            >{t("procard.drop.add")}</button>
         </div>
     );
 };

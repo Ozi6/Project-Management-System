@@ -704,7 +704,7 @@ const TaskList = ({
                     )}
                     {draggedOverIndex === entries.length && window.dragState && window.dragState.isDragging && (
                         <div className="border-2 border-dashed border-[var(--features-icon-color)] rounded-md h-10 my-2 flex items-center justify-center bg-[var(--loginpage-bg)]">
-                            <span className="text-[var(--features-icon-color)] text-sm">Drop here</span>
+                            <span className="text-[var(--features-icon-color)] text-sm">{t("procard.drop")}</span>
                         </div>
                     )}
                 </div>
