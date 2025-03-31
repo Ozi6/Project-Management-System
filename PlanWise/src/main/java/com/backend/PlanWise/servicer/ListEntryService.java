@@ -8,10 +8,12 @@ import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
 import com.backend.PlanWise.model.TaskList;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,13 +82,20 @@ public class ListEntryService
         return convertToDTO(updatedEntry);
     }
 
+    @Transactional
     public void deleteEntry(Long entryId)
     {
-        if (!listEntryDataPool.existsById(entryId))
-        {
-            throw new RuntimeException("Entry not found with id: " + entryId);
+        ListEntry entry = listEntryDataPool.findById(entryId)
+                .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
+
+        File attachedFile = entry.getFile();
+        try{
+            listEntryDataPool.deleteById(entryId);
+            if(attachedFile != null)
+                fileService.deleteFile(attachedFile.getFileId());
+        }catch(Exception e){
+            throw new RuntimeException("Failed to delete entry and associated file", e);
         }
-        listEntryDataPool.deleteById(entryId);
     }
 
     public List<ListEntryDTO> getEntriesByTaskListId(Long taskListId)
@@ -151,5 +160,14 @@ public class ListEntryService
         ListEntry updatedEntry = listEntryDataPool.save(entry);
 
         return convertToDTO(updatedEntry);
+    }
+
+    @Transactional
+    public void deleteAllEntriesInTaskList(Long taskListId)
+    {
+        List<Long> fileIds = listEntryDataPool.findFileIdsByTaskListId(taskListId);
+        listEntryDataPool.deleteByTaskListTaskListId(taskListId);
+        if(!fileIds.isEmpty())
+            fileService.deleteAllFilesByIds(fileIds);
     }
 }

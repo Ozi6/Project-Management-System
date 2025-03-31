@@ -5,6 +5,7 @@ import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.User;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class FileService
@@ -70,5 +72,12 @@ public class FileService
             dto.setFileDataBase64(Base64.getEncoder().encodeToString(file.getFileData()));
         }
         return dto;
+    }
+
+    @Transactional
+    public void deleteAllFilesByIds(List<Long> fileIds)
+    {
+        if(fileIds != null && !fileIds.isEmpty())
+            fileDataPool.deleteAllByIds(fileIds);
     }
 }

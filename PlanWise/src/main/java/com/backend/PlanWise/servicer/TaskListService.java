@@ -8,10 +8,10 @@ import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.ListEntry;
 import com.backend.PlanWise.model.TaskList;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +26,9 @@ public class TaskListService
 
     @Autowired
     private CategoryDataPool categoryDataPool;
+
+    @Autowired
+    private ListEntryService listEntryService;
 
     public List<ListEntryDTO> getListEntriesByTaskListId(Long taskListId) {
         List<ListEntry> listEntries = listEntryDataPool.findByTaskListTaskListId(taskListId);
@@ -77,5 +80,12 @@ public class TaskListService
 
         TaskList updatedTaskList = taskListDataPool.save(existingTaskList);
         return convertToDTO(updatedTaskList);
+    }
+
+    @Transactional
+    public void deleteTaskList(Long taskListId)
+    {
+        listEntryService.deleteAllEntriesInTaskList(taskListId);
+        taskListDataPool.deleteById(taskListId);
     }
 }

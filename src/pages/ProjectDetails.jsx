@@ -629,14 +629,30 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
-    const handleDeleteList = (columnIndex, taskIndex, listId) =>
+    const handleDeleteList = async (columnIndex, taskIndex, listId) =>
     {
-        const newColumns = [...columns];
-        const category = newColumns[columnIndex][taskIndex];
+        try{
+            const token = await getToken();
+            await axios.delete(
+                `http://localhost:8080/api/tasklists/${listId}`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
 
-        category.taskLists = category.taskLists.filter(list => list.id !== listId);
+            const newColumns = [...columns];
+            const category = newColumns[columnIndex][taskIndex];
 
-        setColumns(newColumns);
+            category.taskLists = category.taskLists.filter(list => list.id !== listId);
+
+            setColumns(newColumns);
+        }catch(error){
+            console.error('Error deleting task list:', error);
+        }
     };
 
     const handleMoveEntry = (moveData) => {
