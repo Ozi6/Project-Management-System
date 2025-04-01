@@ -135,6 +135,15 @@ CREATE TABLE bug_comments (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE recent_activity (
+    activity_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    action VARCHAR(255) NOT NULL,
+    entity_type VARCHAR(255) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    activity_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
 
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 
@@ -151,3 +160,6 @@ CREATE INDEX idx_bug_reports_status ON bug_reports(status);
 CREATE INDEX idx_bug_reports_priority ON bug_reports(priority);
 CREATE INDEX idx_bug_reports_reported_by ON bug_reports(reported_by);
 CREATE INDEX idx_bug_comments_bug_id ON bug_comments(bug_id);
+
+CREATE INDEX idx_user_id ON recent_activity(user_id);
+CREATE INDEX idx_activity_time ON recent_activity(activity_time);

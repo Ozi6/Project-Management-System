@@ -48,6 +48,8 @@ const Dashboard = () => {
         syncUserData();
     },[isLoaded, user, getToken]);
 
+    
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [projects, setProjects] = useState([]);
   const [stats, setStats] = useState({
@@ -61,6 +63,46 @@ const Dashboard = () => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [isLoadingActivities, setIsLoadingActivities] = useState(false);
+
+  const fetchRecentActivities = async () => {
+    setIsLoadingActivities(true);
+    try {
+      const token = await getToken();
+      const response = await axios.get(`http://localhost:8080/api/activities/user/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        withCredentials: true
+      });
+      setRecentActivities(response.data);
+    } catch (error) {
+      console.error('Error fetching recent activities:', error);
+    } finally {
+      setIsLoadingActivities(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user && isLoaded) {
+      fetchRecentActivities();
+    }
+  }, [user, isLoaded]);
+
+  const formatActivityTime = (dateTime) => {
+    const now = new Date();
+    const activityDate = new Date(dateTime);
+    const diffInSeconds = Math.floor((now - activityDate) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    
+    return activityDate.toLocaleDateString();
+  };
 
   // Sample data that would normally come from an API
   useEffect(() => {
@@ -103,12 +145,7 @@ const Dashboard = () => {
   }, [location, setActiveTab]);
 
   // Simulated activity data
-  const recentActivities = [
-    { id: 1, user: 'Alice', action: 'completed task', item: 'Design Homepage', time: '2 hours ago', avatar: 'A' },
-    { id: 2, user: 'Bob', action: 'commented on', item: 'API Integration', time: '3 hours ago', avatar: 'B' },
-    { id: 3, user: 'Charlie', action: 'created', item: 'New Marketing Campaign', time: '5 hours ago', avatar: 'C' },
-    { id: 4, user: 'Diana', action: 'updated', item: 'Q1 Reports', time: '1 day ago', avatar: 'D' },
-  ];
+  
 
   // Upcoming deadlines
   const upcomingDeadlines = [
@@ -361,32 +398,38 @@ const Dashboard = () => {
                   </button>*/}
                 </div>
                 <div className="space-y-4">
-                  {recentActivities.map(activity => (
-                    <div key={activity.id} className="flex items-start text-[var(--features-title-color)]">
-                      <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shrink-0 ${
-                        activity.avatar === "A"
-                          ? "bg-blue-500"
-                          : activity.avatar === "B"
-                          ? "bg-green-500"
-                          : activity.avatar === "C"
-                          ? "bg-purple-500"
-                          : activity.avatar === "D"
-                          ? "bg-amber-500"
-                          : "bg-pink-500"
-                      }`}
-                    >
-                        {activity.avatar}
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm">
-                          <span className="font-medium">{activity.user}</span> {activity.action}{' '}
-                          <span className="font-medium">{activity.item}</span>
-                        </p>
-                        <p className="text-xs text-[var(--features-text-color)]">{activity.time}</p>
-                      </div>
+                  
+
+                  
+                <div className="space-y-4">
+                  {isLoadingActivities ? (
+                    <div className="flex justify-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--features-icon-color)]"></div>
                     </div>
-                  ))}
+                  ) : recentActivities.length > 0 ? (
+                    recentActivities.map(activity => (
+                      <div key={activity.activityId} className="flex items-start text-[var(--features-title-color)]">
+                        <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs shrink-0">
+                          {activity.userName?.charAt(0) || activity.userId?.charAt(0) || 'U'}
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm">
+                            <span className="font-medium">{activity.userName || activity.userId}</span> {activity.action}{' '}
+                            <span className="font-medium">{activity.entityName || activity.entityType.toLowerCase()}</span>
+                          </p>
+                          <p className="text-xs text-[var(--features-text-color)]">
+                            {formatActivityTime(activity.activityTime)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-[var(--features-text-color)]">No recent activities</p>
+                  )}
+                </div>
+
+
+
                 </div>
               </motion.div>
             </div>
