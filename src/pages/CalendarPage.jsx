@@ -58,7 +58,7 @@ const CalendarPage = ({ projectData }) => {
         id: 'teams', 
         icon: UsersIcon, 
         label: t("sidebar.team"),
-        path: '/project/teams',
+        path: `/project/${id}/teams`,
         color: 'bg-green-100 text-green-600',
         iconColor: 'text-green-600'
     },
@@ -66,7 +66,7 @@ const CalendarPage = ({ projectData }) => {
         id: 'settings', 
         icon: Settings, 
         label: t("sidebar.set"),
-        path: '/project/settings',
+        path: `/project/${id}/settings`,
         color: 'bg-gray-100 text-gray-600',
         iconColor: 'text-gray-600'
     }
