@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 const GeneralSettings = ({ setShowAdvanced, isOwner }) => {
     const {t} = useTranslation();
     const { user } = useUser();
-    
+
     // Check if current user is the project owner
     const isProjectOwner = isOwner || false;
     

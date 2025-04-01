@@ -36,6 +36,7 @@ const ProjectDetails = () => {
     const { getToken } = useAuth();
 
     const isOwner = location.state?.isOwner || false;
+
     const [activeTab, setActiveTab] = useState("team");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [showProgressBar, setShowProgressBar] = useState(false);
@@ -1020,6 +1021,7 @@ const ProjectDetails = () => {
             icon: Activity,
             label: t("sidebar.act"),
             path: `/project/${id}/activity`,
+            state: { isOwner },
             color: 'bg-yellow-100 text-yellow-600',
             iconColor: 'text-amber-600'
         },
@@ -1028,6 +1030,7 @@ const ProjectDetails = () => {
             icon: UsersIcon,
             label: t("sidebar.team"),
             path: `/project/${id}/teams`,
+            state: { isOwner },
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
         },

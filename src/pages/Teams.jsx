@@ -122,8 +122,10 @@ const Teams = () => {
   const [activeTab, setActiveTab] = useState("teams");
   const [teams, setTeams] = useState(teamsData);
   const [selectedMember, setSelectedMember] = useState(null);
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const location = useLocation();
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const location = useLocation();
+    const isOwner = location.state?.isOwner || false;
+
 
   // Handle mobile sidebar
   useEffect(() => {
@@ -147,14 +149,14 @@ const Teams = () => {
   };
 
   // Custom navigation items for the sidebar - matching ProjectDetails.jsx
-    const customNavItems = [
+    const customNavItems =
+    [
         {
             id: 'dashboard',
             icon: Layout,
             label: t("sidebar.dash"),
-            path: `/projects`,
-            color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',
-            iconColor: 'text-[var(--sidebar-dashboard-color)]',
+            path: '/dashboard',
+            iconColor: 'text-blue-600',
             defaultColor: true
         },
         {
@@ -162,22 +164,25 @@ const Teams = () => {
             icon: KanbanSquare,
             label: t("sidebar.this"),
             path: `/project/${id}`,
-            color: 'bg-purple-100 text-purple-600',
-            iconColor: 'text-purple-600'
+            state: { isOwner },
+            color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
+            iconColor: 'text-[var(--sidebar-projects-color)]'
         },
         {
             id: 'activity',
             icon: Activity,
             label: t("sidebar.act"),
             path: `/project/${id}/activity`,
-            color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
-            iconColor: 'text-[var(--sidebar-gantt-color)]'
+            state: { isOwner },
+            color: 'bg-yellow-100 text-yellow-600',
+            iconColor: 'text-amber-600'
         },
         {
             id: 'teams',
             icon: Users,
             label: t("sidebar.team"),
             path: `/project/${id}/teams`,
+            state: { isOwner },
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
         },
@@ -186,6 +191,7 @@ const Teams = () => {
             icon: Settings,
             label: t("sidebar.set"),
             path: `/project/${id}/settings`,
+            state: { isOwner },
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-gray-600'
         }

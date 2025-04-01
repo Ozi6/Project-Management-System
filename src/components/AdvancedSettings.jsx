@@ -11,7 +11,7 @@ import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
 
-const RemoveConfirmationModal = ({ member, onConfirm, onCancel, isOwner }) => {
+const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
   const {t} = useTranslation();
   return (
     <AnimatePresence mode="wait">
@@ -97,17 +97,13 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
   );
 };
 
-const AdvancedSettings = ({ setShowAdvanced }) => {
+const AdvancedSettings = ({ setShowAdvanced, isOwner }) => {
   const {t} = useTranslation();
   // Get current user from Clerk
   const { user } = useUser();
 
-  // Hardcoded project owner for demo - replace with actual logic from your backend
-  const projectOwner = "emir.ozen.55.6d@gmail.com";
-  
   // Check if current user is the project owner
-  const isProjectOwner = user?.primaryEmailAddress?.emailAddress === projectOwner || 
-                         user?.publicMetadata?.role === "admin";
+  const isProjectOwner = isOwner;
 
   // Rest of your existing state...
   const [members, setMembers] = useState([

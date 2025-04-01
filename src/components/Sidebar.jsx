@@ -45,9 +45,9 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
   };
 
   // Handle navigation in mobile mode
-  const handleMobileNavigation = (item) => {
+    const handleMobileNavigation = (item) => {
     setActiveTab(item.id);
-    navigate(item.path);
+      navigate(item.path, { state: item.state });
     if (closeMobileMenu) {
       closeMobileMenu();
     }
@@ -131,7 +131,7 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
       handleMobileNavigation(item);
     } else {
       setActiveTab(item.id);
-      navigate(item.path);
+        navigate(item.path, { state: item.state });
     }
   };
 
