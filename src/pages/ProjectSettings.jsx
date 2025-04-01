@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import AdvancedSettings from "../components/AdvancedSettings";
 import GeneralSettings from "../components/GeneralSettings";
@@ -7,7 +7,9 @@ import Header from "../components/Header";
 import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const ProjectSettings = () => {
+const ProjectSettings = () =>
+{
+    const { id } = useParams();
     const {t} = useTranslation();
     const [activeTab, setActiveTab] = useState("settings");
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -19,48 +21,46 @@ const ProjectSettings = () => {
 
     // Custom navigation items for the sidebar
     const customNavItems = [
-        { 
-            id: 'dashboard', 
-            icon: Layout, 
-            label: t("sidebar.dash"), 
-            path: '/dashboard',
-            //color: 'bg-blue-100 text-blue-600',  
-            iconColor: 'text-blue-600',     
+        {
+            id: 'dashboard',
+            icon: Layout,
+            label: t("sidebar.dash"),
+            path: `/projects`,
+            color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',
+            iconColor: 'text-[var(--sidebar-dashboard-color)]',
             defaultColor: true
         },
-        { 
-            id: 'projects', 
-            icon: KanbanSquare, 
-            label: t("sidebar.this"), 
-            path: '/project/1',
-            state: { isOwner },
+        {
+            id: 'projects',
+            icon: KanbanSquare,
+            label: t("sidebar.this"),
+            path: `/project/${id}`,
             color: 'bg-purple-100 text-purple-600',
             iconColor: 'text-purple-600'
         },
-        { 
-            id: 'activity', 
-            icon: Activity, 
+        {
+            id: 'activity',
+            icon: Activity,
             label: t("sidebar.act"),
-            path: '/activity',
-            color: 'bg-yellow-100 text-yellow-600',
-            iconColor: 'text-amber-600'
+            path: `/project/${id}/activity`,
+            color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
+            iconColor: 'text-[var(--sidebar-gantt-color)]'
         },
-        { 
-            id: 'teams', 
-            icon: UsersIcon, 
+        {
+            id: 'teams',
+            icon: UsersIcon,
             label: t("sidebar.team"),
-            path: '/teams',
+            path: `/project/${id}/teams`,
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
         },
-        { 
-            id: 'settings', 
-            icon: Settings, 
+        {
+            id: 'settings',
+            icon: Settings,
             label: t("sidebar.set"),
-            path: '/project/settings',
-            state: { isOwner },
+            path: `/project/${id}/settings`,
             color: 'bg-gray-100 text-gray-600',
-            iconColor: 'text-[var(--features-title-color)]'
+            iconColor: 'text-gray-600'
         }
     ];
 
