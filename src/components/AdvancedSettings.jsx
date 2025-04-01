@@ -11,7 +11,7 @@ import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
 
-const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
+const RemoveConfirmationModal = ({ member, onConfirm, onCancel, isOwner }) => {
   const {t} = useTranslation();
   return (
     <AnimatePresence mode="wait">

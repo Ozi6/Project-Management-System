@@ -13,6 +13,9 @@ const ProjectSettings = () => {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const location = useLocation();
+    const { state } = location;
+
+    const isOwner = state?.isOwner || false;
 
     // Custom navigation items for the sidebar
     const customNavItems = [
@@ -30,6 +33,7 @@ const ProjectSettings = () => {
             icon: KanbanSquare, 
             label: t("sidebar.this"), 
             path: '/project/1',
+            state: { isOwner },
             color: 'bg-purple-100 text-purple-600',
             iconColor: 'text-purple-600'
         },
@@ -54,6 +58,7 @@ const ProjectSettings = () => {
             icon: Settings, 
             label: t("sidebar.set"),
             path: '/project/settings',
+            state: { isOwner },
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-[var(--features-title-color)]'
         }
@@ -125,9 +130,14 @@ const ProjectSettings = () => {
                 <div className="flex-1 overflow-auto bg-[var(--loginpage-bg)]/40 flex flex-col">
                     <div className="p-6 flex-grow">
                         {showAdvanced ? (
-                            <AdvancedSettings setShowAdvanced={setShowAdvanced} />
+                            <AdvancedSettings
+                                setShowAdvanced={setShowAdvanced}
+                                isOwner={isOwner}
+                            />
                         ) : (
-                            <GeneralSettings setShowAdvanced={setShowAdvanced} />
+                                <GeneralSettings setShowAdvanced={setShowAdvanced}
+                                isOwner={isOwner}
+                            />
                         )}
                     </div>
                     

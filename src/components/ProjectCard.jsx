@@ -51,7 +51,7 @@ const ProjectCard = ({
         <>
             <div
                 className="bg-[var(--gray-card1)] rounded-lg shadow p-6 border-1 border-[var(--sidebar-projects-color)] cursor-pointer hover:shadow-lg hover:scale-102 transition-all duration-200 relative overflow-hidden"
-                onClick={() => navigate(`/project/${id}`)}
+                onClick={() => navigate(`/project/${id}`, { state: { isOwner } })}
             >
                 <div className="bg-[var(--features-icon-color)] rounded-lg p-3 mb-5">
                     <div className="flex justify-between items-center">

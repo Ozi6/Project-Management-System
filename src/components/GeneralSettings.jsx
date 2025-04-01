@@ -4,17 +4,12 @@ import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const GeneralSettings = ({ setShowAdvanced }) => {
+const GeneralSettings = ({ setShowAdvanced, isOwner }) => {
     const {t} = useTranslation();
-    // Get current user from Clerk
     const { user } = useUser();
-
-    // Hardcoded project owner for demo - replace with actual logic from your backend
-    const projectOwner = "emir.ozen.55.6d@gmail.com";
     
     // Check if current user is the project owner
-    const isProjectOwner = user?.primaryEmailAddress?.emailAddress === projectOwner || 
-                          user?.publicMetadata?.role === "admin";
+    const isProjectOwner = isOwner || false;
     
     const [projectName, setProjectName] = useState(t("set.named"));
     const [projectDescription, setProjectDescription] = useState(t("set.dd"));

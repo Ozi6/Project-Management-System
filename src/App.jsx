@@ -58,21 +58,19 @@ function AnimatedRoutes() {
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
-                <Route path="/project/settings" element={<PageWrapper><ProjectSettings /></PageWrapper>} />
+                <Route path="/project/:id/settings" element={<PageWrapper><ProjectSettings /></PageWrapper>} />
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/calendar" element={<PageWrapper><ProjectCalendar/></PageWrapper>}/>
-                <Route path="/teams" element={<PageWrapper><Teams/></PageWrapper>}/>
-
-
+                <Route path="/project/:id/teams" element={<PageWrapper><Teams/></PageWrapper>}/>
                 
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails/></PageWrapper>}/>
                 <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
                 <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
                 <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
-                <Route path="/activity" element={<PageWrapper><Activity/></PageWrapper>}/>
+                <Route path="/project/:id/activity" element={<PageWrapper><Activity/></PageWrapper>}/>
                 <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>

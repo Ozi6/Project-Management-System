@@ -34,6 +34,8 @@ const ProjectDetails = () => {
     const location = useLocation();
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
+
+    const isOwner = location.state?.isOwner || false;
     const [activeTab, setActiveTab] = useState("team");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [showProgressBar, setShowProgressBar] = useState(false);
@@ -994,52 +996,54 @@ const ProjectDetails = () => {
 
     const displayColumns = filteredColumns || columns;
 
-    // Custom navigation items for the sidebar
-    const customNavItems = [
-        { 
-            id: 'dashboard', 
-            icon: Layout, 
-            label: t("sidebar.dash"), 
+    const customNavItems =
+    [
+        {
+            id: 'dashboard',
+            icon: Layout,
+            label: t("sidebar.dash"),
             path: '/dashboard',
-            //color: 'bg-blue-100 text-blue-600',  
-            iconColor: 'text-blue-600',     
+            iconColor: 'text-blue-600',
             defaultColor: true
         },
-        { 
-            id: 'projects', 
-            icon: KanbanSquare, 
-            label: t("sidebar.this"), // Changed from "Projects" to "This Project"
-            path: '/project/1', // Changed from "/projects" to "/project/1"
+        {
+            id: 'projects',
+            icon: KanbanSquare,
+            label: t("sidebar.this"),
+            path: `/project/${id}`,
+            state: { isOwner },
             color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
             iconColor: 'text-[var(--sidebar-projects-color)]'
         },
-        { 
-            id: 'activity', 
-            icon: Activity, 
+        {
+            id: 'activity',
+            icon: Activity,
             label: t("sidebar.act"),
-            path: '/activity',
+            path: `/project/${id}/activity`,
             color: 'bg-yellow-100 text-yellow-600',
             iconColor: 'text-amber-600'
         },
-        { 
-            id: 'teams', 
-            icon: UsersIcon, 
+        {
+            id: 'teams',
+            icon: UsersIcon,
             label: t("sidebar.team"),
-            path: '/teams',
+            path: `/project/${id}/teams`,
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
         },
-        { 
-            id: 'settings', 
-            icon: Settings, 
+        {
+            id: 'settings',
+            icon: Settings,
             label: t("sidebar.set"),
-            path: '/project/settings',
+            path: `/project/${id}/settings`,
+            state: { isOwner },
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-gray-600'
         }
     ];
 
-    if (loading) {
+    if(loading)
+    {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="text-xl text-gray-500">{t("prode.load")}</div>

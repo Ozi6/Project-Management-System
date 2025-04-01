@@ -2,23 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, User, Heart, Menu } from 'lucide-react';
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
-import ThemeSwitcher from '../ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
 
 
 const CalendarPage = ({ projectData }) => {
-  const {t, i18n} = useTranslation();
-  const [activeTab, setActiveTab] = useState("calendar");
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [calendarDays, setCalendarDays] = useState([]);
-  const [tasksByDate, setTasksByDate] = useState({});
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [language, setLanguage] = useState(i18n.language);
+    const { id } = useParams();
+    const {t, i18n} = useTranslation();
+    const [activeTab, setActiveTab] = useState("calendar");
+    const [currentMonth, setCurrentMonth] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [calendarDays, setCalendarDays] = useState([]);
+    const [tasksByDate, setTasksByDate] = useState({});
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [language, setLanguage] = useState(i18n.language);
   
     
   
@@ -27,50 +27,50 @@ const CalendarPage = ({ projectData }) => {
       setLanguage(i18n.language);
       
     }, [i18n.language]);
-  // Custom navigation items for the sidebar (similar to ProjectDetails.jsx)
-  const customNavItems = [
+    // Custom navigation items for the sidebar (similar to ProjectDetails.jsx)
+    const customNavItems = [
     { 
-      id: 'dashboard', 
-      icon: Layout, 
-      label: t("sidebar.dash"), 
-      path: '/dashboard',
-      color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',  
-      iconColor: 'text-[var(--sidebar-dashboard-color)]',     
-      defaultColor: true
+        id: 'dashboard', 
+        icon: Layout, 
+        label: t("sidebar.dash"), 
+        path: `/projects`,
+        color: 'bg-[var(--sidebar-dashboard-bg-color)] text-[var(--sidebar-dashboard-color)]',  
+        iconColor: 'text-[var(--sidebar-dashboard-color)]',     
+        defaultColor: true
     },
     { 
-      id: 'projects', 
-      icon: KanbanSquare, 
-      label: t("sidebar.this"), 
-      path: '/project/1',
-      color: 'bg-purple-100 text-purple-600',
-      iconColor: 'text-purple-600'
+        id: 'projects', 
+        icon: KanbanSquare, 
+        label: t("sidebar.this"), 
+        path: `/project/${id}`,
+        color: 'bg-purple-100 text-purple-600',
+        iconColor: 'text-purple-600'
     },
     { 
-      id: 'activity', 
-      icon: Activity, 
-      label: t("sidebar.act"), 
-      path: '/activity',
-      color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
-      iconColor: 'text-[var(--sidebar-gantt-color)]'
+        id: 'activity', 
+        icon: Activity, 
+        label: t("sidebar.act"), 
+        path: `/project/${id}/activity`,
+        color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
+        iconColor: 'text-[var(--sidebar-gantt-color)]'
     },
     { 
-      id: 'teams', 
-      icon: UsersIcon, 
-      label: t("sidebar.team"),
-      path: '/teams',
-      color: 'bg-green-100 text-green-600',
-      iconColor: 'text-green-600'
+        id: 'teams', 
+        icon: UsersIcon, 
+        label: t("sidebar.team"),
+        path: '/project/teams',
+        color: 'bg-green-100 text-green-600',
+        iconColor: 'text-green-600'
     },
     { 
-      id: 'settings', 
-      icon: Settings, 
-      label: t("sidebar.set"),
-      path: '/project/settings',
-      color: 'bg-gray-100 text-gray-600',
-      iconColor: 'text-gray-600'
+        id: 'settings', 
+        icon: Settings, 
+        label: t("sidebar.set"),
+        path: '/project/settings',
+        color: 'bg-gray-100 text-gray-600',
+        iconColor: 'text-gray-600'
     }
-  ];
+    ];
 
   // Handle mobile sidebar
   useEffect(() => {
