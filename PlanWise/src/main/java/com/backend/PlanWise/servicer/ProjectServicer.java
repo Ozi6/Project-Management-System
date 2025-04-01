@@ -1,20 +1,38 @@
 package com.backend.PlanWise.servicer;
 
-import com.backend.PlanWise.DataTransferObjects.*;
-import com.backend.PlanWise.model.*;
-import com.backend.PlanWise.DataPool.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.backend.PlanWise.DataPool.ProjectDataPool;
+import com.backend.PlanWise.DataPool.UserDataPool;
+import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
+import com.backend.PlanWise.DataTransferObjects.FileDTO;
+import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
+import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
+import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
+import com.backend.PlanWise.DataTransferObjects.TeamDTO;
+import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.model.Category;
+import com.backend.PlanWise.model.File;
+import com.backend.PlanWise.model.ListEntry;
+import com.backend.PlanWise.model.Project;
+import com.backend.PlanWise.model.TaskList;
+import com.backend.PlanWise.model.Team;
+import com.backend.PlanWise.model.User;
+
 @Service
 public class ProjectServicer
 {
+
+    private static final Logger log = LoggerFactory.getLogger(ProjectServicer.class);
 
     @Autowired
     private ProjectDataPool projectRepository;
@@ -23,6 +41,9 @@ public class ProjectServicer
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RecentActivityService recentActivityService;
 
     public List<ProjectDTO> getAllProjects()
     {
@@ -200,7 +221,17 @@ public class ProjectServicer
         project.setDueDate(projectDTO.getDueDate());
         project.setUpdatedAt(projectDTO.getLastUpdated());
 
+        log.info("💾 Saving project to database...");
+
         Project savedProject = projectRepository.save(project);
+
+        recentActivityService.createActivity(
+            owner.getUserId(),
+            "created",
+            "Project",
+            savedProject.getProjectId()
+        );
+
         return convertToDTO(savedProject);
     }
 

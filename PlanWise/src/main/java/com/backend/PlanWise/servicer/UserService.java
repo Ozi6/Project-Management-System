@@ -1,14 +1,15 @@
 package com.backend.PlanWise.servicer;
 
-import com.backend.PlanWise.DataTransferObjects.UserDTO;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.backend.PlanWise.model.User;
+
 import com.backend.PlanWise.DataPool.UserDataPool;
-import java.util.Optional;
+import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.model.User;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 @Service
 public class UserService {
@@ -71,5 +72,17 @@ public class UserService {
                 userDataPool.save(existingUser);
         }
         return new UserDTO(existingUser.getUserId(), existingUser.getUsername(), existingUser.getEmail());
+    }
+
+    public String getUsernameById(String userId) {
+        try {
+            User user = userDataPool.findByUserId(userId);
+            return (user != null && user.getUsername() != null) 
+                ? user.getUsername() 
+                : userId; // Fallback to userId if user or username is null
+        } catch (Exception e) {
+            // log.error("Error fetching username for userId: {}", userId, e);
+            return userId; // Fallback on error
+        }
     }
 }
