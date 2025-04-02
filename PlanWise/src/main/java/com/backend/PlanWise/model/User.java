@@ -1,8 +1,14 @@
 package com.backend.PlanWise.model;
 
-import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -12,10 +18,10 @@ public class User {
     @Column(name = "user_id")
     private String userId;
     
-    @Column(name = "username")
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
     
-    @Column(name = "email")
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @OneToMany(mappedBy = "owner")
