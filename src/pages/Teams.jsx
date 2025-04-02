@@ -165,8 +165,8 @@ const Teams = () => {
             label: t("sidebar.this"),
             path: `/project/${id}`,
             state: { isOwner },
-            color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
-            iconColor: 'text-[var(--sidebar-projects-color)]'
+            color: 'bg-purple-100 text-purple-600',
+            iconColor: 'text-purple-600'
         },
         {
             id: 'activity',
@@ -183,8 +183,8 @@ const Teams = () => {
             label: t("sidebar.team"),
             path: `/project/${id}/teams`,
             state: { isOwner },
-            color: 'bg-green-100 text-green-600',
-            iconColor: 'text-green-600'
+            color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
+            iconColor: 'text-[var(--sidebar-teams-color)]'
         },
         {
             id: 'settings',
