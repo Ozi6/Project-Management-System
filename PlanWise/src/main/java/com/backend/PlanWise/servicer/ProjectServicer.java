@@ -221,16 +221,9 @@ public class ProjectServicer
         project.setDueDate(projectDTO.getDueDate());
         project.setUpdatedAt(projectDTO.getLastUpdated());
 
-        log.info("💾 Saving project to database...");
 
         Project savedProject = projectRepository.save(project);
 
-        recentActivityService.createActivity(
-            owner.getUserId(),
-            "created",
-            "Project",
-            savedProject.getProjectId()
-        );
 
         return convertToDTO(savedProject);
     }
