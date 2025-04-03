@@ -841,87 +841,180 @@ const ProjectDetails = () => {
     };
 
     const handleEntryUpdate = async (columnIndex, taskIndex, listId, entryIndex, updateData) =>
-    {
-        const newColumns = [...columns];
-        const category = newColumns[columnIndex][taskIndex];
-        const taskList = category.taskLists.find((list) => list.id === listId);
-
-        if(!taskList || !taskList.entries[entryIndex])
-            return;
-
-        const entry = taskList.entries[entryIndex];
-
-        if(updateData.fileOperation)
         {
-            try{
-                const { type, file, userId, entryId } = updateData.fileOperation;
-                const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
-                const currentEntry = currentEntryResponse.data;
-
-                if(type === 'delete')
+            const newColumns = [...columns];
+            const category = newColumns[columnIndex][taskIndex];
+            const taskList = category.taskLists.find((list) => list.id === listId);
+    
+            if(!taskList || !taskList.entries[entryIndex])
+                return;
+    
+            const entry = taskList.entries[entryIndex];
+    
+            
+    
+            if (Object.keys(updateData).some(key => key !== 'fileOperation'))
                 {
-                    // Existing file deletion code
+                    try{
+                        const token = await getToken();
+                        
+                        // Update the entry object with the new data
+                        if (updateData.text !== undefined) {
+                            entry.text = updateData.text;
+                            entry.entryName = updateData.text;
+                        }
+                        
+                        if (updateData.dueDate !== undefined) {
+                            entry.dueDate = updateData.dueDate;
+                        }
+                        
+                        if (updateData.warningThreshold !== undefined) {
+                            entry.warningThreshold = updateData.warningThreshold;
+                        }
+                        
+                        if (updateData.assignedUsers !== undefined) {
+                            entry.assignedUsers = updateData.assignedUsers;
+                        }
+                        
+                        if (updateData.assignedTeams !== undefined) {
+                            entry.assignedTeams = updateData.assignedTeams;
+                        }
+                        
+                        // Send the updated data to the backend
+                        await axios.put(
+                            `http://localhost:8080/api/entries/${entry.id}`,
+                            {
+                                entryName: entry.text,
+                                isChecked: entry.checked || false,
+                                dueDate: entry.dueDate,
+                                warningThreshold: entry.warningThreshold
+                            },
+                            {
+                                withCredentials: true,
+                                headers: {
+                                    'Authorization': `Bearer ${token}`,
+                                    'Content-Type': 'application/json'
+                                }
+                            }
+                        );
+                    }catch(error){
+                        console.error('Error updating entry:', error);
+                    }
                 }
-                else
-                {
-                    // Existing file upload code
-                }
-            }catch(error){
-                console.error('Error in file operation:', error);
-                throw error;
-            }
-        }
-
-        if (Object.keys(updateData).some(key => key !== 'fileOperation'))
-        {
-            try{
-                const token = await getToken();
                 
-                // Update the entry object with the new data
-                if (updateData.text !== undefined) {
-                    entry.text = updateData.text;
-                    entry.entryName = updateData.text;
-                }
-                
-                if (updateData.dueDate !== undefined) {
-                    entry.dueDate = updateData.dueDate;
-                }
-                
-                if (updateData.warningThreshold !== undefined) {
-                    entry.warningThreshold = updateData.warningThreshold;
-                }
-                
-                if (updateData.assignedUsers !== undefined) {
-                    entry.assignedUsers = updateData.assignedUsers;
-                }
-                
-                if (updateData.assignedTeams !== undefined) {
-                    entry.assignedTeams = updateData.assignedTeams;
-                }
-                
-                // Send the updated data to the backend
-                await axios.put(
-                    `http://localhost:8080/api/entries/${entry.id}`,
+                if(updateData.fileOperation)
                     {
-                        entryName: entry.text,
-                        isChecked: entry.checked || false,
-                        dueDate: entry.dueDate,
-                        warningThreshold: entry.warningThreshold
-                    },
-                    {
-                        withCredentials: true,
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
+                        try{
+                            const { type, file, userId, entryId } = updateData.fileOperation;
+                            const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
+                            const currentEntry = currentEntryResponse.data;
+            
+                            if(type === 'delete')
+                            {
+                                if(currentEntry.file?.fileId)
+                                    await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
+            
+                                const updatedEntry = { ...currentEntry, file: null };
+                                const token = await getToken();
+                                await axios.put(
+                                    `http://localhost:8080/api/entries/${entryId}`,
+                                    updatedEntry,
+                                    {
+                                        headers:
+                                        {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        withCredentials: true
+                                    }
+                                );
+            
+                                taskList.entries[entryIndex] =
+                                {
+                                    ...entry,
+                                    file: null
+                                };
+                            }
+                            else if(type === 'upload' && file)
+                            {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('userId', userId);
+            
+                                if(currentEntry.file?.fileId)
+                                    await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
+            
+                                const token = await getToken();
+                                const fileResponse = await axios.post(
+                                    'http://localhost:8080/api/files/upload',
+                                    formData,
+                                    {
+                                        headers:
+                                        {
+                                            'Content-Type': 'multipart/form-data',
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        withCredentials: true
+                                    }
+                                );
+            
+                                const uploadedFile = fileResponse.data;
+            
+                                let fileObject = null;
+                                if(uploadedFile.fileDataBase64)
+                                {
+                                    const binaryString = atob(uploadedFile.fileDataBase64);
+                                    const bytes = new Uint8Array(binaryString.length);
+                                    for(let i = 0; i < binaryString.length; i++)
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    const blob = new Blob([bytes], { type: uploadedFile.fileType });
+                                    fileObject = new File([blob], uploadedFile.fileName,
+                                    {
+                                        type: uploadedFile.fileType,
+                                        lastModified: new Date().getTime()
+                                    });
+                                }
+            
+                                const updatedEntry =
+                                {
+                                    ...currentEntry,
+                                    file:
+                                    {
+                                        fileId: uploadedFile.fileId,
+                                        fileName: uploadedFile.fileName,
+                                        fileSize: uploadedFile.fileSize,
+                                        fileType: uploadedFile.fileType,
+                                        fileDataBase64: uploadedFile.fileDataBase64
+                                    }
+                                };
+            
+                                await axios.put(
+                                    `http://localhost:8080/api/entries/${entryId}`,
+                                    updatedEntry,
+                                    {
+                                        headers:
+                                        {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        withCredentials: true
+                                    }
+                                );
+            
+                                taskList.entries[entryIndex] =
+                                {
+                                    ...entry,
+                                    file: fileObject
+                                };
+                            }
+                        }catch(error){
+                            console.error('Error in file operation:', error);
+                            throw error;
                         }
                     }
-                );
-            }catch(error){
-                console.error('Error updating entry:', error);
-            }
-        }
-        setColumns(newColumns);
-    };
+    
+                setColumns(newColumns);
+        };
 
     const displayColumns = filteredColumns || columns;
 
