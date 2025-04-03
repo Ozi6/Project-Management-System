@@ -15,6 +15,9 @@ CREATE TABLE projects (
     due_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    background_image_url VARCHAR(255),
+    is_public BOOLEAN DEFAULT FALSE,
+    invite_token VARCHAR(255) UNIQUE,
     FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 CREATE TABLE project_members (
@@ -25,7 +28,15 @@ CREATE TABLE project_members (
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
+CREATE TABLE project_member_permissions (
+    permission_id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    permission_name VARCHAR(50) NOT NULL,
+    permission_value BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (project_id, user_id) REFERENCES project_members(project_id, user_id) ON DELETE CASCADE,
+    UNIQUE (project_id, user_id, permission_name)
+);
 CREATE TABLE teams (
     team_id INT PRIMARY KEY AUTO_INCREMENT,
     project_id INT NOT NULL,
