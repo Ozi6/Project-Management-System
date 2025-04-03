@@ -413,10 +413,11 @@ const Dashboard = () => {
                           {activity.userName?.charAt(0) || activity.userId?.charAt(0) || 'U'}
                         </div>
                         <div className="ml-3">
-                          <p className="text-sm">
-                            <span className="font-medium">{activity.userName || activity.userId}</span> {activity.action}{' '}
-                            <span className="font-medium">{activity.entityName || activity.entityType.toLowerCase()}</span>
-                          </p>
+                            <p className="text-sm">
+                              <span className="font-medium">{activity.userName || activity.userId}</span> {activity.action}{' '}
+                              <span className="font-medium">{activity.entityName || activity.entityType.toLowerCase()}</span>
+                              {activity.additionalContext && <span>{activity.additionalContext}</span>}
+                            </p>
                           <p className="text-xs text-[var(--features-text-color)]">
                             {formatActivityTime(activity.activityTime)}
                           </p>

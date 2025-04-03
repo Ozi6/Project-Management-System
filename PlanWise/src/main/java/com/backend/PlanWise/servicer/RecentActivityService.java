@@ -7,9 +7,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.RecentActivityDataPool;
 import com.backend.PlanWise.DataTransferObjects.RecentActivityDTO;
+import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.RecentActivity;
 
@@ -19,14 +21,17 @@ public class RecentActivityService {
 
     private final RecentActivityDataPool recentActivityDataPool;
     private final ProjectDataPool projectDataPool;
+    private final CategoryDataPool categoryDataPool;
     private final UserService userService;
 
     @Autowired
     public RecentActivityService(RecentActivityDataPool recentActivityDataPool,
                                ProjectDataPool projectDataPool,
+                               CategoryDataPool categoryDataPool,
                                UserService userService) {
         this.recentActivityDataPool = recentActivityDataPool;
         this.projectDataPool = projectDataPool;
+        this.categoryDataPool = categoryDataPool;
         this.userService = userService;
     }
 
@@ -55,8 +60,16 @@ public class RecentActivityService {
                 return projectDataPool.findById(entityId)
                         .map(Project::getProjectName)
                         .orElse("a project");
-            }
-            // Add other entity types as needed
+                } else if ("Category".equalsIgnoreCase(entityType)) {
+                    Category category = categoryDataPool.findById(entityId).orElse(null);
+                    if (category != null) {
+                        String projectName = projectDataPool.findById(category.getProject().getProjectId())
+                                .map(Project::getProjectName)
+                                .orElse("a project");
+                        return category.getCategoryName() + " in " + projectName;
+                    }
+                    return "a category";
+                }
         } catch (Exception e) {
             //log.error("Error fetching entity name", e);
         }

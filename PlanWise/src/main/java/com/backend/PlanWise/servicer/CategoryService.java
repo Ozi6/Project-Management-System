@@ -1,5 +1,15 @@
 package com.backend.PlanWise.servicer;
 
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
@@ -11,16 +21,8 @@ import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CategoryService
@@ -38,6 +40,9 @@ public class CategoryService
     @Autowired
     private ListEntryService listEntryService;
 
+    @Autowired
+    private RecentActivityService recentActivityService; // Add this
+
     public CategoryDTO createCategory(CategoryDTO categoryDTO, Long projectId)
     {
         Project project = projectDataPool.findById(projectId)
@@ -53,6 +58,15 @@ public class CategoryService
         category.setUpdatedAt(now);
 
         Category savedCategory = categoryDataPool.save(category);
+
+        // Create recent activity
+        String userId = project.getOwner().getUserId(); // or get current user from security context
+        recentActivityService.createActivity(
+            userId,
+            "created",
+            "Category",
+            savedCategory.getCategoryId()
+        );
 
         CategoryDTO savedCategoryDTO = new CategoryDTO();
         savedCategoryDTO.setCategoryId(savedCategory.getCategoryId());

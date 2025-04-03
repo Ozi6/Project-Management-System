@@ -24,10 +24,10 @@ public class User {
     @Column(name = "user_id")
     private String userId;
     
-    @Column(name = "username")
+    @Column(nullable = false, unique = true, length = 50)
     private String username;
     
-    @Column(name = "email")
+    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
     @OneToMany(mappedBy = "owner")

@@ -55,7 +55,7 @@ const CalendarPage = ({ projectData }) => {
             label: t("sidebar.act"),
             path: `/project/${id}/activity`,
             state: { isOwner },
-            color: 'bg-yellow-100 text-yellow-600',
+            color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
             iconColor: 'text-amber-600'
         },
         {
