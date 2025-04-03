@@ -172,7 +172,7 @@ public class ProjectServicer
         dto.setIsChecked(entry.getIsChecked());
         dto.setDueDate(entry.getDueDate());
         if(entry.getDueDate() != null)
-            dto.setWarningThreshold(entry.getWarningThreshold());
+            dto.setWarningThreshold(entry.getWarningThreshold() != null ? entry.getWarningThreshold() : 1);
         else
             dto.setWarningThreshold(null);
 
