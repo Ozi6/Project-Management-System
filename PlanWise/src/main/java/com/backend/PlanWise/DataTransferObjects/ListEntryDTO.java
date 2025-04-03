@@ -93,6 +93,18 @@ public class ListEntryDTO
     private FileDTO file;
     private LocalDate dueDate;
     private Integer warningThreshold;
+
+    public LocalDateTime getCreatedAt()
+    {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt)
+    {
+        this.createdAt = createdAt;
+    }
+
+    private LocalDateTime createdAt;
     private Set<UserDTO> assignedUsers = new HashSet<>();
     private Set<TeamDTO> assignedTeams = new HashSet<>();
 }

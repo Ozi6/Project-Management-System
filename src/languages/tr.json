@@ -70,8 +70,9 @@
   "gantt.comp": "Tamamlanan",
   "gantt.in": "Devam Ediyor",
   "gantt.not": "Başlanmadı",
-  "gantt.risk": "Riskte",
+  "gantt.risk": "Geç",
   "gantt.leg": "Gösterge",
+  "gantt.warning": "Yaklaşan",
 
   "gantt.jan": "Oca",
   "gantt.feb": "Şub",

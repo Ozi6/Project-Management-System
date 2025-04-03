@@ -1,6 +1,7 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class ListEntry {
     private Integer warningThreshold;
 
     @Column(name = "CreatedAt")
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Column(name = "UpdatedAt")

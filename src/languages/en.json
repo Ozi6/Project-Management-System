@@ -199,6 +199,7 @@
   "gantt.not": "Not Started",
   "gantt.risk": "At Risk",
   "gantt.leg": "Legend",
+  "gantt.warning": "Warning",
 
   "bug.rep": "Your Reports",
   "bug.open": "Open Issues",
