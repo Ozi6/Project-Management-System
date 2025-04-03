@@ -1,20 +1,8 @@
 package com.backend.PlanWise.model;
 
-import java.util.HashMap;
+import jakarta.persistence.*;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.MapKeyColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "users")
@@ -67,21 +55,4 @@ public class User {
     {
         this.email = email;
     }
-
- 
-        @ElementCollection
-        @CollectionTable(name = "user_permissions", 
-            joinColumns = @JoinColumn(name = "user_id"))
-        @MapKeyColumn(name = "permission_name")
-        @Column(name = "permission_value")
-        private Map<String, Boolean> userPermissions = new HashMap<>();
-    
-        // Add after other getters and setters
-        public Map<String, Boolean> getUserPermissions() {
-            return userPermissions;
-        }
-    
-        public void setUserPermissions(Map<String, Boolean> userPermissions) {
-            this.userPermissions = userPermissions;
-        }
 }

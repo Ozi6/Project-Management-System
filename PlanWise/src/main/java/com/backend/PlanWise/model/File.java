@@ -1,107 +1,102 @@
 package com.backend.PlanWise.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
 @Entity
-@Table(name = "files")
+@Table(name = "Files")
 public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "file_id")
     private Long fileId;
 
-    @Column(name = "file_name")
+    @Column(nullable = false)
     private String fileName;
 
-    @Column(name = "original_file_name")
-    private String originalFileName;
+    @Column(nullable = false)
+    private Integer fileSize;
 
-    @Column(name = "file_size")
-    private Long fileSize;
-
-    @Column(name = "file_type")
+    @Column(nullable = false)
     private String fileType;
 
-    @Column(name = "file_data")
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
     private byte[] fileData;
 
     @ManyToOne
-    @JoinColumn(name = "uploaded_by")
-    private User uploadedBy; // This should be User, not UserDataPool
+    @JoinColumn(name = "uploadedBy", nullable = false)
+    private User uploadedBy;
 
-    @Column(name = "uploaded_at")
+    @Column
     private LocalDateTime uploadedAt;
 
-    public Long getFileId() {
+    public Long getFileId()
+    {
         return fileId;
     }
 
-    public void setFileId(Long fileId) {
+    public void setFileId(Long fileId)
+    {
         this.fileId = fileId;
     }
 
-    public String getFileName() {
+    public String getFileName()
+    {
         return fileName;
     }
 
-    public void setFileName(String fileName) {
+    public void setFileName(String fileName)
+    {
         this.fileName = fileName;
     }
 
-    public String getOriginalFileName() {
-        return originalFileName;
-    }
-
-    public void setOriginalFileName(String originalFileName) {
-        this.originalFileName = originalFileName;
-    }
-
-    public Long getFileSize() {
+    public Integer getFileSize()
+    {
         return fileSize;
     }
 
-    public void setFileSize(Long fileSize) {
+    public void setFileSize(Integer fileSize)
+    {
         this.fileSize = fileSize;
     }
 
-    public String getFileType() {
+    public String getFileType()
+    {
         return fileType;
     }
 
-    public void setFileType(String fileType) {
+    public void setFileType(String fileType)
+    {
         this.fileType = fileType;
     }
 
-    public byte[] getFileData() {
+    public byte[] getFileData()
+    {
         return fileData;
     }
 
-    public void setFileData(byte[] fileData) {
+    public void setFileData(byte[] fileData)
+    {
         this.fileData = fileData;
     }
 
-    public User getUploadedBy() {
+    public User getUploadedBy()
+    {
         return uploadedBy;
     }
 
-    public void setUploadedBy(User uploadedBy) {
+    public void setUploadedBy(User uploadedBy)
+    {
         this.uploadedBy = uploadedBy;
     }
 
-    public LocalDateTime getUploadedAt() {
+    public LocalDateTime getUploadedAt()
+    {
         return uploadedAt;
     }
 
-    public void setUploadedAt(LocalDateTime uploadedAt) {
+    public void setUploadedAt(LocalDateTime uploadedAt)
+    {
         this.uploadedAt = uploadedAt;
     }
 }

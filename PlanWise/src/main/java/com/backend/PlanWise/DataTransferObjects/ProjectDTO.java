@@ -1,162 +1,125 @@
 package com.backend.PlanWise.DataTransferObjects;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ProjectDTO {
-    private Long projectId; 
-    private String projectName; // 
+public class ProjectDTO
+{
+    private Long projectId;
+    private String projectName;
     private String description;
-    private String ownerId;
-    private LocalDate createdAt;
-    private LocalDate lastUpdated;
+    private UserDTO owner;
+    private LocalDateTime createdAt;
     private LocalDate dueDate;
-    private boolean isPublic;
-    private boolean isArchived;
-    private String backgroundImageUrl;
-    private String inviteToken;
-
-    private boolean isOwner;
-    private Set<ProjectMemberDTO> members = new HashSet<>();
+    private LocalDateTime lastUpdated;
+    private Set<UserDTO> members = new HashSet<>();
+    private Set<TeamDTO> teams = new HashSet<>();
     private Set<CategoryDTO> categories = new HashSet<>();
-    private Set<TeamDTO> teams = new HashSet<>(); 
+    private boolean isOwner;
 
-    public ProjectDTO() {
-        this.members = new HashSet<>();
-        this.categories = new HashSet<>();
-    }
-
-    public ProjectDTO(Long id, String name, String description, String ownerId) {
-        this();
-        this.projectId = id;
-        this.projectName = name;
-        this.description = description;
-        this.ownerId = ownerId;
-    }
-
-    public Long getProjectId() {
-        return projectId;
-    }
-    public String getInviteToken() {
-        return inviteToken;
-    }
     public boolean isOwner() {
         return isOwner;
     }
+
     public void setIsOwner(boolean owner) {
         isOwner = owner;
     }
 
-    public void setInviteToken(String inviteToken) {
-        this.inviteToken = inviteToken;
-    }
-    public void setProjectId(Long id) {
-        this.projectId = id;
+    public Long getProjectId()
+    {
+        return projectId;
     }
 
-    public String getProjectName() {
+    public void setProjectId(Long projectId)
+    {
+        this.projectId = projectId;
+    }
+
+    public String getProjectName()
+    {
         return projectName;
     }
 
-    public void setProjectName(String name) {
-        this.projectName = name;
+    public void setProjectName(String projectName)
+    {
+        this.projectName = projectName;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(String description)
+    {
         this.description = description;
     }
 
-    public String getOwnerId() {
-        return ownerId;
-    }
-
-    private UserDTO owner; // Add this field to store the owner object
-
-    public UserDTO getOwner() {
+    public UserDTO getOwner()
+    {
         return owner;
     }
 
-    public void setOwner(UserDTO owner) {
-        this.owner = new UserDTO();
-        this.owner.setUserId(owner.getUserId());
-        this.owner.setUsername(owner.getUsername());
-        this.owner.setEmail(owner.getEmail());
+    public void setOwner(UserDTO owner)
+    {
+        this.owner = owner;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt()
+    {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt)
+    {
         this.createdAt = createdAt;
     }
+
+    public Set<UserDTO> getMembers()
+    {
+        return members;
+    }
+
+    public void setMembers(Set<UserDTO> members)
+    {
+        this.members = members;
+    }
+
+    public Set<TeamDTO> getTeams()
+    {
+        return teams;
+    }
+
+    public void setTeams(Set<TeamDTO> teams)
+    {
+        this.teams = teams;
+    }
+
+    public Set<CategoryDTO> getCategories()
+    {
+        return categories;
+    }
+
+    public void setCategories(Set<CategoryDTO> categories)
+    {
+        this.categories = categories;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+
     public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
-    public LocalDate getDueDate(){
-        return dueDate;
-    }
-    
-
-    public LocalDate getLastUpdated() {
+    public LocalDateTime getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDate lastUpdated) {
+    public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
-    }
-
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
-    }
-
-    public boolean isArchived() {
-        return isArchived;
-    }
-
-    public void setArchived(boolean isArchived) {
-        this.isArchived = isArchived;
-    }
-
-    public String getBackgroundImageUrl() {
-        return backgroundImageUrl;
-    }
-
-    public void setBackgroundImageUrl(String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-    }
-
-    public Set<ProjectMemberDTO> getMembers() {
-        return members;
-    }
-
-    public void setMembers(Set<ProjectMemberDTO> members) {
-        this.members = members;
-    }
-
-    public Set<CategoryDTO> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Set<CategoryDTO> categories) {
-        this.categories = categories;
-    }
-
-    public Set<TeamDTO> getTeams() {
-        return teams;
-    }
-
-    public void setTeams(Set<TeamDTO> teams) {
-        this.teams = teams;
     }
 }
