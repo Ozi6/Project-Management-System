@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const GeneralSettings = ({ setShowAdvanced, isOwner }) => {
+const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
     const {t} = useTranslation();
     const { user } = useUser();
 

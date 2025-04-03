@@ -1,5 +1,6 @@
 package com.backend.PlanWise;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +14,15 @@ public class PlanWiseApplication
 {
 	public static void main(String[] args)
 	{
+		Dotenv dotenv = Dotenv.configure()
+				.directory("envs")
+				.filename("ids.env")
+				.load();
+
+		dotenv.entries().forEach(entry -> {
+			System.setProperty(entry.getKey(), entry.getValue());
+		});
+
 		SpringApplication.run(PlanWiseApplication.class, args);
 	}
 

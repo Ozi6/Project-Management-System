@@ -145,6 +145,16 @@ CREATE TABLE recent_activity (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE invitations (
+    invitation_id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL,
+    project_id INT NOT NULL,
+    invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    status ENUM('Pending', 'Accepted', 'Declined') DEFAULT 'Pending',
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
+);
+
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 
 CREATE INDEX idx_categories_project ON categories(project_id);
@@ -163,3 +173,5 @@ CREATE INDEX idx_bug_comments_bug_id ON bug_comments(bug_id);
 
 CREATE INDEX idx_user_id ON recent_activity(user_id);
 CREATE INDEX idx_activity_time ON recent_activity(activity_time);
+
+CREATE INDEX idx_invitations_project ON invitations(project_id);

@@ -62,7 +62,8 @@ const ProjectDetails = () => {
                 const response = await axios.get(`http://localhost:8080/api/projects/${id}/details`,
                 {
                     withCredentials: true,
-                    headers: {
+                    headers:
+                    {
                         'Authorization': `Bearer ${token}`,
                     },
                 });

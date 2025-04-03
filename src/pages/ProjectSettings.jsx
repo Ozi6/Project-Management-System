@@ -136,10 +136,12 @@ const ProjectSettings = () =>
                             <AdvancedSettings
                                 setShowAdvanced={setShowAdvanced}
                                 isOwner={isOwner}
+                                projectId={id}
                             />
                         ) : (
                                 <GeneralSettings setShowAdvanced={setShowAdvanced}
-                                isOwner={isOwner}
+                                    isOwner={isOwner}
+                                    projectId={id}
                             />
                         )}
                     </div>

@@ -97,7 +97,7 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
   );
 };
 
-const AdvancedSettings = ({ setShowAdvanced, isOwner }) => {
+const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
   const {t} = useTranslation();
   // Get current user from Clerk
   const { user } = useUser();
@@ -320,8 +320,9 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner }) => {
         
         {/* Invite People Modal */}
         <InvitePeople
-          isOpen={isModalOpen && isProjectOwner}
-          onClose={() => setIsModalOpen(false)}
+            isOpen={isModalOpen && isProjectOwner}
+            projectId={projectId}
+            onClose={() => setIsModalOpen(false)}
         />
 
         {/* Search Input */}
