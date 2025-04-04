@@ -1,75 +1,92 @@
 package com.backend.PlanWise.model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "project_members")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@IdClass(ProjectMemberId.class)
 public class ProjectMember {
-    @EmbeddedId
-    private ProjectMemberId id;
-    @MapsId("projectId")
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @Id
+    @Column(name = "project_id")
+    private Long projectId;
+
+    @Id
+    @Column(name = "user_id")
+    private String userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", insertable = false, updatable = false)
     private Project project;
 
-    @MapsId("userId")
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-    @Column(name = "joined_at") // Match database column name
-    private LocalDateTime joinedAt;
+    @Column(name = "joined_at")
+    private LocalDate joinedAt;
 
     @OneToMany(mappedBy = "projectMember", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<ProjectMemberPermission> permissions;
 
-    // Add getter and setter for joinedAt
-    public LocalDateTime getJoinedAt() {
+    public LocalDate getJoinedAt() {
         return joinedAt;
     }
 
-    public void setJoinedAt(LocalDateTime joinedAt) {
+    public void setJoinedAt(LocalDate joinedAt) {
         this.joinedAt = joinedAt;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Map<String, Boolean> getPermissions() {
         Map<String, Boolean> permissionMap = new HashMap<>();
-        for (ProjectMemberPermission permission : this.permissions) {
-            permissionMap.put(permission.getPermissionName(), permission.getPermissionValue());
+        if (this.permissions != null) {
+            for (ProjectMemberPermission permission : this.permissions) {
+                permissionMap.put(permission.getPermissionName(), permission.getPermissionValue());
+            }
         }
         return permissionMap;
     }
 
     public void setPermissions(Map<String, Boolean> permissions) {
-        this.permissions.clear();
-        for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
-            ProjectMemberPermission permission = new ProjectMemberPermission();
-            permission.setPermissionName(entry.getKey());
-            permission.setPermissionValue(entry.getValue());
-            permission.setProjectMember(this);
-            this.permissions.add(permission);
+        if (this.permissions == null) {
+            this.permissions = new ArrayList<>();
+        } else {
+            this.permissions.clear();
+        }
+
+        if (permissions != null) {
+            for (Map.Entry<String, Boolean> entry : permissions.entrySet()) {
+                ProjectMemberPermission permission = new ProjectMemberPermission();
+                permission.setProjectId(this.projectId);
+                permission.setUserId(this.userId);
+                permission.setPermissionName(entry.getKey());
+                permission.setPermissionValue(entry.getValue());
+                this.permissions.add(permission);
+            }
         }
     }
 
@@ -79,13 +96,19 @@ public class ProjectMember {
 
     public void setProject(Project project) {
         this.project = project;
+        if (project != null) {
+            this.projectId = project.getProjectId();
+        }
     }
 
-    public ProjectMemberId getId() {
-        return id;
+    public User getUser() {
+        return user;
     }
 
-    public void setId(ProjectMemberId id) {
-        this.id = id;
+    public void setUser(User user) {
+        this.user = user;
+        if (user != null) {
+            this.userId = user.getUserId();
+        }
     }
 }

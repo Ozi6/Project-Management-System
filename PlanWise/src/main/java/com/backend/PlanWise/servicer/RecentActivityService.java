@@ -15,7 +15,6 @@ import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.RecentActivity;
 
-
 @Service
 public class RecentActivityService {
 
@@ -26,9 +25,9 @@ public class RecentActivityService {
 
     @Autowired
     public RecentActivityService(RecentActivityDataPool recentActivityDataPool,
-                               ProjectDataPool projectDataPool,
-                               CategoryDataPool categoryDataPool,
-                               UserService userService) {
+            ProjectDataPool projectDataPool,
+            CategoryDataPool categoryDataPool,
+            UserService userService) {
         this.recentActivityDataPool = recentActivityDataPool;
         this.projectDataPool = projectDataPool;
         this.categoryDataPool = categoryDataPool;
@@ -50,7 +49,7 @@ public class RecentActivityService {
         activity.setActivityTime(LocalDateTime.now());
 
         RecentActivity savedActivity = recentActivityDataPool.save(activity);
-        
+
         return convertToDTO(savedActivity, userName, entityName);
     }
 
@@ -60,18 +59,18 @@ public class RecentActivityService {
                 return projectDataPool.findById(entityId)
                         .map(Project::getProjectName)
                         .orElse("a project");
-                } else if ("Category".equalsIgnoreCase(entityType)) {
-                    Category category = categoryDataPool.findById(entityId).orElse(null);
-                    if (category != null) {
-                        String projectName = projectDataPool.findById(category.getProject().getProjectId())
-                                .map(Project::getProjectName)
-                                .orElse("a project");
-                        return category.getCategoryName() + " in " + projectName;
-                    }
-                    return "a category";
+            } else if ("Category".equalsIgnoreCase(entityType)) {
+                Category category = categoryDataPool.findById(entityId).orElse(null);
+                if (category != null) {
+                    String projectName = projectDataPool.findById(category.getProject().getProjectId())
+                            .map(Project::getProjectName)
+                            .orElse("a project");
+                    return category.getCategoryName() + " in " + projectName;
                 }
+                return "a category";
+            }
         } catch (Exception e) {
-            //log.error("Error fetching entity name", e);
+            // 
         }
         return entityType.toLowerCase(); // fallback to "project", "task", etc.
     }
@@ -100,6 +99,4 @@ public class RecentActivityService {
                 .collect(Collectors.toList());
     }
 
-    
-    
 }

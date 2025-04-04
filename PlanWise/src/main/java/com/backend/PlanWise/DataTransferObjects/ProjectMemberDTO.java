@@ -1,12 +1,14 @@
 package com.backend.PlanWise.DataTransferObjects;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 public class ProjectMemberDTO {
     private String userId;
     private String email;
     private String username;
-    
+    private LocalDate joinedAt;
+
     private Map<String, Boolean> permissions;
 
     public String getUserId() {
@@ -33,6 +35,13 @@ public class ProjectMemberDTO {
         this.username = username;
     }
 
+    public LocalDate getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDate joinedAt) {
+        this.joinedAt = joinedAt;
+    }
 
     public Map<String, Boolean> getPermissions() {
         return permissions;

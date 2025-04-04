@@ -1,13 +1,11 @@
 package com.backend.PlanWise.servicer;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -36,6 +34,7 @@ import com.backend.PlanWise.model.ProjectMember;
 import com.backend.PlanWise.model.TaskList;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
+import com.backend.PlanWise.servicer.FileService;
 
 @Service
 @Transactional // ?
@@ -55,6 +54,9 @@ public class ProjectServicer {
     @Autowired
     private RecentActivityService recentActivityService;
 
+    @Autowired
+    private TeamServicer teamServicer;
+
     public List<ProjectDTO> getAllProjects() {
         return projectRepository.findAll().stream()
                 .map(this::convertToDTO)
@@ -64,7 +66,7 @@ public class ProjectServicer {
     public ProjectDTO getProjectById(Long id) {
         Project project = projectRepository.findByIdWithMembers(id);
         if (project == null) {
-            log.warn("Project not found with id: {}", id);
+            
             return null;
         }
         return convertToDTO(project);
@@ -174,11 +176,22 @@ public class ProjectServicer {
         project.setDescription(projectDTO.getDescription());
         project.setOwner(owner);
         project.setCreatedAt(projectDTO.getCreatedAt());
-        LocalDate jjj = projectDTO.getDueDate();
         project.setDueDate(projectDTO.getDueDate());
         project.setUpdatedAt(projectDTO.getLastUpdated());
 
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProject(project);
+        projectMember.setUser(owner);
+        projectMember.setJoinedAt(projectDTO.getCreatedAt());
+        project.getProjectMembers().add(projectMember);
+
         Project savedProject = projectRepository.save(project);
+
+        recentActivityService.createActivity(
+                owner.getUserId(),
+                "created",
+                "Project",
+                savedProject.getProjectId());
 
         return convertToDTO(savedProject);
     }
@@ -187,12 +200,7 @@ public class ProjectServicer {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        log.info(
-                "Updating project settings for project {}: name={}, description={}, isPublic={}, backgroundImage={}, backgroundImageUrl={}",
-                projectId, settings.getProjectName(), settings.getProjectDescription(), settings.isPublic(),
-                settings.getBackgroundImage() != null ? "present" : "null",
-                settings.getBackgroundImageUrl());
-
+       
         if (settings.getProjectName() != null) {
             project.setProjectName(settings.getProjectName());
         }
@@ -202,28 +210,22 @@ public class ProjectServicer {
         project.setPublic(settings.isPublic());
 
         if (settings.getBackgroundImage() != null && !settings.getBackgroundImage().isEmpty()) {
-            log.info("Processing new background image for project {}", projectId);
-            log.info("Background image details - Name: {}, Size: {}, Content Type: {}",
-                    settings.getBackgroundImage().getOriginalFilename(),
-                    settings.getBackgroundImage().getSize(),
-                    settings.getBackgroundImage().getContentType());
+            
+            
 
             String imageUrl = fileStorageService.storeFile(settings.getBackgroundImage());
             if (imageUrl != null) {
-                log.info("Successfully stored background image for project {}: {}", projectId, imageUrl);
+                
                 project.setBackgroundImageUrl(imageUrl);
             } else {
-                log.warn("Failed to store background image for project {}", projectId);
+                
             }
         } else if (settings.getBackgroundImageUrl() != null) {
-            log.info("Using existing background image URL for project {}: {}", projectId,
-                    settings.getBackgroundImageUrl());
+            
             project.setBackgroundImageUrl(settings.getBackgroundImageUrl());
         }
 
         Project updatedProject = projectRepository.save(project);
-        log.info("Project {} updated successfully. New background image URL: {}",
-                projectId, updatedProject.getBackgroundImageUrl());
 
         return convertToDTO(updatedProject);
     }
@@ -260,7 +262,18 @@ public class ProjectServicer {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        project.getMembers().removeIf(member -> member.getUserId().equals(userId));
+        // Check if member is in any team
+        Long memberTeamId = teamServicer.getMemberTeamId(userId);
+
+        if (memberTeamId != null) {
+            // If member is in a team, remove them from the team first
+            teamServicer.deleteTeamMembers(memberTeamId);
+        }
+
+        // Remove from project_members
+        project.getProjectMembers().removeIf(member -> member.getUserId().equals(userId));
+
+        // Save the project with changes
         projectRepository.save(project);
     }
 
@@ -268,12 +281,14 @@ public class ProjectServicer {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        return project.getMembers().stream()
-                .map(user -> {
+        return project.getProjectMembers().stream()
+                .map(member -> {
                     ProjectMemberDTO memberDTO = new ProjectMemberDTO();
-                    memberDTO.setUserId(user.getUserId());
-                    memberDTO.setUsername(user.getUsername());
-                    memberDTO.setPermissions(user.getUserPermissions());
+                    memberDTO.setUserId(member.getUserId());
+                    memberDTO.setUsername(member.getUser().getUsername());
+                    memberDTO.setEmail(member.getUser().getEmail());
+                    memberDTO.setJoinedAt(member.getJoinedAt());
+                    memberDTO.setPermissions(member.getPermissions());
                     return memberDTO;
                 })
                 .collect(Collectors.toList());
@@ -289,7 +304,6 @@ public class ProjectServicer {
         dto.setLastUpdated(project.getUpdatedAt());
         dto.setPublic(project.isPublic());
         dto.setBackgroundImageUrl(project.getBackgroundImageUrl());
-        dto.setPublic(project.isPublic());
         dto.setCreatedAt(project.getCreatedAt());
         dto.setInviteToken(project.getInviteToken());
 
@@ -455,48 +469,41 @@ public class ProjectServicer {
 
     public boolean isProjectOwner(Long projectId, String userId) {
         if (projectId == null || userId == null) {
-            log.warn("Project ID or User ID is null when checking ownership. ProjectId: {}, UserId: {}", projectId,
-                    userId);
+            
             return false;
         }
 
-        log.info("Checking ownership for project {} and user {}", projectId, userId);
+        
 
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> {
-                    log.error("Project not found with id: {}", projectId);
+                    
                     return new ResourceNotFoundException("Project not found with id: " + projectId);
                 });
 
         if (project.getOwner() == null) {
-            log.warn("Project {} has no owner set", projectId);
+            
             return false;
         }
 
         String ownerId = project.getOwner().getUserId();
-        log.info("Project owner ID: {}, Checking user ID: {}", ownerId, userId);
+        
 
         boolean isOwner = ownerId.toLowerCase().equals(userId.toLowerCase());
-        log.info("Is user {} owner of project {}: {}", userId, projectId, isOwner);
+        
         return isOwner;
     }
 
     public Map<String, Boolean> getMemberPermissions(Long projectId, String userId) {
         if (projectId == null || userId == null) {
-            log.warn("Project ID or User ID is null when checking permissions");
-            return Map.of(
-                    "settings", false,
-                    "edit", false,
-                    "delete", false,
-                    "invite", false);
+            throw new IllegalArgumentException("Project ID and User ID cannot be null");
         }
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
 
-        // Если пользователь является владельцем проекта, возвращаем все права
         if (isProjectOwner(projectId, userId)) {
-            log.debug("User {} is owner of project {}, granting all permissions", userId, projectId);
+            
             return Map.of(
                     "settings", true,
                     "edit", true,
@@ -504,21 +511,19 @@ public class ProjectServicer {
                     "invite", true);
         }
 
-        // Получаем права доступа из базы данных
+        // Get permissions from database
         ProjectMember member = project.getProjectMembers().stream()
-                .filter(m -> m.getId().getUserId().toLowerCase().equals(userId.toLowerCase()))
+                .filter(m -> m.getUserId().equals(userId))
                 .findFirst()
                 .orElse(null);
 
         if (member != null) {
-            log.debug("Found member permissions for user {} in project {}: {}", userId, projectId,
-                    member.getPermissions());
+            
             return member.getPermissions();
         }
 
-        // Если пользователь не является членом проекта, возвращаем дефолтные права
-        log.debug("No specific permissions found for user {} in project {}, returning default permissions", userId,
-                projectId);
+        // If user is not a project member, return default permissions
+        
         return Map.of(
                 "settings", false,
                 "edit", false,
@@ -526,36 +531,47 @@ public class ProjectServicer {
                 "invite", false);
     }
 
-    public void inviteMember(Long projectId, String email) {
-        if (projectId == null || email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Invalid parameters for invite");
+
+
+    public void addUserToProject(Long projectId, String userId) {
+        if (projectId == null || userId == null) {
+            throw new IllegalArgumentException("Project ID and User ID cannot be null");
         }
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
 
-        // Здесь должна быть логика отправки приглашения по email
-        // Например, генерация токена приглашения и отправка email
-        log.info("Sending invitation to {} for project {}", email, projectId);
-    }
+        User user = userDataPool.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
 
-    public String generateInviteLink(Long projectId) {
-        if (projectId == null) {
-            throw new IllegalArgumentException("Invalid project ID");
+        // Check if user is already a project member
+        if (project.getMembers().contains(user)) {
+            throw new IllegalStateException("User is already a member of this project");
         }
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
-
-        // Генерируем уникальный токен для приглашения
-        String token = UUID.randomUUID().toString();
-
-        // Сохраняем токен в базе данных
-        project.setInviteToken(token);
+        // Add user to project
+        project.getMembers().add(user);
         projectRepository.save(project);
 
-        // Возвращаем полную ссылку для приглашения
-        return String.format("http://localhost:3000/join/%s?token=%s", projectId, token);
+        // Create recent activity record
+        recentActivityService.createActivity(
+                userId,
+                "joined",
+                "Project",
+                projectId);
+    }
+
+    public ProjectDTO updateProject(Long projectId, ProjectDTO projectDTO) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        project.setProjectName(projectDTO.getProjectName());
+        project.setDescription(projectDTO.getDescription());
+        // project.getCreatedAt();
+        project.setDueDate(projectDTO.getDueDate());
+
+        Project updatedProject = projectRepository.save(project);
+        return convertToDTO(updatedProject);
     }
 
 }
