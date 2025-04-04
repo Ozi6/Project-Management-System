@@ -20,11 +20,13 @@ public class ProjectDTO
     private boolean isOwner;
     private String backgroundImage;
 
-    public boolean isOwner() {
+    public boolean isOwner()
+    {
         return isOwner;
     }
 
-    public void setIsOwner(boolean owner) {
+    public void setIsOwner(boolean owner)
+    {
         isOwner = owner;
     }
 
@@ -116,11 +118,13 @@ public class ProjectDTO
         this.dueDate = dueDate;
     }
 
-    public LocalDateTime getLastUpdated() {
+    public LocalDateTime getLastUpdated()
+    {
         return lastUpdated;
     }
 
-    public void setLastUpdated(LocalDateTime lastUpdated) {
+    public void setLastUpdated(LocalDateTime lastUpdated)
+    {
         this.lastUpdated = lastUpdated;
     }
 

@@ -9,7 +9,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Projects")
-public class Project {
+public class Project
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "project_id")
@@ -34,11 +35,13 @@ public class Project {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    public LocalDate getDueDate() {
+    public LocalDate getDueDate()
+    {
         return this.dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(LocalDate dueDate)
+    {
         this.dueDate = dueDate;
     }
 

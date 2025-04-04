@@ -47,6 +47,7 @@ const ProjectDetails = () => {
     const [originalColumns, setOriginalColumns] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [backgroundImage, setBackgroundImage] = useState(null);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
@@ -69,6 +70,10 @@ const ProjectDetails = () => {
                 });
 
                 const projectData = response.data;
+
+                if(projectData.backgroundImage)
+                    setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
+
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
                     : (projectData.categories ? [projectData.categories] : []);
@@ -746,6 +751,11 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
+    const getOverlayColor = () =>
+    {
+        return 'rgba(255, 255, 255, 0.7)';
+    };
+
     const updateCategory = async (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
     {
         try{
@@ -1053,6 +1063,19 @@ const ProjectDetails = () => {
 
     return (
         <div className="flex flex-col h-screen">
+            {backgroundImage && (
+                <div
+                    className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat"
+                    style={{
+                        backgroundImage: `url(${backgroundImage})`,
+                    }}
+                >
+                    <div
+                        className="absolute inset-0 backdrop-blur-sm"
+                        style={{ backgroundColor: getOverlayColor() }}
+                    ></div>
+                </div>
+            )}
             <ViewportHeader 
               isHorizontalLayout={isHorizontalLayout} 
               toggleLayout={toggleLayout} 
