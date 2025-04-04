@@ -4,38 +4,36 @@ import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
+const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) =>
+{
     const { t } = useTranslation();
     const { user } = useUser();
 
-    // Check if current user is the project owner
     const isProjectOwner = isOwner || false;
 
     const [projectName, setProjectName] = useState(t("set.named"));
     const [projectDescription, setProjectDescription] = useState(t("set.dd"));
-    const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg"); // Default image
+    const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg");
     const [isPublic, setIsPublic] = useState(false);
     const [dueDate, setDueDate] = useState("");
 
-    const handleBackgroundImageChange = (e) => {
-        // Only allow changes if user is project owner
-        if (!isProjectOwner) return;
+    const handleBackgroundImageChange = (e) =>
+    {
+        if (!isProjectOwner)
+            return;
 
         const file = e.target.files[0];
-        if (file) {
+        if (file)
             setBackgroundImage(URL.createObjectURL(file));
-        }
     };
 
-    const handleDeleteProject = () => {
-        // Only project owners can delete projects
-        if (!isProjectOwner) return;
+    const handleDeleteProject = () =>
+    {
+        if (!isProjectOwner)
+            return;
 
-        if (window.confirm(t("set.warn"))) {
-            // Implement your delete project logic here
+        if (window.confirm(t("set.warn")))
             console.log(t("set.warn.ok"));
-            // Redirect or perform other actions after deletion
-        }
     };
 
     return (
@@ -45,7 +43,6 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                 <h2 className="text-3xl font-semibold text-[var(--features-text-color)]">{t("set.gen")}</h2>
             </div>
 
-            {/* Owner status indicator */}
             {!isProjectOwner && (
                 <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-700 flex items-center">
                     <UserCheck className="w-5 h-5 mr-2 text-yellow-500" />
@@ -81,7 +78,6 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                     />
                 </div>
 
-                {/* Due Date Field */}
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-[var(--text-color3)]">Due Date</label>
                     <input

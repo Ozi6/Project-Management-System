@@ -40,6 +40,8 @@
   "procard.add.create": "Create Project",
   "procard.drop": "Drop Here",
   "procard.drop.add": "Add Drop ",
+  "procard.desc": "Project Description",
+  "procard.add.descd": "Enter project description",
 
   "toggle.h": "Horizontal",
   "toggle.v": "Vertical",

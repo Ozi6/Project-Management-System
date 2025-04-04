@@ -37,6 +37,8 @@
   "procard.add.create": "Proje Oluştur",
   "procard.drop": "Buraya Bırak",
   "procard.drop.add": "Bırakma Alanı Ekle",
+  "procard.desc": "Proje Açıklaması",
+  "procard.add.descd": "Proje Açıklamasını girin",
 
   "dashboard.well": "Gösterge Panelinize Hoş Geldiniz",
   "dashboard.welld": "İşte projelerinizin ve ekibinizin ilerlemesine genel bir bakış.",
