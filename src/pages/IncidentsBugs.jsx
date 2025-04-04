@@ -854,12 +854,12 @@ const IncidentsBugs = () => {
                 ) : (
                   <div className="space-y-4 mb-4 max-h-[300px] overflow-y-auto pr-1">
                     {selectedIncident.comments && selectedIncident.comments.map(comment => (
-                      <div key={comment.id} className="bg-[var(--gray-card3)]/60 p-4 rounded-lg">
+                      <div key={comment.id} className="bg-[var(--gray-card3)]/20 p-4 rounded-lg border border-[var(--features-icon-color)]/20 shadow-sm">
                         <div className="flex justify-between items-start mb-2">
-                          <span className="font-medium text-[var(--text-color3)]">{comment.author}</span>
-                          <span className="text-xs text-[var(--text-color3)]">{new Date(comment.date).toLocaleDateString()}</span>
+                          <span className="font-medium text-[var(--features-title-color)]">{comment.author}</span>
+                          <span className="text-xs text-[var(--features-icon-color)]">{new Date(comment.date).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-sm text-[var(--features-text-color)]/70">{comment.text}</p>
+                        <p className="text-sm text-[var(--features-text-color)]">{comment.text}</p>
                       </div>
                     ))}
                   </div>
@@ -867,7 +867,7 @@ const IncidentsBugs = () => {
                 
                 {/* Comment form */}
                 {showCommentForm && (
-                  <div className="bg-[var(--gray-card3)]/50 p-4 rounded-lg mt-4">
+                  <div className="bg-[var(--gray-card3)]/10 p-4 rounded-lg mt-4 border border-[var(--features-icon-color)]/30 shadow-sm">
                     <textarea
                       value={commentText}
                       onChange={(e) => {
@@ -876,7 +876,7 @@ const IncidentsBugs = () => {
                       }}
                       placeholder="Write your comment here..."
                       rows="3"
-                      className={`w-full p-3 bg-[var(--bg-color)] border ${commentError ? 'border-red-500' : 'border-gray-200'} text-[var(--text-color3)]/70 rounded-lg focus:ring-2 focus:ring-[var(--features-icon-color)]/20 focus:border-transparent transition-all duration-200 mb-2`}
+                      className={`w-full p-3 bg-[var(--bg-color)] border ${commentError ? 'border-red-500' : 'border-[var(--features-icon-color)]/30'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--features-icon-color)] focus:border-transparent transition-all duration-200 mb-2`}
                     ></textarea>
                     {commentError && <p className="text-xs text-red-600 mb-2">{commentError}</p>}
                     
@@ -895,7 +895,7 @@ const IncidentsBugs = () => {
                       <button
                         type="button"
                         onClick={handleAddComment}
-                        className="px-3 py-1.5 text-sm rounded-lg bg-[var(--features-icon-color)]/40 text-white hover:bg-[var(--features-icon-color)]/80 transition-colors shadow-sm"
+                        className="px-3 py-1.5 text-sm rounded-lg bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)] transition-colors shadow-sm"
                       >
                         Submit
                       </button>
@@ -903,33 +903,33 @@ const IncidentsBugs = () => {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Actions */}
-            <div className="p-4 border-t mt-auto flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setShowDetailModal(false)}
-                className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
-              >
-                {t("bug.close")}
-              </button>
-              {!showCommentForm && selectedIncident.status !== 'resolved' && selectedIncident.status !== 'closed' && (
+              {/* Actions */}
+              <div className="p-4 border-t mt-auto flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => setShowCommentForm(true)}
-                  className="px-5 py-2.5 rounded-lg bg-[var(--features-icon-color)]/20 text-white hover:bg-[var(--hover-color)]/20 transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
+                  onClick={() => setShowDetailModal(false)}
+                  className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium"
                 >
-                  <MessageSquare className="h-4 w-4 mr-1.5" />
-                  {t("bug.add")}
+                  {t("bug.close")}
                 </button>
-              )}
-              {(selectedIncident.status === 'resolved' || selectedIncident.status === 'closed') && (
-                <div className="px-5 py-2.5 text-sm text-gray-500 italic flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-1.5" />
-                  Comments disabled for {selectedIncident.status} issues
-                </div>
-              )}
+                {!showCommentForm && selectedIncident.status !== 'resolved' && selectedIncident.status !== 'closed' && (
+                  <button
+                    type="button"
+                    onClick={() => setShowCommentForm(true)}
+                    className="px-5 py-2.5 rounded-lg bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)] transition-colors flex items-center shadow-sm hover:shadow-md font-medium"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-1.5" />
+                    {t("bug.add")}
+                  </button>
+                )}
+                {(selectedIncident.status === 'resolved' || selectedIncident.status === 'closed') && (
+                  <div className="px-5 py-2.5 text-sm text-gray-500 italic flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1.5" />
+                    Comments disabled for {selectedIncident.status} issues
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
