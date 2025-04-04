@@ -526,7 +526,7 @@ const ProjectManagement = () => {
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-500">
-                                        {t("procard.add.owner")} {user.fullName || user.username}
+                                        {user.fullName || user.username}
                                         </p>
                                     </div>
                                 )}
