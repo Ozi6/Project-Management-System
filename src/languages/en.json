@@ -55,7 +55,7 @@
   "prode.e": "Edit Category",
   "prode.e.tit": "Title",
   "prode.e.titd": "New Categorizer",
-  "prode..e.tag": "Tag Color",
+  "prode.e.tag": "Tag Color",
   "prode.e.col": "red",
   "prode.del": "Delete",
   "prode.can": "Cancel",
@@ -63,7 +63,7 @@
   "prode.del.tit": "Delete Category",
   "prode.del.d": "Are you sure? This cannot be undone.",
   "prode.addent": "Add Entry",
-  "prode.edit.task": "Edir Task List",
+  "prode.edit.task": "Edit Task List",
   "prode.no.ent": "No entries",
 
 
