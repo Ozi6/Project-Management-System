@@ -1,118 +1,95 @@
 package com.backend.PlanWise.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "invitations")
-public class Invitation {
+public class Invitation
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "invitation_id")
+    private Integer invitationId;
 
-    @Column(nullable = false)
-    private String token;
-
-    @Column(nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String role;
+    @Column(name = "project_id", nullable = false)
+    private Long projectId;
 
-    @Column(nullable = false)
-    private LocalDateTime expirationDate;
+    @Column(name = "invited_at")
+    private Instant invitedAt;
 
-    @Column(nullable = false)
-    private boolean used;
-
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
-
-    @ManyToOne
-    @JoinColumn(name = "inviter_id", nullable = false)
-    private User inviter;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    public Invitation() {
-        this.token = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-        this.used = false;
+    public Instant getExpiresAt()
+    {
+        return expiresAt;
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public void setExpiresAt(Instant expiresAt)
+    {
+        this.expiresAt = expiresAt;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
+    @Column(name = "status")
+    private String status;
+
+    public Integer getInvitationId()
+    {
+        return invitationId;
     }
 
-    public String getToken() {
-        return token;
+    public void setInvitationId(Integer invitationId)
+    {
+        this.invitationId = invitationId;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public String getEmail() {
+    public String getEmail()
+    {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(String email)
+    {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
+    public Long getProjectId()
+    {
+        return projectId;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setProjectId(Long projectId)
+    {
+        this.projectId = projectId;
     }
 
-    public LocalDateTime getExpirationDate() {
-        return expirationDate;
+    public Instant getInvitedAt()
+    {
+        return invitedAt;
     }
 
-    public void setExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = expirationDate;
+    public void setInvitedAt(Instant invitedAt)
+    {
+        this.invitedAt = invitedAt;
     }
 
-    public boolean isUsed() {
-        return used;
+    public String getStatus()
+    {
+        return status;
     }
 
-    public void setUsed(boolean used) {
-        this.used = used;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public User getInviter() {
-        return inviter;
-    }
-
-    public void setInviter(User inviter) {
-        this.inviter = inviter;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setStatus(String status)
+    {
+        this.status = status;
     }
 }

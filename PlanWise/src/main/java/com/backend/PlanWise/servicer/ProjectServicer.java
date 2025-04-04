@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
@@ -21,11 +21,9 @@ import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectMemberDTO;
-import com.backend.PlanWise.DataTransferObjects.ProjectSettingsDTO;
 import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
-import com.backend.PlanWise.exception.ResourceNotFoundException;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
@@ -37,17 +35,16 @@ import com.backend.PlanWise.model.User;
 import com.backend.PlanWise.servicer.FileService;
 
 @Service
-@Transactional // ?
-public class ProjectServicer {
+public class ProjectServicer
+{
 
     private static final Logger log = LoggerFactory.getLogger(ProjectServicer.class);
-    @Autowired
-    private ProjectDataPool projectRepository;
 
     @Autowired
-    private FileService fileStorageService;
+    private ProjectDataPool projectRepository;
     @Autowired
     private UserDataPool userDataPool;
+
     @Autowired
     private UserService userService;
 
@@ -57,7 +54,8 @@ public class ProjectServicer {
     @Autowired
     private TeamServicer teamServicer;
 
-    public List<ProjectDTO> getAllProjects() {
+    public List<ProjectDTO> getAllProjects()
+    {
         return projectRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -76,9 +74,13 @@ public class ProjectServicer {
         User owner = userDataPool.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Owner not found with id: " + ownerId));
         project.setOwner(owner);
+
     }
 
-    private UserDTO convertUserToDTO(User user) {
+
+
+    private UserDTO convertUserToDTO(User user)
+    {
         UserDTO dto = new UserDTO();
         dto.setUserId(user.getUserId());
         dto.setUsername(user.getUsername());
@@ -86,7 +88,9 @@ public class ProjectServicer {
         return dto;
     }
 
-    private TeamDTO convertTeamToDTO(Team team) {
+
+    private TeamDTO convertTeamToDTO(Team team)
+    {
         TeamDTO dto = new TeamDTO();
         dto.setTeamId(team.getTeamId());
         dto.setTeamName(team.getTeamName());
@@ -99,7 +103,9 @@ public class ProjectServicer {
         return dto;
     }
 
-    private CategoryDTO convertCategoryToDTO(Category category) {
+
+    private CategoryDTO convertCategoryToDTO(Category category)
+    {
         CategoryDTO dto = new CategoryDTO();
         dto.setCategoryId(category.getCategoryId());
         dto.setCategoryName(category.getCategoryName());
@@ -112,64 +118,20 @@ public class ProjectServicer {
         return dto;
     }
 
-    private TaskListDTO convertTaskListToDTO(TaskList taskList) {
-        TaskListDTO dto = new TaskListDTO();
-        dto.setTaskListId(taskList.getTaskListId());
-        dto.setTaskListName(taskList.getTaskListName());
-        dto.setColor(taskList.getColor());
 
-        dto.setEntries(taskList.getEntries().stream()
-                .map(this::convertListEntryToDTO)
-                .collect(Collectors.toSet()));
 
-        return dto;
-    }
 
-    private ListEntryDTO convertListEntryToDTO(ListEntry entry) {
-        ListEntryDTO dto = new ListEntryDTO();
-        dto.setEntryId(entry.getEntryId());
-        dto.setEntryName(entry.getEntryName());
-        dto.setIsChecked(entry.getIsChecked());
-        dto.setDueDate(entry.getDueDate());
-        if (entry.getDueDate() != null)
-            dto.setWarningThreshold(entry.getWarningThreshold());
-        else
-            dto.setWarningThreshold(null);
 
-        if (entry.getFile() != null)
-            dto.setFile(convertFileToDTO(entry.getFile()));
 
-        dto.setAssignedUsers(entry.getAssignedUsers().stream()
-                .map(this::convertUserToDTO)
-                .collect(Collectors.toSet()));
 
-        dto.setAssignedTeams(entry.getAssignedTeams().stream()
-                .map(this::convertTeamToDTO)
-                .collect(Collectors.toSet()));
 
-        return dto;
-    }
-
-    private FileDTO convertFileToDTO(File file) {
-        FileDTO dto = new FileDTO();
-        dto.setFileId(file.getFileId());
-        dto.setFileName(file.getFileName());
-        dto.setFileSize(file.getFileSize());
-        dto.setFileType(file.getFileType());
-
-        if (file.getFileData() != null) {
-            String base64Data = Base64.getEncoder().encodeToString(file.getFileData());
-            dto.setFileDataBase64(base64Data);
-        }
-
-        return dto;
-    }
-
-    public ProjectDTO createProject(ProjectDTO projectDTO) {
+    public ProjectDTO createProject(ProjectDTO projectDTO)
+    {
         User owner = userService.getOrCreateLocalUser(
-                projectDTO.getOwner().getUserId(),
-                projectDTO.getOwner().getEmail(),
-                projectDTO.getOwner().getUsername());
+            projectDTO.getOwner().getUserId(),
+            projectDTO.getOwner().getEmail(),
+            projectDTO.getOwner().getUsername()
+        );
 
         Project project = new Project();
         project.setProjectName(projectDTO.getProjectName());
@@ -179,6 +141,8 @@ public class ProjectServicer {
         project.setDueDate(projectDTO.getDueDate());
         project.setUpdatedAt(projectDTO.getLastUpdated());
 
+        log.info("💾 Saving project to database...");
+
         ProjectMember projectMember = new ProjectMember();
         projectMember.setProject(project);
         projectMember.setUser(owner);
@@ -186,6 +150,7 @@ public class ProjectServicer {
         project.getProjectMembers().add(projectMember);
 
         Project savedProject = projectRepository.save(project);
+
 
         recentActivityService.createActivity(
                 owner.getUserId(),
@@ -313,23 +278,22 @@ public class ProjectServicer {
         ownerDTO.setEmail(project.getOwner().getEmail());
         dto.setOwner(ownerDTO);
 
-        dto.setMembers(project.getMembers().stream() // change it to projectMemberDTO
-                .map(this::convertUserToMemberDTO)
+        dto.setMembers(project.getMembers().stream()
+                .map(this::convertUserToDTO)
                 .collect(Collectors.toSet()));
-
-        dto.setTeams(project.getTeams().stream()
-                .map(this::convertTeamToDTO)
+        project.setTeams(projectDTO.getTeams().stream()
+                .map(this::convertTeamToEntity)
                 .collect(Collectors.toSet()));
 
         dto.setCategories(project.getCategories().stream()
-                .map(category -> {
+                .map(category ->{
                     CategoryDTO categoryDTO = new CategoryDTO();
                     categoryDTO.setCategoryId(category.getCategoryId());
                     categoryDTO.setCategoryName(category.getCategoryName());
                     categoryDTO.setColor(category.getColor());
 
                     categoryDTO.setTaskLists(category.getTaskLists().stream()
-                            .map(taskList -> {
+                            .map(taskList ->{
                                 TaskListDTO taskListDTO = new TaskListDTO();
                                 taskListDTO.setTaskListId(taskList.getTaskListId());
                                 taskListDTO.setTaskListName(taskList.getTaskListName());
@@ -348,17 +312,100 @@ public class ProjectServicer {
                 })
                 .collect(Collectors.toSet()));
 
+        if(project.getBackgroundImage() != null)
+            dto.setBackgroundImage(Base64.getEncoder().encodeToString(project.getBackgroundImage()));
+
         return dto;
     }
 
-    private ProjectMemberDTO convertUserToMemberDTO(User user) {
-        ProjectMemberDTO dto = new ProjectMemberDTO();
-        dto.setUserId(user.getUserId());
-        dto.setPermissions(user.getUserPermissions());
+
+
+
+
+
+
+    private TaskListDTO convertTaskListToDTO(TaskList taskList)
+    {
+        TaskListDTO dto = new TaskListDTO();
+        dto.setTaskListId(taskList.getTaskListId());
+        dto.setTaskListName(taskList.getTaskListName());
+        dto.setColor(taskList.getColor());
+
+        dto.setEntries(taskList.getEntries().stream()
+                .map(this::convertListEntryToDTO)
+                .collect(Collectors.toSet()));
+
         return dto;
     }
 
-    private User convertUserToEntity(UserDTO userDTO) {
+    private ListEntryDTO convertListEntryToDTO(ListEntry entry)
+    {
+        ListEntryDTO dto = new ListEntryDTO();
+        dto.setEntryId(entry.getEntryId());
+        dto.setEntryName(entry.getEntryName());
+        dto.setIsChecked(entry.getIsChecked());
+        dto.setDueDate(entry.getDueDate());
+        dto.setCreatedAt(entry.getCreatedAt());
+        if(entry.getDueDate() != null)
+            dto.setWarningThreshold(entry.getWarningThreshold() != null ? entry.getWarningThreshold() : 1);
+        else
+            dto.setWarningThreshold(null);
+
+        if (entry.getFile() != null)
+            dto.setFile(convertFileToDTO(entry.getFile()));
+
+        dto.setAssignedUsers(entry.getAssignedUsers().stream()
+                .map(this::convertUserToDTO)
+                .collect(Collectors.toSet()));
+
+        dto.setAssignedTeams(entry.getAssignedTeams().stream()
+                .map(this::convertTeamToDTO)
+                .collect(Collectors.toSet()));
+
+        return dto;
+    }
+
+    private FileDTO convertFileToDTO(File file)
+    {
+        FileDTO dto = new FileDTO();
+        dto.setFileId(file.getFileId());
+        dto.setFileName(file.getFileName());
+        dto.setFileSize(file.getFileSize());
+        dto.setFileType(file.getFileType());
+
+        if (file.getFileData() != null)
+            dto.setFileDataBase64(Base64.getEncoder().encodeToString(file.getFileData()));
+
+        return dto;
+    }
+
+
+
+
+
+    private Project convertToEntity(ProjectDTO projectDTO)
+    {
+        Project project = new Project();
+        project.setProjectName(projectDTO.getProjectName());
+        project.setDescription(projectDTO.getDescription());
+        project.setCreatedAt(projectDTO.getCreatedAt());
+
+        project.setOwner(convertUserToEntity(projectDTO.getOwner()));
+        project.setMembers(projectDTO.getMembers().stream()
+                .map(this::convertUserToEntity)
+                .collect(Collectors.toSet()));
+        project.setTeams(projectDTO.getTeams().stream()
+                .map(this::convertTeamToEntity)
+                .collect(Collectors.toSet()));
+        project.setCategories(projectDTO.getCategories().stream()
+                .map(this::convertCategoryToEntity)
+                .collect(Collectors.toSet()));
+
+        return project;
+    }
+
+    private User convertUserToEntity(UserDTO userDTO)
+    {
         User user = new User();
         user.setUserId(userDTO.getUserId());
         user.setUsername(userDTO.getUsername());
@@ -366,7 +413,8 @@ public class ProjectServicer {
         return user;
     }
 
-    private Team convertTeamToEntity(TeamDTO teamDTO) {
+    private Team convertTeamToEntity(TeamDTO teamDTO)
+    {
         Team team = new Team();
         team.setTeamId(teamDTO.getTeamId());
         team.setTeamName(teamDTO.getTeamName());
@@ -377,7 +425,8 @@ public class ProjectServicer {
         return team;
     }
 
-    private Category convertCategoryToEntity(CategoryDTO categoryDTO) {
+    private Category convertCategoryToEntity(CategoryDTO categoryDTO)
+    {
         Category category = new Category();
         category.setCategoryId(categoryDTO.getCategoryId());
         category.setCategoryName(categoryDTO.getCategoryName());
@@ -388,7 +437,8 @@ public class ProjectServicer {
         return category;
     }
 
-    private TaskList convertTaskListToEntity(TaskListDTO taskListDTO) {
+    private TaskList convertTaskListToEntity(TaskListDTO taskListDTO)
+    {
         TaskList taskList = new TaskList();
         taskList.setTaskListId(taskListDTO.getTaskListId());
         taskList.setTaskListName(taskListDTO.getTaskListName());
@@ -399,17 +449,18 @@ public class ProjectServicer {
         return taskList;
     }
 
-    private ListEntry convertListEntryToEntity(ListEntryDTO entryDTO) {
+    private ListEntry convertListEntryToEntity(ListEntryDTO entryDTO)
+    {
         ListEntry entry = new ListEntry();
         entry.setEntryId(entryDTO.getEntryId());
         entry.setEntryName(entryDTO.getEntryName());
         entry.setIsChecked(entryDTO.getIsChecked());
         entry.setDueDate(entryDTO.getDueDate());
-        if (entryDTO.getDueDate() != null)
+        if(entryDTO.getDueDate() != null)
             entry.setWarningThreshold(entryDTO.getWarningThreshold());
         else
             entry.setWarningThreshold(null);
-        if (entryDTO.getFile() != null)
+        if(entryDTO.getFile() != null)
             entry.setFile(convertFileToEntity(entryDTO.getFile()));
         entry.setAssignedUsers(entryDTO.getAssignedUsers().stream()
                 .map(this::convertUserToEntity)
@@ -420,24 +471,27 @@ public class ProjectServicer {
         return entry;
     }
 
-    private File convertFileToEntity(FileDTO fileDTO) {
+    private File convertFileToEntity(FileDTO fileDTO)
+    {
         File file = new File();
         file.setFileId(fileDTO.getFileId());
         file.setFileName(fileDTO.getFileName());
         file.setFileSize(fileDTO.getFileSize());
         file.setFileType(fileDTO.getFileType());
-        if (fileDTO.getFileDataBase64() != null)
+        if(fileDTO.getFileDataBase64() != null)
             file.setFileData(Base64.getDecoder().decode(fileDTO.getFileDataBase64()));
 
         return file;
     }
 
-    public List<ProjectDTO> getProjectsByUserId(String userId) {
+    public List<ProjectDTO> getProjectsByUserId(String userId)
+    {
         User user = userDataPool.findByUserId(userId);
 
         List<Project> ownedProjects = projectRepository.findByOwnerUserId(userId);
         List<ProjectDTO> ownedProjectDTOs = ownedProjects.stream()
-                .map(project -> {
+                .map(project ->
+                {
                     project.setOwner(user);
                     ProjectDTO dto = convertToDTO(project);
                     dto.setIsOwner(true);
@@ -463,7 +517,8 @@ public class ProjectServicer {
                 .collect(Collectors.toList());
     }
 
-    public void deleteProject(Long projectId) {
+    public void deleteProject(Long projectId)
+    {
         projectRepository.deleteById(projectId);
     }
 
@@ -510,6 +565,7 @@ public class ProjectServicer {
                     "delete", true,
                     "invite", true);
         }
+        Project updatedProject = projectRepository.save(existingProject);
 
         // Get permissions from database
         ProjectMember member = project.getProjectMembers().stream()
@@ -573,5 +629,4 @@ public class ProjectServicer {
         Project updatedProject = projectRepository.save(project);
         return convertToDTO(updatedProject);
     }
-
 }

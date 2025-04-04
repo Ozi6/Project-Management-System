@@ -1,25 +1,16 @@
 package com.backend.PlanWise.model;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-
 @Entity
-@Table(name = "projects")
-public class Project {
+@Table(name = "Projects")
+public class Project
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "project_id")
@@ -36,33 +27,31 @@ public class Project {
     private User owner;
 
     @Column(name = "created_at")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "is_public")
-    private boolean isPublic;
-
-    @Column(name = "background_image_url")
-    private String backgroundImageUrl;
-
-    @Column(name = "invite_token")
-    private String inviteToken;
-
-    public LocalDate getDueDate() {
+    public LocalDate getDueDate()
+    {
         return this.dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(LocalDate dueDate)
+    {
         this.dueDate = dueDate;
     }
 
+
     @ManyToMany
-    @JoinTable(name = "project_members", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(
+            name = "project_members",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private Set<User> members = new HashSet<>();
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -71,135 +60,108 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Category> categories = new HashSet<>();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectMember> projectMembers = new HashSet<>();
+    @Column(name = "background_image", columnDefinition = "LONGBLOB")
+    @Lob
+    private byte[] backgroundImage;
 
-    public Long getProjectId() {
+    public Long getProjectId()
+    {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(Long projectId)
+    {
         this.projectId = projectId;
     }
 
-    public String getProjectName() {
+    public String getProjectName()
+    {
         return projectName;
     }
 
-    public void setProjectName(String projectName) {
+    public void setProjectName(String projectName)
+    {
         this.projectName = projectName;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(String description)
+    {
         this.description = description;
     }
 
-    public User getOwner() {
+    public User getOwner()
+    {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(User owner)
+    {
         this.owner = owner;
     }
 
-    public LocalDate getCreatedAt() {
+    public LocalDateTime getCreatedAt()
+    {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt)
+    {
         this.createdAt = createdAt;
     }
 
-    public LocalDate getUpdatedAt() {
+    public LocalDateTime getUpdatedAt()
+    {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDate updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt)
+    {
         this.updatedAt = updatedAt;
     }
 
-    public Set<User> getMembers() {
+    public Set<User> getMembers()
+    {
         return members;
     }
 
-    public void setMembers(Set<User> updatedMembers) {
-        this.members = updatedMembers;
+    public void setMembers(Set<User> members)
+    {
+        this.members = members;
     }
 
-    public Set<Team> getTeams() {
+    public Set<Team> getTeams()
+    {
         return teams;
     }
 
-    public void setTeams(Set<Team> teams) {
+    public void setTeams(Set<Team> teams)
+    {
         this.teams = teams;
     }
 
-    public Set<Category> getCategories() {
+    public Set<Category> getCategories()
+    {
         return categories;
     }
 
-    public void setCategories(Set<Category> categories) {
+    public void setCategories(Set<Category> categories)
+    {
         this.categories = categories;
     }
 
-    public Set<ProjectMember> getProjectMembers() {
-        return projectMembers;
+    public byte[] getBackgroundImage()
+    {
+        return backgroundImage;
     }
 
-    public void setProjectMembers(Set<ProjectMember> projectMembers) {
-        this.projectMembers = projectMembers;
+    public void setBackgroundImage(byte[] backgroundImage)
+    {
+        this.backgroundImage = backgroundImage;
     }
 
-    // Helper methods for bidirectional relationships
-    public void addTeam(Team team) {
-        teams.add(team);
-        team.setProject(this);
-    }
-
-    public void removeTeam(Team team) {
-        teams.remove(team);
-        team.setProject(null);
-    }
-
-    public void addCategory(Category category) {
-        categories.add(category);
-        category.setProject(this);
-    }
-
-    public void removeCategory(Category category) {
-        categories.remove(category);
-        category.setProject(null);
-    }
-
-    public boolean isPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(boolean isPublic) {
-        this.isPublic = isPublic;
-    }
-
-    public String getBackgroundImageUrl() {
-        return backgroundImageUrl;
-    }
-
-    public void setBackgroundImageUrl(String backgroundImageUrl) {
-        this.backgroundImageUrl = backgroundImageUrl;
-    }
-
-    public String getInviteToken() {
-        return inviteToken;
-    }
-
-    public void setInviteToken(String inviteToken) {
-        this.inviteToken = inviteToken;
-    }
-
-    public String getOwnerId() {
-        return owner != null ? owner.getUserId() : null;
-    }
 }

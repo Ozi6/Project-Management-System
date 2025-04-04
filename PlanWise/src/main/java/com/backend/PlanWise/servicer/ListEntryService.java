@@ -38,7 +38,7 @@ public class ListEntryService
         entry.setIsChecked(listEntryDTO.getIsChecked() != null ? listEntryDTO.getIsChecked() : false);
         entry.setDueDate(listEntryDTO.getDueDate());
         if(listEntryDTO.getDueDate() != null)
-            entry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+            entry.setWarningThreshold(listEntryDTO.getWarningThreshold() != null ? listEntryDTO.getWarningThreshold() : 1);
         else
             entry.setWarningThreshold(null);
         entry.setTaskList(taskList);
@@ -53,17 +53,17 @@ public class ListEntryService
         return convertToDTO(savedEntry);
     }
 
-    public ListEntryDTO updateEntry(Long entryId, ListEntryDTO listEntryDTO) {
+    public ListEntryDTO updateEntry(Long entryId, ListEntryDTO listEntryDTO)
+    {
         ListEntry existingEntry = listEntryDataPool.findById(entryId)
                 .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
 
         existingEntry.setEntryName(listEntryDTO.getEntryName());
-        if (listEntryDTO.getIsChecked() != null) {
+        if (listEntryDTO.getIsChecked() != null)
             existingEntry.setIsChecked(listEntryDTO.getIsChecked());
-        }
         existingEntry.setDueDate(listEntryDTO.getDueDate());
         if(listEntryDTO.getDueDate() != null)
-            existingEntry.setWarningThreshold(listEntryDTO.getWarningThreshold());
+            existingEntry.setWarningThreshold(listEntryDTO.getWarningThreshold() != null ? listEntryDTO.getWarningThreshold() : 1);
         else
             existingEntry.setWarningThreshold(null);
 
@@ -124,7 +124,7 @@ public class ListEntryService
         dto.setIsChecked(entry.getIsChecked());
         dto.setDueDate(entry.getDueDate());
         if(entry.getDueDate() != null)
-            dto.setWarningThreshold(entry.getWarningThreshold());
+            dto.setWarningThreshold(entry.getWarningThreshold() != null ? entry.getWarningThreshold() : 1);
         else
             dto.setWarningThreshold(null);
 

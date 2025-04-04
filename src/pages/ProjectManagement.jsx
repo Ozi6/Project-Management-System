@@ -136,12 +136,12 @@ const ProjectManagement = () => {
 
 
     const addNewProject = async () => {
-        try{
+        try {
             const token = await getToken();
             const creationTime = new Date().toISOString();
             const projectData = {
                 projectName: newProjectDetails.project_name,
-                description: newProjectDetails.Description,
+                description: newProjectDetails.description, // Changed to match state
                 lastUpdated: creationTime,
                 createdAt: creationTime,
                 owner: {
@@ -167,7 +167,7 @@ const ProjectManagement = () => {
             const newProject = {
                 projectId: response.data.projectId,
                 projectName: response.data.projectName,
-                Description: response.data.description,
+                description: response.data.description,
                 dueDate: response.data.dueDate,
                 OwnerID: user.id,
                 Categories: response.data.categories || [],
@@ -180,7 +180,7 @@ const ProjectManagement = () => {
             setActiveProjects([...activeProjects, newProject]);
             setNewProjectDetails({
                 project_name: "",
-                Description: "",
+                description: "",
                 dueDate: new Date(),
             });
             setIsAddProjectPopUpOpen(false);
@@ -485,6 +485,20 @@ const ProjectManagement = () => {
                                     />
                                 </div>
 
+                                {/* Added Description Field */}
+                                <div>
+                                    <label htmlFor="description" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("procard.desc")}</label>
+                                    <textarea
+                                        id="description"
+                                        name="description"
+                                        value={newProjectDetails.description}
+                                        onChange={handleInputChange}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 text-gray-600 rounded-lg focus:ring-2 focus:ring-[var(--sidebar-projects-color)] focus:border-transparent transition-all duration-200"
+                                        rows={3}
+                                        placeholder={t("procard.add.descd")}
+                                    />
+                                </div>
+
                                 <div>
                                     <label htmlFor="dueDate" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("procard.due")}</label>
                                     <input
@@ -499,6 +513,7 @@ const ProjectManagement = () => {
                                     />
                                 </div>
 
+                                <label htmlFor="owning" className="block text-sm font-medium text-[var(--features-title-color)] mb-1">{t("procard.add.desc")}</label>
                                 {isLoaded && user && (
                                     <div className="flex items-center mt-1 space-x-2">
                                         <div className="w-6 h-6 rounded-full overflow-hidden">
@@ -511,7 +526,7 @@ const ProjectManagement = () => {
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-500">
-                                        {t("procard.add.desc")} {user.fullName || user.username}
+                                        {t("procard.add.owner")} {user.fullName || user.username}
                                         </p>
                                     </div>
                                 )}

@@ -27,26 +27,43 @@ import com.backend.PlanWise.DataTransferObjects.ProjectMemberDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectSettingsDTO;
 import com.backend.PlanWise.exception.ResourceNotFoundException;
 import com.backend.PlanWise.security.RequiresPermission;
+import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
+import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Base64;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/projects")
-public class ProjectController {
-    private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
+public class ProjectController
+{
 
     @Autowired
     private ProjectServicer projectService;
 
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
+    public ResponseEntity<List<ProjectDTO>> getAllProjects()
+    {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable("id") Long id) {
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable Long id)
+    {
         ProjectDTO project = projectService.getProjectById(id);
-        if (project != null)
+        if(project != null)
             return ResponseEntity.ok(project);
         else
             return ResponseEntity.notFound().build();
@@ -61,16 +78,15 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO) {
+    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO)
+    {
         ProjectDTO createdProject = projectService.createProject(projectDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 
     @DeleteMapping("/{projectId}")
-    @RequiresPermission(value = { "Edit Project" }, requireAll = true)
-    public ResponseEntity<Void> deleteProject(
-            @PathVariable Long projectId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> deleteProject(@PathVariable Long projectId)
+    {
         projectService.deleteProject(projectId);
         return ResponseEntity.ok().build();
     }
@@ -79,23 +95,34 @@ public class ProjectController {
     private CategoryService categoryService;
 
     @GetMapping("/{id}/details")
-    public ResponseEntity<ProjectDTO> getProjectDetails(@PathVariable("id") Long projectId) {
+    public ResponseEntity<ProjectDTO> getProjectDetails(@PathVariable("id") Long projectId)
+    {
         ProjectDTO projectDTO = projectService.getProjectById(projectId);
-        if (projectDTO == null)
+        if(projectDTO == null)
             return ResponseEntity.notFound().build();
         Set<CategoryDTO> categories = categoryService.getCategoriesByProjectId(projectId);
         projectDTO.setCategories(categories);
         return ResponseEntity.ok(projectDTO);
     }
 
-    @PostMapping(value = "/{id}/background", consumes = { "multipart/form-data" })
-    public ResponseEntity<ProjectDTO> uploadBackgroundImage(
-            @PathVariable Long id,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam(required = false) String userId) {
+    @PutMapping(value = "/{projectId}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProjectDTO> updateProject(
+            @PathVariable Long projectId,
+            @RequestParam("projectName") String projectName,
+            @RequestParam("description") String description,
+            @RequestParam(value = "dueDate", required = false) String dueDateStr,
+            @RequestParam(value = "backgroundImage", required = false) MultipartFile backgroundImage)
+    {
+        ProjectDTO projectDTO = new ProjectDTO();
+        projectDTO.setProjectId(projectId);
+        projectDTO.setProjectName(projectName);
+        projectDTO.setDescription(description);
 
-        ProjectSettingsDTO settings = new ProjectSettingsDTO();
-        settings.setBackgroundImage(file);
+        if(dueDateStr != null && !dueDateStr.equals("null"))
+        {
+            LocalDate dueDate = LocalDate.parse(dueDateStr.substring(0, 10));
+            projectDTO.setDueDate(dueDate);
+        }
 
         ProjectDTO updatedProject = projectService.updateProjectSettings(id, settings);
         return ResponseEntity.ok(updatedProject);
@@ -184,44 +211,36 @@ public class ProjectController {
 
 
 
-    @PutMapping("/{projectId}")
-    @RequiresPermission(value = { "Edit Project" }, requireAll = true)
-    public ResponseEntity<ProjectDTO> updateProject(
-            @PathVariable Long projectId,
-            @RequestBody ProjectDTO projectDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // ... existing code ...
-        return null; // Placeholder return, actual implementation needed
-    }
 
-    @PostMapping("/{projectId}/categories")
-    @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
-    public ResponseEntity<CategoryDTO> createCategory(
-            @PathVariable Long projectId,
-            @RequestBody CategoryDTO categoryDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // ... existing code ...
-        return null; // Placeholder return, actual implementation needed
-    }
 
-    @PutMapping("/{projectId}/categories/{categoryId}")
-    @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
-    public ResponseEntity<CategoryDTO> updateCategory(
-            @PathVariable Long projectId,
-            @PathVariable Long categoryId,
-            @RequestBody CategoryDTO categoryDTO,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // ... existing code ...
-        return null; // Placeholder return, actual implementation needed
-    }
+    // @PostMapping("/{projectId}/categories")
+    // @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
+    // public ResponseEntity<CategoryDTO> createCategory(
+    //         @PathVariable Long projectId,
+    //         @RequestBody CategoryDTO categoryDTO,
+    //         @AuthenticationPrincipal UserDetails userDetails) {
+    //     // ... existing code ...
+    //     return null; // Placeholder return, actual implementation needed
+    // }
 
-    @DeleteMapping("/{projectId}/categories/{categoryId}")
-    @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
-    public ResponseEntity<Void> deleteCategory(
-            @PathVariable Long projectId,
-            @PathVariable Long categoryId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        // ... existing code ...
-        return null; // Placeholder return, actual implementation needed
-    }
+    // @PutMapping("/{projectId}/categories/{categoryId}")
+    // @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
+    // public ResponseEntity<CategoryDTO> updateCategory(
+    //         @PathVariable Long projectId,
+    //         @PathVariable Long categoryId,
+    //         @RequestBody CategoryDTO categoryDTO,
+    //         @AuthenticationPrincipal UserDetails userDetails) {
+    //     // ... existing code ...
+    //     return null; // Placeholder return, actual implementation needed
+    // }
+
+    // @DeleteMapping("/{projectId}/categories/{categoryId}")
+    // @RequiresPermission(value = { "Edit Categories" }, requireAll = true)
+    // public ResponseEntity<Void> deleteCategory(
+    //         @PathVariable Long projectId,
+    //         @PathVariable Long categoryId,
+    //         @AuthenticationPrincipal UserDetails userDetails) {
+    //     // ... existing code ...
+    //     return null; // Placeholder return, actual implementation needed
+    
 }

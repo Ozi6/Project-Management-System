@@ -47,6 +47,7 @@ const ProjectDetails = () => {
     const [originalColumns, setOriginalColumns] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [backgroundImage, setBackgroundImage] = useState(null);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
@@ -62,12 +63,17 @@ const ProjectDetails = () => {
                 const response = await axios.get(`http://localhost:8080/api/projects/${id}/details`,
                 {
                     withCredentials: true,
-                    headers: {
+                    headers:
+                    {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
                 const projectData = response.data;
+
+                if(projectData.backgroundImage)
+                    setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
+
                 const projectCategories = Array.isArray(projectData.categories)
                     ? projectData.categories
                     : (projectData.categories ? [projectData.categories] : []);
@@ -745,6 +751,11 @@ const ProjectDetails = () => {
         setColumns(newColumns);
     };
 
+    const getOverlayColor = () =>
+    {
+        return 'rgba(255, 255, 255, 0.7)';
+    };
+
     const updateCategory = async (columnIndex, taskIndex, categoryId, newTitle, newTagColor) =>
     {
         try{
@@ -850,49 +861,52 @@ const ProjectDetails = () => {
 
         const entry = taskList.entries[entryIndex];
 
+        if(updateData.text !== undefined)
+        {
+            entry.text = updateData.text;
+            entry.entryName = updateData.text;
+        }
+
+        if(updateData.dueDate !== undefined)
+            entry.dueDate = updateData.dueDate;
+
+        if(updateData.warningThreshold !== undefined)
+            entry.warningThreshold = updateData.warningThreshold;
+
+        if(updateData.assignedUsers !== undefined)
+            entry.assignedUsers = updateData.assignedUsers;
+
+        if(updateData.assignedTeams !== undefined)
+            entry.assignedTeams = updateData.assignedTeams;
+
         if(updateData.fileOperation)
         {
             try{
                 const { type, file, userId, entryId } = updateData.fileOperation;
-                const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
-                const currentEntry = currentEntryResponse.data;
+                const token = await getToken();
 
                 if(type === 'delete')
                 {
+                    const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
+                    const currentEntry = currentEntryResponse.data;
+
                     if(currentEntry.file?.fileId)
                         await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
 
-                    const updatedEntry = { ...currentEntry, file: null };
-                    const token = await getToken();
-                    await axios.put(
-                        `http://localhost:8080/api/entries/${entryId}`,
-                        updatedEntry,
-                        {
-                            headers:
-                            {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            withCredentials: true
-                        }
-                    );
-
-                    taskList.entries[entryIndex] =
-                    {
-                        ...entry,
-                        file: null
-                    };
+                    entry.file = null;
                 }
                 else if(type === 'upload' && file)
                 {
+                    const currentEntryResponse = await axios.get(`http://localhost:8080/api/entries/${entryId}`);
+                    const currentEntry = currentEntryResponse.data;
+
+                    if(currentEntry.file?.fileId)
+                        await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
+
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('userId', userId);
 
-                    if(currentEntry.file?.fileId)
-                        await axios.delete(`http://localhost:8080/api/files/${currentEntry.file.fileId}`);
-
-                    const token = await getToken();
                     const fileResponse = await axios.post(
                         'http://localhost:8080/api/files/upload',
                         formData,
@@ -923,36 +937,14 @@ const ProjectDetails = () => {
                         });
                     }
 
-                    const updatedEntry =
+                    entry.file = fileObject;
+                    entry.fileMetadata =
                     {
-                        ...currentEntry,
-                        file:
-                        {
-                            fileId: uploadedFile.fileId,
-                            fileName: uploadedFile.fileName,
-                            fileSize: uploadedFile.fileSize,
-                            fileType: uploadedFile.fileType,
-                            fileDataBase64: uploadedFile.fileDataBase64
-                        }
-                    };
-
-                    await axios.put(
-                        `http://localhost:8080/api/entries/${entryId}`,
-                        updatedEntry,
-                        {
-                            headers:
-                            {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            withCredentials: true
-                        }
-                    );
-
-                    taskList.entries[entryIndex] =
-                    {
-                        ...entry,
-                        file: fileObject
+                        fileId: uploadedFile.fileId,
+                        fileName: uploadedFile.fileName,
+                        fileSize: uploadedFile.fileSize,
+                        fileType: uploadedFile.fileType,
+                        fileDataBase64: uploadedFile.fileDataBase64
                     };
                 }
             }catch(error){
@@ -961,38 +953,45 @@ const ProjectDetails = () => {
             }
         }
 
-        if (Object.keys(updateData).some(key => key !== 'fileOperation'))
-        {
-            try{
-                const token = await getToken();
-                await axios.put(
-                    `http://localhost:8080/api/entries/${entry.id}`,
-                    {
-                        entryName: updateData.text !== undefined ? updateData.text : entry.text,
-                        isChecked: updateData.checked !== undefined ? updateData.checked : entry.checked,
-                        dueDate: updateData.dueDate !== undefined ? updateData.dueDate : entry.dueDate,
-                        warningThreshold: updateData.warningThreshold !== undefined ? updateData.warningThreshold : entry.warningThreshold,
-                    },
-                    {
-                        withCredentials: true,
-                        headers:
-                        {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
-                    }
-                );
+        try{
+            const token = await getToken();
 
-                taskList.entries[entryIndex] =
+            const updatePayload =
+            {
+                entryName: entry.text,
+                isChecked: entry.checked || false,
+                dueDate: entry.dueDate,
+                warningThreshold: entry.warningThreshold
+            };
+
+            if (updateData.fileOperation)
+            {
+                if (updateData.fileOperation.type === 'delete')
+                    updatePayload.file = null;
+                else if(updateData.fileOperation.type === 'upload' && entry.fileMetadata)
                 {
-                    ...entry,
-                    ...updateData
-                };
-            }catch(error){
-                console.error('Error updating entry:', error);
+                    updatePayload.file = entry.fileMetadata;
+                    delete entry.fileMetadata;
+                }
             }
+
+            await axios.put(
+                `http://localhost:8080/api/entries/${entry.id}`,
+                updatePayload,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            setColumns(newColumns);
+        }catch(error){
+            console.error('Error updating entry:', error);
         }
-        setColumns(newColumns);
     };
 
     const displayColumns = filteredColumns || columns;
@@ -1064,6 +1063,19 @@ const ProjectDetails = () => {
 
     return (
         <div className="flex flex-col h-screen">
+            {backgroundImage && (
+                <div
+                    className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat"
+                    style={{
+                        backgroundImage: `url(${backgroundImage})`,
+                    }}
+                >
+                    <div
+                        className="absolute inset-0 backdrop-blur-sm"
+                        style={{ backgroundColor: getOverlayColor() }}
+                    ></div>
+                </div>
+            )}
             <ViewportHeader 
               isHorizontalLayout={isHorizontalLayout} 
               toggleLayout={toggleLayout} 

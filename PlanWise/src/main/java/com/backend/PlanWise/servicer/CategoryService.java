@@ -101,7 +101,7 @@ public class CategoryService
                         entryDTO.setIsChecked(entry.getIsChecked());
                         entryDTO.setDueDate(entry.getDueDate());
                         if(entry.getDueDate() != null)
-                            entryDTO.setWarningThreshold(entry.getWarningThreshold());
+                            entryDTO.setWarningThreshold(entry.getWarningThreshold() != null ? entry.getWarningThreshold() : 1);
                         else
                             entryDTO.setWarningThreshold(null);
                         if(entry.getFile() != null)
