@@ -69,4 +69,17 @@ public class ProjectController
         projectDTO.setCategories(categories);
         return ResponseEntity.ok(projectDTO);
     }
+
+    @PutMapping("/{projectId}/update")
+    public ResponseEntity<ProjectDTO> updateProject(
+            @PathVariable Long projectId,
+            @RequestBody ProjectDTO projectDTO)
+    {
+
+        ProjectDTO updatedProject = projectService.updateProject(projectId, projectDTO);
+        if(updatedProject != null)
+            return ResponseEntity.ok(updatedProject);
+        else
+            return ResponseEntity.notFound().build();
+    }
 }

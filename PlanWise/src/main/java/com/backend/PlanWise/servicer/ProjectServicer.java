@@ -6,6 +6,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -373,5 +374,22 @@ public class ProjectServicer
     public void deleteProject(Long projectId)
     {
         projectRepository.deleteById(projectId);
+    }
+
+    public ProjectDTO updateProject(Long projectId, ProjectDTO projectDTO)
+    {
+        Project existingProject = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        if(projectDTO.getProjectName() != null)
+            existingProject.setProjectName(projectDTO.getProjectName());
+        if(projectDTO.getDescription() != null)
+            existingProject.setDescription(projectDTO.getDescription());
+        if(projectDTO.getDueDate() != null)
+            existingProject.setDueDate(projectDTO.getDueDate());
+
+        Project updatedProject = projectRepository.save(existingProject);
+
+        return convertToDTO(updatedProject);
     }
 }
