@@ -111,6 +111,9 @@ public class ProjectServicer
                 })
                 .collect(Collectors.toSet()));
 
+        if(project.getBackgroundImage() != null)
+            dto.setBackgroundImage(Base64.getEncoder().encodeToString(project.getBackgroundImage()));
+
         return dto;
     }
 
@@ -387,7 +390,11 @@ public class ProjectServicer
             existingProject.setDescription(projectDTO.getDescription());
         if(projectDTO.getDueDate() != null)
             existingProject.setDueDate(projectDTO.getDueDate());
-
+        if(projectDTO.getBackgroundImage() != null)
+        {
+            byte[] imageBytes = Base64.getDecoder().decode(projectDTO.getBackgroundImage());
+            existingProject.setBackgroundImage(imageBytes);
+        }
         Project updatedProject = projectRepository.save(existingProject);
 
         return convertToDTO(updatedProject);

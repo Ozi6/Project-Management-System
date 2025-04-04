@@ -15,6 +15,7 @@ CREATE TABLE projects (
     due_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    background_image LONGBLOB,
     FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE RESTRICT
 );
 CREATE TABLE project_members (

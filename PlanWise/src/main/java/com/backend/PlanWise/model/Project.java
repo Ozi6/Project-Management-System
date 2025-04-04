@@ -57,6 +57,10 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Category> categories = new HashSet<>();
 
+    @Column(name = "background_image", columnDefinition = "LONGBLOB")
+    @Lob
+    private byte[] backgroundImage;
+
     public Long getProjectId()
     {
         return projectId;
@@ -146,4 +150,15 @@ public class Project {
     {
         this.categories = categories;
     }
+
+    public byte[] getBackgroundImage()
+    {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(byte[] backgroundImage)
+    {
+        this.backgroundImage = backgroundImage;
+    }
+
 }

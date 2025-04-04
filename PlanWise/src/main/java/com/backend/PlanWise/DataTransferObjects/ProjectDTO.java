@@ -18,6 +18,7 @@ public class ProjectDTO
     private Set<TeamDTO> teams = new HashSet<>();
     private Set<CategoryDTO> categories = new HashSet<>();
     private boolean isOwner;
+    private String backgroundImage;
 
     public boolean isOwner() {
         return isOwner;
@@ -121,5 +122,15 @@ public class ProjectDTO
 
     public void setLastUpdated(LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getBackgroundImage()
+    {
+        return backgroundImage;
+    }
+
+    public void setBackgroundImage(String backgroundImage)
+    {
+        this.backgroundImage = backgroundImage;
     }
 }

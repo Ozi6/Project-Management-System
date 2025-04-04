@@ -15,6 +15,7 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
     const [projectName, setProjectName] = useState(t("set.name"));
     const [projectDescription, setProjectDescription] = useState(t("set.dd"));
     const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg");
+    const [backgroundImageFile, setBackgroundImageFile] = useState(null);
     const [isPublic, setIsPublic] = useState(false);
     const [dueDate, setDueDate] = useState("");
     const [loading, setLoading] = useState(true);
@@ -48,7 +49,8 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                 setProjectDescription(projectData.description);
                 if(projectData.dueDate)
                     setDueDate(new Date(projectData.dueDate).toISOString().split('T')[0]);
-                //if (projectData.backgroundImage) setBackgroundImage(projectData.backgroundImage);
+                if(projectData.backgroundImage)
+                    setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
 
                 setLoading(false);
             }catch(err){
@@ -68,7 +70,10 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
 
         const file = e.target.files[0];
         if(file)
+        {
+            setBackgroundImageFile(file);
             setBackgroundImage(URL.createObjectURL(file));
+        }
     };
 
     const handleDeleteProject = () =>
@@ -81,7 +86,7 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
     };
 
     const handleSaveChanges = async () => {
-        if (!isProjectOwner || !projectId)
+        if(!isProjectOwner || !projectId)
             return;
 
         setSaving(true);
@@ -90,28 +95,27 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
         try{
             const token = await getToken();
 
-            const updatedProjectData =
-            {
-                id: projectId,
-                projectName: projectName,
-                description: projectDescription,
-                dueDate: dueDate ? new Date(dueDate).toISOString() : null
-                //im not handling the backgroundImage upload yet
-            };
+            const formData = new FormData();
+            formData.append('id', projectId);
+            formData.append('projectName', projectName);
+            formData.append('description', projectDescription);
+            formData.append('dueDate', dueDate ? new Date(dueDate).toISOString() : null);
+
+            if(backgroundImageFile)
+                formData.append('backgroundImage', backgroundImageFile);
 
             const response = await axios.put(
                 `http://localhost:8080/api/projects/${projectId}/update`,
-                updatedProjectData,
+                formData,
                 {
                     withCredentials: true,
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'multipart/form-data'
                     }
                 }
             );
 
-            console.log('Project updated successfully:', response.data);
             setSaveSuccess(true);
 
             setTimeout(() =>

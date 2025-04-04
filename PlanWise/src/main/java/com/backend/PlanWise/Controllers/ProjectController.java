@@ -6,9 +6,15 @@ import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
@@ -70,11 +76,33 @@ public class ProjectController
         return ResponseEntity.ok(projectDTO);
     }
 
-    @PutMapping("/{projectId}/update")
+    @PutMapping(value = "/{projectId}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProjectDTO> updateProject(
             @PathVariable Long projectId,
-            @RequestBody ProjectDTO projectDTO)
+            @RequestParam("projectName") String projectName,
+            @RequestParam("description") String description,
+            @RequestParam(value = "dueDate", required = false) String dueDateStr,
+            @RequestParam(value = "backgroundImage", required = false) MultipartFile backgroundImage)
     {
+        ProjectDTO projectDTO = new ProjectDTO();
+        projectDTO.setProjectId(projectId);
+        projectDTO.setProjectName(projectName);
+        projectDTO.setDescription(description);
+
+        if(dueDateStr != null && !dueDateStr.equals("null"))
+        {
+            LocalDate dueDate = LocalDate.parse(dueDateStr.substring(0, 10));
+            projectDTO.setDueDate(dueDate);
+        }
+
+        if(backgroundImage != null && !backgroundImage.isEmpty())
+        {
+            try{
+                projectDTO.setBackgroundImage(Base64.getEncoder().encodeToString(backgroundImage.getBytes()));
+            }catch(IOException e){
+                return ResponseEntity.badRequest().build();
+            }
+        }
 
         ProjectDTO updatedProject = projectService.updateProject(projectId, projectDTO);
         if(updatedProject != null)
