@@ -63,6 +63,7 @@
   "dashboard.rights": "Tüm hakları saklıdır",
   "dashboard.week": "geçen haftadan beri",
   "dashboard.month": "geçen aydan beri",
+  "dashboard.from": "Proje: ",
 
   "gantt.tit": "Proje Zaman Çizelgesi",
   "gantt.projects": "Projeler",

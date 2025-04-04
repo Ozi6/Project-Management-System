@@ -1,5 +1,7 @@
 package com.backend.PlanWise.DataTransferObjects;
 
+import java.time.LocalDateTime;
+
 public class FileDTO
 {
     private Long fileId;
@@ -7,6 +9,18 @@ public class FileDTO
     private Integer fileSize;
     private String fileType;
     private String fileDataBase64;
+
+    public LocalDateTime getUploadedAt()
+    {
+        return uploadedAt;
+    }
+
+    public void setUploadedAt(LocalDateTime uploadedAt)
+    {
+        this.uploadedAt = uploadedAt;
+    }
+
+    private LocalDateTime uploadedAt;
 
     public Long getFileId()
     {

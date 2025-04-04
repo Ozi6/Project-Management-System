@@ -190,6 +190,7 @@
   "dashboard.rights": "All rights reserved",
   "dashboard.week": "since last week",
   "dashboard.month": "since last month",
+  "dashboard.from": "In Project: ",
 
   "gantt.tit": "Project Timeline",
   "gantt.projects": "Projects",

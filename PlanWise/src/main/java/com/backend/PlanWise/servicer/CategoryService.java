@@ -105,9 +105,7 @@ public class CategoryService
                         else
                             entryDTO.setWarningThreshold(null);
                         if(entry.getFile() != null)
-                        {
                             entryDTO.setFile(toDTO(entry.getFile()));
-                        }
                         return entryDTO;
                     }).collect(Collectors.toSet());
                     taskListDTO.setEntries(entryDTOs);
@@ -128,10 +126,10 @@ public class CategoryService
         fileDTO.setFileName(file.getFileName());
         fileDTO.setFileSize(file.getFileSize());
         fileDTO.setFileType(file.getFileType());
+        fileDTO.setUploadedAt(file.getUploadedAt());
 
         if (file.getFileData() != null)
             fileDTO.setFileDataBase64(Base64.getEncoder().encodeToString(file.getFileData()));
-
 
         return fileDTO;
     }
