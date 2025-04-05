@@ -287,6 +287,7 @@
   "adset.linkCopied": "Link kopyalandı",
   "adset.copyError": "Link kopyalanırken Hata Oldu",
   "adset.sending": "Davet Gönderiliyor...",
+  "adset.alreadyMember": "Bu kullanıcı zaten projede üye",
 
   "adset.add": "Takım Ekle",
   "adset.teaman": "Takımları Yönet",

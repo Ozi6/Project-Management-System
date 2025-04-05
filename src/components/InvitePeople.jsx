@@ -1,33 +1,88 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, AlertCircle, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@clerk/clerk-react";
 import axios from "axios";
 
-const InvitePeople = ({ isOpen, onClose, projectId }) =>
-{
+const InvitePeople = ({ isOpen, onClose, projectId }) => {
     const { t } = useTranslation();
     const [email, setEmail] = useState("");
+    const { getToken } = useAuth();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
+    const [members, setMembers] = useState([]);
+    const [isChecking, setIsChecking] = useState(false);
 
-    if (!isOpen)
+    useEffect(() =>
+    {
+        if(!isOpen)
+            return;
+
+        const fetchMembers = async () =>
+        {
+            try{
+                const token = await getToken();
+                const response = await axios.get(
+                    `http://localhost:8080/api/projects/${projectId}/members`,
+                    {
+                        withCredentials: true,
+                        headers:
+                        {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const membersData = response.data.map(member => (
+                {
+                    id: member.userId,
+                    email: member.email,
+                }));
+
+                setMembers(membersData);
+            }catch(err){
+                console.error('Error fetching members:', err);
+            }
+        };
+        fetchMembers();
+    },[isOpen, projectId]);
+
+    if(!isOpen)
         return null;
+
+    const isEmailAlreadyMember = () =>
+    {
+        return members.some(member => member.email.toLowerCase() === email.toLowerCase());
+    };
 
     const handleInviteUser = async () =>
     {
         setError("");
         setSuccessMessage("");
 
-        if (!email || !email.includes('@') || !email.includes('.'))
+        if(!email || !email.includes('@') || !email.includes('.'))
         {
             setError(t("adset.emailInvalid") || "Please enter a valid email address");
             return;
         }
 
+        setIsChecking(true);
+        try{
+            if(isEmailAlreadyMember())
+            {
+                setError(t("adset.alreadyMember") || "This user is already a member of the project");
+                return;
+            }
+        }finally{
+            setIsChecking(false);
+        }
+
         setLoading(true);
 
         try{
+            console.log(email);
+            console.log(members);
             await axios.post('http://localhost:8080/api/invitations',
             {
                 projectId: projectId,
@@ -37,19 +92,18 @@ const InvitePeople = ({ isOpen, onClose, projectId }) =>
             setSuccessMessage(t("adset.inviteSent") || "Invitation sent successfully!");
             setEmail("");
 
-            setTimeout(() =>
-            {
+            setTimeout(() => {
                 onClose();
             }, 2000);
 
-        }catch(err){
+        } catch (err) {
             console.error("Error sending invitation:", err);
             setError(
                 err.response?.data?.message ||
                 t("adset.inviteError") ||
                 "Failed to send invitation. Please try again."
             );
-        }finally{
+        } finally {
             setLoading(false);
         }
     };
@@ -88,7 +142,7 @@ const InvitePeople = ({ isOpen, onClose, projectId }) =>
                         className="w-full p-2 border rounded text-[var(--features-icon-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={loading}/>
+                        disabled={loading || isChecking} />
                     {error && (
                         <div className="mt-2 text-red-500 flex items-center text-sm">
                             <AlertCircle className="w-4 h-4 mr-1" />
@@ -102,13 +156,14 @@ const InvitePeople = ({ isOpen, onClose, projectId }) =>
                         </div>
                     )}
                     <button
-                        className={`w-full mt-3 bg-[var(--features-icon-color)] !text-white py-2 rounded transition ${loading
-                                ? 'opacity-70 cursor-not-allowed'
-                                : 'hover:bg-[var(--hover-color)]'
+                        className={`w-full mt-3 bg-[var(--features-icon-color)] !text-white py-2 rounded transition ${loading || isChecking
+                            ? 'opacity-70 cursor-not-allowed'
+                            : 'hover:bg-[var(--hover-color)]'
                             }`}
                         onClick={handleInviteUser}
-                        disabled={loading}>
-                        {loading ? t("adset.sending") || "Sending..." : t("adset.invite")}
+                        disabled={loading || isChecking}>
+                        {loading ? t("adset.sending") || "Sending..." :
+                            isChecking ? t("adset.checking") || "Checking..." : t("adset.invite")}
                     </button>
                 </div>
                 <div className="mt-4 text-center">

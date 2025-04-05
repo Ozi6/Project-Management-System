@@ -149,6 +149,8 @@
   "adset.linkCopied": "Link copied to clipboard",
   "adset.copyError": "Error copying link",
   "adset.sending": "Sending invitation...",
+  "adset.alreadyMember": "This user is already a member of the project",
+
 
   "adset.add": "Add Team",
   "adset.teaman": "Manage Teams for",
