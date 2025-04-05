@@ -25,21 +25,21 @@ public class UserService {
         try {
             // Try to find existing user first
             User existingUser = userDataPool.findByUserId(clerkUserId);
-            
+
             if (existingUser != null) {
                 // Check if updates are needed
                 boolean needsUpdate = false;
-                
+
                 if (email != null && !email.equals(existingUser.getEmail())) {
                     existingUser.setEmail(email);
                     needsUpdate = true;
                 }
-                
+
                 if (username != null && !username.equals(existingUser.getUsername())) {
                     existingUser.setUsername(username);
                     needsUpdate = true;
                 }
-                
+
                 if (needsUpdate) {
                     return userDataPool.save(existingUser);
                 }
@@ -50,7 +50,7 @@ public class UserService {
                 newUser.setUserId(clerkUserId);
                 newUser.setEmail(email);
                 newUser.setUsername(username);
-                
+
                 return userDataPool.save(newUser);
             }
         } catch (DataIntegrityViolationException e) {
@@ -68,18 +68,16 @@ public class UserService {
     public UserDTO syncUserData(UserDTO userDTO) {
         try {
             User user = getOrCreateLocalUser(
-                userDTO.getUserId(),
-                userDTO.getEmail(),
-                userDTO.getUsername()
-            );
+                    userDTO.getUserId(),
+                    userDTO.getEmail(),
+                    userDTO.getUsername());
             return convertToDTO(user);
         } catch (DataIntegrityViolationException e) {
             // Fallback: Find existing user by email or username
             User existingUser = userDataPool.findByEmailOrUsername(
-                userDTO.getEmail(), 
-                userDTO.getUsername()
-            );
-            
+                    userDTO.getEmail(),
+                    userDTO.getUsername());
+
             if (existingUser != null) {
                 return convertToDTO(existingUser);
             }
@@ -89,20 +87,23 @@ public class UserService {
 
     private UserDTO convertToDTO(User user) {
         return new UserDTO(
-            user.getUserId(),
-            user.getUsername(),
-            user.getEmail()
-        );
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail());
     }
 
     public String getUsernameById(String userId) {
         try {
             User user = userDataPool.findByUserId(userId);
-            return (user != null && user.getUsername() != null) 
-                ? user.getUsername() 
-                : userId;
+            return (user != null && user.getUsername() != null)
+                    ? user.getUsername()
+                    : userId;
         } catch (Exception e) {
             return userId;
         }
     }
+
+    // public User findByEmail(String email) {
+    //     return userDataPool.findByEmail(email);
+    // }
 }
