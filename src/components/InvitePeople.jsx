@@ -108,21 +108,47 @@ const InvitePeople = ({ isOpen, onClose, projectId }) => {
         }
     };
 
-    const handleInviteByLink = () =>
-    {
-        const inviteLink = `${window.location.origin}/join-project/${projectId}`;
+    const handleInviteByLink = async () => {
+        setError("");
+        setSuccessMessage("");
+        setLoading(true);
 
-        navigator.clipboard.writeText(inviteLink)
-            .then(() =>
-            {
-                setSuccessMessage(t("adset.linkCopied") || "Invite link copied to clipboard!");
-                setTimeout(() => setSuccessMessage(""), 2000);
-            })
-            .catch(err =>
-            {
-                console.error("Failed to copy:", err);
-                setError(t("adset.copyError") || "Failed to copy link");
-            });
+        try {
+            const token = await getToken();
+            const response = await axios.post(
+                `http://localhost:8080/api/invitations/general/${projectId}`,
+                {},
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            // Format: http://localhost:5173/invitations/3?token=abc123-def456
+            const inviteLink = `${window.location.origin}/invitations/${response.data.id
+                }?token=${encodeURIComponent(response.data.token)}`;
+
+            navigator.clipboard.writeText(inviteLink)
+                .then(() => {
+                    setSuccessMessage(t("adset.linkCopied") || "Invite link copied to clipboard!");
+                    setTimeout(() => setSuccessMessage(""), 2000);
+                })
+                .catch(err => {
+                    console.error("Failed to copy:", err);
+                    setError(t("adset.copyError") || "Failed to copy link");
+                });
+        } catch (err) {
+            console.error("Error generating invite link:", err);
+            setError(
+                err.response?.data?.message ||
+                t("adset.linkError") ||
+                "Failed to generate invite link. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return(

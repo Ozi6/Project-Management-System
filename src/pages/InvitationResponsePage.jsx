@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
 import { CheckCircle, XCircle, ArrowRight, AlertCircle, Loader2, Calendar, User, MessageSquare, Feather, PartyPopper, ThumbsDown } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 const InvitationResponsePage = () => {
     const { t } = useTranslation();
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { user, isLoaded, isSignedIn } = useUser();
     const { getToken } = useAuth();
@@ -26,10 +27,12 @@ const InvitationResponsePage = () => {
             if(!isLoaded)
                 return;
 
+            const urlToken = new URLSearchParams(window.location.search).get('token');
+            const isGeneralInvite = !!urlToken;
+
             if(!isSignedIn)
             {
-                setError(
-                {
+                setError({
                     message: 'Please login first to view this invitation 🔐',
                     icon: 'alert',
                     title: 'Login Required',
@@ -41,56 +44,57 @@ const InvitationResponsePage = () => {
 
             try{
                 setLoading(true);
-                const token = await getToken();
+                const authToken = await getToken();
 
-                const response = await axios.get(`http://localhost:8080/api/invitations/${id}`,
-                {
-                    headers:
+                const response = await axios.get(
+                    `http://localhost:8080/api/invitations/${id}`,
                     {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    withCredentials: true
-                });
+                        params: isGeneralInvite ? { token: urlToken } : undefined,
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`,
+                        },
+                        withCredentials: true
+                    }
+                );
 
-                if (response.data.status === 'Accepted')
+                if (response.data.status !== 'Pending')
                 {
+                    const statusMap = {
+                        'Accepted': {
+                            message: 'This invitation has already been accepted! 🎉',
+                            icon: 'party',
+                            emoji: '🥳'
+                        },
+                        'Declined': {
+                            message: 'This invitation was declined. ❌',
+                            icon: 'thumbsdown',
+                            emoji: '😶'
+                        }
+                    };
                     setError({
-                        message: 'This invitation has already been accepted! 🎉',
-                        icon: 'party',
-                        title: 'Already Accepted',
-                        emoji: '🥳'
+                        ...statusMap[response.data.status],
+                        title: 'Invitation Processed'
                     });
-                    setLoading(false);
                     return;
                 }
 
-                if(response.data.status === 'Declined')
+                if(!isGeneralInvite && response.data.email)
                 {
-                    setError({
-                        message: 'This invitation was declined. ❌',
-                        icon: 'thumbsdown',
-                        title: 'Invitation Declined',
-                        emoji: '😶'
-                    });
-                    setLoading(false);
-                    return;
+                    const isRecipient = user.emailAddresses.some(
+                        e => e.emailAddress === response.data.email
+                    );
+                    if (!isRecipient) {
+                        setError({
+                            message: 'This invitation is not for you! 😇',
+                            icon: 'feather',
+                            title: 'Oops!',
+                            emoji: ''
+                        });
+                        return;
+                    }
                 }
 
-                const isRecipient = user.emailAddresses.some((emailObj) => emailObj.emailAddress === response.data.email);
-                if(!isRecipient)
-                {
-                    setError({
-                        message: 'This invitation is not for you! 😇',
-                        icon: 'feather',
-                        title: 'Oops!',
-                        emoji: '👼'
-                    });
-                    setLoading(false);
-                    return;
-                }
-
-                const expirationDate = new Date(response.data.expiresAt);
-                if(expirationDate < new Date())
+                if(new Date(response.data.expiresAt) < new Date())
                 {
                     setError({
                         message: 'This invitation has expired. ⏰',
@@ -98,32 +102,29 @@ const InvitationResponsePage = () => {
                         title: 'Expired',
                         emoji: '😞'
                     });
-                    setLoading(false);
                     return;
                 }
 
-                const projectResponse = await axios.get(`http://localhost:8080/api/projects/${response.data.projectId}`,
-                {
-                    headers:
+                const projectResponse = await axios.get(
+                    `http://localhost:8080/api/projects/${response.data.projectId}`,
                     {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                    withCredentials: true
-                });
+                        headers: { 'Authorization': `Bearer ${authToken}` },
+                        withCredentials: true
+                    }
+                );
 
-                const invitationWithProject =
-                {
+                setInvitation({
                     ...response.data,
                     projectName: projectResponse.data.projectName,
                     senderName: projectResponse.data.owner.username,
-                };
-
-                setInvitation(invitationWithProject);
+                    isGeneralInvite
+                });
                 setError(null);
+
             }catch(err){
-                console.error('Error fetching data:', err);
+                console.error('Error:', err);
                 setError({
-                    message: err.response?.data?.message || 'Failed to fetch invitation details',
+                    message: err.response?.data?.message || 'Failed to process invitation',
                     icon: 'alert',
                     title: 'Error',
                     emoji: '😕'
@@ -132,16 +133,22 @@ const InvitationResponsePage = () => {
                 setLoading(false);
             }
         };
+
         fetchInvitation();
-    }, [id, isLoaded, isSignedIn, user, getToken]);
+    }, [id, isLoaded, isSignedIn, user, getToken, searchParams]);
 
     const handleResponse = async (accept) =>
     {
         try{
             setResponding(true);
             const token = await getToken();
+            const urlToken = new URLSearchParams(window.location.search).get('token');
+            const isGeneralInvite = !!urlToken;
+            const primaryEmail = user.emailAddresses.find(
+                email => email.id === user.primaryEmailAddressId
+            )?.emailAddress;
 
-            await axios.post(`http://localhost:8080/api/invitations/${id}/respond`, { accept },
+            const config =
             {
                 headers:
                 {
@@ -149,7 +156,19 @@ const InvitationResponsePage = () => {
                     'Content-Type': 'application/json'
                 },
                 withCredentials: true
-            });
+            };
+
+            const requestBody = {
+                accept,
+                email: primaryEmail,
+                ...(isGeneralInvite && { token: urlToken })
+            };
+
+            await axios.post(
+                `http://localhost:8080/api/invitations/${id}/respond`,
+                requestBody,
+                config
+            );
 
             setSuccess(accept ?
             {
@@ -338,20 +357,24 @@ const InvitationResponsePage = () => {
                                             <path d="M2 7v13c0 1.1.9 2 2 2h16a2 2 0 0 0 2-2V7" />
                                         </svg>
                                     </motion.div>
-                                    <motion.h2
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 0.2 }}
-                                        className="text-2xl font-bold text-[var(--features-title-color)]">
-                                        Project Invitation ✨
+                                    <motion.h2 className="text-2xl font-bold text-[var(--features-title-color)]">
+                                        {invitation.isGeneralInvite
+                                            ? "Project Invitation Link ✨"
+                                            : "Project Invitation ✨"}
                                     </motion.h2>
-                                    <motion.p
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 0.3 }}
-                                        className="text-[var(--features-text-color)] mt-1">
-                                        You've been invited to join a project 🎯
+                                    <motion.p className="text-[var(--features-text-color)] mt-1">
+                                        {invitation.isGeneralInvite
+                                            ? "You've accessed a general project invitation link 🎯"
+                                            : "You've been invited to join a project 🎯"}
                                     </motion.p>
+                                    {invitation.isGeneralInvite && (
+                                        <motion.div
+                                            initial={{ scale: 0.9, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
+                                            This link can be used by anyone who has it. Only share with trusted people.
+                                        </motion.div>
+                                    )}
                                 </div>
 
                                 <div className="space-y-5 mb-8">
@@ -426,7 +449,6 @@ const InvitationResponsePage = () => {
                                         </div>
                                     </motion.div>
                                 </div>
-
                                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                                     <motion.button
                                         whileHover="hover"
@@ -436,7 +458,7 @@ const InvitationResponsePage = () => {
                                         disabled={responding}
                                         className="flex-1 bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:opacity-90 text-white py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-xl flex items-center justify-center font-medium disabled:opacity-70">
                                         {responding ? (<Loader2 className="h-5 w-5 animate-spin mr-2" />) : (<CheckCircle className="h-5 w-5 mr-2" />)}
-                                        Accept Invitation
+                                        {invitation.isGeneralInvite ? "Join Project" : "Accept Invitation"}
                                     </motion.button>
                                     <motion.button
                                         whileHover="hover"

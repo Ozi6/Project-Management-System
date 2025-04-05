@@ -5,6 +5,7 @@ import org.springframework.cglib.core.Local;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "invitations")
@@ -15,7 +16,7 @@ public class Invitation
     @Column(name = "invitation_id")
     private Integer invitationId;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "project_id", nullable = false)
@@ -39,6 +40,19 @@ public class Invitation
 
     @Column(name = "status")
     private String status;
+
+    public String getToken()
+    {
+        return token;
+    }
+
+    public void setToken(String token)
+    {
+        this.token = token;
+    }
+
+    @Column(name = "token", unique = true, nullable = false)
+    private String token = UUID.randomUUID().toString();
 
     public Integer getInvitationId()
     {

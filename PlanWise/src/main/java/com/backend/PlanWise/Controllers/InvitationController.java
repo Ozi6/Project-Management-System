@@ -23,29 +23,63 @@ public class InvitationController
     private InvitationService invitationService;
 
     @PostMapping
-    public ResponseEntity<InvitationResponse> inviteUser(@RequestBody InvitationRequest request)
+    public ResponseEntity<InvitationResponse> createEmailInvite(@RequestBody InvitationRequest request)
     {
         Invitation invitation = invitationService.inviteUserByEmail(request);
-        return new ResponseEntity<>(mapToResponse(invitation), HttpStatus.CREATED);
+        return ResponseEntity.ok(mapToResponse(invitation));
     }
 
-    @GetMapping("/{invitationId}")
-    public ResponseEntity<InvitationResponse> getInvitationById(@PathVariable int invitationId)
+    @PostMapping("/general/{projectId}")
+    public ResponseEntity<InvitationResponse> createGeneralInvite(@PathVariable Long projectId)
     {
+        Invitation invitation = invitationService.createGeneralInvite(projectId);
+        return ResponseEntity.ok(mapToResponse(invitation));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<InvitationResponse> getInvitation(
+            @PathVariable Integer id,
+            @RequestParam(required = false) String token)
+    {
+        if(token != null)
+        {
+            Invitation invitation = invitationService.getValidInvitation(id, token);
+            return ResponseEntity.ok(mapToResponse(invitation));
+        }
+        else
+        {
+            Invitation invitation = invitationService.getInvitationById(id);
+            return ResponseEntity.ok(mapToResponse(invitation));
+        }
+    }
+
+    @GetMapping("/internal/{invitationId}")
+    public ResponseEntity<InvitationResponse> getInvitationById(@PathVariable int invitationId) {
         Invitation invitation = invitationService.getInvitationById(invitationId);
-        return new ResponseEntity<>(mapToResponse(invitation), HttpStatus.OK);
+        return ResponseEntity.ok(mapToResponse(invitation));
     }
 
     @PostMapping("/{invitationId}/respond")
     public ResponseEntity<Void> respondToInvitation(
             @PathVariable int invitationId,
-            @RequestBody Map<String, Boolean> request)
+            @RequestBody Map<String, Object> request)
     {
-        boolean accept = request.get("accept");
+        boolean accept = (Boolean) request.get("accept");
+        String token = (String) request.get("token");
+        String email = (String) request.get("email");
         if(accept)
-            invitationService.acceptInvitation(invitationId);
+        {
+            if(email == null || email.isEmpty())
+                throw new IllegalArgumentException("Email is required to accept invitation");
+
+            if(token != null)
+                invitationService.getValidInvitation(invitationId, token);
+
+            invitationService.acceptInvitation(invitationId, email);
+        }
         else
             invitationService.declineInvitation(invitationId);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

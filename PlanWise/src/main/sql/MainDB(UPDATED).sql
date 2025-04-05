@@ -149,11 +149,12 @@ CREATE TABLE recent_activity (
 
 CREATE TABLE invitations (
     invitation_id INT PRIMARY KEY AUTO_INCREMENT,
-    email VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
     project_id INT NOT NULL,
     invited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NOT NULL,
     status ENUM('Pending', 'Accepted', 'Declined') DEFAULT 'Pending',
+    token VARCHAR(255) UNIQUE NOT NULL,
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
