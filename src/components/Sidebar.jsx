@@ -107,19 +107,36 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
   useEffect(() => {
     const path = location.pathname;
     
-    // Check both main nav items and issues items
-    const currentNavItem = navItems.find(item => path.startsWith(item.path));
-    const currentIssuesItem = issuesItems.find(item => path.startsWith(item.path));
+    // More precise path matching
+    // First check exact matches
+    const exactNavMatch = navItems.find(item => path === item.path);
+    const exactIssuesMatch = issuesItems.find(item => path === item.path);
+    
+    // Then check path starts with
+    const startsWithNavMatch = navItems.find(item => path.startsWith(item.path) && item.path !== '/');
+    const startsWithIssuesMatch = issuesItems.find(item => path.startsWith(item.path) && item.path !== '/');
+    
+    // Determine the active item with priority to exact matches
+    const currentNavItem = exactNavMatch || startsWithNavMatch;
+    const currentIssuesItem = exactIssuesMatch || startsWithIssuesMatch;
     
     if (currentNavItem) {
       setActiveTab(currentNavItem.id);
+      // Close the issues menu if we're navigating to a main nav item
+      setShowIssuesMenu(false);
     } else if (currentIssuesItem) {
-      // If it's an issues item, set active tab to that item's id
       setActiveTab(currentIssuesItem.id);
-      // Also open the issues menu
       setShowIssuesMenu(true);
+    } else {
+      // If no match found, set a default (optional)
+      // If you want a default, uncomment this: setActiveTab('dashboard');
     }
-  }, [location, navItems, issuesItems]);
+    
+    // Debug to help see what's happening
+    console.log('Current path:', path);
+    console.log('Active tab set to:', currentNavItem?.id || currentIssuesItem?.id || 'none');
+    
+  }, [location.pathname, navItems, issuesItems, setActiveTab]);
 
   const getCurrentLabel = () => {
     const currentItem = navItems.find(item => item.id === activeTab);

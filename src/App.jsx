@@ -30,6 +30,7 @@ import IncidentsBugs from './pages/IncidentsBugs'; // Add to your imports at the
 import ProjectCalendar from './pages/ProjectCalendar';
 import Teams from './pages/Teams';
 import "./i18n"; 
+import InvitationPage from './pages/InvitationPage';
 
 //import Documentation from "./pages/Documentation";
 
@@ -56,19 +57,15 @@ function AnimatedRoutes() {
     return(
         <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
-                <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
-                <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
+                {/* Main Routes */}
                 <Route path="/" element={<PageWrapper><Homepage/></PageWrapper>}/>
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/projects" element={<PageWrapper><ProjectManagement/></PageWrapper>}/>
                 <Route path="/calendar" element={<PageWrapper><ProjectCalendar/></PageWrapper>}/>
                 
+                {/* Project Routes */}
                 <Route path="/project/:id" element={<PageWrapper><ProjectDetails /></PageWrapper>} />
                 <Route path="/project/:id/settings" element={<PageWrapper><ProjectSettings /></PageWrapper>} />
-                <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
-                <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
-                <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>}/>
-                <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/project/:id/activity" element={<PageWrapper><Activity /></PageWrapper>} />
                 <Route path="/project/:id/teams" element={<PageWrapper><Teams /></PageWrapper>} />
                 <Route path="/admin/issues" element={<PageWrapper><Issues /></PageWrapper>} />
@@ -76,23 +73,29 @@ function AnimatedRoutes() {
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
                 
-                {/* Auth Routes */}
+                {/* Invitations */}
+                <Route path="/invitations/:invitationId" element={<PageWrapper><InvitationPage /></PageWrapper>} />
+                
+                {/* User & Auth Routes */}
+                <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
                 <Route path="/signup" element={<PageWrapper><SignupPage /></PageWrapper>} />
                 <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
                 <Route path="/forgot-password" element={<PageWrapper><ForgotPasswordPage /></PageWrapper>} />
-                {/* Feature Routes */}
-                <Route path="/features/project-management" element={
-                    <PageWrapper><ProjectManagementFeature /></PageWrapper>
-                } />
-                <Route path="/features/team-collaboration" element={
-                    <PageWrapper><TeamCollaboration /></PageWrapper>
-                } />
-                <Route path="/features/task-tracking" element={
-                    <PageWrapper><TaskTracking /></PageWrapper>
-                } />
                 
+                {/* Information Pages */}
+                <Route path="/about" element={<PageWrapper><About /></PageWrapper>} />
+                <Route path="/faq" element={<PageWrapper><FAQPage/></PageWrapper>}/>
                 <Route path="/privacy" element={<PageWrapper><PrivacyPolicy /></PageWrapper>} />
                 <Route path="/terms" element={<PageWrapper><TermsOfService /></PageWrapper>} />
+                
+                {/* Feature Routes */}
+                <Route path="/features/project-management" element={<PageWrapper><ProjectManagementFeature /></PageWrapper>} />
+                <Route path="/features/team-collaboration" element={<PageWrapper><TeamCollaboration /></PageWrapper>} />
+                <Route path="/features/task-tracking" element={<PageWrapper><TaskTracking /></PageWrapper>} />
+                
+                {/* Admin & Support Routes */}
+                <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
+                <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
                 
                 {/* 404 Route - Must be last */}
                 <Route path="*" element={<PageWrapper><NotFound /></PageWrapper>} />
