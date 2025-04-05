@@ -95,17 +95,39 @@ const TaskList = ({
             onDeleteList(listId);
     };
 
-    const getLuminance = (color) => {
-        const rgb = color.match(/\w\w/g).map((x) => parseInt(x, 16));
-        const [r, g, b] = rgb;
-        const a = [r, g, b]
-            .map((x) => x / 255)
-            .map((x) => (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)));
-        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    const getContrastColor = (backgroundColor) =>
+    {
+        if (backgroundColor.toLowerCase() === "red" || backgroundColor.toLowerCase() === "#ff0000")
+            return "#ffffff";
+
+        const hex = backgroundColor.replace("#", "");
+        const hex6 = hex.length === 3 ?
+            hex.split('').map(x => x + x).join('') :
+            hex.padEnd(6, '0');
+
+        const r = parseInt(hex6.substring(0, 2), 16) / 255;
+        const g = parseInt(hex6.substring(2, 4), 16) / 255;
+        const b = parseInt(hex6.substring(4, 6), 16) / 255;
+
+        const luminance =
+        (
+            0.2126 * (r <= 0.03928 ? r / 12.92 : Math.pow((r + 0.055) / 1.055, 2.4)) +
+            0.7152 * (g <= 0.03928 ? g / 12.92 : Math.pow((g + 0.055) / 1.055, 2.4)) +
+            0.0722 * (b <= 0.03928 ? b / 12.92 : Math.pow((b + 0.055) / 1.055, 2.4))
+        );
+
+        if(luminance < 0.4)
+            return "#ffffff";
+        else
+        {
+            const max = Math.max(r, g, b);
+            if(max === r)
+                return "#0a0a0a";
+            return "#222222";
+        }
     };
 
-    const luminance = getLuminance(editableTagColor.replace("#", ""));
-    const textColor = luminance < 0.5 ? "white" : "#444444";
+    const textColor = getContrastColor(editableTagColor);
 
     const handleHeaderMouseDown = (e) => {
         if (e.button !== 0) return;
