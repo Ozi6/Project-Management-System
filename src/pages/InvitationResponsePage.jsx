@@ -2,12 +2,13 @@
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
-import { CheckCircle, XCircle, ArrowRight, AlertCircle, Loader2, Calendar, User, MessageSquare, Feather, PartyPopper, ThumbsDown } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowRight, AlertCircle, Loader2, Calendar, User, MessageSquare, Feather, PartyPopper, ThumbsDown, UserCheck, UserX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import { useTranslation } from 'react-i18next';
 
-const InvitationResponsePage = () => {
+const InvitationResponsePage = () =>
+{
     const { t } = useTranslation();
     const { id } = useParams();
     const [searchParams] = useSearchParams();
@@ -19,6 +20,8 @@ const InvitationResponsePage = () => {
     const [responding, setResponding] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
+    const [projectMembers, setProjectMembers] = useState([]);
+    const [isAlreadyMember, setIsAlreadyMember] = useState(false);
 
     useEffect(() =>
     {
@@ -57,7 +60,7 @@ const InvitationResponsePage = () => {
                     }
                 );
 
-                if (response.data.status !== 'Pending')
+                if(response.data.status !== 'Pending')
                 {
                     const statusMap = {
                         'Accepted': {
@@ -78,17 +81,31 @@ const InvitationResponsePage = () => {
                     return;
                 }
 
-                if(!isGeneralInvite && response.data.email)
+                if(!isGeneralInvite)
                 {
-                    const isRecipient = user.emailAddresses.some(
-                        e => e.emailAddress === response.data.email
-                    );
-                    if (!isRecipient) {
+                    if(response.data.email)
+                    {
+                        const isRecipient = user.emailAddresses.some(
+                            e => e.emailAddress === response.data.email
+                        );
+                        if(!isRecipient)
+                        {
+                            setError({
+                                message: 'This invitation is not for you! 😇',
+                                icon: 'feather',
+                                title: 'Oops!',
+                                emoji: ''
+                            });
+                            return;
+                        }
+                    }
+                    else
+                    {
                         setError({
-                            message: 'This invitation is not for you! 😇',
-                            icon: 'feather',
-                            title: 'Oops!',
-                            emoji: ''
+                            message: 'This is a general invite page. You need the specific token link to access it.',
+                            icon: 'alert',
+                            title: 'Invalid Access',
+                            emoji: '🔐'
                         });
                         return;
                     }
@@ -113,6 +130,24 @@ const InvitationResponsePage = () => {
                     }
                 );
 
+                const membersResponse = await axios.get(
+                    `http://localhost:8080/api/projects/${response.data.projectId}/members`,
+                    {
+                        headers: { 'Authorization': `Bearer ${authToken}` },
+                        withCredentials: true
+                    }
+                );
+
+                const primaryEmail = user.emailAddresses.find(
+                    email => email.id === user.primaryEmailAddressId
+                )?.emailAddress;
+
+                const alreadyMember = membersResponse.data.some(
+                    member => member.email === primaryEmail
+                );
+
+                setIsAlreadyMember(alreadyMember);
+
                 setInvitation({
                     ...response.data,
                     projectName: projectResponse.data.projectName,
@@ -120,7 +155,6 @@ const InvitationResponsePage = () => {
                     isGeneralInvite
                 });
                 setError(null);
-
             }catch(err){
                 console.error('Error:', err);
                 setError({
@@ -204,6 +238,29 @@ const InvitationResponsePage = () => {
         }
     };
 
+    const getMemberIcon = (member, isCurrentUser) =>
+    {
+        if(isCurrentUser)
+        {
+            return(
+                <motion.div
+                    animate={{
+                        scale: [1, 1.05, 1],
+                        boxShadow: ["0px 0px 0px rgba(59, 130, 246, 0.3)", "0px 0px 10px rgba(59, 130, 246, 0.6)", "0px 0px 0px rgba(59, 130, 246, 0.3)"]
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                    <UserCheck className="h-4 w-4 text-blue-500" />
+                </motion.div>
+            );
+        }
+        return(
+            <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                <User className="h-4 w-4 text-gray-500" />
+            </div>
+        );
+    };
+
     const cardVariants =
     {
         hidden: { opacity: 0, y: 20 },
@@ -219,7 +276,7 @@ const InvitationResponsePage = () => {
         }
     };
 
-    const getErrorIcon = (iconType) =>
+    const getErrorIcon = (iconType, title) =>
     {
         switch(iconType)
         {
@@ -255,6 +312,60 @@ const InvitationResponsePage = () => {
                         </div>
                     </motion.div>
                 );
+            case 'alert':
+                if(title === 'Invalid Access')
+                {
+                    return(
+                        <motion.div
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mb-6 shadow-lg">
+                            <svg
+                                className="h-10 w-10 text-yellow-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                />
+                            </svg>
+                        </motion.div>
+                    );
+                }
+                if(title === 'Expired')
+                {
+                    return(
+                        <motion.div
+                            animate={{ rotate: [0, 5, -5, 0] }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
+                            className="w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center mb-6 shadow-lg">
+                            <svg
+                                className="h-10 w-10 text-yellow-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </motion.div>
+                    );
+                }
+                return(
+                    <motion.div
+                        animate={{ rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6 shadow-lg">
+                        <AlertCircle className="h-10 w-10 text-red-500" />
+                    </motion.div>
+                );
             default:
                 return(
                     <motion.div
@@ -267,7 +378,7 @@ const InvitationResponsePage = () => {
         }
     };
 
-    return(
+    return (
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-[var(--loginpage-bg)] to-[var(--loginpage-bg2)]">
             <div className="w-full bg-gradient-to-r from-[var(--features-icon-color)] via-purple-500 to-[var(--hover-color)] shadow-lg z-10">
                 <Header title={<span className="text-xl font-bold text-white">{t("invitation.title") || "Project Invitation"}</span>} />
@@ -305,7 +416,7 @@ const InvitationResponsePage = () => {
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 className="flex flex-col items-center justify-center py-12 text-center">
-                                {getErrorIcon(error.icon)}
+                                {getErrorIcon(error.icon, error.title)}
                                 <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">{error.title} {error.emoji}</h2>
                                 <p className="text-[var(--features-text-color)] mb-6">{error.message}</p>
                                 <motion.button
@@ -449,27 +560,73 @@ const InvitationResponsePage = () => {
                                         </div>
                                     </motion.div>
                                 </div>
+
+                                {/* Already member warning */}
+                                {isAlreadyMember && (
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start">
+                                        <motion.div
+                                            animate={{
+                                                rotate: [0, 10, -10, 0],
+                                                scale: [1, 1.1, 1]
+                                            }}
+                                            transition={{ duration: 1.5, repeat: Infinity }}
+                                            className="flex-shrink-0">
+                                            <UserCheck className="h-5 w-5 text-amber-600" />
+                                        </motion.div>
+                                        <div className="ml-3">
+                                            <h3 className="text-sm font-medium text-amber-800">You're already a member!</h3>
+                                            <div className="mt-1 text-sm text-amber-700">
+                                                <p>You can't accept this invitation because you're already part of this project.</p>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )}
+
                                 <div className="flex flex-col sm:flex-row gap-4 mt-8">
                                     <motion.button
-                                        whileHover="hover"
+                                        whileHover={!isAlreadyMember ? "hover" : {}}
                                         variants={buttonHoverVariants}
                                         whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleResponse(true)}
-                                        disabled={responding}
-                                        className="flex-1 bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:opacity-90 text-white py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-xl flex items-center justify-center font-medium disabled:opacity-70">
-                                        {responding ? (<Loader2 className="h-5 w-5 animate-spin mr-2" />) : (<CheckCircle className="h-5 w-5 mr-2" />)}
-                                        {invitation.isGeneralInvite ? "Join Project" : "Accept Invitation"}
+                                        onClick={() => !isAlreadyMember && handleResponse(true)}
+                                        disabled={responding || isAlreadyMember}
+                                        className={`flex-1 py-3 px-4 rounded-lg transition-all shadow-md flex items-center justify-center font-medium ${isAlreadyMember
+                                                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                                                : 'bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] text-white hover:shadow-xl hover:opacity-90 disabled:opacity-70'
+                                            }`}>
+                                        {responding ? (
+                                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                        ) : (
+                                            <>
+                                                <CheckCircle className="h-5 w-5 mr-2" />
+                                                {invitation.isGeneralInvite ? "Join Project" : "Accept Invitation"}
+                                            </>
+                                        )}
                                     </motion.button>
-                                    <motion.button
-                                        whileHover="hover"
-                                        variants={buttonHoverVariants}
-                                        whileTap={{ scale: 0.95 }}
-                                        onClick={() => handleResponse(false)}
-                                        disabled={responding}
-                                        className="flex-1 bg-[var(--loginpage-bg)] text-[var(--features-title-color)] border border-[var(--loginpage-bg2)] py-3 px-4 rounded-lg hover:bg-[var(--loginpage-bg2)] transition-colors flex items-center justify-center font-medium disabled:opacity-70 shadow-md hover:shadow-xl">
-                                        {responding ? (<Loader2 className="h-5 w-5 animate-spin mr-2" />) : (<XCircle className="h-5 w-5 mr-2" />)}
-                                        Decline
-                                    </motion.button>
+
+                                    {!invitation.isGeneralInvite && (
+                                        <motion.button
+                                            whileHover={!isAlreadyMember ? "hover" : {}}
+                                            variants={buttonHoverVariants}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => !isAlreadyMember && handleResponse(false)}
+                                            disabled={responding || isAlreadyMember}
+                                            className={`flex-1 py-3 px-4 rounded-lg transition-colors flex items-center justify-center font-medium ${isAlreadyMember
+                                                    ? 'bg-gray-200 text-gray-500 cursor-not-allowed border-gray-300'
+                                                    : 'bg-[var(--loginpage-bg)] text-[var(--features-title-color)] border border-[var(--loginpage-bg2)] hover:bg-[var(--loginpage-bg2)] shadow-md hover:shadow-xl disabled:opacity-70'
+                                                }`}>
+                                            {responding ? (
+                                                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                                            ) : (
+                                                <>
+                                                    <XCircle className="h-5 w-5 mr-2" />
+                                                    Decline
+                                                </>
+                                            )}
+                                        </motion.button>
+                                    )}
                                 </div>
                             </motion.div>
                         ) : (

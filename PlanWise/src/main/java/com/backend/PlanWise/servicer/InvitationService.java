@@ -106,8 +106,11 @@ public class InvitationService
         if (!"Pending".equals(invitation.getStatus()))
             throw new IllegalStateException("Invitation is not in pending state");
         addUserToProject(email, invitation.getProjectId());
-        invitation.setStatus("Accepted");
-        invitationRepository.save(invitation);
+        if(invitation.getToken() == null)
+        {
+            invitation.setStatus("Accepted");
+            invitationRepository.save(invitation);
+        }
     }
 
     @Transactional

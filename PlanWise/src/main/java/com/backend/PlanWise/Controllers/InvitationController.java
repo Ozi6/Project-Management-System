@@ -67,6 +67,7 @@ public class InvitationController
         boolean accept = (Boolean) request.get("accept");
         String token = (String) request.get("token");
         String email = (String) request.get("email");
+
         if(accept)
         {
             if(email == null || email.isEmpty())
@@ -74,6 +75,12 @@ public class InvitationController
 
             if(token != null)
                 invitationService.getValidInvitation(invitationId, token);
+            else
+            {
+                Invitation invitation = invitationService.getInvitationById(invitationId);
+                if(!"Pending".equals(invitation.getStatus()))
+                    throw new IllegalStateException("Invitation is not in pending state");
+            }
 
             invitationService.acceptInvitation(invitationId, email);
         }
@@ -102,6 +109,7 @@ public class InvitationController
         response.setProjectId(invitation.getProjectId());
         response.setStatus(invitation.getStatus());
         response.setInvitedAt(invitation.getInvitedAt());
+        response.setToken(invitation.getToken());
         return response;
     }
 }
