@@ -2,13 +2,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
-import { CheckCircle, XCircle, ArrowRight, AlertCircle, Loader2, Calendar, User, MessageSquare, Feather } from 'lucide-react';
+import { CheckCircle, XCircle, ArrowRight, AlertCircle, Loader2, Calendar, User, MessageSquare, Feather, PartyPopper, ThumbsDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Header from '../components/Header';
 import { useTranslation } from 'react-i18next';
 
-const InvitationResponsePage = () =>
-{
+const InvitationResponsePage = () => {
     const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
@@ -29,7 +28,13 @@ const InvitationResponsePage = () =>
 
             if(!isSignedIn)
             {
-                setError('Please login first to view this invitation');
+                setError(
+                {
+                    message: 'Please login first to view this invitation 🔐',
+                    icon: 'alert',
+                    title: 'Login Required',
+                    emoji: '🔒'
+                });
                 setLoading(false);
                 return;
             }
@@ -47,11 +52,52 @@ const InvitationResponsePage = () =>
                     withCredentials: true
                 });
 
-                const isRecipient = user.emailAddresses.some( (emailObj) => emailObj.emailAddress === response.data.email );
+                if (response.data.status === 'Accepted')
+                {
+                    setError({
+                        message: 'This invitation has already been accepted! 🎉',
+                        icon: 'party',
+                        title: 'Already Accepted',
+                        emoji: '🥳'
+                    });
+                    setLoading(false);
+                    return;
+                }
 
+                if(response.data.status === 'Declined')
+                {
+                    setError({
+                        message: 'This invitation was declined. ❌',
+                        icon: 'thumbsdown',
+                        title: 'Invitation Declined',
+                        emoji: '😶'
+                    });
+                    setLoading(false);
+                    return;
+                }
+
+                const isRecipient = user.emailAddresses.some((emailObj) => emailObj.emailAddress === response.data.email);
                 if(!isRecipient)
                 {
-                    setError('This invitation is not for you! 😇');
+                    setError({
+                        message: 'This invitation is not for you! 😇',
+                        icon: 'feather',
+                        title: 'Oops!',
+                        emoji: '👼'
+                    });
+                    setLoading(false);
+                    return;
+                }
+
+                const expirationDate = new Date(response.data.expiresAt);
+                if(expirationDate < new Date())
+                {
+                    setError({
+                        message: 'This invitation has expired. ⏰',
+                        icon: 'alert',
+                        title: 'Expired',
+                        emoji: '😞'
+                    });
                     setLoading(false);
                     return;
                 }
@@ -76,13 +122,18 @@ const InvitationResponsePage = () =>
                 setError(null);
             }catch(err){
                 console.error('Error fetching data:', err);
-                setError(err.response?.data?.message || 'Failed to fetch invitation details');
+                setError({
+                    message: err.response?.data?.message || 'Failed to fetch invitation details',
+                    icon: 'alert',
+                    title: 'Error',
+                    emoji: '😕'
+                });
             }finally{
                 setLoading(false);
             }
         };
         fetchInvitation();
-    },[id, isLoaded, isSignedIn, user, getToken]);
+    }, [id, isLoaded, isSignedIn, user, getToken]);
 
     const handleResponse = async (accept) =>
     {
@@ -90,36 +141,45 @@ const InvitationResponsePage = () =>
             setResponding(true);
             const token = await getToken();
 
-            await axios.post(`http://localhost:8080/api/invitations/${id}/respond`,
-                { accept },
+            await axios.post(`http://localhost:8080/api/invitations/${id}/respond`, { accept },
+            {
+                headers:
                 {
-                    headers:
-                    {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
-                }
-            );
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                withCredentials: true
+            });
 
-            setSuccess(accept ? 'Invitation accepted successfully! You are now part of the project.' : 'Invitation declined successfully.');
+            setSuccess(accept ?
+            {
+                message: 'Invitation accepted successfully! You are now part of the project. 🎊',
+                emoji: '🚀'
+            }
+            :
+            {
+                message: 'Invitation declined successfully.',
+                emoji: '👋'
+            });
 
             setTimeout(() =>
             {
                 navigate(accept ? '/dashboard' : '/');
             }, 3000);
-
         }catch(err){
             console.error('Error responding to invitation:', err);
             let errorMessage = 'Failed to respond to invitation';
             if(err.response)
             {
-                if(err.response.status === 404)
-                    errorMessage = 'Invitation not found or already processed';
-                else if(err.response.status === 400)
-                    errorMessage = err.response.data.message || 'Invalid invitation state';
+                if (err.response.status === 404) errorMessage = 'Invitation not found or already processed';
+                else if (err.response.status === 400) errorMessage = err.response.data.message || 'Invalid invitation state';
             }
-            setError(errorMessage);
+            setError({
+                message: errorMessage,
+                icon: 'alert',
+                title: 'Error',
+                emoji: '😕'
+            });
         }finally{
             setResponding(false);
         }
@@ -136,19 +196,62 @@ const InvitationResponsePage = () =>
         hover:
         {
             scale: 1.05,
-            transition: {
-                type: "spring",
-                stiffness: 400,
-                damping: 10
-            }
+            transition: { type: "spring", stiffness: 400, damping: 10 }
+        }
+    };
+
+    const getErrorIcon = (iconType) =>
+    {
+        switch(iconType)
+        {
+            case 'party':
+                return(
+                    <motion.div
+                        animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center mb-6 shadow-lg">
+                        <PartyPopper className="h-10 w-10 text-green-500" />
+                    </motion.div>
+                );
+            case 'thumbsdown':
+                return(
+                    <motion.div
+                        animate={{ y: [0, -5, 0], rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="w-20 h-20 rounded-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center mb-6 shadow-lg">
+                        <ThumbsDown className="h-10 w-10 text-red-500" />
+                    </motion.div>
+                );
+            case 'feather':
+                return(
+                    <motion.div
+                        animate={{ rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-6 shadow-lg">
+                        <div className="relative">
+                            <Feather className="h-10 w-10 text-blue-400" />
+                            <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-300 flex items-center justify-center">
+                                <div className="w-2 h-1 bg-black rounded-full"></div>
+                            </div>
+                        </div>
+                    </motion.div>
+                );
+            default:
+                return(
+                    <motion.div
+                        animate={{ rotate: [0, 5, -5, 0] }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6 shadow-lg">
+                        <AlertCircle className="h-10 w-10 text-red-500" />
+                    </motion.div>
+                );
         }
     };
 
     return(
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-[var(--loginpage-bg)] to-[var(--loginpage-bg2)]">
             <div className="w-full bg-gradient-to-r from-[var(--features-icon-color)] via-purple-500 to-[var(--hover-color)] shadow-lg z-10">
-                <Header
-                    title={<span className="text-xl font-bold text-white">{t("invitation.title") || "Project Invitation"}</span>}/>
+                <Header title={<span className="text-xl font-bold text-white">{t("invitation.title") || "Project Invitation"}</span>} />
             </div>
             <div className="flex-1 flex items-center justify-center p-6">
                 <motion.div
@@ -169,52 +272,32 @@ const InvitationResponsePage = () =>
                                         animate={{
                                             boxShadow: ["0px 0px 10px rgba(var(--features-icon-color-rgb), 0.3)", "0px 0px 20px rgba(var(--features-icon-color-rgb), 0.7)", "0px 0px 10px rgba(var(--features-icon-color-rgb), 0.3)"]
                                         }}
-                                        transition={{
-                                            duration: 2,
-                                            repeat: Infinity
-                                        }}
+                                        transition={{ duration: 2, repeat: Infinity }}
                                         className="h-16 w-16 rounded-full border-4 border-[var(--loginpage-bg)]">
                                     </motion.div>
                                     <Loader2 className="absolute top-0 left-0 h-16 w-16 text-[var(--features-icon-color)] animate-spin" />
                                 </div>
                                 <p className="text-[var(--features-title-color)] text-lg font-medium mt-6">Loading invitation details...</p>
-                            </motion.div>) : error ? (
-                                <motion.div
-                                    key="error"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="flex flex-col items-center justify-center py-12 text-center">
-                                    <motion.div
-                                        animate={{ rotate: [0, 5, -5, 0] }}
-                                        transition={{ duration: 0.5, delay: 0.2 }}
-                                        className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6 shadow-lg">
-                                        {error.includes('not for you') ? (
-                                            <div className="relative">
-                                                <Feather className="h-10 w-10 text-blue-400" />
-                                                <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-yellow-300 flex items-center justify-center">
-                                                    <div className="w-2 h-1 bg-black rounded-full"></div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <AlertCircle className="h-10 w-10 text-red-500" />
-                                        )}
-                                    </motion.div>
-                                    <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">
-                                        {error.includes('not for you') ? 'Oops!' : 'Error'}
-                                    </h2>
-                                    <p className="text-[var(--features-text-color)] mb-6">
-                                        {error.includes('not for you') ? 'This invitation is not for you! 😇' : error}
-                                    </p>
-                                    <motion.button
-                                        whileHover="hover"
-                                        variants={buttonHoverVariants}
-                                        onClick={() => navigate('/dashboard')}
-                                        className="bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:bg-[var(--hover-color)] text-white py-3 px-6 rounded-lg transition-colors flex items-center shadow-md hover:shadow-xl">
-                                        Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
-                                    </motion.button>
-                                </motion.div>
-                            ) : success ? (
+                            </motion.div>
+                        ) : error ? (
+                            <motion.div
+                                key="error"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="flex flex-col items-center justify-center py-12 text-center">
+                                {getErrorIcon(error.icon)}
+                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">{error.title} {error.emoji}</h2>
+                                <p className="text-[var(--features-text-color)] mb-6">{error.message}</p>
+                                <motion.button
+                                    whileHover="hover"
+                                    variants={buttonHoverVariants}
+                                    onClick={() => navigate('/dashboard')}
+                                    className="bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:bg-[var(--hover-color)] text-white py-3 px-6 rounded-lg transition-colors flex items-center shadow-md hover:shadow-xl">
+                                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                                </motion.button>
+                            </motion.div>
+                        ) : success ? (
                             <motion.div
                                 key="success"
                                 initial={{ opacity: 0 }}
@@ -224,25 +307,22 @@ const InvitationResponsePage = () =>
                                 <motion.div
                                     animate={{
                                         scale: [1, 1.1, 1],
-                                        boxShadow: [
-                                            "0px 0px 0px rgba(34, 197, 94, 0.2)",
-                                            "0px 0px 15px rgba(34, 197, 94, 0.6)",
-                                            "0px 0px 0px rgba(34, 197, 94, 0.2)"
-                                        ]
+                                        boxShadow: ["0px 0px 0px rgba(34, 197, 94, 0.2)", "0px 0px 15px rgba(34, 197, 94, 0.6)", "0px 0px 0px rgba(34, 197, 94, 0.2)"]
                                     }}
                                     transition={{ duration: 2, repeat: Infinity }}
                                     className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center mb-6 shadow-md">
                                     <CheckCircle className="h-10 w-10 text-green-500" />
                                 </motion.div>
-                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">Success</h2>
-                                <p className="text-[var(--features-text-color)]">{success}</p>
+                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">Success! {success.emoji}</h2>
+                                <p className="text-[var(--features-text-color)]">{success.message}</p>
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: "100%" }}
                                     transition={{ duration: 3, ease: "linear" }}
-                                    className="h-1 bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] mt-8 rounded-full shadow-sm"/>
+                                    className="h-1 bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] mt-8 rounded-full shadow-sm" />
                                 <p className="text-sm text-[var(--features-text-color)] mt-2">Redirecting you shortly...</p>
-                            </motion.div> ) : invitation ? (
+                            </motion.div>
+                        ) : invitation ? (
                             <motion.div
                                 key="invitation"
                                 initial={{ opacity: 0 }}
@@ -263,14 +343,14 @@ const InvitationResponsePage = () =>
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.2 }}
                                         className="text-2xl font-bold text-[var(--features-title-color)]">
-                                        Project Invitation
+                                        Project Invitation ✨
                                     </motion.h2>
                                     <motion.p
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.3 }}
                                         className="text-[var(--features-text-color)] mt-1">
-                                        You've been invited to join a project
+                                        You've been invited to join a project 🎯
                                     </motion.p>
                                 </div>
 
@@ -323,21 +403,21 @@ const InvitationResponsePage = () =>
                                             animate={{ x: 0, opacity: 1 }}
                                             transition={{ delay: 0.7 }}
                                             className="flex items-start p-3 rounded-lg hover:bg-[var(--loginpage-bg)] transition-colors">
-                                            <MessageSquare className="text-[var(--features-icon-color)] h-5 w-5 mt-0.5 mr-3 flex-shrink-0"/>
+                                            <MessageSquare className="text-[var(--features-icon-color)] h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                                             <div>
                                                 <p className="text-[var(--features-text-color)] text-sm font-medium">Message</p>
                                                 <div className="bg-gradient-to-r from-[var(--loginpage-bg)] to-[var(--loginpage-bg2)] p-4 rounded-lg mt-1 text-[var(--features-title-color)] shadow-sm">
                                                     {invitation.message}
                                                 </div>
                                             </div>
-                                        </motion.div>)
-                                    }
+                                        </motion.div>
+                                    )}
                                     <motion.div
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.8 }}
                                         className="flex items-start p-3 rounded-lg hover:bg-[var(--loginpage-bg)] transition-colors">
-                                        <Calendar className="text-[var(--features-icon-color)] h-5 w-5 mt-0.5 mr-3 flex-shrink-0"/>
+                                        <Calendar className="text-[var(--features-icon-color)] h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                                         <div>
                                             <p className="text-[var(--features-text-color)] text-sm font-medium">Expires</p>
                                             <p className="text-[var(--features-title-color)]">
@@ -355,7 +435,7 @@ const InvitationResponsePage = () =>
                                         onClick={() => handleResponse(true)}
                                         disabled={responding}
                                         className="flex-1 bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:opacity-90 text-white py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-xl flex items-center justify-center font-medium disabled:opacity-70">
-                                        {responding ? ( <Loader2 className="h-5 w-5 animate-spin mr-2" /> ) : ( <CheckCircle className="h-5 w-5 mr-2" /> )}
+                                        {responding ? (<Loader2 className="h-5 w-5 animate-spin mr-2" />) : (<CheckCircle className="h-5 w-5 mr-2" />)}
                                         Accept Invitation
                                     </motion.button>
                                     <motion.button
@@ -365,30 +445,25 @@ const InvitationResponsePage = () =>
                                         onClick={() => handleResponse(false)}
                                         disabled={responding}
                                         className="flex-1 bg-[var(--loginpage-bg)] text-[var(--features-title-color)] border border-[var(--loginpage-bg2)] py-3 px-4 rounded-lg hover:bg-[var(--loginpage-bg2)] transition-colors flex items-center justify-center font-medium disabled:opacity-70 shadow-md hover:shadow-xl">
-                                        {responding ? (
-                                            <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                                        ) : (
-                                            <XCircle className="h-5 w-5 mr-2" />
-                                        )}
+                                        {responding ? (<Loader2 className="h-5 w-5 animate-spin mr-2" />) : (<XCircle className="h-5 w-5 mr-2" />)}
                                         Decline
                                     </motion.button>
                                 </div>
-                            </motion.div> ) : ( <motion.div
+                            </motion.div>
+                        ) : (
+                            <motion.div
                                 key="not-found"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
                                 className="flex flex-col items-center justify-center py-12 text-center">
                                 <motion.div
-                                    animate={{
-                                        rotate: [0, 5, -5, 0],
-                                        scale: [1, 1.05, 1]
-                                    }}
+                                    animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }}
                                     transition={{ duration: 1.5, repeat: Infinity }}
                                     className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center mb-6 shadow-lg">
                                     <AlertCircle className="h-10 w-10 text-yellow-500" />
                                 </motion.div>
-                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">Invitation Not Found</h2>
+                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">Invitation Not Found 😕</h2>
                                 <p className="text-[var(--features-text-color)] mb-6">The invitation you're looking for doesn't exist or has expired.</p>
                                 <motion.button
                                     whileHover="hover"
