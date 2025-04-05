@@ -94,7 +94,15 @@ const InvitationResponsePage = () =>
 
         }catch(err){
             console.error('Error responding to invitation:', err);
-            setError(err.response?.data?.message || 'Failed to respond to invitation');
+            let errorMessage = 'Failed to respond to invitation';
+            if(err.response)
+            {
+                if(err.response.status === 404)
+                    errorMessage = 'Invitation not found or already processed';
+                else if(err.response.status === 400)
+                    errorMessage = err.response.data.message || 'Invalid invitation state';
+            }
+            setError(errorMessage);
         }finally{
             setResponding(false);
         }

@@ -11,6 +11,7 @@ import com.backend.PlanWise.model.Invitation;
 import com.backend.PlanWise.servicer.InvitationService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,17 +36,16 @@ public class InvitationController
         return new ResponseEntity<>(mapToResponse(invitation), HttpStatus.OK);
     }
 
-    @PutMapping("/{invitationId}/accept")
-    public ResponseEntity<Void> acceptInvitation(@PathVariable int invitationId)
+    @PostMapping("/{invitationId}/respond")
+    public ResponseEntity<Void> respondToInvitation(
+            @PathVariable int invitationId,
+            @RequestBody Map<String, Boolean> request)
     {
-        invitationService.acceptInvitation(invitationId);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PutMapping("/{invitationId}/decline")
-    public ResponseEntity<Void> declineInvitation(@PathVariable int invitationId)
-    {
-        invitationService.declineInvitation(invitationId);
+        boolean accept = request.get("accept");
+        if(accept)
+            invitationService.acceptInvitation(invitationId);
+        else
+            invitationService.declineInvitation(invitationId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

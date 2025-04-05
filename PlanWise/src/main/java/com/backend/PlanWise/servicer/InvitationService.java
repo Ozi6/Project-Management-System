@@ -35,6 +35,8 @@ public class InvitationService
     @Autowired
     private JavaMailSender emailSender;
 
+    @Autowired RecentActivityService recentActivityService;
+
     @Transactional
     public Invitation inviteUserByEmail(InvitationRequest request)
     {
@@ -99,11 +101,11 @@ public class InvitationService
     {
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
-
+        if(!"Pending".equals(invitation.getStatus()))
+            throw new IllegalStateException("Invitation is not in pending state");
+        addUserToProject(invitation.getEmail(), invitation.getProjectId());
         invitation.setStatus("Accepted");
         invitationRepository.save(invitation);
-
-        addUserToProject(invitation.getEmail(), invitation.getProjectId());
     }
 
     @Transactional
@@ -111,15 +113,34 @@ public class InvitationService
     {
         Invitation invitation = invitationRepository.findById(invitationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Invitation not found"));
-
-        invitation.setStatus("Declined!");
+        if(!"Pending".equals(invitation.getStatus()))
+            throw new IllegalStateException("Invitation is not in pending state");
+        invitation.setStatus("Declined");
         invitationRepository.save(invitation);
     }
 
-    private void addUserToProject(String userId, Long projectId)
+    @Transactional
+    private void addUserToProject(String email, Long projectId)
     {
-        // Add to project_members table
-        // This would be a call to a ProjectMemberRepository or similar
+        User user = userRepository.findByEmail(email);
+        if(user == null)
+            throw new ResourceNotFoundException("User not found with email: " + email);
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        if(!project.getMembers().contains(user))
+        {
+            project.getMembers().add(user);
+            projectRepository.save(project);
+
+            recentActivityService.createActivity(
+                    user.getUserId(),
+                    "joined",
+                    "Project",
+                    projectId
+            );
+        }
     }
 
     public List<Invitation> getPendingInvitationsForUser(String userId)
