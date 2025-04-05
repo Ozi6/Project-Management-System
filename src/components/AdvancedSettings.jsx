@@ -384,7 +384,8 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                         src={member.avatar}
                         alt={member.name}
                         className="w-12 h-12 rounded-full flex-shrink-0"
-                        onError={(e) => {
+                        onError={(e) =>
+                        {
                             e.target.onerror = null;
                             e.target.src = '';
                             e.target.style.display = 'none';

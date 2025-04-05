@@ -17,6 +17,7 @@ import FAQPage from "./pages/Header/FAQPage";
 import NotFound from "./pages/404/NotFound"; // Import the NotFound component
 import LoginPage from "./pages/auth/LoginPage";
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import InvitationResponsePage from "./pages/InvitationResponsePage";
 import TermsOfService from './pages/TermsOfService';
 import Dashboard from "./pages/Dashboard";
 import Activity from "./pages/CalendarPage";
@@ -70,7 +71,8 @@ function AnimatedRoutes() {
                 <Route path="/dashboard" element={<PageWrapper><Dashboard/></PageWrapper>}/>
                 <Route path="/project/:id/activity" element={<PageWrapper><Activity /></PageWrapper>} />
                 <Route path="/project/:id/teams" element={<PageWrapper><Teams /></PageWrapper>} />
-                <Route path="/admin/issues" element={<PageWrapper><Issues/></PageWrapper>}/>
+                <Route path="/admin/issues" element={<PageWrapper><Issues /></PageWrapper>} />
+                <Route path="/invitations/:id" element={<PageWrapper><InvitationResponsePage /></PageWrapper>} />
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
                 

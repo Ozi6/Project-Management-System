@@ -74,6 +74,12 @@ public class InvitationService
         return "https://localhost:5173/invitations/" + invitationId;
     }
 
+    public Invitation getInvitationById(int invitationId)
+    {
+        return invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invitation not found with id: " + invitationId));
+    }
+
     private void sendInvitationEmail(String to, String projectName, String invitationLink)
     {
         SimpleMailMessage message = new SimpleMailMessage();
