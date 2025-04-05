@@ -255,7 +255,18 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
         member.id === memberId ? { ...member, team: teamName || "" } : member
       )
     );
-  };
+    };
+
+    const getInitial = (name) =>
+    {
+        if(!name)
+            return '?';
+        const parts = name.split(' ');
+        if(parts.length === 1)
+            return parts[0].charAt(0).toUpperCase();
+        return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+    };
+
 
   const editTeam = (updatedTeam, oldTeam) => {
     if (!updatedTeam || !updatedTeam.name || !updatedTeam.name.trim()) {
@@ -368,16 +379,23 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
               className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-hover-bg)] hover:shadow-lg"
             >
               <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
-                <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="w-12 h-12 rounded-full flex-shrink-0"
-                    onError={(e) =>
-                    {
-                        e.target.onerror = null;
-                        e.target.src = `https://i.pravatar.cc/150?u=${member.email}`;
-                    }}
-                />
+                {member.avatar ? (
+                    <img
+                        src={member.avatar}
+                        alt={member.name}
+                        className="w-12 h-12 rounded-full flex-shrink-0"
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = '';
+                            e.target.style.display = 'none';
+                            // This will make the fallback div show instead
+                        }}
+                    />
+                ) : (
+                    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {getInitial(member.name)}
+                    </div>
+                )}
                 <div>
                   <div className="flex items-center flex-wrap gap-2">
                     <p className="text-lg font-medium">{member.name}</p>
