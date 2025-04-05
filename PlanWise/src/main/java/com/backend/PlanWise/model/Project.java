@@ -163,5 +163,4 @@ public class Project
     {
         this.backgroundImage = backgroundImage;
     }
-
 }

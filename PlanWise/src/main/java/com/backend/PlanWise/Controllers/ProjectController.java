@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +42,8 @@ public class ProjectController
     }
 
     @GetMapping("/user/{userId}/related")
-    public ResponseEntity<List<ProjectDTO>> getUserRelatedProjects(@PathVariable String userId) {
+    public ResponseEntity<List<ProjectDTO>> getUserRelatedProjects(@PathVariable String userId)
+    {
         List<ProjectDTO> projects = projectService.getProjectsByUserId(userId);
         return ResponseEntity.ok(projects);
     }

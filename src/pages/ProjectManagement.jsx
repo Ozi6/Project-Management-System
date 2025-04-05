@@ -24,26 +24,35 @@ const ProjectManagement = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     
-    useEffect(() => {
-        if (!isLoaded) return;
+    useEffect(() =>
+    {
+        if(!isLoaded)
+            return;
 
-        const fetchProjects = async () => {
-            try {
+        const fetchProjects = async () =>
+        {
+            try{
                 const token = await getToken();
-                const response = await axios.get(`http://localhost:8080/api/projects/user/${user.id}/related`, {
+                const response = await axios.get(`http://localhost:8080/api/projects/user/${user.id}/related`,
+                {
                     withCredentials: true,
-                    headers: {
+                    headers:
+                    {
                         'Authorization': `Bearer ${token}`,
                     },
                 });
 
-                const projects = response.data.map(project => ({
+                console.log(response);
+
+                const projects = response.data.map(project => (
+                {
                     projectId: project.projectId,
                     projectName: project.projectName,
                     description: project.description,
                     ownerId: project.owner?.userId,
                     categories: project.categories || [],
                     isOwner: project.owner?.userId === user.id,
+                    teamMembers: project.members,
                     progress: calculateProgress(project.categories),
                     status: determineStatus(project.categories),
                     dueDate: project.dueDate,
@@ -52,24 +61,26 @@ const ProjectManagement = () => {
 
                 setActiveProjects(projects);
                 setLoading(false);
-            } catch (err) {
+            }catch(err){
                 console.error('Error fetching projects:', err);
                 setError(t("pro.errd"));
                 setLoading(false);
             }
         };
-
         fetchProjects();
     }, [isLoaded, getToken, user]);
 
-    const calculateProgress = (categories) => {
-        if (!categories?.length) return 0;
+    const calculateProgress = (categories) =>
+    {
+        if(!categories?.length)
+            return 0;
 
         const allListEntries = categories.flatMap(category =>
             category.taskLists?.flatMap(taskList => taskList.entries) || []
         );
 
-        if (!allListEntries.length) return 0;
+        if(!allListEntries.length)
+            return 0;
 
         const totalEntries = allListEntries.length;
         const completedEntries = allListEntries.filter(entry => entry.isChecked).length;
@@ -77,14 +88,17 @@ const ProjectManagement = () => {
         return Math.round((completedEntries / totalEntries) * 100);
     };
 
-    const determineStatus = (categories) => {
-        if (!categories?.length) return "In Progress";
+    const determineStatus = (categories) =>
+    {
+        if(!categories?.length)
+            return "In Progress";
 
         const allListEntries = categories.flatMap(category =>
             category.taskLists?.flatMap(taskList => taskList.entries) || []
         );
 
-        if (!allListEntries.length) return "In Progress";
+        if(!allListEntries.length)
+            return "In Progress";
 
         const allCompleted = allListEntries.every(entry => entry.isChecked);
         return allCompleted ? "Completed" : "In Progress";
@@ -405,7 +419,7 @@ const ProjectManagement = () => {
                                                 isOwner={project.isOwner}
                                                 onDelete={deleteProject}
                                                 dueDate={project.dueDate}
-                                                teamMembers={project.teamMembers == null ? 1 : project.teamMembers.size + 1}
+                                                teamMembers={project.teamMembers == null ? 1 : project.teamMembers.length}
                                                 lastUpdated={project.lastUpdated}
                                             />
                                         </motion.div>

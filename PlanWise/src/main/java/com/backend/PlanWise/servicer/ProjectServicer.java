@@ -1,9 +1,7 @@
 package com.backend.PlanWise.servicer;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
@@ -76,9 +74,10 @@ public class ProjectServicer
         ownerDTO.setEmail(project.getOwner().getEmail());
         dto.setOwner(ownerDTO);
 
-        dto.setMembers(project.getMembers().stream()
+        Set<UserDTO> memberDTOs = project.getMembers().stream()
                 .map(this::convertUserToDTO)
-                .collect(Collectors.toSet()));
+                .collect(Collectors.toSet());
+        dto.setMembers(memberDTOs);
 
         dto.setTeams(project.getTeams().stream()
                 .map(this::convertTeamToDTO)
@@ -226,6 +225,23 @@ public class ProjectServicer
         project.setDueDate(projectDTO.getDueDate());
         project.setUpdatedAt(projectDTO.getLastUpdated());
 
+        Set<User> members = new HashSet<>();
+        members.add(owner);
+        project.setMembers(members);
+
+        if(projectDTO.getMembers() != null && !projectDTO.getMembers().isEmpty())
+        {
+            Set<User> additionalMembers = projectDTO.getMembers().stream()
+                    .filter(userDTO -> !userDTO.getUserId().equals(owner.getUserId()))
+                    .map(userDTO -> userService.getOrCreateLocalUser(
+                            userDTO.getUserId(),
+                            userDTO.getEmail(),
+                            userDTO.getUsername()
+                    ))
+                    .collect(Collectors.toSet());
+            members.addAll(additionalMembers);
+        }
+
         log.info("💾 Saving project to database...");
 
         Project savedProject = projectRepository.save(project);
@@ -358,20 +374,18 @@ public class ProjectServicer
 
         List<Project> memberProjects = projectRepository.findByMembersUserId(userId);
         List<ProjectDTO> memberProjectDTOs = memberProjects.stream()
-                .map(project -> {
+                .map(project ->
+                {
                     ProjectDTO dto = convertToDTO(project);
                     dto.setIsOwner(project.getOwner().getUserId().equals(userId));
                     return dto;
                 })
                 .collect(Collectors.toList());
 
-        List<ProjectDTO> allProjects = new ArrayList<>();
-        allProjects.addAll(ownedProjectDTOs);
-        allProjects.addAll(memberProjectDTOs);
-
-        return allProjects.stream()
-                .distinct()
-                .collect(Collectors.toList());
+        Map<Long, ProjectDTO> projectMap = new LinkedHashMap<>();
+        memberProjectDTOs.forEach(dto -> projectMap.putIfAbsent(dto.getProjectId(), dto));
+        ownedProjectDTOs.forEach(dto -> projectMap.put(dto.getProjectId(), dto));
+        return new ArrayList<>(projectMap.values());
     }
 
     public void deleteProject(Long projectId)
