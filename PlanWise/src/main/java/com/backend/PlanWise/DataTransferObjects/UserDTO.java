@@ -1,40 +1,47 @@
 package com.backend.PlanWise.DataTransferObjects;
 
-public class UserDTO {
+public class UserDTO
+{
     private String userId;
     private String username;
     private String email;
 
-    public UserDTO() {
-    }
+    public UserDTO() {}
 
-    public UserDTO(String userId, String username, String email) {
+    public UserDTO(String userId, String username, String email)
+    {
         this.userId = userId;
         this.username = username;
         this.email = email;
     }
 
-    public String getUserId() {
+    public String getUserId()
+    {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(String userId)
+    {
         this.userId = userId;
     }
 
-    public String getUsername() {
+    public String getUsername()
+    {
         return username;
     }
 
-    public void setUsername(String username) {
+    public void setUsername(String username)
+    {
         this.username = username;
     }
 
-    public String getEmail() {
+    public String getEmail()
+    {
         return email;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(String email)
+    {
         this.email = email;
     }
 }

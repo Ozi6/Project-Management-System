@@ -1,13 +1,12 @@
 package com.backend.PlanWise.DataPool;
 
-import java.util.List;
-
+import com.backend.PlanWise.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.backend.PlanWise.model.Project;
+import java.util.List;
 
 @Repository
 public interface ProjectDataPool extends JpaRepository<Project, Long> {
