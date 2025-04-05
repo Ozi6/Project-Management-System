@@ -28,6 +28,13 @@ public class InvitationController
         return new ResponseEntity<>(mapToResponse(invitation), HttpStatus.CREATED);
     }
 
+    @GetMapping("/{invitationId}")
+    public ResponseEntity<InvitationResponse> getInvitationById(@PathVariable int invitationId)
+    {
+        Invitation invitation = invitationService.getInvitationById(invitationId);
+        return new ResponseEntity<>(mapToResponse(invitation), HttpStatus.OK);
+    }
+
     @PutMapping("/{invitationId}/accept")
     public ResponseEntity<Void> acceptInvitation(@PathVariable int invitationId)
     {
