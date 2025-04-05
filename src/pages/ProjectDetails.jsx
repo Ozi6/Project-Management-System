@@ -18,6 +18,7 @@ import {
   Plus 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 
 const ProjectDetailsWrapper = () => {
     return(
@@ -48,6 +49,7 @@ const ProjectDetails = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
+    const [dataReady, setDataReady] = useState(false);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
@@ -127,7 +129,14 @@ const ProjectDetails = () => {
                 });
 
                 setColumns(formattedColumns);
-                setLoading(false);
+                setTimeout(() =>
+                {
+                    setLoading(false);
+                    setTimeout(() =>
+                    {
+                        setDataReady(true);
+                    }, 100);
+                }, 300);
             }catch(err){
                 console.error('Error fetching project details:', err);
                 setError('Failed to load project details');
@@ -136,6 +145,16 @@ const ProjectDetails = () => {
         };
         fetchProjectDetails();
     },[isLoaded, id, user, getToken]);
+
+    useEffect(() =>
+    {
+        if(dataReady && !isHorizontalLayout)
+        {
+            const container = document.getElementById("columns-container");
+            if(container)
+                redistributeTasks(container.offsetWidth);
+        }
+    },[dataReady]);
 
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
@@ -792,8 +811,10 @@ const ProjectDetails = () => {
         }
     };
 
-    useEffect(() => {
-        const handleResize = () => {
+    useEffect(() =>
+    {
+        const handleResize = () =>
+        {
             const container = document.getElementById("columns-container");
             if (container) {
                 setContainerWidth(container.offsetWidth);
@@ -804,7 +825,7 @@ const ProjectDetails = () => {
         handleResize();
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, [columns, isHorizontalLayout]);
+    },[columns, isHorizontalLayout]);
 
     useEffect(() => {
         if (searchTerm) {
@@ -1052,6 +1073,44 @@ const ProjectDetails = () => {
             </div>
         );
     }
+    const loadingVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { duration: 0.5 }
+        },
+        exit: {
+            opacity: 0,
+            scale: 0.9,
+            transition: { duration: 0.3 }
+        }
+    };
+
+    const containerVariants =
+    {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                duration: 0.4,
+                when: "beforeChildren",
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const columnVariants = {
+        hidden: { y: 50, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 100,
+                damping: 10
+            }
+        }
+    };
 
     if (error) {
         return (
@@ -1076,134 +1135,232 @@ const ProjectDetails = () => {
                     ></div>
                 </div>
             )}
-            <ViewportHeader 
-              isHorizontalLayout={isHorizontalLayout} 
-              toggleLayout={toggleLayout} 
-              onAddCategorizer={handleAddCategorizer}
+            <ViewportHeader
+                isHorizontalLayout={isHorizontalLayout}
+                toggleLayout={toggleLayout}
+                onAddCategorizer={handleAddCategorizer}
             />
             <div className="flex flex-1 relative">
                 {/* Mobile menu toggle button */}
                 <div className="md:hidden fixed bottom-4 right-4 z-50 flex flex-col gap-3">
                     {/* Mobile Add Category button - top */}
-                    <button 
+                    <motion.button
                         onClick={handleAddCategorizer}
                         className="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors"
                         aria-label="Add category"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
                         <Plus size={24} />
-                    </button>
+                    </motion.button>
 
                     {/* Mobile Progress toggle button - middle */}
-                    <button 
+                    <motion.button
                         onClick={toggleProgressBar}
                         className="bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
                         aria-label="Toggle progress"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
                         <Activity size={24} />
-                    </button>
+                    </motion.button>
 
                     {/* Mobile menu toggle button - bottom */}
-                    <button 
+                    <motion.button
                         onClick={toggleMobileSidebar}
                         className="bg-purple-600 text-white p-3 rounded-full shadow-lg hover:bg-purple-700 transition-colors"
                         aria-label="Toggle menu"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
                         <Menu size={24} />
-                    </button>
+                    </motion.button>
                 </div>
 
                 {/* Sidebar - hidden on mobile, shown on md+ screens */}
                 <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5">
-                    <Sidebar 
-                        activeTab={activeTab} 
+                    <Sidebar
+                        activeTab={activeTab}
                         setActiveTab={setActiveTab}
                         customNavItems={customNavItems}
                     />
                 </div>
-                
+
                 {/* Mobile sidebar - full screen overlay when open */}
-                {isMobileSidebarOpen && (
-                    <div className="md:hidden fixed inset-0 z-40 bg-white">
-                        <Sidebar 
-                            activeTab={activeTab} 
-                            setActiveTab={setActiveTab} 
-                            customNavItems={customNavItems}
-                            isMobile={true}
-                            closeMobileMenu={() => setIsMobileSidebarOpen(false)}
-                        />
-                    </div>
-                )}
+                <AnimatePresence>
+                    {isMobileSidebarOpen && (
+                        <motion.div
+                            className="md:hidden fixed inset-0 z-40 bg-white"
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        >
+                            <Sidebar
+                                activeTab={activeTab}
+                                setActiveTab={setActiveTab}
+                                customNavItems={customNavItems}
+                                isMobile={true}
+                                closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+                            />
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Main content area */}
                 <div className="flex-1 overflow-auto">
-                    {searchTerm && filteredColumns && filteredColumns.length === 0 && (
-                        <div className="flex justify-center items-center p-8 text-gray-500">
-                            No results found for "{searchTerm}"
-                        </div>
-                    )}
-                    
-                    {/* Mobile progress bar - conditionally shown when toggled */}
-                    {showProgressBar && (
-                        <div className="md:hidden mx-4 mt-4">
-                            <div className="bg-white p-4 rounded-lg shadow">
-                                <h3 className="text-md text-[var(--features-text-color)] font-semibold mb-2">Project Progress</h3>
-                                <div className="px-2">
-                                    <ProgressBar tasks={displayColumns} isCompact={true} />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    
-                    <div
-                        id="columns-container"
-                        style={{
-                            transform: ``,
-                            transformOrigin: 'top left',
-                            width: '100%',
-                            marginBottom: '20px',
-                        }}
-                        className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-8`}>
-                        {displayColumns.map((tasks, columnIndex) => (
-                            <div
-                                key={columnIndex}
-                                className={`flex flex-col gap-4 ${isHorizontalLayout
-                                    ? 'min-w-[285px] max-w-[285px] flex-shrink-0'
-                                    : 'min-w-[280px] max-w-full md:max-w-[285px] flex-1'}`}>
-                                {tasks.map((task, taskIndex) => (
-                                    <Categorizer
-                                        onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
-                                            updateEntryCheckedStatus(columnIndex, taskIndex, listId, entryIndex, isChecked)}
-                                        key={task.id}
-                                        columnIndex={columnIndex}
-                                        taskIndex={taskIndex}
-                                        categoryId={task.id}
-                                        title={task.title}
-                                        tagColor={task.tagColor}
-                                        taskLists={task.taskLists}
-                                        selectedEntryId={selectedEntryId}
-                                        onSelectEntry={onSelectEntry}
-                                        onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
-                                        onEntryDelete={handleEntryDelete}
-                                        onEditCardOpen={resetSelectedEntry}
-                                        onAddList={() => addList(columnIndex, taskIndex)}
-                                        onMoveEntry={handleMoveEntry}
-                                        onMoveTaskList={handleMoveTaskList}
-                                        onDeleteList={handleDeleteList}
-                                        onUpdateCategory={(categoryId, newTitle, newTagColor) => {
-                                            updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
-                                        }}
-                                        onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex, task.id)}
-                                        onUpdateTaskList={handleUpdateTaskList}
-                                        onEntryUpdate={(listId, entryIndex, updateData) =>
-                                            handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
+                    <AnimatePresence mode="wait">
+                        {loading ? (
+                            <motion.div
+                                key="loading"
+                                className="flex flex-col justify-center items-center h-[80vh]"
+                                variants={loadingVariants}
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                            >
+                                <motion.div
+                                    animate={{
+                                        rotate: 360,
+                                        transition: {
+                                            duration: 1.5,
+                                            ease: "linear",
+                                            repeat: Infinity
                                         }
-                                    />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
+                                    }}
+                                    className="text-indigo-600 mb-4"
+                                >
+                                    <Loader2 size={40} />
+                                </motion.div>
+                                <motion.div
+                                    className="text-xl text-gray-600 font-medium"
+                                    animate={{
+                                        opacity: [0.5, 1, 0.5],
+                                        transition: {
+                                            duration: 2,
+                                            repeat: Infinity
+                                        }
+                                    }}
+                                >
+                                    {t("prode.load")}
+                                </motion.div>
+                            </motion.div>
+                        ) : error ? (
+                            <motion.div
+                                key="error"
+                                className="flex justify-center items-center h-[80vh]"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                            >
+                                <div className="p-6 bg-red-50 rounded-lg shadow border border-red-200">
+                                    <div className="text-xl text-red-600 font-medium">Error: {error}</div>
+                                </div>
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="content"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {searchTerm && filteredColumns && filteredColumns.length === 0 && (
+                                    <motion.div
+                                        className="flex justify-center items-center p-8 text-gray-500"
+                                        initial={{ opacity: 0, y: -20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                    >
+                                        No results found for "{searchTerm}"
+                                    </motion.div>
+                                )}
+
+                                {/* Mobile progress bar - conditionally shown when toggled */}
+                                <AnimatePresence>
+                                    {showProgressBar && (
+                                        <motion.div
+                                            className="md:hidden mx-4 mt-4"
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: "auto" }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                        >
+                                            <div className="bg-white p-4 rounded-lg shadow">
+                                                <h3 className="text-md text-[var(--features-text-color)] font-semibold mb-2">Project Progress</h3>
+                                                <div className="px-2">
+                                                    <ProgressBar tasks={displayColumns} isCompact={true} />
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <motion.div
+                                    id="columns-container"
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate={dataReady ? "visible" : "hidden"}
+                                    style={{
+                                        width: '100%',
+                                        marginBottom: '20px',
+                                    }}
+                                    className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-8`}
+                                >
+                                    {displayColumns.map((tasks, columnIndex) => (
+                                        <motion.div
+                                            key={columnIndex}
+                                            variants={columnVariants}
+                                            className={`flex flex-col gap-4 ${isHorizontalLayout
+                                                ? 'min-w-[285px] max-w-[285px] flex-shrink-0'
+                                                : 'min-w-[280px] max-w-full md:max-w-[285px] flex-1'}`}
+                                        >
+                                            {tasks.map((task, taskIndex) => (
+                                                <motion.div
+                                                    key={task.id}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{
+                                                        delay: 0.1 * taskIndex,
+                                                        duration: 0.4
+                                                    }}
+                                                >
+                                                    <Categorizer
+                                                        onUpdateEntryCheckedStatus={(listId, entryIndex, isChecked) =>
+                                                            updateEntryCheckedStatus(columnIndex, taskIndex, listId, entryIndex, isChecked)}
+                                                        columnIndex={columnIndex}
+                                                        taskIndex={taskIndex}
+                                                        categoryId={task.id}
+                                                        title={task.title}
+                                                        tagColor={task.tagColor}
+                                                        taskLists={task.taskLists}
+                                                        selectedEntryId={selectedEntryId}
+                                                        onSelectEntry={onSelectEntry}
+                                                        onAddEntry={(listId) => addEntry(columnIndex, taskIndex, listId)}
+                                                        onEntryDelete={handleEntryDelete}
+                                                        onEditCardOpen={resetSelectedEntry}
+                                                        onAddList={() => addList(columnIndex, taskIndex)}
+                                                        onMoveEntry={handleMoveEntry}
+                                                        onMoveTaskList={handleMoveTaskList}
+                                                        onDeleteList={handleDeleteList}
+                                                        onUpdateCategory={(categoryId, newTitle, newTagColor) => {
+                                                            updateCategory(columnIndex, taskIndex, categoryId, newTitle, newTagColor);
+                                                        }}
+                                                        onDeleteCategory={() => handleDeleteCategory(columnIndex, taskIndex, task.id)}
+                                                        onUpdateTaskList={handleUpdateTaskList}
+                                                        onEntryUpdate={(listId, entryIndex, updateData) =>
+                                                            handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
+                                                        }
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
-                
+
                 {/* Desktop progress bar - hidden on mobile */}
                 <div className={`hidden md:block`}>
                     <ProgressBar tasks={displayColumns} />
