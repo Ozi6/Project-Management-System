@@ -32,7 +32,8 @@ const Dashboard = () => {
                 {
                     userId: user.id,
                     username: user.username || user.fullName,
-                    email: user.emailAddresses[0].emailAddress
+                    email: user.emailAddresses[0].emailAddress,
+                    profileImageUrl: user.imageUrl || null
                 };
 
                 await axios.post('http://localhost:8080/api/users/sync', userDTO,
@@ -66,8 +67,6 @@ const Dashboard = () => {
             });
 
             const allFiles = [];
-
-            console.log(projectsResponse);
 
             for(const project of projectsResponse.data)
             {
@@ -109,7 +108,6 @@ const Dashboard = () => {
                                     {
                                         if(entry.file)
                                         {
-                                            console.log(entry.file);
                                             allFiles.push(
                                             {
                                                 ...entry.file,

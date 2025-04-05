@@ -21,31 +21,40 @@ public class UserService {
     private EntityManager entityManager;
 
     @Transactional
-    public User getOrCreateLocalUser(String clerkUserId, String email, String username) {
-        try {
-            // Try to find existing user first
+    public User getOrCreateLocalUser(String clerkUserId, String email, String username, String profileImageUrl)
+    {
+        try{
             User existingUser = userDataPool.findByUserId(clerkUserId);
             
-            if (existingUser != null) {
-                // Check if updates are needed
+            if(existingUser != null)
+            {
                 boolean needsUpdate = false;
                 
-                if (email != null && !email.equals(existingUser.getEmail())) {
+                if(email != null && !email.equals(existingUser.getEmail()))
+                {
                     existingUser.setEmail(email);
                     needsUpdate = true;
                 }
                 
-                if (username != null && !username.equals(existingUser.getUsername())) {
+                if(username != null && !username.equals(existingUser.getUsername()))
+                {
                     existingUser.setUsername(username);
                     needsUpdate = true;
                 }
-                
-                if (needsUpdate) {
-                    return userDataPool.save(existingUser);
+
+                if(profileImageUrl != null && !profileImageUrl.equals((existingUser.getProfileImageUrl())))
+                {
+                    existingUser.setProfileImageUrl(profileImageUrl);
+                    needsUpdate = true;
                 }
+                
+                if(needsUpdate)
+                    return userDataPool.save(existingUser);
+
                 return existingUser;
-            } else {
-                // Create new user
+            }
+            else
+            {
                 User newUser = new User();
                 newUser.setUserId(clerkUserId);
                 newUser.setEmail(email);
@@ -53,45 +62,44 @@ public class UserService {
                 
                 return userDataPool.save(newUser);
             }
-        } catch (DataIntegrityViolationException e) {
-            // Handle case where unique constraints are violated
-            // Try to fetch the existing user again
+        }catch(DataIntegrityViolationException e){
             User conflictedUser = userDataPool.findByEmailOrUsername(email, username);
-            if (conflictedUser != null) {
+            if(conflictedUser != null)
                 return conflictedUser;
-            }
-            throw e; // Re-throw if we can't resolve the conflict
+            throw e;
         }
     }
 
     @Transactional
     public UserDTO syncUserData(UserDTO userDTO) {
-        try {
+        try
+        {
             User user = getOrCreateLocalUser(
                 userDTO.getUserId(),
                 userDTO.getEmail(),
-                userDTO.getUsername()
+                userDTO.getUsername(),
+                userDTO.getProfileImageUrl()
             );
             return convertToDTO(user);
-        } catch (DataIntegrityViolationException e) {
-            // Fallback: Find existing user by email or username
+        }catch(DataIntegrityViolationException e){
             User existingUser = userDataPool.findByEmailOrUsername(
                 userDTO.getEmail(), 
                 userDTO.getUsername()
             );
             
-            if (existingUser != null) {
+            if (existingUser != null)
                 return convertToDTO(existingUser);
-            }
             throw new RuntimeException("Failed to sync user data", e);
         }
     }
 
-    private UserDTO convertToDTO(User user) {
+    private UserDTO convertToDTO(User user)
+    {
         return new UserDTO(
             user.getUserId(),
             user.getUsername(),
-            user.getEmail()
+            user.getEmail(),
+            user.getProfileImageUrl()
         );
     }
 

@@ -3,8 +3,9 @@ CREATE DATABASE planwise;
 USE planwise;
 CREATE TABLE users (
     user_id VARCHAR(100) PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100) NOT NULL UNIQUE
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    profile_image_url VARCHAR(255)
 );
 
 CREATE TABLE projects (

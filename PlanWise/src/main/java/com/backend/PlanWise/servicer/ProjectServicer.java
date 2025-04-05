@@ -122,6 +122,7 @@ public class ProjectServicer
         dto.setUserId(user.getUserId());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
+        dto.setProfileImageUrl(user.getProfileImageUrl());
         return dto;
     }
 
@@ -213,7 +214,8 @@ public class ProjectServicer
         User owner = userService.getOrCreateLocalUser(
             projectDTO.getOwner().getUserId(),
             projectDTO.getOwner().getEmail(),
-            projectDTO.getOwner().getUsername()
+            projectDTO.getOwner().getUsername(),
+            projectDTO.getOwner().getProfileImageUrl()
         );
 
         Project project = new Project();
@@ -236,7 +238,8 @@ public class ProjectServicer
                     .map(userDTO -> userService.getOrCreateLocalUser(
                             userDTO.getUserId(),
                             userDTO.getEmail(),
-                            userDTO.getUsername()
+                            userDTO.getUsername(),
+                            userDTO.getProfileImageUrl()
                     ))
                     .collect(Collectors.toSet());
             members.addAll(additionalMembers);
@@ -386,6 +389,53 @@ public class ProjectServicer
         memberProjectDTOs.forEach(dto -> projectMap.putIfAbsent(dto.getProjectId(), dto));
         ownedProjectDTOs.forEach(dto -> projectMap.put(dto.getProjectId(), dto));
         return new ArrayList<>(projectMap.values());
+    }
+
+    public List<UserDTO> getProjectMembers(Long projectId)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        return project.getMembers().stream()
+                .map(this::convertUserToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void removeProjectMember(Long projectId, String userId)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        if (project.getOwner().getUserId().equals(userId))
+            throw new IllegalStateException("Cannot remove project owner");
+
+        User memberToRemove = project.getMembers().stream()
+                .filter(member -> member.getUserId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found in project"));
+
+        project.getMembers().remove(memberToRemove);
+        project.getTeams().forEach(team -> team.getMembers().remove(memberToRemove));
+
+        project.getCategories().forEach(category ->
+                category.getTaskLists().forEach(taskList ->
+                        taskList.getEntries().forEach(entry ->
+                        {
+                            entry.getAssignedUsers().remove(memberToRemove);
+                            entry.getAssignedTeams().removeIf(team ->
+                                    team.getMembers().contains(memberToRemove));
+                        })
+                )
+        );
+
+        projectRepository.save(project);
+
+        recentActivityService.createActivity(
+                userId,
+                "removed",
+                "Member",
+                projectId
+        );
     }
 
     public void deleteProject(Long projectId)

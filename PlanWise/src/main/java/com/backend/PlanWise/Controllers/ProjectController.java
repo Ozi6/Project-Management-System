@@ -2,6 +2,7 @@ package com.backend.PlanWise.Controllers;
 
 import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
+import com.backend.PlanWise.DataTransferObjects.UserDTO;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,22 @@ public class ProjectController
         Set<CategoryDTO> categories = categoryService.getCategoriesByProjectId(projectId);
         projectDTO.setCategories(categories);
         return ResponseEntity.ok(projectDTO);
+    }
+
+    @GetMapping("/{projectId}/members")
+    public ResponseEntity<List<UserDTO>> getProjectMembers(
+            @PathVariable Long projectId)
+    {
+        List<UserDTO> members = projectService.getProjectMembers(projectId);
+        return ResponseEntity.ok(members);
+    }
+
+    @DeleteMapping("/{projectId}/members/{userId}")
+    public ResponseEntity<Void> removeProjectMember(
+            @PathVariable Long projectId,
+            @PathVariable String userId) {
+        projectService.removeProjectMember(projectId, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping(value = "/{projectId}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

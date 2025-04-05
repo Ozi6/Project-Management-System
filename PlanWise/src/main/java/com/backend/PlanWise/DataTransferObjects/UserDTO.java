@@ -5,14 +5,16 @@ public class UserDTO
     private String userId;
     private String username;
     private String email;
+    private String profileImageUrl;
 
     public UserDTO() {}
 
-    public UserDTO(String userId, String username, String email)
+    public UserDTO(String userId, String username, String email, String profileImageUrl)
     {
         this.userId = userId;
         this.username = username;
         this.email = email;
+        this.profileImageUrl = profileImageUrl;
     }
 
     public String getUserId()
@@ -43,5 +45,15 @@ public class UserDTO
     public void setEmail(String email)
     {
         this.email = email;
+    }
+
+    public String getProfileImageUrl()
+    {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl)
+    {
+        this.profileImageUrl = profileImageUrl;
     }
 }

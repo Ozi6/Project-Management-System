@@ -1,8 +1,8 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useEffect } from "react";
 import { UserPlus, Trash, ChevronDown, Search, UserCheck } from "lucide-react";
 import { Menu, Transition } from "@headlessui/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUser } from "@clerk/clerk-react"; // Import useUser from Clerk
+import { useUser, useAuth } from "@clerk/clerk-react";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
 import ErrorBoundary from "./ErrorBoundary";
@@ -10,9 +10,11 @@ import Dropdown from "./Dropdown";
 import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
-const RemoveConfirmationModal = ({ member, onConfirm, onCancel }) => {
-  const {t} = useTranslation();
+const RemoveConfirmationModal = ({ member, onConfirm, projectId }) => {
+    const { t } = useTranslation();
+
   return (
     <AnimatePresence mode="wait">
       {member && (
@@ -99,36 +101,57 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
 
 const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
   const {t} = useTranslation();
-  // Get current user from Clerk
-  const { user } = useUser();
+    // Get current user from Clerk
+    const { getToken } = useAuth();
+    const { user } = useUser();
+    const isProjectOwner = isOwner;
 
-  // Check if current user is the project owner
-  const isProjectOwner = isOwner;
+    const [members, setMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  // Rest of your existing state...
-  const [members, setMembers] = useState([
+    useEffect(() =>
     {
-      id: 1,
-      name: "Alice Johnson",
-      email: "alice@example.com", // This is the project owner in our example
-      team: "Engineering",
-      role: "Owner" // Changed from "Member" to "Owner" to indicate ownership
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      email: "bob@example.com",
-      team: "Marketing",
-      role: "Admin"
-    },
-    {
-      id: 3,
-      name: "Charlie Brown",
-      email: "charlie@example.com",
-      team: "Design",
-      role: "Member"
-    },
-  ]);
+        const fetchMembers = async () =>
+        {
+            try{
+                const token = await getToken();
+                const response = await axios.get(
+                    `http://localhost:8080/api/projects/${projectId}/members`,
+                    {
+                        withCredentials: true,
+                        headers:
+                        {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                const membersData = response.data.map(member => (
+                {
+                    id: member.userId,
+                    name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
+                    email: member.email,
+                    team: member.team || "",
+                    role: member.userId == user.I? "Owner" : member.role || "Member",
+                    avatar: member.profileImageUrl
+                        ? `${member.profileImageUrl}?width=150&height=150`
+                        : `https://i.pravatar.cc/150?u=${member.email}`
+                }));
+
+                console.log(membersData);
+
+                setMembers(membersData);
+                setLoading(false);
+            }catch(err){
+                console.error('Error fetching members:', err);
+                setError(t("pro.errd"));
+                setLoading(false);
+            }
+        };
+
+        fetchMembers();
+    },[projectId, getToken, t]);
   
   // Define roles
   const roles = ["Admin", "Member", "Guest"];
@@ -346,9 +369,14 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
             >
               <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
                 <img
-                  src={`https://i.pravatar.cc/150?img=${member.id}`}
-                  alt={member.name}
-                  className="w-12 h-12 rounded-full flex-shrink-0"
+                    src={member.avatar}
+                    alt={member.name}
+                    className="w-12 h-12 rounded-full flex-shrink-0"
+                    onError={(e) =>
+                    {
+                        e.target.onerror = null;
+                        e.target.src = `https://i.pravatar.cc/150?u=${member.email}`;
+                    }}
                 />
                 <div>
                   <div className="flex items-center flex-wrap gap-2">
