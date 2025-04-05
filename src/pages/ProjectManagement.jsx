@@ -50,6 +50,7 @@ const ProjectManagement = () => {
                     projectName: project.projectName,
                     description: project.description,
                     ownerId: project.owner?.userId,
+                    ownerUsername: project.owner?.username,
                     categories: project.categories || [],
                     isOwner: project.owner?.userId === user.id,
                     teamMembers: project.members,
@@ -413,7 +414,7 @@ const ProjectManagement = () => {
                                                 id={project.projectId}
                                                 name={project.projectName}
                                                 description={project.description}
-                                                owner={user.fullName || user.username}
+                                                owner={project.ownerUsername}
                                                 progress={project.progress}
                                                 status={project.status}
                                                 isOwner={project.isOwner}

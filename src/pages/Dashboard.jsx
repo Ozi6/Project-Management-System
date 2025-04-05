@@ -57,8 +57,7 @@ const Dashboard = () => {
     {
         try{
             const token = await getToken();
-            const projectsResponse = await axios.get('http://localhost:8080/api/projects',
-            {
+            const projectsResponse = await axios.get(`http://localhost:8080/api/projects/user/${user.id}/related`, {
                 headers:
                 {
                     'Authorization': `Bearer ${token}`,
