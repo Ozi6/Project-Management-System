@@ -16,10 +16,10 @@ import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class InvitationService
@@ -56,9 +56,9 @@ public class InvitationService
         invitation.setProjectId(project.getProjectId());
         invitation.setStatus("Pending");
 
-        Instant now = Instant.now();
+        LocalDateTime now = LocalDateTime.now();
         invitation.setInvitedAt(now);
-        invitation.setExpiresAt(now.plus(12, ChronoUnit.HOURS));
+        invitation.setExpiresAt(now.plusHours(12));
 
         Invitation savedInvitation = invitationRepository.save(invitation);
 

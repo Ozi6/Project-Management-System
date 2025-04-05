@@ -28,6 +28,7 @@ const InvitationResponsePage = () => {
             try{
                 setLoading(true);
                 const token = await getToken();
+
                 const response = await axios.get(`http://localhost:8080/api/invitations/${id}`,
                 {
                     headers:
@@ -37,17 +38,35 @@ const InvitationResponsePage = () => {
                     withCredentials: true
                 });
 
-                setInvitation(response.data);
+                console.log(response.data);
+
+                const projectResponse = await axios.get(`http://localhost:8080/api/projects/${response.data.projectId}`,
+                {
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    withCredentials: true
+                });
+
+                const invitationWithProject =
+                {
+                    ...response.data,
+                    projectName: projectResponse.data.projectName,
+                    senderName: projectResponse.data.owner.username,
+                };
+
+                setInvitation(invitationWithProject);
                 setError(null);
             }catch(err){
-                console.error('Error fetching invitation:', err);
+                console.error('Error fetching data:', err);
                 setError(err.response?.data?.message || 'Failed to fetch invitation details');
             }finally{
                 setLoading(false);
             }
         };
         fetchInvitation();
-    }, [id, isLoaded, user, getToken]);
+    },[id, isLoaded, user, getToken]);
 
     const handleResponse = async (accept) =>
     {
@@ -185,7 +204,7 @@ const InvitationResponsePage = () => {
                                     <div className="flex items-start">
                                         <User className="text-[var(--features-icon-color)] h-5 w-5 mt-0.5 mr-3 flex-shrink-0" />
                                         <div>
-                                            <p className="text-[var(--features-text-color)] text-sm font-medium">From</p>
+                                            <p className="text-[var(--features-text-color)] text-sm font-medium">Project Owner</p>
                                             <p className="text-[var(--features-title-color)] font-semibold">{invitation.senderName || "Project Admin"}</p>
                                         </div>
                                     </div>

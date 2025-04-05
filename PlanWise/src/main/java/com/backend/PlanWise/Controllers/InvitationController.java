@@ -63,6 +63,7 @@ public class InvitationController
     {
         InvitationResponse response = new InvitationResponse();
         response.setInvitationId(invitation.getInvitationId());
+        response.setExpiresAt(invitation.getExpiresAt());
         response.setEmail(invitation.getEmail());
         response.setProjectId(invitation.getProjectId());
         response.setStatus(invitation.getStatus());

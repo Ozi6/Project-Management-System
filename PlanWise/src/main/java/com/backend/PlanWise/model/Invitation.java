@@ -1,8 +1,10 @@
 package com.backend.PlanWise.model;
 
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "invitations")
@@ -20,20 +22,20 @@ public class Invitation
     private Long projectId;
 
     @Column(name = "invited_at")
-    private Instant invitedAt;
+    private LocalDateTime invitedAt;
 
-    public Instant getExpiresAt()
+    public LocalDateTime getExpiresAt()
     {
         return expiresAt;
     }
 
-    public void setExpiresAt(Instant expiresAt)
+    public void setExpiresAt(LocalDateTime expiresAt)
     {
         this.expiresAt = expiresAt;
     }
 
     @Column(name = "expires_at")
-    private Instant expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column(name = "status")
     private String status;
@@ -68,12 +70,12 @@ public class Invitation
         this.projectId = projectId;
     }
 
-    public Instant getInvitedAt()
+    public LocalDateTime getInvitedAt()
     {
         return invitedAt;
     }
 
-    public void setInvitedAt(Instant invitedAt)
+    public void setInvitedAt(LocalDateTime invitedAt)
     {
         this.invitedAt = invitedAt;
     }

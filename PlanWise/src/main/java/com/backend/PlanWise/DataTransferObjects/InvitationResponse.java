@@ -1,6 +1,6 @@
 package com.backend.PlanWise.DataTransferObjects;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 public class InvitationResponse
 {
@@ -8,7 +8,19 @@ public class InvitationResponse
     private String email;
     private Long projectId;
     private String status;
-    private Instant invitedAt;
+    private LocalDateTime invitedAt;
+
+    public LocalDateTime getExpiresAt()
+    {
+        return expiresAt;
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt)
+    {
+        this.expiresAt = expiresAt;
+    }
+
+    private LocalDateTime expiresAt;
 
     public Integer getInvitationId()
     {
@@ -50,12 +62,12 @@ public class InvitationResponse
         this.status = status;
     }
 
-    public Instant getInvitedAt()
+    public LocalDateTime getInvitedAt()
     {
         return invitedAt;
     }
 
-    public void setInvitedAt(Instant invitedAt)
+    public void setInvitedAt(LocalDateTime invitedAt)
     {
         this.invitedAt = invitedAt;
     }
