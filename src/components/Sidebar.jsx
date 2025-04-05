@@ -147,7 +147,6 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
     console.log('Current path:', path);
     console.log('Active tab set to:', currentNavItem?.id || currentIssuesItem?.id || 'none');
     console.log('Issues menu:', showIssuesMenu ? 'open' : 'closed', 'isIssuesPage:', isIssuesPage);
-    // Debug to help see what's happening
     
   }, [location.pathname, navItems, issuesItems, setActiveTab]);
 

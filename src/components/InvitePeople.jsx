@@ -88,8 +88,7 @@ const InvitePeople = ({ isOpen, onClose, projectId }) =>
                         className="w-full p-2 border rounded text-[var(--features-icon-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={loading}
-                    />
+                        disabled={loading}/>
                     {error && (
                         <div className="mt-2 text-red-500 flex items-center text-sm">
                             <AlertCircle className="w-4 h-4 mr-1" />
@@ -108,16 +107,14 @@ const InvitePeople = ({ isOpen, onClose, projectId }) =>
                                 : 'hover:bg-[var(--hover-color)]'
                             }`}
                         onClick={handleInviteUser}
-                        disabled={loading}
-                    >
+                        disabled={loading}>
                         {loading ? t("adset.sending") || "Sending..." : t("adset.invite")}
                     </button>
                 </div>
                 <div className="mt-4 text-center">
                     <button
                         className="text-[var(--features-icon-color)] hover:underline"
-                        onClick={handleInviteByLink}
-                    >
+                        onClick={handleInviteByLink}>
                         {t("adset.link")}
                     </button>
                 </div>

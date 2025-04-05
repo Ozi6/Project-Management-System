@@ -281,6 +281,12 @@
   "adset.emaild": "E-posta girin...",
   "adset.invite": "Davet Et",
   "adset.link": "Link ile Davet Et",
+  "adset.emailInvalid": "Geçersiz E-posta Adresi",
+  "adset.inviteSent": "Davet Gönderildi",
+  "adset.inviteError": "Davet Gönderilirken Hata Oldu",
+  "adset.linkCopied": "Link kopyalandı",
+  "adset.copyError": "Link kopyalanırken Hata Oldu",
+  "adset.sending": "Davet Gönderiliyor...",
 
   "adset.add": "Takım Ekle",
   "adset.teaman": "Takımları Yönet",

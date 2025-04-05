@@ -99,9 +99,9 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
   );
 };
 
-const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) => {
-  const {t} = useTranslation();
-    // Get current user from Clerk
+const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
+{
+    const {t} = useTranslation();
     const { getToken } = useAuth();
     const { user } = useUser();
     const isProjectOwner = isOwner;
