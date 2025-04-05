@@ -4,30 +4,31 @@ import PropTypes from "prop-types";
 import { FaTimes } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 
-const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
+const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
+{
     const {t} = useTranslation();
-    // Initialize with the full team/user objects or empty arrays
     const [formData, setFormData] = useState({
         assignedTeams: entry.assignedTeams || [],
         assignedUsers: entry.assignedUsers || []
     });
     
-    // Extract IDs for filtering
     const assignedTeamIds = formData.assignedTeams.map(team => team.id);
-    const assignedUserIds = formData.assignedUsers.map(user => user.id);
+    const assignedUserIds = formData.assignedUsers.map(user => user.userId);
     
     const [availableTeams, setAvailableTeams] = useState([]);
     const [availableUsers, setAvailableUsers] = useState([]);
 
-    useEffect(() => {
-        // Filter teams/users not already assigned
+    useEffect(() =>
+    {
         setAvailableTeams(teams.filter(team => !assignedTeamIds.includes(team.id)));
-        setAvailableUsers(users.filter(user => !assignedUserIds.includes(user.id)));
+        setAvailableUsers(users.filter(user => !assignedUserIds.includes(user.userId)));
     }, [teams, users, assignedTeamIds, assignedUserIds]);
 
-    const addTeam = (teamId) => {
+    const addTeam = (teamId) =>
+    {
         const teamToAdd = teams.find(t => t.id === teamId);
-        if (teamToAdd && !assignedTeamIds.includes(teamId)) {
+        if(teamToAdd && !assignedTeamIds.includes(teamId))
+        {
             setFormData(prev => ({
                 ...prev,
                 assignedTeams: [...prev.assignedTeams, teamToAdd]
@@ -35,15 +36,17 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
         }
     };
 
-    const removeTeam = (teamId) => {
+    const removeTeam = (teamId) =>
+    {
         setFormData(prev => ({
             ...prev,
             assignedTeams: prev.assignedTeams.filter(team => team.id !== teamId)
         }));
     };
 
-    const addUser = (userId) => {
-        const userToAdd = users.find(u => u.id === userId);
+    const addUser = (userId) =>
+    {
+        const userToAdd = users.find(u => u.userId === userId);
         if (userToAdd && !assignedUserIds.includes(userId)) {
             setFormData(prev => ({
                 ...prev,
@@ -52,18 +55,19 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
         }
     };
 
-    const removeUser = (userId) => {
+    const removeUser = (userId) =>
+    {
         setFormData(prev => ({
             ...prev,
-            assignedUsers: prev.assignedUsers.filter(user => user.id !== userId)
+            assignedUsers: prev.assignedUsers.filter(user => user.userId !== userId)
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e) =>
+    {
         e.preventDefault();
         console.log("Submitting assignment data:", formData);
         
-        // Pass the full team/user objects directly
         onAssign(formData);
         onClose();
     };
@@ -152,13 +156,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                             <div className="max-h-40 overflow-y-auto">
                                 {formData.assignedUsers.map((user) => (
                                     <div
-                                        key={user.id}
+                                        key={user.userId}
                                         className="flex justify-between items-center bg-green-100 text-green-800 px-2 py-1 mb-1 rounded text-sm"
                                     >
-                                        {user.name}
+                                        {user.username}
                                         <button
                                             type="button"
-                                            onClick={() => removeUser(user.id)}
+                                            onClick={() => removeUser(user.userId)}
                                             className="text-green-500 hover:text-green-700"
                                         >
                                             <FaTimes />
@@ -176,13 +180,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) => {
                             <div className="max-h-40 overflow-y-auto">
                                 {availableUsers.map((user) => (
                                     <div
-                                        key={user.id}
+                                        key={user.userId}
                                         className="flex justify-between items-center px-2 py-1 mb-1 text-[var(--features-text-color)] bg-[var(--features-icon-color)]/10 rounded text-sm"
                                     >
-                                        {user.name}
+                                        {user.username}
                                         <button
                                             type="button"
-                                            onClick={() => addUser(user.id)}
+                                            onClick={() => addUser(user.userId)}
                                             className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                         >
                                             {t("prode.ass.add")}
@@ -231,8 +235,8 @@ ListEntryAssignPopup.propTypes = {
         ),
         assignedUsers: PropTypes.arrayOf(
             PropTypes.shape({
-                id: PropTypes.string.isRequired,
-                name: PropTypes.string.isRequired,
+                userId: PropTypes.string.isRequired,
+                username: PropTypes.string.isRequired,
                 profilePicture: PropTypes.elementType,
             })
         ),
@@ -248,8 +252,8 @@ ListEntryAssignPopup.propTypes = {
     ).isRequired,
     users: PropTypes.arrayOf(
         PropTypes.shape({
-            id: PropTypes.string.isRequired,
-            name: PropTypes.string.isRequired,
+            userId: PropTypes.string.isRequired,
+            username: PropTypes.string.isRequired,
             profilePicture: PropTypes.elementType,
         })
     ).isRequired,

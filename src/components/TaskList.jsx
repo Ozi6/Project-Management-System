@@ -5,7 +5,6 @@ import ListEntry from "./ListEntry";
 import EditCard from "./EditCard";
 import axios from 'axios';
 import { useUser, useAuth } from "@clerk/clerk-react";
-import { Teams, Users } from './TeamAndUsersTest';
 import { AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -15,6 +14,8 @@ const TaskList = ({
     entries: initialEntries,
     onAddEntry,
     listId,
+    teams,
+    members,
     categoryId,
     selectedEntryId,
     onSelectEntry,
@@ -629,6 +630,8 @@ const TaskList = ({
                                         assignedUsers={entry.assignedUsers || []}
                                         assignedTeams={entry.assignedTeams || []}
                                         onAssign={(newUsers, newTeams) => handleAssignedChange(index, newUsers, newTeams)}
+                                        teams={teams}
+                                        members={members}
                                     />
                                 </div>
                             );

@@ -25,7 +25,9 @@ const Categorizer = ({
     onUpdateEntryCheckedStatus,
     onUpdateCategory,
     onUpdateTaskList,
-    onEntryUpdate
+    onEntryUpdate,
+    members,
+    teams
 }) => {
     const {t} = useTranslation();
     const [draggedOverIndex, setDraggedOverIndex] = useState(null);
@@ -96,6 +98,8 @@ const Categorizer = ({
                                     tagColor={taskList.tagColor}
                                     entries={taskList.entries}
                                     listId={taskList.id}
+                                    members={members}
+                                    teams={teams}
                                     categoryId={categoryId}
                                     selectedEntryId={selectedEntryId}
                                     onSelectEntry={onSelectEntry}

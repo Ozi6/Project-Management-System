@@ -4,7 +4,6 @@ import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
 import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an icon library for the red exclamation mark
-import { Teams, Users } from './TeamAndUsersTest';
 import { useTranslation } from "react-i18next";
 
 const ListEntry = ({
@@ -31,6 +30,8 @@ const ListEntry = ({
     isDraggedOver = false,
     dragPosition = null,
     file = null,
+    teams,
+    members,
     onFileChange = () => { },
     onDelete = () => { },
 }) => {
@@ -295,19 +296,23 @@ const ListEntry = ({
                         onEdit={(updatedEntry) => {
                             onCheckChange(updatedEntry.checked);
 
-                            if (updatedEntry.text !== text) {
+                            if(updatedEntry.text !== text)
+                            {
                                 onTextChange(updatedEntry.text);
                             }
 
-                            if (updatedEntry.dueDate !== dueDate) {
+                            if(updatedEntry.dueDate !== dueDate)
+                            {
                                 onDueDateChange(updatedEntry.dueDate);
                             }
 
-                            if (updatedEntry.warningThreshold !== warningThreshold) {
+                            if(updatedEntry.warningThreshold !== warningThreshold)
+                            {
                                 onWarningThresholdChange(updatedEntry.warningThreshold);
                             }
 
-                            if (updatedEntry.file !== file) {
+                            if(updatedEntry.file !== file)
+                            {
                                 onFileChange(updatedEntry.file);
                             }
 
@@ -327,8 +332,8 @@ const ListEntry = ({
                             }
                             onClick(null);
                         }}
-                        teams={Teams}
-                        users={Users}
+                        teams={teams}
+                        users={members}
                     />
                 )}
             </AnimatePresence>

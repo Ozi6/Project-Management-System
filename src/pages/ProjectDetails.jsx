@@ -50,7 +50,8 @@ const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
     const [dataReady, setDataReady] = useState(false);
-
+    const [teams, setTeams] = useState([]);
+    const [members, setMembers] = useState([]);
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
     useEffect(() =>
@@ -72,6 +73,9 @@ const ProjectDetails = () => {
                 });
 
                 const projectData = response.data;
+
+                setTeams(projectData.teams || []);
+                setMembers(projectData.members || []);
 
                 if(projectData.backgroundImage)
                     setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
@@ -1350,6 +1354,8 @@ const ProjectDetails = () => {
                                                         onEntryUpdate={(listId, entryIndex, updateData) =>
                                                             handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
                                                         }
+                                                        members={members}
+                                                        teams={teams}
                                                     />
                                                 </motion.div>
                                             ))}
