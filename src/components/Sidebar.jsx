@@ -107,34 +107,46 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
   useEffect(() => {
     const path = location.pathname;
     
-    // More precise path matching
-    // First check exact matches
+    // Check if we're on an issues or bugs page to determine if menu should be open
+    const isIssuesPage = path.includes('/bugs') || path.includes('/admin/issues');
+    if (isIssuesPage) {
+      setShowIssuesMenu(true);
+    }
+    
+    // Path matching for active tab highlighting
     const exactNavMatch = navItems.find(item => path === item.path);
     const exactIssuesMatch = issuesItems.find(item => path === item.path);
     
-    // Then check path starts with
-    const startsWithNavMatch = navItems.find(item => path.startsWith(item.path) && item.path !== '/');
-    const startsWithIssuesMatch = issuesItems.find(item => path.startsWith(item.path) && item.path !== '/');
+    // Broader match checking for nested paths
+    const startsWithNavMatch = navItems.find(item => 
+      path.startsWith(item.path) && item.path !== '/' && item.path.length > 1
+    );
+    const startsWithIssuesMatch = issuesItems.find(item => 
+      path.startsWith(item.path) && item.path !== '/' && item.path.length > 1
+    );
     
-    // Determine the active item with priority to exact matches
+    // Determine active item
     const currentNavItem = exactNavMatch || startsWithNavMatch;
     const currentIssuesItem = exactIssuesMatch || startsWithIssuesMatch;
     
-    if (currentNavItem) {
-      setActiveTab(currentNavItem.id);
-      // Close the issues menu if we're navigating to a main nav item
-      setShowIssuesMenu(false);
-    } else if (currentIssuesItem) {
+    // Set active tab based on matched item
+    if (currentIssuesItem) {
       setActiveTab(currentIssuesItem.id);
-      setShowIssuesMenu(true);
-    } else {
-      // If no match found, set a default (optional)
-      // If you want a default, uncomment this: setActiveTab('dashboard');
+    } else if (currentNavItem) {
+      setActiveTab(currentNavItem.id);
+    } else if (isIssuesPage) {
+      // Fallback for issues pages if no exact match found
+      if (path.includes('/bugs')) {
+        setActiveTab('bugs');
+      } else if (path.includes('/admin/issues')) {
+        setActiveTab('adminIssues');
+      }
     }
     
-    // Debug to help see what's happening
+    // Debug logging
     console.log('Current path:', path);
     console.log('Active tab set to:', currentNavItem?.id || currentIssuesItem?.id || 'none');
+    console.log('Issues menu:', showIssuesMenu ? 'open' : 'closed', 'isIssuesPage:', isIssuesPage);
     
   }, [location.pathname, navItems, issuesItems, setActiveTab]);
 
@@ -245,8 +257,20 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
         {/* Issues & Help Section - Inside sidebar-content */}
         <div className="mt-6 border-t border-gray-200 pt-4 px-4">
           <button 
-            onClick={() => (isOpen || isMobile) && setShowIssuesMenu(!showIssuesMenu)}
-            className={`w-full py-3 flex items-center justify-between !text-[var(--bug-report)] hover:bg-[var(--bug-report)]/30 transition-colors rounded-lg ${showIssuesMenu ? '' : ''}`}
+            onClick={() => {
+              // Only toggle if we're not on an issues page, otherwise keep it open
+              const path = location.pathname;
+              const isIssuesPage = path.includes('/bugs') || path.includes('/admin/issues');
+              
+              if (isIssuesPage) {
+                // If on issues page, only allow opening the menu, not closing
+                setShowIssuesMenu(true);
+              } else {
+                // Otherwise toggle normally
+                setShowIssuesMenu(!showIssuesMenu);
+              }
+            }}
+            className={`w-full py-3 flex items-center justify-between !text-[var(--bug-report)] hover:bg-[var(--bug-report)]/30 transition-colors rounded-lg ${showIssuesMenu ? 'bg-[var(--bug-report)]/10' : ''}`}
           >
             <div className="flex items-center">
               <AlertTriangle className="min-w-5 h-5 w-5" />
