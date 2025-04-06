@@ -463,4 +463,83 @@ public class ProjectServicer
 
         return convertToDTO(updatedProject);
     }
+    public int getProjectProgress(Long projectId) {
+        
+        Project project = projectRepository.findByIdWithFullHierarchy(projectId);
+                // .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        
+        int totalEntries = 0;
+        int completedEntries = 0;
+        
+      
+        for (Category category : project.getCategories()) {
+           
+            for (TaskList taskList : category.getTaskLists()) {
+              
+                Set<ListEntry> entries = taskList.getEntries();
+                totalEntries += entries.size();
+                completedEntries += entries.stream()
+                        .filter(entry -> entry.getIsChecked() != null && entry.getIsChecked())
+                        .count();
+            }
+        }
+        int progressPercentage = totalEntries > 0 
+                ? (int) Math.round((double) completedEntries / totalEntries * 100) : 0;
+
+              
+
+        log.info("Project {} progress: {}/{} entries completed ({}%)", 
+                projectId, completedEntries, totalEntries, progressPercentage);
+        
+        return progressPercentage;
+    }
+
+    
+    public Map<String, Object> getDashboardStats(String userId) {
+        log.info("Getting dashboard statistics for user {}", userId);
+        
+        LocalDate today = LocalDate.now();
+        LocalDate oneMonthAgo = today.minusMonths(1);
+        LocalDate oneWeekAgo = today.minusWeeks(1);
+        
+        Integer totalProjects = projectRepository.countUserProjects(userId);
+        Integer newProjects = projectRepository.countProjectsCreatedSince(userId, oneMonthAgo);
+
+        Integer totalTaskLists = projectRepository.countTotalTaskLists(userId);
+        Integer totalEntries = projectRepository.countTotalEntries(userId);
+        Integer newTaskLists = projectRepository.countTaskListsCreatedSince(userId, oneWeekAgo);
+        Integer newEntries = projectRepository.countEntriesCreatedSince(userId, oneWeekAgo);
+
+        Integer completedEntries = projectRepository.countCompletedEntries(userId);
+        Integer newlyCompletedEntries = projectRepository.countEntriesCompletedSince(userId, oneMonthAgo);
+
+        int projectsGrowthPercent = calculatePercentage(newProjects, totalProjects - newProjects);
+
+        int inProgressGrowthPercent = calculatePercentage(
+            newTaskLists + newEntries, 
+            (totalTaskLists - newTaskLists) + (totalEntries - newEntries)
+        );
+        
+     
+        int completionPercent = totalEntries > 0 ? (completedEntries * 100) / totalEntries : 0;
+        int newCompletionPercent = calculatePercentage(newlyCompletedEntries, completedEntries - newlyCompletedEntries);
+        
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalProjects", totalProjects);
+        stats.put("projectsGrowthPercent", projectsGrowthPercent);
+        stats.put("inProgressGrowthPercent", inProgressGrowthPercent);
+        stats.put("completionPercent", completionPercent);
+        stats.put("completionGrowthPercent", newCompletionPercent);
+        
+        return stats;
+    }
+
+
+    private int calculatePercentage(int newValue, int oldValue) {
+        if (oldValue == 0) {
+            return newValue > 0 ? 100 : 0;
+        }
+        return (newValue * 100) / oldValue;
+    }
+
 }
