@@ -7,6 +7,16 @@ import java.util.Set;
 
 public class ListEntryDTO
 {
+    private Long entryId;
+    private String entryName;
+    private Boolean isChecked;
+    private FileDTO file;
+    private LocalDate dueDate;
+    private Integer warningThreshold;
+    private LocalDateTime createdAt;
+    private Set<UserDTO> assignedUsers = new HashSet<>();
+    private Set<TeamDTO> assignedTeams = new HashSet<>();
+
     public Long getEntryId()
     {
         return entryId;
@@ -87,13 +97,6 @@ public class ListEntryDTO
         this.assignedTeams = assignedTeams;
     }
 
-    private Long entryId;
-    private String entryName;
-    private Boolean isChecked;
-    private FileDTO file;
-    private LocalDate dueDate;
-    private Integer warningThreshold;
-
     public LocalDateTime getCreatedAt()
     {
         return createdAt;
@@ -103,8 +106,4 @@ public class ListEntryDTO
     {
         this.createdAt = createdAt;
     }
-
-    private LocalDateTime createdAt;
-    private Set<UserDTO> assignedUsers = new HashSet<>();
-    private Set<TeamDTO> assignedTeams = new HashSet<>();
 }

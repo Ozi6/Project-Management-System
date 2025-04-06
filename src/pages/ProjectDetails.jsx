@@ -119,6 +119,8 @@ const ProjectDetails = () => {
                                             checked: entry.isChecked || false,
                                             dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
                                             warningThreshold: entry.warningThreshold || null,
+                                            assignedUsers: entry.assignedUsers || [],
+                                            assignedTeams: entry.assignedTeams || [],
                                             id: entry.entryId || uuidv4(),
                                             file: fileObject
                                         };
@@ -986,7 +988,9 @@ const ProjectDetails = () => {
                 entryName: entry.text,
                 isChecked: entry.checked || false,
                 dueDate: entry.dueDate,
-                warningThreshold: entry.warningThreshold
+                warningThreshold: entry.warningThreshold,
+                assignedUsers: entry.assignedUsers,
+                assignedTeams: entry.assignedTeams 
             };
 
             if (updateData.fileOperation)

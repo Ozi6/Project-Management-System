@@ -2,18 +2,22 @@ package com.backend.PlanWise.servicer;
 
 import com.backend.PlanWise.DataPool.ListEntryDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
+import com.backend.PlanWise.DataPool.TeamDataPool;
+import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
-import com.backend.PlanWise.model.File;
-import com.backend.PlanWise.model.ListEntry;
-import com.backend.PlanWise.model.TaskList;
+import com.backend.PlanWise.DataTransferObjects.TeamDTO;
+import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.model.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +29,12 @@ public class ListEntryService
 
     @Autowired
     private TaskListDataPool taskListDataPool;
+
+    @Autowired
+    private UserDataPool userDataPool;
+
+    @Autowired
+    private TeamDataPool teamDataPool;
 
     @Autowired
     private FileService fileService;
@@ -78,6 +88,30 @@ public class ListEntryService
                 existingEntry.setFile(null);
         }
 
+        if(listEntryDTO.getAssignedUsers() != null)
+        {
+            Set<User> users = new HashSet<>();
+            for (UserDTO userDTO : listEntryDTO.getAssignedUsers())
+            {
+                User user = userDataPool.findById(userDTO.getUserId())
+                        .orElseThrow(() -> new RuntimeException("User not found with id: " + userDTO.getUserId()));
+                users.add(user);
+            }
+            existingEntry.setAssignedUsers(users);
+        }
+
+        if(listEntryDTO.getAssignedTeams() != null)
+        {
+            Set<Team> teams = new HashSet<>();
+            for (TeamDTO teamDTO : listEntryDTO.getAssignedTeams())
+            {
+                Team team = teamDataPool.findById(teamDTO.getTeamId())
+                        .orElseThrow(() -> new RuntimeException("Team not found with id: " + teamDTO.getTeamId()));
+                teams.add(team);
+            }
+            existingEntry.setAssignedTeams(teams);
+        }
+
         ListEntry updatedEntry = listEntryDataPool.save(existingEntry);
         return convertToDTO(updatedEntry);
     }
@@ -116,6 +150,9 @@ public class ListEntryService
         return convertToDTO(updatedEntry);
     }
 
+    @Autowired
+    private UserService userService;
+
     private ListEntryDTO convertToDTO(ListEntry entry)
     {
         ListEntryDTO dto = new ListEntryDTO();
@@ -137,6 +174,16 @@ public class ListEntryService
             fileDTO.setFileType(entry.getFile().getFileType());
             dto.setFile(fileDTO);
         }
+
+        Set<UserDTO> userDTOs = new HashSet<>();
+        for(User user : entry.getAssignedUsers())
+            userDTOs.add(userService.convertToDTO(user));
+        dto.setAssignedUsers(userDTOs);
+
+        //Set<TeamDTO> teamDTOs = new HashSet<>();
+        //for(Team team : entry.getAssignedTeams())
+            //teamDTOs.add(teamService.convertToDTO(team));
+        //dto.setAssignedTeams(teamDTOs);
 
         return dto;
     }

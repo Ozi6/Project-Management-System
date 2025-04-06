@@ -205,7 +205,7 @@ const ListEntry = ({
                 )}
                 {(assignedUsers.length > 0 || assignedTeams.length > 0) && (
                     <div className="flex items-center gap-2 mt-1">
-                        {console.log("assignedTeams:", assignedTeams)}
+                        {console.log("assignedUsers:", assignedUsers)}
                         {assignedTeams.map((team) => {
                             console.log("Team in map:", team);
                             const TeamIcon = team.teamIcon;
@@ -222,19 +222,22 @@ const ListEntry = ({
                         })}
                         {assignedUsers.map((user) => (
                             <div
-                                key={user.id}
+                                key={user.userId}
                                 className="w-6 h-6 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs font-bold tooltip"
-                                title={user.name || 'Unknown User'}
+                                title={user.username || user.name || 'Unknown User'}
                             >
-                                {user.profilePicture ? (
+                                {user.profileImageUrl ? (
                                     <img
-                                        src={user.profilePicture}
-                                        alt={user.name || 'User'}
+                                        src={user.profileImageUrl}
+                                        alt={user.username || 'User'}
                                         className="w-full h-full rounded-full object-cover"
-                                    />
-                                ) : (
-                                    (user.name || '??').split(' ').map(n => n[0]).join('').substring(0, 2)
-                                )}
+                                        onError={(e) =>
+                                        {
+                                            e.target.onerror = null;
+                                            e.target.src = '';
+                                            e.target.parentElement.textContent =
+                                                (user.username || '??').split(' ').map(n => n[0]).join('').substring(0, 2);
+                                        }}/> ) : ((user.username || '??').split(' ').map(n => n[0]).join('').substring(0, 2))}
                             </div>
                         ))}
                     </div>
@@ -400,9 +403,9 @@ ListEntry.propTypes = {
     dueDate: PropTypes.instanceOf(Date),
     warningThreshold: PropTypes.number,
     assignedUsers: PropTypes.arrayOf(PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        profilePicture: PropTypes.oneOfType([PropTypes.string, PropTypes.elementType]),
+        userId: PropTypes.string.isRequired,
+        username: PropTypes.string.isRequired,
+        profileImageUrl: PropTypes.string,
     })).isRequired,
     assignedTeams: PropTypes.arrayOf(PropTypes.shape({
         id: PropTypes.string.isRequired,

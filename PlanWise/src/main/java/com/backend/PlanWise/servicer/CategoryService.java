@@ -7,20 +7,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.DataTransferObjects.*;
+import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
-import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
-import com.backend.PlanWise.DataTransferObjects.FileDTO;
-import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
-import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
-import com.backend.PlanWise.model.Category;
-import com.backend.PlanWise.model.File;
-import com.backend.PlanWise.model.Project;
-import com.backend.PlanWise.model.TaskList;
 
 import jakarta.transaction.Transactional;
 
@@ -76,17 +70,22 @@ public class CategoryService
         return savedCategoryDTO;
     }
 
+    @Autowired
+    private UserService userService;
+
     public Set<CategoryDTO> getCategoriesByProjectId(Long projectId)
     {
         List<Category> categories = categoryDataPool.findByProjectProjectId(projectId);
-        return categories.stream().map(category -> {
+        return categories.stream().map(category ->
+        {
             CategoryDTO categoryDTO = new CategoryDTO();
             categoryDTO.setCategoryId(category.getCategoryId());
             categoryDTO.setCategoryName(category.getCategoryName());
             categoryDTO.setColor(category.getColor());
 
             Set<TaskList> taskLists = new HashSet<>(taskListDataPool.findByCategoryCategoryId(category.getCategoryId()));
-            Set<TaskListDTO> taskListDTOs = taskLists.stream().map(taskList -> {
+            Set<TaskListDTO> taskListDTOs = taskLists.stream().map(taskList ->
+            {
                 TaskListDTO taskListDTO = new TaskListDTO();
                 taskListDTO.setTaskListId(taskList.getTaskListId());
                 taskListDTO.setTaskListName(taskList.getTaskListName());
@@ -94,18 +93,27 @@ public class CategoryService
 
                 if(taskList.getEntries() != null)
                 {
-                    Set<ListEntryDTO> entryDTOs = taskList.getEntries().stream().map(entry -> {
+                    Set<ListEntryDTO> entryDTOs = taskList.getEntries().stream().map(entry ->
+                    {
                         ListEntryDTO entryDTO = new ListEntryDTO();
                         entryDTO.setEntryId(entry.getEntryId());
                         entryDTO.setEntryName(entry.getEntryName());
                         entryDTO.setIsChecked(entry.getIsChecked());
                         entryDTO.setDueDate(entry.getDueDate());
+
                         if(entry.getDueDate() != null)
                             entryDTO.setWarningThreshold(entry.getWarningThreshold() != null ? entry.getWarningThreshold() : 1);
                         else
                             entryDTO.setWarningThreshold(null);
+
                         if(entry.getFile() != null)
                             entryDTO.setFile(toDTO(entry.getFile()));
+
+                        Set<UserDTO> userDTOs = new HashSet<>();
+                        for(User user : entry.getAssignedUsers())
+                            userDTOs.add(userService.convertToDTO(user));
+                        entryDTO.setAssignedUsers(userDTOs);
+
                         return entryDTO;
                     }).collect(Collectors.toSet());
                     taskListDTO.setEntries(entryDTOs);
