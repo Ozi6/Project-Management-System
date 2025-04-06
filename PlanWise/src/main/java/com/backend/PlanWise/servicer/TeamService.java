@@ -1,5 +1,11 @@
 package com.backend.PlanWise.servicer;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
@@ -8,12 +14,8 @@ import com.backend.PlanWise.DataTransferObjects.UserDTO;
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.stream.Collectors;
+import jakarta.transaction.Transactional;
 
 @Service
 public class TeamService
@@ -47,12 +49,16 @@ public class TeamService
         {
             team.getMembers().add(user);
             teamRepository.save(team);
-            recentActivityService.createActivity(
-                    user.getUserId(),
-                    "joined",
-                    "Team",
-                    teamId
+            recentActivityService.createSimpleActivity(
+                user.getUserId(), 
+                team.getProject().getProjectId(), 
+                "JOINED", 
+                "TEAM",
+                teamId
             );
+                    
+                    
+            
         }
     }
 
