@@ -31,9 +31,9 @@ public class Team
 
     @ManyToMany
     @JoinTable(
-            name = "TeamMembers",
-            joinColumns = @JoinColumn(name = "teamId"),
-            inverseJoinColumns = @JoinColumn(name = "userId")
+            name = "team_members",
+            joinColumns = @JoinColumn(name = "team_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> members = new HashSet<>();
 

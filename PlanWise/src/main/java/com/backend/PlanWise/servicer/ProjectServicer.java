@@ -611,6 +611,9 @@ public class ProjectServicer
         if(!team.getProject().getProjectId().equals(projectId))
             throw new ResourceNotFoundException("Team not found in this project");
 
+        team.getMembers().clear();
+        teamDataPool.save(team);
+
         teamDataPool.delete(team);
     }
 

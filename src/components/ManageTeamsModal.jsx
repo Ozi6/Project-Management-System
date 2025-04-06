@@ -266,6 +266,19 @@ const TeamCard = ({
 {
     const { t } = useTranslation();
     const IconComponent = iconMap[team.icon] || FaUsers;
+    const [isProcessing, setIsProcessing] = useState(false);
+    const isMemberInTeam = localMemberTeam === team.id;
+
+    const handleToggle = async () =>
+    {
+        setIsProcessing(true);
+        try{
+            await onToggleTeam(team.id);
+        }finally{
+            setIsProcessing(false);
+        }
+    };
+
 
     if(isEditing)
     {
@@ -327,7 +340,7 @@ const TeamCard = ({
         );
     }
 
-    return(
+    return (
         <div className="flex items-center justify-between w-full p-4 bg-white border rounded-lg shadow-sm transition-all duration-200 hover:bg-gray-50">
             <div className="flex items-center gap-3">
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--features-icon-color)]/10 flex items-center justify-center">
@@ -339,23 +352,33 @@ const TeamCard = ({
                 <button
                     onClick={() => onEdit(team)}
                     className="border p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all duration-200"
-                    title={t("adset.edit_team")}>
+                    title={t("adset.edit_team")}
+                    disabled={isProcessing}
+                >
                     <Pencil size={16} />
                 </button>
-                <label className="flex items-center cursor-pointer" title={t("adset.assign_team")}>
-                    <input
-                        type="checkbox"
-                        checked={localMemberTeam === team.name}
-                        onChange={() => onToggleTeam(team.id)}
-                        className="hidden"
-                    />
-                    <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name
-                            ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70"
+
+                <button
+                    onClick={handleToggle}
+                    disabled={isProcessing}
+                    className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${isMemberInTeam
+                            ? "bg-[var(--features-icon-color)] border-[var(--features-icon-color)]"
                             : "bg-white border-gray-300 hover:border-gray-500"
-                        }`}>
-                        {localMemberTeam === team.name && <Check size={16} className="text-white" />}
-                    </span>
-                </label>
+                        }`}
+                    title={isMemberInTeam ? t("adset.remove_from_team") : t("adset.add_to_team")}
+                >
+                    {isMemberInTeam ? (
+                        isProcessing ? (
+                            <Loader2 size={16} className="animate-spin text-white" />
+                        ) : (
+                            <Check size={16} className="text-white" />
+                        )
+                    ) : (
+                        isProcessing ? (
+                            <Loader2 size={16} className="animate-spin text-gray-400" />
+                        ) : null
+                    )}
+                </button>
             </div>
         </div>
     );
@@ -516,19 +539,48 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
 
     const handleToggleTeam = async (teamId) =>
     {
-        if(!onAddToTeam || !member || !member.userId)
+        if (!onAddToTeam || !member?.userId)
             return;
 
-        try{
+        try {
             setIsLoading(true);
-            const currentTeam = localTeams.find(t => t.id === teamId);
-            const newTeamId = localMemberTeam === currentTeam?.name ? "" : teamId;
+            const isCurrentlyInTeam = localMemberTeam === teamId;
 
-            await onAddToTeam(member.userId, newTeamId);
-            setLocalMemberTeam(newTeamId ? currentTeam?.name : "");
-        }catch(err){
+            if (isCurrentlyInTeam) {
+                // Remove from team
+                await axios.delete(
+                    `http://localhost:8080/api/teams/${teamId}/members`,
+                    {
+                        params: { userId: member.userId },
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${await getToken()}`,
+                        },
+                    }
+                );
+                setLocalMemberTeam(""); // Clear team assignment
+            } else {
+                // Add to team
+                await axios.post(
+                    `http://localhost:8080/api/teams/${teamId}/members`,
+                    null,
+                    {
+                        params: { userId: member.userId },
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${await getToken()}`,
+                        },
+                    }
+                );
+                setLocalMemberTeam(teamId); // Set new team assignment
+            }
+
+            // Optional: Refresh teams data if needed
+            // await fetchTeams();
+        } catch (err) {
             console.error('Failed to assign team to member:', err);
-        } finally{
+            alert(err.response?.data?.message || "Failed to update team assignment");
+        } finally {
             setIsLoading(false);
         }
     };

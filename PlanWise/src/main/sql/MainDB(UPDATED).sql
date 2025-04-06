@@ -41,7 +41,6 @@ CREATE TABLE teams (
 CREATE TABLE team_members (
     team_id INT NOT NULL,
     user_id VARCHAR(100) NOT NULL,
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (team_id, user_id),
     FOREIGN KEY (team_id) REFERENCES teams(team_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
