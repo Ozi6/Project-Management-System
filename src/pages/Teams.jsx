@@ -1,319 +1,964 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
-import ManageRoleModal from "../components/ManageRoleModal";
-import { Users, KanbanSquare, Layout, Settings, Activity, Edit2, Trash2, MoreVertical, Plus, X, UserCheck, Menu, Heart } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useUser } from "@clerk/clerk-react"; // Add this import if using Clerk for auth
+import {
+    FaUsers, FaTasks, FaHome, FaCog, FaChartLine, FaPencilAlt, FaTrash,
+    FaUserPlus, FaBars, FaHeart, FaSearch, FaUserFriends, FaDragon, FaCode,
+    FaPalette, FaServer, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase,
+    FaDesktop, FaPaintBrush, FaRocket, FaShieldAlt, FaGem, FaStar, FaMagic
+} from "react-icons/fa";
+import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
+import { IoMdPeople, IoMdSettings } from "react-icons/io";
 import { Link } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { useAuth } from "@clerk/clerk-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search as SearchIcon, X } from "lucide-react";
 
-
-const teamColors = {
-  1: "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]",
-  4: "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]",
+// Icon Categories and Map
+const ICON_CATEGORIES = {
+    Basic: [
+        { name: "Users", icon: FaUsers },
+        { name: "Cogs", icon: FaCogs },
+        { name: "Lightbulb", icon: FaLightbulb },
+        { name: "ChartBar", icon: FaChartBar },
+        { name: "Folder", icon: FaFolder },
+    ],
+    Project: [
+        { name: "AddGroup", icon: MdGroupAdd },
+        { name: "Assignment", icon: MdAssignment },
+        { name: "Work", icon: MdWork },
+        { name: "Build", icon: MdBuild },
+        { name: "FolderOpen", icon: MdFolderOpen },
+    ],
+    Tech: [
+        { name: "Database", icon: FaDatabase },
+        { name: "Server", icon: FaServer },
+        { name: "Code", icon: FaCode },
+        { name: "Cog", icon: FaCog },
+        { name: "Desktop", icon: FaDesktop },
+        { name: "PaintBrush", icon: FaPaintBrush },
+    ],
+    Fancy: [
+        { name: "Dragon", icon: FaDragon },
+        { name: "Rocket", icon: FaRocket },
+        { name: "Shield", icon: FaShieldAlt },
+        { name: "Gem", icon: FaGem },
+        { name: "Star", icon: FaStar },
+        { name: "Magic", icon: FaMagic },
+    ],
 };
 
-const roles = ["Team Lead", "Senior", "Middle", "Junior"];
+const iconMap = Object.values(ICON_CATEGORIES).reduce((acc, category) => {
+    category.forEach(({ name, icon }) => {
+        acc[name] = icon;
+    });
+    return acc;
+}, {});
 
-const teamsData = [
-  {
-    id: 1,
-    name: "Frontend Team",
-    members: [
-      {
-        id: 1,
-        name: "John Doe",
-        email: "john@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-        role: "Team Lead",
-      },
-      {
-        id: 2,
-        name: "Jane Smith",
-        email: "jane@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-        role: "Senior",
-      },
-      {
-        id: 9,
-        name: "Alex Turner",
-        email: "alex@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-        role: "Middle",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Backend Team",
-    members: [
-      {
-        id: 3,
-        name: "Mike Johnson",
-        email: "mike@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
-        role: "Team Lead",
-      },
-      {
-        id: 4,
-        name: "Sarah Wilson",
-        email: "sarah@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-        role: "Senior",
-      },
-      {
-        id: 10,
-        name: "David Chen",
-        email: "david@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=David",
-        role: "Junior",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Design Team",
-    members: [
-      {
-        id: 5,
-        name: "Emma Davis",
-        email: "emma@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
-      },
-      {
-        id: 6,
-        name: "Lucas White",
-        email: "lucas@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucas",
-      },
-      {
-        id: 7,
-        name: "John Doe ",
-        email: "john@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "DevOps Team",
-    members: [
-      {
-        id: 7,
-        name: "Oliver Brown",
-        email: "oliver@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver",
-      },
-      {
-        id: 8,
-        name: "Sophia Lee",
-        email: "sophia@example.com",
-        image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sophia",
-      },
-    ],
-  },
-];
+const allIcons = Object.entries(ICON_CATEGORIES).flatMap(([category, icons]) =>
+    icons.map(icon => ({ ...icon, category }))
+);
 
-const Teams = () => {
-    const { id } = useParams();
-  const {t} = useTranslation();
-  const [activeTab, setActiveTab] = useState("teams");
-  const [teams, setTeams] = useState(teamsData);
-  const [selectedMember, setSelectedMember] = useState(null);
+// IconPicker Component
+const IconPicker = ({ currentIcon, onSelect }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const pickerRef = useRef(null);
+    const inputRef = useRef(null);
+    const { t } = useTranslation();
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (pickerRef.current && !pickerRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [isOpen]);
+
+    const filteredIcons = allIcons.filter(icon =>
+        icon.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const groupedIcons = filteredIcons.reduce((acc, icon) => {
+        acc[icon.category] = acc[icon.category] || [];
+        acc[icon.category].push(icon);
+        return acc;
+    }, {});
+
+    const IconComponent = iconMap[currentIcon] || FaUsers;
+
+    return (
+        <div className="relative" ref={pickerRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="border p-2 rounded hover:bg-gray-100 flex items-center gap-2 transition-all duration-150"
+                aria-label="Select icon"
+                title={t("icon.select")}
+            >
+                <IconComponent className="h-5 w-5 text-gray-700" />
+                <span className="text-sm text-gray-600">{currentIcon}</span>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-[10010] max-h-96 overflow-y-auto"
+                    >
+                        <div className="p-2 border-b sticky top-0 bg-white z-[10011]">
+                            <div className="relative">
+                                <SearchIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder={t("icon.search") || "Search icons..."}
+                                    className="w-full pl-8 p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
+                                />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm("")}
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                    >
+                                        <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="p-2">
+                            {Object.entries(groupedIcons).map(([category, icons]) => (
+                                <div key={category} className="mb-4">
+                                    <h4 className="text-xs font-semibold text-gray-500 mb-2 px-1">{category}</h4>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {icons.map(({ name, icon: Icon }) => (
+                                            <button
+                                                key={name}
+                                                onClick={() => {
+                                                    onSelect(name);
+                                                    setIsOpen(false);
+                                                    setSearchTerm("");
+                                                }}
+                                                className={`p-2 rounded hover:bg-[var(--sidebar-teams-color)]/10 transition-colors duration-150 flex items-center justify-center ${currentIcon === name ? "bg-[var(--sidebar-teams-color)]/20 ring-2 ring-[var(--sidebar-teams-color)]/40" : ""}`}
+                                                title={name}
+                                            >
+                                                <Icon className="h-5 w-5 text-gray-700" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            {Object.keys(groupedIcons).length === 0 && (
+                                <div className="py-8 text-center text-gray-500">
+                                    {t("icon.no_results") || "No icons found"}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+// TeamDeleteConfirmation Component (unchanged)
+const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
+    const { t } = useTranslation();
+    if (!teamName || typeof teamName !== "string") return null;
+
+    return (
+        <AnimatePresence>
+            {teamName && (
+                <>
+                    <motion.div
+                        className="fixed inset-0 bg-gray-800/50 backdrop-blur-xs"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                        onClick={onCancel}
+                        style={{ zIndex: 10002 }}
+                    />
+                    <motion.div
+                        className="fixed inset-0 flex items-center justify-center"
+                        initial={{ y: "-20%", opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: "100%", opacity: 0 }}
+                        transition={{ type: "spring", stiffness: 150, damping: 15 }}
+                        style={{ zIndex: 10003 }}
+                    >
+                        <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
+                            <div className="bg-[var(--bug-report)] p-4 shadow-md">
+                                <h3 className="text-xl font-bold !text-white text-center">{t("adset.conf")}</h3>
+                            </div>
+                            <div className="p-6 flex flex-col gap-4">
+                                <p className="text-gray-700 text-center">{t("adset.remteam")} "{teamName}"?</p>
+                                <div className="flex justify-between">
+                                    <button
+                                        className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
+                                        onClick={onCancel}
+                                    >
+                                        {t("bug.can")}
+                                    </button>
+                                    <button
+                                        className="bg-[var(--bug-report)]/90 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
+                                        onClick={() => onConfirm(teamName)}
+                                    >
+                                        {t("adset.del")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+const Teams = () =>
+{
+    const { id: projectId } = useParams();
+    const { t } = useTranslation();
+    const { getToken } = useAuth();
+    const [activeTab, setActiveTab] = useState("teams");
+    const [teams, setTeams] = useState([]);
+    const [expandedTeam, setExpandedTeam] = useState(null);
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [showAddTeamModal, setShowAddTeamModal] = useState(false);
+    const [showEditTeamModal, setShowEditTeamModal] = useState(false);
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [selectedTeam, setSelectedTeam] = useState(null);
+    const [editTeamData, setEditTeamData] = useState({ id: null, name: "", icon: "Users" });
+    const [viewMode, setViewMode] = useState("grid");
+    const [newTeamName, setNewTeamName] = useState("");
+    const [newTeamIcon, setNewTeamIcon] = useState("Users");
+    const [teamToDelete, setTeamToDelete] = useState(null);
     const location = useLocation();
     const isOwner = location.state?.isOwner || false;
 
-
-  // Handle mobile sidebar
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsMobileSidebarOpen(false);
-      }
+    const colorVariants =
+    {
+        blue: { bg: "bg-blue-50", border: "border-blue-200", text: "text-blue-700", hover: "hover:bg-blue-100", button: "bg-blue-600 hover:bg-blue-700", icon: "text-blue-500" },
+        green: { bg: "bg-green-50", border: "border-green-200", text: "text-green-700", hover: "hover:bg-green-100", button: "bg-green-600 hover:bg-green-700", icon: "text-green-500" },
+        purple: { bg: "bg-purple-50", border: "border-purple-200", text: "text-purple-700", hover: "hover:bg-purple-100", button: "bg-purple-600 hover:bg-purple-700", icon: "text-purple-500" },
+        orange: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700", hover: "hover:bg-orange-100", button: "bg-orange-600 hover:bg-orange-700", icon: "text-orange-500" },
+        default: { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700", hover: "hover:bg-gray-100", button: "bg-gray-600 hover:bg-gray-700", icon: "text-gray-500" }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    useEffect(() =>
+    {
+        fetchTeams();
+    }, [projectId, getToken]);
 
-  // Close mobile sidebar when changing routes
-  useEffect(() => {
-    setIsMobileSidebarOpen(false);
-  }, [location.pathname]);
+    const fetchTeams = async () =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}/teams`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
 
-  const toggleMobileSidebar = () => {
-    setIsMobileSidebarOpen(!isMobileSidebarOpen);
-  };
+            const teamsData = response.data.map((team, index) => ({
+                id: team.teamId,
+                name: team.teamName,
+                icon: iconMap[team.iconName] || FaCode,
+                color: ["blue", "green", "purple", "orange"][index % 4],
+                members: team.members ? team.members.map(m => ({
+                    id: m.userId,
+                    name: m.username || m.email,
+                    email: m.email,
+                    image: m.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.email}`
+                })) : []
+            }));
 
-  // Custom navigation items for the sidebar - matching ProjectDetails.jsx
+            setTeams(teamsData);
+        } catch (err) {
+            console.error('Error fetching teams:', err);
+        }
+    };
+
+    const addTeam = async () =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can create teams.");
+            return;
+        }
+        if(!newTeamName.trim())
+            return;
+
+        try{
+            const token = await getToken();
+            const response = await axios.post(
+                `http://localhost:8080/api/projects/${projectId}/teams`,
+                {
+                    teamName: newTeamName.trim(),
+                    iconName: newTeamIcon
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const newTeam =
+            {
+                id: response.data.teamId,
+                name: response.data.teamName,
+                icon: iconMap[response.data.iconName] || FaCode,
+                color: Object.keys(colorVariants)[teams.length % 4],
+                members: []
+            };
+
+            setTeams(prev => [...prev, newTeam]);
+            setNewTeamName("");
+            setNewTeamIcon("Users");
+            setShowAddTeamModal(false);
+        }catch(err){
+            console.error('Error creating team:', err);
+            alert("Failed to create team. Please try again.");
+        }
+    };
+
+    const editTeam = async () =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can edit teams.");
+            return;
+        }
+        if(!editTeamData.name.trim())
+            return;
+
+        try{
+            const token = await getToken();
+            await axios.put(
+                `http://localhost:8080/api/projects/${projectId}/teams/${editTeamData.id}`,
+                {
+                    teamName: editTeamData.name.trim(),
+                    iconName: editTeamData.icon
+                },
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === editTeamData.id ? { ...team, name: editTeamData.name, icon: iconMap[editTeamData.icon] || FaCode } : team
+                )
+            );
+            setShowEditTeamModal(false);
+            setEditTeamData({ id: null, name: "", icon: "Users" });
+        }catch(err){
+            console.error('Error updating team:', err);
+            alert("Failed to update team. Please try again.");
+        }
+    };
+
+    const deleteTeam = async (teamId) =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can delete teams.");
+            return;
+        }
+        try{
+            const token = await getToken();
+            await axios.delete(
+                `http://localhost:8080/api/projects/${projectId}/teams/${teamId}`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setTeams(prevTeams => prevTeams.filter(team => team.id !== teamId));
+            setTeamToDelete(null);
+        }catch(err){
+            console.error('Error deleting team:', err);
+            alert("Failed to delete team. Please try again.");
+        }
+    };
+
+    const addMemberToTeam = async (teamId, email) =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can add members to teams.");
+            return;
+        }
+        try{
+            const token = await getToken();
+            const memberResponse = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}/members`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const member = memberResponse.data.find(m => m.email === email);
+            if(!member)
+                throw new Error("Member not found");
+
+            await axios.post(
+                `http://localhost:8080/api/projects/${projectId}/teams/${teamId}/members/${member.userId}`,
+                {},
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === teamId ? {
+                        ...team,
+                        members: [...team.members,
+                        {
+                            id: member.userId,
+                            name: member.username || member.email,
+                            email: member.email,
+                            image: member.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.email}`
+                        }]
+                    } : team
+                )
+            );
+            setShowAddMemberModal(false);
+        }catch(err){
+            console.error('Error adding member to team:', err);
+            alert("Failed to add member. Please ensure the email is valid and try again.");
+        }
+    };
+
+    const removeMemberFromTeam = async (teamId, memberId) => {
+        if(!isOwner)
+        {
+            alert("Only the project owner can remove members from teams.");
+            return;
+        }
+        try{
+            const token = await getToken();
+            await axios.delete(
+                `http://localhost:8080/api/projects/${projectId}/teams/${teamId}/members/${memberId}`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === teamId ?
+                    {
+                        ...team,
+                        members: team.members.filter(m => m.id !== memberId)
+                    } : team
+                )
+            );
+        }catch(err){
+            console.error('Error removing member from team:', err);
+            alert("Failed to remove member. Please try again.");
+        }
+    };
+
+    const filteredTeams = teams.filter(team =>
+        team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        team.members.some(member =>
+            member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            member.email.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    );
+
+    const toggleTeamExpansion = (teamId) =>
+    {
+        setExpandedTeam(expandedTeam === teamId ? null : teamId);
+    };
+
+    const handleAddMember = (teamId) =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can add members.");
+            return;
+        }
+        setSelectedTeam(teamId);
+        setShowAddMemberModal(true);
+    };
+
+    const handleEditTeam = (teamId) =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can edit teams.");
+            return;
+        }
+        const team = teams.find(t => t.id === teamId);
+        setEditTeamData({
+            id: team.id,
+            name: team.name,
+            icon: Object.keys(iconMap).find(key => iconMap[key] === team.icon) || "Users"
+        });
+        setShowEditTeamModal(true);
+    };
+
+    const handleDeleteTeam = (team) =>
+    {
+        if(!isOwner)
+        {
+            alert("Only the project owner can delete teams.");
+            return;
+        }
+        setTeamToDelete(team);
+    };
+
+    useEffect(() =>
+    {
+        const handleResize = () =>
+        {
+            if(window.innerWidth >= 768)
+                setIsMobileSidebarOpen(false);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() =>
+    {
+        setIsMobileSidebarOpen(false);
+    }, [location.pathname]);
+
+    const toggleMobileSidebar = () =>
+    {
+        setIsMobileSidebarOpen(!isMobileSidebarOpen);
+    };
+
     const customNavItems =
     [
-        {
-            id: 'dashboard',
-            icon: Layout,
-            label: t("sidebar.dash"),
-            path: '/dashboard',
-            iconColor: 'text-blue-600',
-            defaultColor: true
-        },
-        {
-            id: 'projects',
-            icon: KanbanSquare,
-            label: t("sidebar.this"),
-            path: `/project/${id}`,
-            state: { isOwner },
-            color: 'bg-purple-100 text-purple-600',
-            iconColor: 'text-purple-600'
-        },
-        {
-            id: 'activity',
-            icon: Activity,
-            label: t("sidebar.act"),
-            path: `/project/${id}/activity`,
-            state: { isOwner },
-            color: 'bg-yellow-100 text-yellow-600',
-            iconColor: 'text-amber-600'
-        },
-        {
-            id: 'teams',
-            icon: Users,
-            label: t("sidebar.team"),
-            path: `/project/${id}/teams`,
-            state: { isOwner },
-            color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
-            iconColor: 'text-[var(--sidebar-teams-color)]'
-        },
-        {
-            id: 'settings',
-            icon: Settings,
-            label: t("sidebar.set"),
-            path: `/project/${id}/settings`,
-            state: { isOwner },
-            color: 'bg-gray-100 text-gray-600',
-            iconColor: 'text-gray-600'
-        }
+        { id: 'dashboard', icon: FaHome, label: t("sidebar.dash"), path: '/dashboard', iconColor: 'text-blue-600', defaultColor: true },
+        { id: 'projects', icon: FaTasks, label: t("sidebar.this"), path: `/project/${projectId}`, state: { isOwner }, color: 'bg-purple-100 text-purple-600', iconColor: 'text-purple-600' },
+        { id: 'activity', icon: FaChartLine, label: t("sidebar.act"), path: `/project/${projectId}/activity`, state: { isOwner }, color: 'bg-yellow-100 text-yellow-600', iconColor: 'text-amber-600' },
+        { id: 'teams', icon: FaUsers, label: t("sidebar.team"), path: `/project/${projectId}/teams`, state: { isOwner }, color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]', iconColor: 'text-[var(--sidebar-teams-color)]' },
+        { id: 'settings', icon: FaCog, label: t("sidebar.set"), path: `/project/${projectId}/settings`, state: { isOwner }, color: 'bg-gray-100 text-gray-600', iconColor: 'text-gray-600' }
     ];
 
-  return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Header with shadow */}
-      <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-[var(--sidebar-teams-color)]">
-        <Header
-          title={<span className="text-xl font-semibold text-[var(--sidebar-teams-color)]">{t("sidebar.team")}</span>}
-          action={{
-            onClick: () => console.log("Add team clicked"),
-            icon: <Users className="mr-2 h-4 w-4" />,
-            label: "Add Team"
-          }}
-        />
-      </div>
-
-      <div className="flex flex-1 overflow-hidden relative">
-        {/* Mobile menu toggle button */}
-        <button 
-          onClick={toggleMobileSidebar}
-          className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
-          aria-label="Toggle menu"
-        >
-          <Menu size={24} />
-        </button>
-
-        {/* Sidebar - hidden on mobile, shown on md+ screens */}
-        <div className="hidden md:block bg-white shadow-md z-5 border-r border-blue-100">
-          <Sidebar 
-            activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
-            customNavItems={customNavItems} 
-          />
-        </div>
-        
-        {/* Mobile sidebar - full screen overlay when open */}
-        {isMobileSidebarOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-white">
-            <Sidebar 
-              activeTab={activeTab} 
-              setActiveTab={setActiveTab} 
-              customNavItems={customNavItems}
-              isMobile={true}
-              closeMobileMenu={() => setIsMobileSidebarOpen(false)}
-            />
-          </div>
-        )}
-
-        {/* Main content */}
-        <div className="flex-1 overflow-auto bg-[var(--sidebar-teams-bg-color)] flex flex-col">
-          <div className="grid grid-cols-1 py-6 px-6 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto flex-grow">
-            {teams.map((team) => (
-              <div
-                key={team.id}
-                className={`rounded-xl shadow-[0_2px_10px_-3px_rgba(0,0,0,0.07)] hover:shadow-[0_8px_30px_-5px_rgba(0,0,0,0.1)] transition-all duration-300 bg-gradient-to-br ${
-                  teamColors[team.id] || "from-[var(--gray-card1)] to-[var(--loginpage-bg)] hover:from-[var(--loginpage-bg)] hover:to-[var(--gray-card3)]"
-                } overflow-hidden`}
-              >
-                <div className="w-full p-4 text-left border-b border-gray-100/50">
-                  <span className="font-medium text-[var(--features-text-color)]">{team.name}</span>
-                </div>
-
-                <div className="p-4 backdrop-blur-sm bg-white/30">
-                  <div className="space-y-3">
-                    {team.members.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50 transition-colors duration-200"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-8 h-8 rounded-full shadow-sm hover:shadow-md transition-shadow duration-200"
-                          />
-                          <div>
-                            <div className="font-medium text-sm text-[var(--features-title-color)]">
-                              {member.name}
-                            </div>
-                            <div className="text-xs text-[var(--text-color3)] hover:text-gray-700 transition-colors duration-200">
-                              {member.email}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-xs px-2 py-1 bg-[var(--loginpage-bg)] text-[var(--features-text-color)] rounded-full">
-                          {member.role || t("team.mem")}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer */}
-          
-          <div className="w-full bg-[var(--bg-color)] border-t border-gray-100 py-3 px-6 mt-auto">
-            <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
-              <div>
-                <span className="text-[var(--sidebar-teams-color)]">© 2025 PlanWise</span>
-                <span className="hidden sm:inline text-[var(--sidebar-teams-color)]"> • {t("dashboard.rights")}</span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Link to="/terms" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.terms")}</Link>
-                <Link to="/privacy" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.pri")}</Link>
-                <span className="flex items-center text-[var(--sidebar-teams-color)]">
-                {t("dashboard.made")} <Heart className="h-3 w-3 text-red-500 mx-1 " /> {t("dashboard.by")}
-                </span>
-              </div>
+    return(
+        <div className="flex flex-col h-screen bg-gray-50">
+            <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-[var(--sidebar-teams-color)]">
+                <Header
+                    title={<span className="text-xl font-semibold text-[var(--sidebar-teams-color)]">{t("sidebar.team")}</span>}
+                    action={{
+                        onClick: () => isOwner && setShowAddTeamModal(true),
+                        icon: <FaUsers size={16} className="mr-2" />,
+                        label: "Add Team",
+                        disabled: !isOwner
+                    }} />
             </div>
-          </div>
 
+            <div className="flex flex-1 overflow-hidden relative">
+                <button
+                    onClick={toggleMobileSidebar}
+                    className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+                    aria-label="Toggle menu">
+                    <FaBars size={24} />
+                </button>
+
+                <div className="hidden md:block bg-white shadow-md z-5 border-r border-blue-100">
+                    <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} customNavItems={customNavItems} />
+                </div>
+
+                {isMobileSidebarOpen && (
+                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} customNavItems={customNavItems} isMobile={true} closeMobileMenu={() => setIsMobileSidebarOpen(false)} />
+                    </div>
+                )}
+
+                <div className="flex-1 overflow-auto bg-[var(--sidebar-teams-bg-color)] flex flex-col">
+                    <div className="sticky top-0 z-10 bg-white shadow-sm px-6 py-3">
+                        <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
+                            <div className="relative w-full sm:max-w-md">
+                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                                <input
+                                    type="text"
+                                    placeholder={t("team.search_placeholder") || "Search teams or members..."}
+                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)] text-sm"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)} />
+                            </div>
+
+                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                                <div className="inline-flex rounded-md shadow-sm" role="group">
+                                    <button
+                                        type="button"
+                                        onClick={() => setViewMode("grid")}
+                                        className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 ${viewMode === "grid" ? "bg-[var(--sidebar-teams-color)] text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        Grid
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setViewMode("list")}
+                                        className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 ${viewMode === "list" ? "bg-[var(--sidebar-teams-color)] text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        List
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => isOwner && setShowAddTeamModal(true)}
+                                    className={`flex items-center gap-2 px-4 py-2 bg-[var(--sidebar-teams-color)] text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
+                                    disabled={!isOwner}>
+                                    <FaUserPlus size={16} />
+                                    <span className="hidden sm:inline">New Team</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 flex-grow">
+                        {viewMode === "grid" ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredTeams.length > 0 ? (
+                                    filteredTeams.map((team) => (
+                                        <div
+                                            key={team.id}
+                                            className={`${colorVariants[team.color]?.bg || colorVariants.default.bg} ${colorVariants[team.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}>
+                                            <div className="p-5">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-2 rounded-lg ${colorVariants[team.color]?.icon || colorVariants.default.icon} bg-white/80`}>
+                                                            {React.createElement(team.icon, { size: 20 })}
+                                                        </div>
+                                                        <h3 className="font-semibold text-lg text-gray-800">{team.name}</h3>
+                                                    </div>
+                                                    <div className="flex gap-1">
+                                                        <button onClick={() => handleEditTeam(team.id)} className="p-1.5 rounded hover:bg-white/80" disabled={!isOwner}>
+                                                            <FaPencilAlt size={16} className="text-gray-500" />
+                                                        </button>
+                                                        <button onClick={() => handleDeleteTeam(team)} className="p-1.5 rounded hover:bg-white/80" disabled={!isOwner}>
+                                                            <FaTrash size={16} className="text-gray-500" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <div className="text-sm text-gray-600">
+                                                        {team.members.length} {team.members.length === 1 ? 'Member' : 'Members'}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleAddMember(team.id)}
+                                                        className={`text-xs px-2 py-1 rounded ${colorVariants[team.color]?.text || colorVariants.default.text} bg-white/60 ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                        disabled={!isOwner}>
+                                                        Add Member
+                                                    </button>
+                                                </div>
+
+                                                <div className="flex -space-x-2 mb-4">
+                                                    {team.members.slice(0, 5).map((member) => (
+                                                        <img
+                                                            key={member.id}
+                                                            src={member.image}
+                                                            alt={member.name}
+                                                            title={member.name}
+                                                            className="inline-block h-8 w-8 rounded-full ring-2 ring-white" />
+                                                    ))}
+                                                    {team.members.length > 5 && (
+                                                        <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 ring-2 ring-white text-xs font-medium text-gray-600">
+                                                            +{team.members.length - 5}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => toggleTeamExpansion(team.id)}
+                                                    className={`w-full py-2 text-center text-sm font-medium rounded ${expandedTeam === team.id ? "bg-white text-gray-700" : `${colorVariants[team.color]?.button || colorVariants.default.button} text-white`}`}>
+                                                    {expandedTeam === team.id ? "Hide Members" : "View Members"}
+                                                </button>
+
+                                                {expandedTeam === team.id && (
+                                                    <div className="mt-4 space-y-2 max-h-64 overflow-y-auto pt-3 border-t border-gray-200">
+                                                        {team.members.map((member) => (
+                                                            <div key={member.id} className="flex items-center justify-between p-2 bg-white/70 rounded-lg">
+                                                                <div className="flex items-center gap-2">
+                                                                    <img src={member.image} alt={member.name} className="w-8 h-8 rounded-full" />
+                                                                    <div>
+                                                                        <div className="font-medium text-sm">{member.name}</div>
+                                                                        <div className="text-xs text-gray-500">{member.email}</div>
+                                                                    </div>
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => removeMemberFromTeam(team.id, member.id)}
+                                                                    className={`text-gray-400 hover:text-red-500 p-1 rounded hover:bg-gray-100 ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                                    disabled={!isOwner}>
+                                                                    <FaTrash size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+                                        <FaUserFriends size={48} className="mb-4 opacity-50" />
+                                        <p>No teams found matching your search criteria</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                                {filteredTeams.length > 0 ? (
+                                    <div className="divide-y divide-gray-100">
+                                        {filteredTeams.map((team) => (
+                                            <div key={team.id} className="hover:bg-gray-50 transition-colors">
+                                                <div className="px-6 py-4">
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`p-2 rounded-lg ${colorVariants[team.color]?.icon || colorVariants.default.icon} bg-gray-50`}>
+                                                                {React.createElement(team.icon, { size: 20 })}
+                                                            </div>
+                                                            <h3 className="font-medium">{team.name}</h3>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="text-sm text-gray-500 hidden sm:block">
+                                                                {team.members.length} {team.members.length === 1 ? 'Member' : 'Members'}
+                                                            </div>
+                                                            <div className="flex -space-x-2">
+                                                                {team.members.slice(0, 3).map((member) => (
+                                                                    <img
+                                                                        key={member.id}
+                                                                        src={member.image}
+                                                                        alt={member.name}
+                                                                        title={member.name}
+                                                                        className="inline-block h-8 w-8 rounded-full ring-1 ring-white" />
+                                                                ))}
+                                                                {team.members.length > 3 && (
+                                                                    <div className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 ring-1 ring-white text-xs font-medium text-gray-600">
+                                                                        +{team.members.length - 3}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <button onClick={() => handleAddMember(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Add member" disabled={!isOwner}>
+                                                                    <FaUserPlus size={16} />
+                                                                </button>
+                                                                <button onClick={() => handleEditTeam(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Edit team" disabled={!isOwner}>
+                                                                    <FaPencilAlt size={16} />
+                                                                </button>
+                                                                <button onClick={() => handleDeleteTeam(team)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Delete team" disabled={!isOwner}>
+                                                                    <FaTrash size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => toggleTeamExpansion(team.id)}
+                                                                    className={`p-1.5 rounded ${expandedTeam === team.id ? "bg-gray-100" : "hover:bg-gray-100"} text-gray-500`}
+                                                                    title={expandedTeam === team.id ? "Hide members" : "View members"}>
+                                                                    {expandedTeam === team.id ? <span className="text-xs font-medium">Hide</span> : <span className="text-xs font-medium">View</span>}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {expandedTeam === team.id && (
+                                                        <div className="mt-4 pl-12 grid grid-cols-1 md:grid-cols-2 gap-2">
+                                                            {team.members.map((member) => (
+                                                                <div key={member.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <img src={member.image} alt={member.name} className="w-8 h-8 rounded-full" />
+                                                                        <div>
+                                                                            <div className="font-medium text-sm">{member.name}</div>
+                                                                            <div className="text-xs text-gray-500">{member.email}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={() => removeMemberFromTeam(team.id, member.id)}
+                                                                        className={`text-gray-400 hover:text-red-500 p-1 rounded hover:bg-gray-100 ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                                        disabled={!isOwner}>
+                                                                        <FaTrash size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                                        <FaUserFriends size={48} className="mb-4 opacity-50" />
+                                        <p>No teams found matching your search criteria</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="w-full bg-[var(--bg-color)] border-t border-gray-100 py-3 px-6 mt-auto">
+                        <div className="flex flex-row justify-between items-center text-xs text-[var(--featureas-icon-color)]">
+                            <div>
+                                <span className="text-[var(--sidebar-teams-color)]">© 2025 PlanWise</span>
+                                <span className="hidden sm:inline text-[var(--sidebar-teams-color)]"> • {t("dashboard.rights")}</span>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <Link to="/terms" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.terms")}</Link>
+                                <Link to="/privacy" className="text-[var(--sidebar-teams-color)] hover:text-[var(--hover-color)] transition-colors">{t("dashboard.pri")}</Link>
+                                <span className="flex items-center text-[var(--sidebar-teams-color)]">
+                                    {t("dashboard.made")} <FaHeart size={12} className="mx-1 text-red-500" /> {t("dashboard.by")}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {showAddTeamModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold mb-4">Create New Team</h3>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <IconPicker
+                                    currentIcon={newTeamIcon}
+                                    onSelect={setNewTeamIcon}
+                                />
+                                <input
+                                    type="text"
+                                    value={newTeamName}
+                                    onChange={(e) => setNewTeamName(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
+                                    placeholder="Enter team name" />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => setShowAddTeamModal(false)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={addTeam}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-[var(--sidebar-teams-color)] rounded-md hover:bg-opacity-90">
+                                    Create Team
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditTeamModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold mb-4">Edit Team</h3>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex items-center gap-2">
+                                <IconPicker
+                                    currentIcon={editTeamData.icon}
+                                    onSelect={(icon) => setEditTeamData(prev => ({ ...prev, icon }))}
+                                />
+                                <input
+                                    type="text"
+                                    value={editTeamData.name}
+                                    onChange={(e) => setEditTeamData(prev => ({ ...prev, name: e.target.value }))}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
+                                    placeholder="Enter team name" />
+                            </div>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    onClick={() => setShowEditTeamModal(false)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={editTeam}
+                                    className="px-4 py-2 text-sm font-medium text-white bg-[var(--sidebar-teams-color)] rounded-md hover:bg-opacity-90">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showAddMemberModal && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold mb-4">Add Team Member</h3>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            <input
+                                type="email"
+                                id="memberEmail"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
+                                placeholder="Enter email address" />
+                        </div>
+                        <div className="flex justify-end gap-2">
+                            <button
+                                onClick={() => setShowAddMemberModal(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    const email = document.getElementById('memberEmail').value;
+                                    if (email) addMemberToTeam(selectedTeam, email);
+                                }}
+                                className="px-4 py-2 text-sm font-medium text-white bg-[var(--sidebar-teams-color)] rounded-md hover:bg-opacity-90">
+                                Add Member
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <TeamDeleteConfirmation
+                teamName={teamToDelete?.name}
+                onConfirm={() => deleteTeam(teamToDelete.id)}
+                onCancel={() => setTeamToDelete(null)}
+            />
         </div>
-
-        
-      </div>
-    </div>
-  );
+    );
 };
 
 export default Teams;
