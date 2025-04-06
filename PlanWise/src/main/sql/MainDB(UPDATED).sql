@@ -147,7 +147,9 @@ CREATE TABLE recent_activity (
         'TASKLIST',
         'ENTRY',
         'TEAM',
-        'COMMENT'
+        'COMMENT',
+        'BUG_COMMENT',
+        'BUG_REPORT'
     ) NOT NULL,
     entity_id BIGINT NOT NULL,  -- ID of the affected entity
     entity_name VARCHAR(255),  -- Name/title of the affected entity (for quick display)

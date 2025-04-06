@@ -123,32 +123,54 @@ public class RecentActivityService {
     }
 
     private String generateActivityMessage(RecentActivity activity) {
-        String actor = (activity.getUser() != null) ? 
-            (activity.getUser().getUsername() != null ? 
-                activity.getUser().getUsername() : 
-                activity.getUser().getUserId()) :
-            "System";
-        
+        // Special case for project creation
+        if ("PROJECT".equals(activity.getEntityType())) {
+            String actor = (activity.getUser() != null) 
+                ? activity.getUser().getUsername() != null 
+                    ? activity.getUser().getUsername() 
+                    : activity.getUser().getUserId()
+                : "System";
+                if("UPDATED".equals(activity.getActionType())){ //fix this BOOM
+
+                    return String.format("%s updated project %s", actor,activity.getProject().getProjectName());
+                }
+                else
+                {
+                    return String.format("%s created project %s", actor,activity.getProject().getProjectName());
+                }
+            
+        }
+
+        if ("CATEGORY".equals(activity.getEntityType())) {
+            String actor = (activity.getUser() != null) 
+                ? activity.getUser().getUsername() != null 
+                    ? activity.getUser().getUsername() 
+                    : activity.getUser().getUserId()
+                : "System";
+            //if it is updated return to updated messge version of below if not return down below BOOM
+            return String.format("%s created a category in project %s", actor,activity.getProject().getProjectName());
+        }
+    
         String action = switch (activity.getActionType()) {
-            case "CREATE" -> "created";
-            case "UPDATE" -> "updated";
-            case "DELETE" -> "deleted";
-            case "ADD" -> "added";
-            case "REMOVE" -> "removed";
+            case "CREATE" -> "is the created";
+            case "UPDATE" -> "was an updated ";
+            case "DELETE" -> "was a deleted ";
+            case "ADD" -> "was an added ";
+            case "REMOVE" -> "was a removed ";
             default -> activity.getActionType().toLowerCase();
         };
         
-        String entityName = activity.getEntityName() != null ? 
-                          "'" + activity.getEntityName() + "'" : 
-                          "";
+        String entityName = activity.getEntityName() != null 
+            ? "'" + activity.getEntityName() + "'" 
+            : "the " + activity.getEntityType().toLowerCase();
         
-        return String.format("%s %s %s %s", 
-                actor, 
-                action, 
-                activity.getEntityType().toLowerCase(), 
-                entityName);
+        // Format for all activities (including system ones)
+        return String.format("%s %s %s in project %s", 
+            entityName,
+            action,
+            activity.getEntityType().toLowerCase(),
+            activity.getProject().getProjectName());
     }
-
     // Additional method to handle simple activity creation
     @Transactional
     public RecentActivity createSimpleActivity(String userId, Long projectId, 

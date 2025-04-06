@@ -161,14 +161,29 @@ public class CategoryService
         return fileDTO;
     }
 
-    public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO)
-    {
+    public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO) {
         Category existingCategory = categoryDataPool.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // Store old values if needed for activity
+        String oldName = existingCategory.getCategoryName();
+        String oldColor = existingCategory.getColor();
+        
         existingCategory.setCategoryName(categoryDTO.getCategoryName());
         existingCategory.setColor(categoryDTO.getColor());
         existingCategory.setUpdatedAt(LocalDateTime.now());
+        
         Category updatedCategory = categoryDataPool.save(existingCategory);
+        
+        // Create recent activity for category update
+        recentActivityService.createSystemActivity(
+            updatedCategory.getProject().getProjectId(),
+            "UPDATE",
+            "CATEGORY",
+            updatedCategory.getCategoryId(),
+            updatedCategory.getCategoryName()
+        );
+    
         CategoryDTO updatedCategoryDTO = new CategoryDTO();
         updatedCategoryDTO.setCategoryId(updatedCategory.getCategoryId());
         updatedCategoryDTO.setCategoryName(updatedCategory.getCategoryName());
@@ -177,14 +192,30 @@ public class CategoryService
     }
 
     @Transactional
-    public void deleteCategory(Long categoryId)
-    {
+    public void deleteCategory(Long categoryId) {
+        // 1. First load the category with its project
+        Category category = categoryDataPool.findById(categoryId)
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // 2. Get all related task lists (for deletion)
         List<Long> taskListIds = taskListDataPool.findTaskListIdsByCategoryId(categoryId);
-        if (!taskListIds.isEmpty())
-        {
+        
+        // 3. Delete all entries in task lists
+        if (!taskListIds.isEmpty()) {
             listEntryService.deleteAllByTaskListIds(taskListIds);
             taskListDataPool.deleteByCategoryId(categoryId);
         }
+        
+        // 4. Delete the category itself
         categoryDataPool.deleteById(categoryId);
+        
+        // 5. Create activity AFTER successful deletion
+        recentActivityService.createSystemActivity(
+            category.getProject().getProjectId(),  // Correct project ID
+            "DELETE",
+            "CATEGORY",
+            categoryId,
+            category.getCategoryName()
+        );
     }
 }

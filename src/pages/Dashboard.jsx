@@ -163,13 +163,56 @@ const Dashboard = () => {
         setIsLoadingActivities(true);
         try {
             const token = await getToken();
-            const response = await axios.get(`http://localhost:8080/api/projects/activities/recent`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-                withCredentials: true
+            
+            // Get all user projects with their names
+            const projectsResponse = await axios.get(
+                `http://localhost:8080/api/projects/user/${user.id}/related`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    withCredentials: true
+                }
+            );
+            
+            // Create a map of project IDs to project names
+            const projectMap = {};
+            projectsResponse.data.forEach(project => {
+                projectMap[project.projectId] = project.projectName;
             });
-            setRecentActivities(response.data);
+            
+            // Get activities from all projects and combine them
+            const allActivities = [];
+            for (const project of projectsResponse.data) {
+                try {
+                    const activitiesResponse = await axios.get(
+                        `http://localhost:8080/api/projects/${project.projectId}/activities`,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                            },
+                            withCredentials: true
+                        }
+                    );
+                    
+                    // Add project name to each activity
+                    const activitiesWithProject = activitiesResponse.data.map(activity => ({
+                        ...activity,
+                        projectName: projectMap[activity.projectId]
+                    }));
+                    
+                    allActivities.push(...activitiesWithProject);
+                } catch (error) {
+                    console.error(`Error fetching activities for project ${project.projectId}:`, error);
+                }
+            }
+            
+            // Sort by activity time (newest first) and limit to 5
+            const sortedActivities = allActivities
+                .sort((a, b) => new Date(b.activityTime) - new Date(a.activityTime))
+                .slice(0, 4);
+            
+            setRecentActivities(sortedActivities);
         } catch (error) {
             console.error('Error fetching recent activities:', error);
         } finally {
@@ -439,6 +482,23 @@ const Dashboard = () => {
         setIsMobileSidebarOpen(!isMobileSidebarOpen);
     };
 
+    const getActivityIcon = (actionType) => {
+        switch (actionType) {
+            case 'CREATE':
+                return <Plus className="h-4 w-4 text-green-500" />;
+            case 'UPDATE':
+                return <FileText className="h-4 w-4 text-blue-500" />;
+            case 'DELETE':
+                return <AlertCircle className="h-4 w-4 text-red-500" />;
+            case 'ADD':
+                return <Heart className="h-4 w-4 text-pink-500" />;
+            case 'REMOVE':
+                return <ArrowDown className="h-4 w-4 text-orange-500" />;
+            default:
+                return <Activity className="h-4 w-4 text-[var(--features-icon-color)]" />;
+        }
+    };
+
     return (
         <div className="flex flex-col h-screen bg-[var(--loginpage-bg)]">
             {/* Header with blue accent */}
@@ -637,27 +697,81 @@ const Dashboard = () => {
                                 </div>
                             </motion.div>
 
-                            {/* Recent Activity Feed with blue accents */}
-                            
-                            <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5, duration: 0.5 }}
-                            className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
-                        >
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.recent")}</h2>
-                                <Link 
-                                    to="/activities" 
-                                    className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center"
-                                >
-                                    {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
-                                </Link>
+                           {/* Recent Activity Feed with blue accents */}
+<motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.5, duration: 0.5 }}
+    className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+>
+    <div className="flex justify-between items-center mb-4">
+        <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.recent")}</h2>
+        <Link 
+            to="/activities" 
+            className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center"
+        >
+            {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
+        </Link>
+    </div>
+    <div className="space-y-4">
+        {isLoadingActivities ? (
+            <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
+            </div>
+        ) : recentActivities.length > 0 ? (
+            recentActivities.slice(0, 4).map((activity) => (
+                <motion.div 
+                    key={activity.activityId} 
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-start gap-3 p-3 hover:bg-[var(--loginpage-bg)] rounded-lg transition-colors"
+                >
+                    <div className="flex-shrink-0 mt-1">
+                        <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white">
+                            {activity.user ? 
+                                activity.user.username?.charAt(0) || 'U' : 
+                                activity.projectName?.charAt(0) || 'P'}
+                        </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium text-[var(--features-text-color)] truncate">
+                                {activity.user?.username || activity.projectName}
+                            </p>
+                            <span className="text-xs text-[var(--features-title-color)]">
+                                {formatActivityTime(activity.activityTime)}
+                            </span>
+                        </div>
+                        <p className="text-sm text-[var(--features-title-color)]">
+                            {activity.message || (
+                                activity.entityName 
+                                    ? `'${activity.entityName}' is the ${activity.actionType.toLowerCase()} ${activity.entityType.toLowerCase()} in project ${activity.projectName}`
+                                    : `The ${activity.entityType.toLowerCase()} was ${activity.actionType.toLowerCase()} in project ${activity.projectName}`
+                            )}
+                        </p>
+                        {(activity.oldValue || activity.newValue) && (
+                            <div className="text-xs mt-1">
+                                {activity.oldValue && (
+                                    <span className="text-red-500 line-through mr-2">{activity.oldValue}</span>
+                                )}
+                                {activity.newValue && (
+                                    <span className="text-green-500">{activity.newValue}</span>
+                                )}
                             </div>
-                            <div className="space-y-4">
-                                
-                            </div>
-                        </motion.div>
+                        )}
+                    </div>
+                </motion.div>
+            ))
+        ) : (
+            <div className="text-center py-4 text-sm text-[var(--features-title-color)]">
+                {t("dashboard.noActivities")}
+            </div>
+        )}
+    </div>
+</motion.div>
+
+
 
                         </div>
 
