@@ -16,7 +16,8 @@ import { useUser, useAuth } from "@clerk/clerk-react";
 
 const ICON_CATEGORIES =
 {
-    Basic: [
+    Basic:
+    [
         { name: "Users", icon: FaUsers },
         { name: "Cogs", icon: FaCogs },
         { name: "Lightbulb", icon: FaLightbulb },

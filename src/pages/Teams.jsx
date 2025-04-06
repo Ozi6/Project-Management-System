@@ -695,13 +695,13 @@ const Teams = () =>
                                         type="button"
                                         onClick={() => setViewMode("grid")}
                                         className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 ${viewMode === "grid" ? "bg-[var(--sidebar-teams-color)] text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        Grid
+                                        {t("team.grid") }
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setViewMode("list")}
                                         className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 ${viewMode === "list" ? "bg-[var(--sidebar-teams-color)] text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        List
+                                        {t("team.list")}
                                     </button>
                                 </div>
 
@@ -710,7 +710,7 @@ const Teams = () =>
                                     className={`flex items-center gap-2 px-4 py-2 bg-[var(--sidebar-teams-color)] text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
                                     disabled={!isOwner}>
                                     <FaUserPlus size={16} />
-                                    <span className="hidden sm:inline">New Team</span>
+                                    <span className="hidden sm:inline">{t("team.newteam")}</span>
                                 </button>
                             </div>
                         </div>
@@ -744,13 +744,13 @@ const Teams = () =>
 
                                                 <div className="flex justify-between items-center mb-4">
                                                     <div className="text-sm text-gray-600">
-                                                        {team.members.length} {team.members.length === 1 ? 'Member' : 'Members'}
+                                                        {team.members.length} {team.members.length === 1 ? t("team.singlemem") : t("team.multimem")}
                                                     </div>
                                                     <button
                                                         onClick={() => handleAddMember(team.id)}
                                                         className={`text-xs px-2 py-1 rounded ${colorVariants[team.color]?.text || colorVariants.default.text} bg-white/60 ${!isOwner ? "opacity-50 cursor-not-allowed" : ""}`}
                                                         disabled={!isOwner}>
-                                                        Add Member
+                                                        {t("team.addmem")}
                                                     </button>
                                                 </div>
 
@@ -773,7 +773,7 @@ const Teams = () =>
                                                 <button
                                                     onClick={() => toggleTeamExpansion(team.id)}
                                                     className={`w-full py-2 text-center text-sm font-medium rounded ${expandedTeam === team.id ? "bg-white text-gray-700" : `${colorVariants[team.color]?.button || colorVariants.default.button} text-white`}`}>
-                                                    {expandedTeam === team.id ? "Hide Members" : "View Members"}
+                                                    {expandedTeam === team.id ? t("team.hidemems") : t("team.viewmems")}
                                                 </button>
 
                                                 {expandedTeam === team.id && (
@@ -803,7 +803,7 @@ const Teams = () =>
                                 ) : (
                                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
                                         <FaUserFriends size={48} className="mb-4 opacity-50" />
-                                        <p>No teams found matching your search criteria</p>
+                                        <p>{t("team.nosearchfnd")}</p>
                                     </div>
                                 )}
                             </div>
@@ -823,7 +823,7 @@ const Teams = () =>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <div className="text-sm text-gray-500 hidden sm:block">
-                                                                {team.members.length} {team.members.length === 1 ? 'Member' : 'Members'}
+                                                                {team.members.length} {team.members.length === 1 ? t("team.singlemem") : t("team.multimem")}
                                                             </div>
                                                             <div className="flex -space-x-2">
                                                                 {team.members.slice(0, 3).map((member) => (
@@ -841,13 +841,13 @@ const Teams = () =>
                                                                 )}
                                                             </div>
                                                             <div className="flex gap-2">
-                                                                <button onClick={() => handleAddMember(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Add member" disabled={!isOwner}>
+                                                                <button onClick={() => handleAddMember(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title={t(team.addmem)} disabled={!isOwner}>
                                                                     <FaUserPlus size={16} />
                                                                 </button>
-                                                                <button onClick={() => handleEditTeam(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Edit team" disabled={!isOwner}>
+                                                                <button onClick={() => handleEditTeam(team.id)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title={t(team.editmem)} disabled={!isOwner}>
                                                                     <FaPencilAlt size={16} />
                                                                 </button>
-                                                                <button onClick={() => handleDeleteTeam(team)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Delete team" disabled={!isOwner}>
+                                                                <button onClick={() => handleDeleteTeam(team)} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title={t(team.deletmem)} disabled={!isOwner}>
                                                                     <FaTrash size={16} />
                                                                 </button>
                                                                 <button
@@ -916,7 +916,7 @@ const Teams = () =>
             {showAddTeamModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-lg font-semibold mb-4">Create New Team</h3>
+                        <h3 className="text-lg font-semibold mb-4">{t("team.crnewteam")}</h3>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
                                 <IconPicker
@@ -928,18 +928,18 @@ const Teams = () =>
                                     value={newTeamName}
                                     onChange={(e) => setNewTeamName(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
-                                    placeholder="Enter team name" />
+                                    placeholder={t("team.entertname")} />
                             </div>
                             <div className="flex justify-end gap-2">
                                 <button
                                     onClick={() => setShowAddTeamModal(false)}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                                    Cancel
+                                    {t("team.tpcancel")}
                                 </button>
                                 <button
                                     onClick={addTeam}
                                     className="px-4 py-2 text-sm font-medium text-white bg-[var(--sidebar-teams-color)] rounded-md hover:bg-opacity-90">
-                                    Create Team
+                                    {t("team.crnewteam") }
                                 </button>
                             </div>
                         </div>
@@ -950,7 +950,7 @@ const Teams = () =>
             {showEditTeamModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-lg font-semibold mb-4">Edit Team</h3>
+                        <h3 className="text-lg font-semibold mb-4">{t("team.editteamcapt")}</h3>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-2">
                                 <IconPicker
@@ -962,18 +962,18 @@ const Teams = () =>
                                     value={editTeamData.name}
                                     onChange={(e) => setEditTeamData(prev => ({ ...prev, name: e.target.value }))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--sidebar-teams-color)]"
-                                    placeholder="Enter team name" />
+                                    placeholder={t("team.entertname")} />
                             </div>
                             <div className="flex justify-end gap-2">
                                 <button
                                     onClick={() => setShowEditTeamModal(false)}
                                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                                    Cancel
+                                    {t("team.tpcancel")}
                                 </button>
                                 <button
                                     onClick={editTeam}
                                     className="px-4 py-2 text-sm font-medium text-white bg-[var(--sidebar-teams-color)] rounded-md hover:bg-opacity-90">
-                                    Save Changes
+                                    {t("team.crteam")}
                                 </button>
                             </div>
                         </div>
@@ -984,7 +984,7 @@ const Teams = () =>
             {showAddMemberModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={e => e.stopPropagation()}>
-                        <h3 className="text-lg font-semibold mb-4">Add Team Members</h3>
+                        <h3 className="text-lg font-semibold mb-4">{t("team.addtmems")}</h3>
 
                         {isLoading ? (
                             <div className="flex justify-center py-8">
@@ -995,8 +995,8 @@ const Teams = () =>
                                 {projectMembers.length > 0 ? (
                                     <div className="mb-4">
                                         <div className="mb-2 flex justify-between items-center">
-                                            <label className="block text-sm font-medium text-gray-700">Select Members</label>
-                                            <span className="text-xs text-gray-500">{selectedMembers.length} selected</span>
+                                            <label className="block text-sm font-medium text-gray-700">{t("team.selecmems")}</label>
+                                            <span className="text-xs text-gray-500">{selectedMembers.length} {t("team.slctd")}</span>
                                         </div>
 
                                         <div className="max-h-64 overflow-y-auto border border-gray-200 rounded-md divide-y divide-gray-100">
@@ -1056,7 +1056,7 @@ const Teams = () =>
                             <button
                                 onClick={() => setShowAddMemberModal(false)}
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
-                                Cancel
+                                {t("team.tpcancel")}
                             </button>
                             <button
                                 onClick={() => addMembersToTeam(selectedTeam, selectedMembers)}
@@ -1065,7 +1065,7 @@ const Teams = () =>
                                         ? 'bg-gray-400 cursor-not-allowed'
                                         : 'bg-[var(--sidebar-teams-color)] hover:bg-opacity-90'
                                     }`}>
-                                Add {selectedMembers.length > 0 ? `(${selectedMembers.length})` : ''}
+                                {t("team.add")} {selectedMembers.length > 0 ? `(${selectedMembers.length})` : ''}
                             </button>
                         </div>
                     </div>
