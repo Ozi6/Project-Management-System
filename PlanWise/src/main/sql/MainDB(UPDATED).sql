@@ -138,24 +138,12 @@ CREATE TABLE bug_comments (
 
 CREATE TABLE recent_activity (
     activity_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    project_id INT NOT NULL,  -- Added to link activity to specific project
-    user_id VARCHAR(100),  -- User who performed the action
-    action_type VARCHAR(20) NOT NULL,
-    entity_type ENUM(  -- More specific entity types
-        'PROJECT',
-        'CATEGORY',
-        'TASKLIST',
-        'ENTRY',
-        'TEAM',
-        'COMMENT'
-    ) NOT NULL,
-    entity_id BIGINT NOT NULL,  -- ID of the affected entity
-    entity_name VARCHAR(255),  -- Name/title of the affected entity (for quick display)
-    old_value TEXT,  -- Previous value (for updates)
-    new_value TEXT,  -- New value (for updates)
-    activity_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    user_id VARCHAR(255) NOT NULL,
+    action VARCHAR(255) NOT NULL,
+    entity_type VARCHAR(255) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    activity_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 CREATE TABLE invitations (
@@ -185,10 +173,7 @@ CREATE INDEX idx_bug_reports_priority ON bug_reports(priority);
 CREATE INDEX idx_bug_reports_reported_by ON bug_reports(reported_by);
 CREATE INDEX idx_bug_comments_bug_id ON bug_comments(bug_id);
 
-CREATE INDEX idx_activity_project ON recent_activity(project_id);
-CREATE INDEX idx_activity_user ON recent_activity(user_id);
-CREATE INDEX idx_activity_action ON recent_activity(action_type);
-CREATE INDEX idx_activity_entity ON recent_activity(entity_type, entity_id);
+CREATE INDEX idx_user_id ON recent_activity(user_id);
 CREATE INDEX idx_activity_time ON recent_activity(activity_time);
 
 CREATE INDEX idx_invitations_project ON invitations(project_id);

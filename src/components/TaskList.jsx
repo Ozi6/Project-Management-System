@@ -74,7 +74,8 @@ const TaskList = ({
             setEditableTagColor(newTagColor);
             setIsEditing(false);
 
-           
+            if (onUpdateTaskList)
+                onUpdateTaskList(listId, newTitle, newTagColor);
         }catch(error){
             console.error('Error updating task list:', error);
         }

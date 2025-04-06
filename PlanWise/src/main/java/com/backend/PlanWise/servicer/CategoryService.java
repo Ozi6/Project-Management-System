@@ -7,24 +7,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.DataTransferObjects.*;
+import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
-import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
-import com.backend.PlanWise.DataTransferObjects.FileDTO;
-import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
-import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
-import com.backend.PlanWise.DataTransferObjects.TeamDTO;
-import com.backend.PlanWise.DataTransferObjects.UserDTO;
-import com.backend.PlanWise.model.Category;
-import com.backend.PlanWise.model.File;
-import com.backend.PlanWise.model.Project;
-import com.backend.PlanWise.model.TaskList;
-import com.backend.PlanWise.model.Team;
-import com.backend.PlanWise.model.User;
 
 import jakarta.transaction.Transactional;
 
@@ -65,11 +55,10 @@ public class CategoryService
 
         // Create recent activity
         String userId = project.getOwner().getUserId(); // or get current user from security context
-        recentActivityService.createSimpleActivity(
+        recentActivityService.createActivity(
             userId,
-            savedCategory.getProject().getProjectId(),
-            "CREATE",
-            "CATEGORY",
+            "created",
+            "Category",
             savedCategory.getCategoryId()
         );
 

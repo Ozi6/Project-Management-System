@@ -1,25 +1,25 @@
 package com.backend.PlanWise.servicer;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.backend.PlanWise.Exceptions.InvalidInvitationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.PlanWise.DataPool.InvitationDataPool;
-import com.backend.PlanWise.DataPool.ProjectDataPool;
-import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.InvitationRequest;
-import com.backend.PlanWise.Exceptions.InvalidInvitationException;
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Invitation;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.User;
+import com.backend.PlanWise.DataPool.InvitationDataPool;
+import com.backend.PlanWise.DataPool.ProjectDataPool;
+import com.backend.PlanWise.DataPool.UserDataPool;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class InvitationService
@@ -37,6 +37,7 @@ public class InvitationService
     @Autowired
     private JavaMailSender emailSender;
 
+    @Autowired RecentActivityService recentActivityService;
 
     @Transactional
     public Invitation inviteUserByEmail(InvitationRequest request)
@@ -190,6 +191,12 @@ public class InvitationService
             project.getMembers().add(user);
             projectRepository.save(project);
 
+            recentActivityService.createActivity(
+                    user.getUserId(),
+                    "joined",
+                    "Project",
+                    projectId
+            );
         }
     }
 

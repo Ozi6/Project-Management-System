@@ -163,7 +163,7 @@ const Dashboard = () => {
         setIsLoadingActivities(true);
         try {
             const token = await getToken();
-            const response = await axios.get(`http://localhost:8080/api/projects/activities/recent`, {
+            const response = await axios.get(`http://localhost:8080/api/activities/user/${user.id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
@@ -638,27 +638,45 @@ const Dashboard = () => {
                             </motion.div>
 
                             {/* Recent Activity Feed with blue accents */}
-                            
                             <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5, duration: 0.5 }}
-                            className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
-                        >
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.recent")}</h2>
-                                <Link 
-                                    to="/activities" 
-                                    className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center"
-                                >
-                                    {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
-                                </Link>
-                            </div>
-                            <div className="space-y-4">
-                                
-                            </div>
-                        </motion.div>
-
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, duration: 0.5 }}
+                                className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.recent")}</h2>
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="space-y-4">
+                                        {isLoadingActivities ? (
+                                            <div className="flex justify-center">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--features-icon-color)]"></div>
+                                            </div>
+                                        ) : recentActivities.length > 0 ? (
+                                            recentActivities.map(activity => (
+                                                <div key={activity.activityId} className="flex items-start text-[var(--features-title-color)]">
+                                                    <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs shrink-0">
+                                                        {activity.userName?.charAt(0) || activity.userId?.charAt(0) || 'U'}
+                                                    </div>
+                                                    <div className="ml-3">
+                                                        <p className="text-sm">
+                                                            <span className="font-medium">{activity.userName || activity.userId}</span> {activity.action}{' '}
+                                                            <span className="font-medium">{activity.entityName || activity.entityType.toLowerCase()}</span>
+                                                            {activity.additionalContext && <span>{activity.additionalContext}</span>}
+                                                        </p>
+                                                        <p className="text-xs text-[var(--features-text-color)]">
+                                                            {formatActivityTime(activity.activityTime)}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-sm text-[var(--features-text-color)]">No recent activities</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
                         </div>
 
                         {/* Third row with blue accents */}

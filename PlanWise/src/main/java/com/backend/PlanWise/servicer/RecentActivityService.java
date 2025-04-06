@@ -6,163 +6,100 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.RecentActivityDataPool;
-import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.RecentActivityDTO;
-import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.RecentActivity;
-import com.backend.PlanWise.model.User;
+
 
 @Service
 public class RecentActivityService {
-    @Autowired
-    private RecentActivityDataPool recentActivityRepository;
-    @Autowired
-    private ProjectDataPool projectRepository;
-    @Autowired
-    private UserDataPool userRepository;
-    @Autowired
-    private UserService userService;
 
-    @Transactional
-    public RecentActivity createActivity(String userId, Long projectId, String actionType, 
-                                       String entityType, Long entityId, String entityName, 
-                                       String oldValue, String newValue) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
+    private final RecentActivityDataPool recentActivityDataPool;
+    private final ProjectDataPool projectDataPool;
+    private final CategoryDataPool categoryDataPool;
+    private final UserService userService;
 
-        // Get or create user with minimal data if not exists
-        User user = userRepository.findByUserId(userId);
-        if (user == null) {
-            // Create a minimal user record if it doesn't exist
-            user = new User();
-            user.setUserId(userId);
-            user.setUsername(userService.getUsernameById(userId)); // Fallback to userId if username not available
-            user = userRepository.save(user);
+    @Autowired
+    public RecentActivityService(RecentActivityDataPool recentActivityDataPool,
+                               ProjectDataPool projectDataPool,
+                               CategoryDataPool categoryDataPool,
+                               UserService userService) {
+        this.recentActivityDataPool = recentActivityDataPool;
+        this.projectDataPool = projectDataPool;
+        this.categoryDataPool = categoryDataPool;
+        this.userService = userService;
+    }
+
+    public RecentActivityDTO createActivity(String userId, String action, String entityType, Long entityId) {
+        // Get user name safely
+        String userName = userService.getUsernameById(userId);
+
+        // Get entity name based on type
+        String entityName = getEntityName(entityType, entityId);
+
+        RecentActivity activity = new RecentActivity();
+        activity.setUserId(userId);
+        activity.setAction(action);
+        activity.setEntityType(entityType);
+        activity.setEntityId(entityId);
+        activity.setActivityTime(LocalDateTime.now());
+
+        RecentActivity savedActivity = recentActivityDataPool.save(activity);
+        
+        return convertToDTO(savedActivity, userName, entityName);
+    }
+
+    private String getEntityName(String entityType, Long entityId) {
+        try {
+            if ("Project".equalsIgnoreCase(entityType)) {
+                return projectDataPool.findById(entityId)
+                        .map(Project::getProjectName)
+                        .orElse("a project");
+                } else if ("Category".equalsIgnoreCase(entityType)) {
+                    Category category = categoryDataPool.findById(entityId).orElse(null);
+                    if (category != null) {
+                        String projectName = projectDataPool.findById(category.getProject().getProjectId())
+                                .map(Project::getProjectName)
+                                .orElse("a project");
+                        return category.getCategoryName() + " in " + projectName;
+                    }
+                    return "a category";
+                }
+        } catch (Exception e) {
+            //log.error("Error fetching entity name", e);
         }
-
-        RecentActivity activity = new RecentActivity();
-        activity.setProject(project);
-        activity.setUser(user);
-        activity.setActionType(actionType);
-        activity.setEntityType(entityType);
-        activity.setEntityId(entityId);
-        activity.setEntityName(entityName);
-        activity.setOldValue(oldValue);
-        activity.setNewValue(newValue);
-        activity.setActivityTime(LocalDateTime.now());
-
-        return recentActivityRepository.save(activity);
+        return entityType.toLowerCase(); // fallback to "project", "task", etc.
     }
 
-    public RecentActivity createSystemActivity(Long projectId, String actionType, 
-                                         String entityType, Long entityId, String entityName) {
-        Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
-
-        RecentActivity activity = new RecentActivity();
-        activity.setProject(project);
-        activity.setUser(null); // No user associated
-        activity.setActionType(actionType);
-        activity.setEntityType(entityType);
-        activity.setEntityId(entityId);
-        activity.setEntityName(entityName);
-        activity.setActivityTime(LocalDateTime.now());
-
-        return recentActivityRepository.save(activity);
-    }
-
-    public List<RecentActivityDTO> getRecentActivities(Long projectId) {
-        List<RecentActivity> activities = recentActivityRepository.findByProjectIdOrderByActivityTimeDesc(projectId);
-        return activities.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    // Add this method to your RecentActivityService class
-    public List<RecentActivityDTO> getRecentActivitiesByEntityType(Long projectId, String entityType) {
-        List<RecentActivity> activities = recentActivityRepository.findByProjectIdAndEntityTypeOrderByActivityTimeDesc(projectId, entityType);
-        return activities.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
-
-    private RecentActivityDTO convertToDTO(RecentActivity activity) {
+    private RecentActivityDTO convertToDTO(RecentActivity activity, String userName, String entityName) {
         RecentActivityDTO dto = new RecentActivityDTO();
         dto.setActivityId(activity.getActivityId());
-        dto.setProjectId(activity.getProject().getProjectId());
-        
-        // Handle user conversion safely
-        if (activity.getUser() != null) {
-            User user = activity.getUser();
-            UserDTO userDTO = new UserDTO();
-            userDTO.setUserId(user.getUserId());
-            userDTO.setUsername(user.getUsername() != null ? user.getUsername() : user.getUserId());
-            userDTO.setEmail(user.getEmail()); // May be null
-            userDTO.setProfileImageUrl(user.getProfileImageUrl()); // May be null
-            dto.setUser(userDTO);
-        } else {
-            dto.setUser(null);
-        }
-        
-        dto.setActionType(activity.getActionType());
+        dto.setUserId(activity.getUserId());
+        dto.setUserName(userName);
+        dto.setAction(activity.getAction());
         dto.setEntityType(activity.getEntityType());
         dto.setEntityId(activity.getEntityId());
-        dto.setEntityName(activity.getEntityName());
-        dto.setOldValue(activity.getOldValue());
-        dto.setNewValue(activity.getNewValue());
+        dto.setEntityName(entityName);
         dto.setActivityTime(activity.getActivityTime());
-        
-        dto.setMessage(generateActivityMessage(activity));
-        
         return dto;
     }
 
-    private String generateActivityMessage(RecentActivity activity) {
-        String actor = (activity.getUser() != null) ? 
-            (activity.getUser().getUsername() != null ? 
-                activity.getUser().getUsername() : 
-                activity.getUser().getUserId()) :
-            "System";
-        
-        String action = switch (activity.getActionType()) {
-            case "CREATE" -> "created";
-            case "UPDATE" -> "updated";
-            case "DELETE" -> "deleted";
-            case "ADD" -> "added";
-            case "REMOVE" -> "removed";
-            default -> activity.getActionType().toLowerCase();
-        };
-        
-        String entityName = activity.getEntityName() != null ? 
-                          "'" + activity.getEntityName() + "'" : 
-                          "";
-        
-        return String.format("%s %s %s %s", 
-                actor, 
-                action, 
-                activity.getEntityType().toLowerCase(), 
-                entityName);
+    public List<RecentActivityDTO> getUserRecentActivities(String userId) {
+        List<RecentActivity> activities = recentActivityDataPool.findByUserIdOrderByActivityTimeDesc(userId);
+        return activities.stream()
+                .map(activity -> {
+                    String userName = userService.getUsernameById(activity.getUserId());
+                    String entityName = getEntityName(activity.getEntityType(), activity.getEntityId());
+                    return convertToDTO(activity, userName, entityName);
+                })
+                .collect(Collectors.toList());
     }
 
-    // Additional method to handle simple activity creation
-    @Transactional
-    public RecentActivity createSimpleActivity(String userId, Long projectId, 
-                                             String action, String entityType, 
-                                             Long entityId) {
-        return createActivity(
-            userId,
-            projectId,
-            action,
-            entityType,
-            entityId,
-            null, // entityName
-            null, // oldValue
-            null  // newValue
-        );
-    }
+    
+    
 }
