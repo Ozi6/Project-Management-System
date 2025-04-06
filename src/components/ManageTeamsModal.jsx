@@ -1,183 +1,536 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Check } from "lucide-react";
-import { FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase, FaServer, FaCode, FaCog, FaDesktop, FaPaintBrush } from "react-icons/fa";
-import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
+import { Pencil, Check, Search, X, Plus, Save, Trash2, Users } from "lucide-react";
+import {
+    FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase,
+    FaServer, FaCode, FaCog, FaDesktop, FaPaintBrush, FaDragon,
+    FaRocket, FaShieldAlt, FaGem, FaStar, FaMagic
+} from "react-icons/fa";
+import {
+    MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen
+} from "react-icons/md";
 import { IoMdPeople, IoMdSettings } from "react-icons/io";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { useUser, useAuth } from "@clerk/clerk-react";
 
-const iconMap = {
-  Users: FaUsers,
-  Cog: FaCogs,
-  LightBulb: FaLightbulb,
-  ChartBar: FaChartBar,
-  Folder: FaFolder,
-  AddGroup: MdGroupAdd,
-  Assignment: MdAssignment,
-  Work: MdWork,
-  Build: MdBuild,
-  FolderOpen: MdFolderOpen,
-  People: IoMdPeople,
-  Settings: IoMdSettings,
-  FaDatabase: FaDatabase,
-  FaServer: FaServer,
-  FaCode: FaCode,
-  FaCog: FaCog,
-  FaDesktop: FaDesktop,
-  FaPaintBrush: FaPaintBrush 
+const ICON_CATEGORIES =
+{
+    Basic: [
+        { name: "Users", icon: FaUsers },
+        { name: "Cogs", icon: FaCogs },
+        { name: "Lightbulb", icon: FaLightbulb },
+        { name: "ChartBar", icon: FaChartBar },
+        { name: "Folder", icon: FaFolder },
+    ],
+    Project: [
+        { name: "AddGroup", icon: MdGroupAdd },
+        { name: "Assignment", icon: MdAssignment },
+        { name: "Work", icon: MdWork },
+        { name: "Build", icon: MdBuild },
+        { name: "FolderOpen", icon: MdFolderOpen },
+    ],
+    Tech: [
+        { name: "Database", icon: FaDatabase },
+        { name: "Server", icon: FaServer },
+        { name: "Code", icon: FaCode },
+        { name: "Cog", icon: FaCog },
+        { name: "Desktop", icon: FaDesktop },
+    ],
+    Fancy: [
+        { name: "Dragon", icon: FaDragon },
+        { name: "Rocket", icon: FaRocket },
+        { name: "Shield", icon: FaShieldAlt },
+        { name: "Gem", icon: FaGem },
+        { name: "Star", icon: FaStar },
+        { name: "Magic", icon: FaMagic },
+    ],
 };
 
-const allIcons = [
-  { name: "Users", icon: FaUsers },
-  { name: "Cogs", icon: FaCogs },
-  { name: "LightBulb", icon: FaLightbulb },
-  { name: "ChartBar", icon: FaChartBar },
-  { name: "Folder", icon: FaFolder },
-  { name: "AddGroup", icon: MdGroupAdd },
-  { name: "Assignment", icon: MdAssignment },
-  { name: "Work", icon: MdWork },
-  { name: "Build", icon: MdBuild },
-  { name: "FolderOpen", icon: MdFolderOpen },
-  { name: "People", icon: IoMdPeople },
-  { name: "Settings", icon: IoMdSettings },
-  { name: "Database", icon: FaDatabase },
-  { name: "Server", icon: FaServer },
-  { name: "Code", icon: FaCode },
-  { name: "Cog", icon: FaCog },
-  { name: "Desktop", icon: FaDesktop },
-  { name: "PaintBrush", icon: FaPaintBrush },
-];
+const iconMap = Object.values(ICON_CATEGORIES).reduce((acc, category) =>
+{
+    category.forEach(({ name, icon }) => {
+        acc[name] = icon;
+    });
+    return acc;
+}, {});
 
-// TeamDeleteConfirmation Component
-const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
-  const {t} = useTranslation();
-  if (!teamName || typeof teamName !== "string") return null;
+const allIcons = Object.entries(ICON_CATEGORIES).flatMap(([category, icons]) =>
+    icons.map(icon => ({ ...icon, category }))
+);
 
-  return (
-    <AnimatePresence>
-      {teamName && (
-        <>
-          <motion.div
-            className="fixed inset-0 bg-gray-800/50 backdrop-blur-xs"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={onCancel}
-            style={{ zIndex: 10002 }}
-          />
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center"
-            initial={{ y: "-20%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: "100%", opacity: 0 }}
-            transition={{ type: "spring", stiffness: 150, damping: 15 }}
-            style={{ zIndex: 10003 }}
-          >
-            <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
-              <div className="bg-[var(--bug-report)] p-4 shadow-md">
-                <h3 className="text-xl font-bold !text-white text-center">{t("adset.conf")}</h3>
-              </div>
-              <div className="p-6 flex flex-col gap-4">
-                <p className="text-gray-700 text-center">{t("adset.remteam")} "{teamName}"?</p>
-                <div className="flex justify-between">
-                  <button
-                    className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
-                    onClick={onCancel}
-                  >
-                    {t("bug.can")}
-                  </button>
-                  <button
-                    className="bg-[var(--bug-report)]/90 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
-                    onClick={() => onConfirm(teamName)}
-                  >
-                    {t("adset.del")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-};
+const IconPicker = ({ currentIcon, onSelect }) =>
+{
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const pickerRef = useRef(null);
+    const { t } = useTranslation();
+    const inputRef = useRef(null);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
-const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId }) => {
-  const {t} = useTranslation();
-  const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
-  const [localTeams, setLocalTeams] = useState(Array.isArray(teams) ? [...teams] : []);
-  const [editingTeamId, setEditingTeamId] = useState(null);
-  const [editingTeamName, setEditingTeamName] = useState("");
-  const [editingTeamIcon, setEditingTeamIcon] = useState("");
-  const [teamToDelete, setTeamToDelete] = useState(null);
-  const [newTeamName, setNewTeamName] = useState("");
-  const [newTeamIcon, setNewTeamIcon] = useState("Users");
-  const [isAddingTeam, setIsAddingTeam] = useState(false);
-  const [showIconMenuForTeamId, setShowIconMenuForTeamId] = useState(null);
-  const editInputRef = useRef(null);
+    useEffect(() => {
+        const handleClickOutside = (event) =>
+        {
+            if (pickerRef.current && !pickerRef.current.contains(event.target))
+                setIsOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
-  useEffect(() => {
-    const uniqueTeams = Array.isArray(teams) 
-      ? teams.map((team, index) => ({
-          ...team,
-          id: team.id || `${index}-${Date.now()}`
-        }))
-      : [];
-    setLocalTeams(uniqueTeams);
-    setLocalMemberTeam(member?.team || "");
-  }, [teams, member]);
+    useEffect(() =>
+    {
+        if (isOpen && inputRef.current)
+        {
+            inputRef.current.focus();
 
-  useEffect(() => {
-    if (editingTeamId && editInputRef.current) {
-      editInputRef.current.focus();
-    }
-  }, [editingTeamId]);
+            if(pickerRef.current)
+            {
+                const rect = pickerRef.current.getBoundingClientRect();
+                setDropdownPosition({
+                    top: rect.bottom + window.scrollY,
+                    left: rect.left + window.scrollX
+                });
+            }
+        }
+    }, [isOpen]);
 
-  const handleEditTeam = (team) => {
-    if (editingTeamId === team.id) {
-      handleSaveTeam(team);
-    } else {
-      setEditingTeamId(team.id);
-      setEditingTeamName(team.name);
-      setEditingTeamIcon(team.icon);
-      setShowIconMenuForTeamId(null);
-    }
-  };
-
-  const handleSaveTeam = (oldTeam) => {
-    if (!editingTeamId || !editingTeamName.trim()) return;
-
-    const updatedTeam = {
-      id: editingTeamId,
-      name: editingTeamName.trim(),
-      icon: editingTeamIcon || "Users"
-    };
-
-    setLocalTeams(prevTeams =>
-      prevTeams.map(team =>
-        team.id === editingTeamId ? updatedTeam : team
-      )
+    const filteredIcons = allIcons.filter(icon =>
+        icon.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    onEditTeam(updatedTeam, oldTeam);
+    const groupedIcons = filteredIcons.reduce((acc, icon) => {
+        acc[icon.category] = acc[icon.category] || [];
+        acc[icon.category].push(icon);
+        return acc;
+    }, {});
 
-    setEditingTeamId(null);
-    setEditingTeamName("");
-    setEditingTeamIcon("");
-    setShowIconMenuForTeamId(null);
-  };
+    const IconComponent = iconMap[currentIcon] || FaUsers;
 
-    const handleToggleTeam = (teamId) =>
+    return (
+        <div className="relative" ref={pickerRef}>
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="border p-2 rounded hover:bg-gray-100 flex items-center gap-2 transition-all duration-150"
+                aria-label="Select icon"
+                title={t("icon.select")}
+            >
+                <IconComponent className="h-5 w-5 text-gray-700" />
+                <span className="text-sm text-gray-600">{currentIcon}</span>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed w-72 bg-white border rounded-lg shadow-lg z-[10020] max-h-96 overflow-y-auto"
+                        style={{
+                            top: dropdownPosition.top,
+                            left: dropdownPosition.left,
+                            transformOrigin: 'top left'
+                        }}
+                    >
+                        <div className="p-2 border-b sticky top-0 bg-white z-[10021]">
+                            <div className="relative">
+                                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder={t("icon.search")}
+                                    className="w-full pl-8 p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
+                                />
+                                {searchTerm && (
+                                    <button
+                                        onClick={() => setSearchTerm("")}
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                    >
+                                        <X className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="p-2">
+                            {Object.entries(groupedIcons).map(([category, icons]) => (
+                                <div key={category} className="mb-4">
+                                    <h4 className="text-xs font-semibold text-gray-500 mb-2 px-1">{category}</h4>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {icons.map(({ name, icon: Icon }) => (
+                                            <button
+                                                key={name}
+                                                onClick={() => {
+                                                    onSelect(name);
+                                                    setIsOpen(false);
+                                                    setSearchTerm("");
+                                                }}
+                                                className={`p-2 rounded hover:bg-[var(--features-icon-color)]/10 transition-colors duration-150 flex items-center justify-center ${currentIcon === name ? "bg-[var(--features-icon-color)]/20 ring-2 ring-[var(--features-icon-color)]/40" : ""}`}
+                                                title={name}
+                                            >
+                                                <Icon className="h-5 w-5 text-gray-700" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                            {Object.keys(groupedIcons).length === 0 && (
+                                <div className="py-8 text-center text-gray-500">
+                                    {t("icon.no_results")}
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) =>
+{
+    const { t } = useTranslation();
+
+    if(!teamName || typeof teamName !== "string")
+        return null;
+
+    return (
+        <AnimatePresence>
+            {teamName && (
+                <>
+                    <motion.div
+                        className="fixed inset-0 bg-gray-800/50 backdrop-blur-sm"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        onClick={onCancel}
+                        style={{ zIndex: 10002 }}
+                    />
+                    <motion.div
+                        className="fixed inset-0 flex items-center justify-center"
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.9, opacity: 0 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                        style={{ zIndex: 10003 }}
+                    >
+                        <div className="bg-white rounded-lg w-80 flex flex-col shadow-xl overflow-hidden">
+                            <div className="bg-[var(--bug-report)] p-4">
+                                <h3 className="text-xl font-bold !text-white text-center">{t("adset.conf")}</h3>
+                            </div>
+                            <div className="p-6 flex flex-col gap-4">
+                                <p className="text-gray-700 text-center">
+                                    {t("adset.remteam")} <span className="font-medium">"{teamName}"</span>?
+                                </p>
+                                <div className="flex justify-between gap-3 mt-2">
+                                    <button
+                                        className="bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200 transition-all duration-200 font-medium flex-1 border border-gray-300"
+                                        onClick={onCancel}
+                                    >
+                                        {t("bug.can")}
+                                    </button>
+                                    <button
+                                        className="bg-[var(--bug-report)]/90 !text-white py-2 px-4 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 font-medium flex-1"
+                                        onClick={() => onConfirm(teamName)}
+                                    >
+                                        {t("adset.del")}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
+};
+
+const TeamCard = ({
+    team,
+    isEditing,
+    editingTeamName,
+    editingTeamIcon,
+    localMemberTeam,
+    onEdit,
+    onSave,
+    onDelete,
+    onToggleTeam,
+    onNameChange,
+    onIconChange,
+    onCancelEdit,
+    inputRef
+}) =>
+{
+    const { t } = useTranslation();
+    const IconComponent = iconMap[team.icon] || FaUsers;
+
+    if(isEditing)
     {
-        if(!onAddToTeam || !member || !member.id)
+        return(
+            <div className="flex flex-col gap-3 w-full p-4 bg-white border rounded-lg shadow-sm transition-all duration-200">
+                <div className="flex items-center gap-2">
+                    <IconPicker
+                        currentIcon={editingTeamIcon}
+                        onSelect={onIconChange}
+                    />
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        value={editingTeamName}
+                        onChange={(e) => onNameChange(e)}
+                        className="border p-2 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
+                        onKeyDown={(e) => e.key === 'Enter' && onSave(team)}
+                        placeholder={t("adset.team_name")}
+                    />
+                    <label className="flex items-center cursor-pointer">
+                        <input
+                            type="checkbox"
+                            checked={localMemberTeam === team.name}
+                            onChange={() => onToggleTeam(team.id)}
+                            className="hidden"
+                        />
+                        <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name
+                                ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70"
+                                : "bg-white border-gray-300 hover:border-gray-500"
+                            }`}>
+                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                        </span>
+                    </label>
+                </div>
+                <div className="flex justify-between gap-2 mt-1">
+                    <button
+                        onClick={() => onSave(team)}
+                        className="flex items-center justify-center gap-1 bg-[var(--features-icon-color)]/60 !text-white px-3 py-2 rounded hover:bg-[var(--features-icon-color)] flex-1 transition-all duration-200"
+                    >
+                        <Save size={16} />
+                        {t("adset.save")}
+                    </button>
+                    <button
+                        onClick={() => onDelete(team.id)}
+                        className="flex items-center justify-center gap-1 bg-[var(--bug-report)]/90 !text-white px-3 py-2 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
+                    >
+                        <Trash2 size={16} />
+                        {t("prode.del")}
+                    </button>
+                    <button
+                        onClick={onCancelEdit}
+                        className="flex items-center justify-center gap-1 bg-gray-500 !text-white px-3 py-2 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
+                    >
+                        <X size={16} />
+                        {t("bug.can")}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return(
+        <div className="flex items-center justify-between w-full p-4 bg-white border rounded-lg shadow-sm transition-all duration-200 hover:bg-gray-50">
+            <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--features-icon-color)]/10 flex items-center justify-center">
+                    <IconComponent className="h-5 w-5 text-[var(--features-icon-color)]" />
+                </div>
+                <span className="text-gray-800 font-medium">{team.name}</span>
+            </div>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={() => onEdit(team)}
+                    className="border p-1.5 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all duration-200"
+                    title={t("adset.edit_team")}>
+                    <Pencil size={16} />
+                </button>
+                <label className="flex items-center cursor-pointer" title={t("adset.assign_team")}>
+                    <input
+                        type="checkbox"
+                        checked={localMemberTeam === team.name}
+                        onChange={() => onToggleTeam(team.id)}
+                        className="hidden"
+                    />
+                    <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name
+                            ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70"
+                            : "bg-white border-gray-300 hover:border-gray-500"
+                        }`}>
+                        {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                    </span>
+                </label>
+            </div>
+        </div>
+    );
+};
+
+const NewTeamForm = ({
+    newTeamName,
+    newTeamIcon,
+    onNameChange,
+    onIconChange,
+    onAddTeam,
+    onCancel
+}) => {
+    const { t } = useTranslation();
+    const inputRef = useRef(null);
+
+    useEffect(() =>
+    {
+        if(inputRef.current)
+            inputRef.current.focus();
+    }, []);
+
+    return(
+        <div className="flex flex-col gap-3 p-4 bg-[var(--features-icon-color)]/5 border border-[var(--features-icon-color)]/20 rounded-lg">
+            <div className="flex items-center gap-2 relative">
+                <IconPicker
+                    currentIcon={newTeamIcon}
+                    onSelect={onIconChange}/>
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={newTeamName}
+                    onChange={(e) => onNameChange(e.target.value)}
+                    className="border p-2 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
+                    placeholder={t("adset.team_name_placeholder")}
+                    onKeyDown={(e) => e.key === 'Enter' && newTeamName.trim() && onAddTeam()}/>
+            </div>
+            <div className="flex justify-between gap-2">
+                <button
+                    onClick={onAddTeam}
+                    disabled={!newTeamName.trim()}
+                    className={`flex items-center justify-center gap-1 px-3 py-2 rounded transition-all duration-200 flex-1 ${newTeamName.trim()
+                            ? "bg-[var(--features-icon-color)]/70 hover:bg-[var(--features-icon-color)] !text-white"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        }`}>
+                    <Plus size={16}/>
+                    {t("adset.create_team")}
+                </button>
+                <button
+                    onClick={onCancel}
+                    className="flex items-center justify-center gap-1 bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 transition-all duration-200 flex-1">
+                    <X size={16} />
+                    {t("bug.can")}
+                </button>
+            </div>
+        </div>
+    );
+};
+
+const ModalHeader = ({ member }) =>
+{
+    const { t } = useTranslation();
+
+    return(
+        <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
+            <div className="flex items-center gap-3 justify-center">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-white">
+                    {t("adset.teaman")} <span className="font-normal"></span>
+                </h3>
+            </div>
+        </div>
+    );
+};
+
+const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId }) =>
+{
+    const { t } = useTranslation();
+    const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
+    const [localTeams, setLocalTeams] = useState([]);
+    const [editingTeamId, setEditingTeamId] = useState(null);
+    const [editingTeamName, setEditingTeamName] = useState("");
+    const [editingTeamIcon, setEditingTeamIcon] = useState("");
+    const [teamToDelete, setTeamToDelete] = useState(null);
+    const [newTeamName, setNewTeamName] = useState("");
+    const [newTeamIcon, setNewTeamIcon] = useState("Users");
+    const [isAddingTeam, setIsAddingTeam] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const editInputRef = useRef(null);
+    const { getToken } = useAuth();
+
+    useEffect(() =>
+    {
+        const uniqueTeams = Array.isArray(teams)
+            ? teams.map((team, index) => ({
+                ...team,
+                id: team.id || `${index}-${Date.now()}`
+            }))
+            : [];
+        setLocalTeams(uniqueTeams);
+        setLocalMemberTeam(member?.team || "");
+    }, [teams, member]);
+
+    useEffect(() =>
+    {
+        if(editingTeamId && editInputRef.current)
+            editInputRef.current.focus();
+    }, [editingTeamId]);
+
+    const handleEditTeam = (team) =>
+    {
+        if(editingTeamId === team.id)
+            handleSaveTeam(team);
+        else
+        {
+            setEditingTeamId(team.id);
+            setEditingTeamName(team.name);
+            setEditingTeamIcon(team.icon);
+            setIsAddingTeam(false);
+        }
+    };
+
+    const handleSaveTeam = async (oldTeam) =>
+    {
+        if(!editingTeamId || !editingTeamName.trim())
             return;
-        const currentTeam = localTeams.find(t => t.id === teamId);
-        const newTeamId = localMemberTeam === currentTeam?.name ? "" : teamId;
-        onAddToTeam(member.id, newTeamId);
-        setLocalMemberTeam(newTeamId ? currentTeam?.name : "");
+
+        const updatedTeam =
+        {
+            id: editingTeamId,
+            name: editingTeamName.trim(),
+            icon: editingTeamIcon || "Users"
+        };
+
+        try{
+            setIsLoading(true);
+            await onEditTeam(updatedTeam, oldTeam);
+
+            setLocalTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === editingTeamId ? updatedTeam : team
+                )
+            );
+
+            if(localMemberTeam === oldTeam.name)
+                setLocalMemberTeam(updatedTeam.name);
+        }catch(err){
+            console.error('Failed to update team:', err);
+        }finally{
+            setIsLoading(false);
+            setEditingTeamId(null);
+            setEditingTeamName("");
+            setEditingTeamIcon("");
+        }
+    };
+
+    const handleToggleTeam = async (teamId) =>
+    {
+        if(!onAddToTeam || !member || !member.userId)
+            return;
+
+        try{
+            setIsLoading(true);
+            const currentTeam = localTeams.find(t => t.id === teamId);
+            const newTeamId = localMemberTeam === currentTeam?.name ? "" : teamId;
+
+            await onAddToTeam(member.userId, newTeamId);
+            setLocalMemberTeam(newTeamId ? currentTeam?.name : "");
+        }catch(err){
+            console.error('Failed to assign team to member:', err);
+        } finally{
+            setIsLoading(false);
+        }
     };
 
     const handleDeleteTeam = (teamId) =>
@@ -187,27 +540,17 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             setTeamToDelete(teamToDelete);
     };
 
-  const handleIconSelect = (iconName) => {
-    if (editingTeamId) {
-      setEditingTeamIcon(iconName);
-    } else if (isAddingTeam) {
-      setNewTeamIcon(iconName);
-    }
-    setShowIconMenuForTeamId(null);
-  };
+    const handleNameChange = (e) =>
+    {
+        setEditingTeamName(e.target.value);
+    };
 
-  const handleNameChange = (e) => {
-    setEditingTeamName(e.target.value);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingTeamId(null);
-    setEditingTeamName("");
-    setEditingTeamIcon("");
-    setShowIconMenuForTeamId(null);
-  };
-
-    const { getToken } = useAuth();
+    const handleCancelEdit = () =>
+    {
+        setEditingTeamId(null);
+        setEditingTeamName("");
+        setEditingTeamIcon("");
+    };
 
     const handleAddTeam = async () =>
     {
@@ -215,6 +558,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             return;
 
         try{
+            setIsLoading(true);
             const token = await getToken();
             const response = await axios.post(
                 `http://localhost:8080/api/projects/${projectId}/teams`,
@@ -224,8 +568,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                 },
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
                     },
@@ -246,239 +589,137 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             setIsAddingTeam(false);
         }catch(err){
             console.error('Error creating team:', err);
+        }finally{
+            setIsLoading(false);
         }
     };
 
-    const confirmDeleteTeam = (team) =>
+    const confirmDeleteTeam = async (team) =>
     {
         if(!onDeleteTeam || !team?.id)
             return;
 
-        onDeleteTeam(team.id).then(() =>
-        {
+        try{
+            setIsLoading(true);
+            await onDeleteTeam(team.id);
+
             setLocalTeams(prev => prev.filter(t => t.id !== team.id));
-            if(localMemberTeam === team.name)
+            if (localMemberTeam === team.name) {
                 setLocalMemberTeam("");
+            }
+        }catch(err){
+            console.error('Failed to delete team:', err);
+        }finally{
             setTeamToDelete(null);
             setEditingTeamId(null);
-        }).catch(err =>
-        {
-            console.error('Failed to delete team:', err);
-        });
+            setIsLoading(false);
+        }
     };
 
-  const handleModalClose = () => {
-    setEditingTeamId(null);
-    setIsAddingTeam(false);
-    setTeamToDelete(null);
-    setShowIconMenuForTeamId(null);
-    onClose();
-  };
+    const handleModalClose = () =>
+    {
+        setEditingTeamId(null);
+        setIsAddingTeam(false);
+        setTeamToDelete(null);
+        onClose();
+    };
 
-  if (!member) return null;
+    if(!member)
+        return null;
 
-  return (
-    <>
-      <AnimatePresence mode="sync">
-        <motion.div
-          key="backdrop"
-          className="fixed inset-0 bg-gray-800/50 backdrop-blur-xs z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          onClick={handleModalClose}
-          style={{ zIndex: 10000 }}
-        />
-        <motion.div
-          key="modal"
-          className="fixed inset-0 flex items-center justify-center"
-          initial={{ y: "-20%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: "100%", opacity: 0 }}
-          transition={{ type: "spring", stiffness: 150, damping: 15 }}
-          style={{ zIndex: 10001 }}
-        >
-          <div className="bg-[var(--bg-color)] rounded-lg w-96 flex flex-col shadow-lg overflow-hidden">
-            <div className="bg-[var(--features-icon-color)] p-4 shadow-md">
-              <h3 className="text-xl font-bold text-white text-center">
-              {t("adset.teaman")} {member?.name || "Unknown"}
-              </h3>
-            </div>
-            <div className="p-6 flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
-              {localTeams.map((team) => (
-                <div 
-                  key={team.id} 
-                  className="flex items-center justify-between p-3 bg-white border rounded-lg shadow-gray-700 transition-all duration-200 hover:bg-gray-200"
-                >
-                  {editingTeamId === team.id ? (
-                    <div className="flex flex-col gap-2 w-full">
-                      <div className="flex items-center gap-2 relative">
-                        <button
-                          onClick={() => setShowIconMenuForTeamId(team.id)}
-                          className="border p-1 rounded hover:bg-gray-200"
-                        >
-                          {React.createElement(iconMap[editingTeamIcon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
-                        </button>
-                        {showIconMenuForTeamId === team.id && (
-                          <div className="absolute top-10 left-0 bg-white border shadow-lg grid grid-cols-5 gap-2 p-2 z-10">
-                            {allIcons.map(({ name, icon: Icon }) => (
-                              <button 
-                                key={name} 
-                                onClick={() => handleIconSelect(name)}
-                                className="p-1 hover:bg-gray-100 rounded"
-                              >
-                                <Icon className="h-5 w-5 text-gray-700" />
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                        <input
-                          ref={editInputRef}
-                          type="text"
-                          value={editingTeamName}
-                          onChange={handleNameChange}
-                          className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
-                          onKeyPress={(e) => e.key === 'Enter' && handleSaveTeam(team)}
-                        />
-                            <label className="flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={localMemberTeam === team.name}
-                                    onChange={() => handleToggleTeam(team.id)}
-                                    className="hidden"
+    return(
+        <>
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key="backdrop"
+                    className="fixed inset-0 bg-gray-800/50 backdrop-blur-sm z-50"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={handleModalClose}
+                    style={{ zIndex: 10000 }}/>
+                <motion.div
+                    key="modal"
+                    className="fixed inset-0 flex items-center justify-center"
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                    style={{ zIndex: 10001 }}>
+                    <div className="bg-[var(--bg-color)] rounded-lg w-96 flex flex-col shadow-xl overflow-hidden max-h-[85vh]">
+                        <ModalHeader member={member}/>
+
+                        <div className="p-4 flex flex-col gap-3 max-h-[60vh] overflow-y-auto">
+                            {localTeams.length === 0 && !isAddingTeam && (
+                                <div className="py-8 text-center text-gray-500 italic">
+                                    {t("adset.no_teams")}
+                                </div>
+                            )}
+
+                            {localTeams.map((team) => (
+                                <TeamCard
+                                    key={team.id}
+                                    team={team}
+                                    isEditing={editingTeamId === team.id}
+                                    editingTeamName={editingTeamName}
+                                    editingTeamIcon={editingTeamIcon}
+                                    localMemberTeam={localMemberTeam}
+                                    onEdit={handleEditTeam}
+                                    onSave={handleSaveTeam}
+                                    onDelete={handleDeleteTeam}
+                                    onToggleTeam={handleToggleTeam}
+                                    onNameChange={handleNameChange}
+                                    onIconChange={setEditingTeamIcon}
+                                    onCancelEdit={handleCancelEdit}
+                                    inputRef={editingTeamId === team.id ? editInputRef : null}
                                 />
-                                <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
-                                    }`}>
-                                    {localMemberTeam === team.name && <Check size={16} className="text-white" />}
-                                </span>
-                            </label>
-                      </div>
-                      <div className="flex justify-between gap-2">
-                        <button 
-                          onClick={() => handleSaveTeam(team)} 
-                          className="bg-[var(--features-icon-color)]/60 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)] flex-1 transition-all duration-200"
-                        >
-                          {t("adset.save")}
-                        </button>
-                            <button 
-                                onClick={() => handleDeleteTeam(team.id)}
-                                className="bg-[var(--bug-report)]/90 !text-white px-2 py-1 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
-                            >
-                              {t("prode.del")}
-                        </button>
-                        <button 
-                          onClick={handleCancelEdit} 
-                          className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 flex-1 transition-all duration-200"
-                        >
-                          {t("bug.can")}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between w-full">
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-2">
-                          {React.createElement(iconMap[team.icon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
-                          <span className="text-gray-800 font-medium">{team.name}</span>
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => handleEditTeam(team)}
-                          className="border p-1 rounded bg-[var(--features-icon-color)]/50 hover:bg-[var(--features-icon-color)]/50 text-gray-700 transition-all duration-200"
-                        >
-                          <Pencil size={18} />
-                        </button>
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={localMemberTeam === team.name}
-                            onChange={() => handleToggleTeam(team.name)}
-                            className="hidden"
-                          />
-                          <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
-                            localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
-                          }`}>
-                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-              {isAddingTeam && (
-                <div className="flex flex-col gap-2 p-2 border-b bg-[var(--features-icon-color)]/10 rounded">
-                  <div className="flex items-center gap-2 relative">
-                    <button
-                      onClick={() => setShowIconMenuForTeamId("new")}
-                      className="border p-1 rounded hover:bg-gray-200"
-                    >
-                      {React.createElement(iconMap[newTeamIcon] || FaUsers, { className: "h-5 w-5 text-gray-700" })}
-                    </button>
-                    {showIconMenuForTeamId === "new" && (
-                      <div className="absolute top-10 left-0 bg-white border shadow-lg grid grid-cols-5 gap-2 p-2 z-10">
-                        {allIcons.map(({ name, icon: Icon }) => (
-                          <button 
-                            key={name} 
-                            onClick={() => handleIconSelect(name)}
-                            className="p-1 hover:bg-[var(--features-icon-color)]/10 rounded"
-                          >
-                            <Icon className="h-5 w-5 text-gray-700" />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                    <input
-                      type="text"
-                      value={newTeamName}
-                      onChange={(e) => setNewTeamName(e.target.value)}
-                      className="border p-1 rounded w-full text-[var(--features-text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
-                      placeholder={t("adset.text")}
-                    />
-                  </div>
-                  <div className="flex justify-between">
-                    <button 
-                      onClick={handleAddTeam} 
-                      className="bg-[var(--features-icon-color)]/50 !text-white px-2 py-1 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
-                    >
-                      {t("adset.add2")}
-                    </button>
-                    <button 
-                      onClick={() => setIsAddingTeam(false)} 
-                      className="bg-gray-500 !text-white px-2 py-1 rounded hover:bg-gray-600 transition-all duration-200"
-                    >
-                      {t("bug.can")}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <div className="p-4 flex justify-between">
-              <button 
-                onClick={() => setIsAddingTeam(true)}
-                className="bg-[var(--features-icon-color)] !text-white px-4 py-2 rounded hover:bg-[var(--hover-color)] transition-all duration-200"
-              >
-                {t("adset.add")}
-              </button>
-              <button 
-                onClick={handleModalClose} 
-                className="bg-[var(--features-icon-color)]/50 !text-white px-4 py-2 rounded hover:bg-[var(--features-icon-color)]/70 transition-all duration-200"
-              >
-                {t("adset.done")}
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+                            ))}
 
-        <TeamDeleteConfirmation
-            teamName={teamToDelete?.name}
-            onConfirm={() => confirmDeleteTeam(teamToDelete)}
-            onCancel={() => setTeamToDelete(null)}
-        />
-    </>
-  );
+                            {isAddingTeam && (
+                                <NewTeamForm
+                                    newTeamName={newTeamName}
+                                    newTeamIcon={newTeamIcon}
+                                    onNameChange={setNewTeamName}
+                                    onIconChange={setNewTeamIcon}
+                                    onAddTeam={handleAddTeam}
+                                    onCancel={() => setIsAddingTeam(false)}
+                                />
+                            )}
+                        </div>
+
+                        <div className="p-4 flex justify-between border-t">
+                            <button
+                                onClick={() => {
+                                    setIsAddingTeam(true);
+                                    setEditingTeamId(null);
+                                }}
+                                disabled={isAddingTeam || isLoading}
+                                className={`flex items-center justify-center gap-1 px-4 py-2 rounded transition-all duration-200 ${isAddingTeam || isLoading
+                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                                        : "bg-[var(--features-icon-color)] !text-white hover:bg-[var(--hover-color)]"
+                                    }`}
+                            >
+                                <Plus size={18} />
+                                {t("adset.add")}
+                            </button>
+                            <button
+                                onClick={handleModalClose}
+                                className="flex items-center justify-center gap-1 bg-gray-100 text-gray-800 px-4 py-2 rounded hover:bg-gray-200 transition-all duration-200 font-medium"
+                            >
+                                {t("adset.done")}
+                            </button>
+                        </div>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+
+            <TeamDeleteConfirmation
+                teamName={teamToDelete?.name}
+                onConfirm={() => confirmDeleteTeam(teamToDelete)}
+                onCancel={() => setTeamToDelete(null)}
+            />
+        </>
+    );
 };
 export default ManageTeamsModal;
