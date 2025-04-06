@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Pencil, Check, Search, X, Plus, Save, Trash2, Users } from "lucide-react";
+import { Pencil, Check, Search, X, Plus, Save, Trash2, Users, Loader2 } from "lucide-react";
 import {
     FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase,
     FaServer, FaCode, FaCog, FaDesktop, FaPaintBrush, FaDragon,
@@ -253,7 +253,7 @@ const TeamCard = ({
     isEditing,
     editingTeamName,
     editingTeamIcon,
-    localMemberTeam,
+    localMemberTeams = [],
     onEdit,
     onSave,
     onDelete,
@@ -262,27 +262,23 @@ const TeamCard = ({
     onIconChange,
     onCancelEdit,
     inputRef
-}) =>
-{
+}) => {
     const { t } = useTranslation();
     const IconComponent = iconMap[team.icon] || FaUsers;
     const [isProcessing, setIsProcessing] = useState(false);
-    const isMemberInTeam = localMemberTeam === team.id;
+    const isMemberInTeam = localMemberTeams.includes(team.id);
 
-    const handleToggle = async () =>
-    {
+    const handleToggle = async () => {
         setIsProcessing(true);
-        try{
+        try {
             await onToggleTeam(team.id);
-        }finally{
+        } finally {
             setIsProcessing(false);
         }
     };
 
-
-    if(isEditing)
-    {
-        return(
+    if (isEditing) {
+        return (
             <div className="flex flex-col gap-3 w-full p-4 bg-white border rounded-lg shadow-sm transition-all duration-200">
                 <div className="flex items-center gap-2">
                     <IconPicker
@@ -301,15 +297,15 @@ const TeamCard = ({
                     <label className="flex items-center cursor-pointer">
                         <input
                             type="checkbox"
-                            checked={localMemberTeam === team.name}
-                            onChange={() => onToggleTeam(team.id)}
+                            checked={isMemberInTeam}
+                            onChange={handleToggle}
                             className="hidden"
                         />
-                        <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name
-                                ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70"
-                                : "bg-white border-gray-300 hover:border-gray-500"
+                        <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${isMemberInTeam
+                            ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70"
+                            : "bg-white border-gray-300 hover:border-gray-500"
                             }`}>
-                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                            {isMemberInTeam && <Check size={16} className="text-white" />}
                         </span>
                     </label>
                 </div>
@@ -362,8 +358,8 @@ const TeamCard = ({
                     onClick={handleToggle}
                     disabled={isProcessing}
                     className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${isMemberInTeam
-                            ? "bg-[var(--features-icon-color)] border-[var(--features-icon-color)]"
-                            : "bg-white border-gray-300 hover:border-gray-500"
+                        ? "bg-[var(--features-icon-color)] border-[var(--features-icon-color)]"
+                        : "bg-white border-gray-300 hover:border-gray-500"
                         }`}
                     title={isMemberInTeam ? t("adset.remove_from_team") : t("adset.add_to_team")}
                 >
@@ -456,10 +452,10 @@ const ModalHeader = ({ member }) =>
     );
 };
 
-const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId }) =>
+const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId, onRemoveFromTeam }) =>
 {
     const { t } = useTranslation();
-    const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
+    const [localMemberTeams, setLocalMemberTeams] = useState([]);
     const [localTeams, setLocalTeams] = useState([]);
     const [editingTeamId, setEditingTeamId] = useState(null);
     const [editingTeamName, setEditingTeamName] = useState("");
@@ -481,7 +477,11 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             }))
             : [];
         setLocalTeams(uniqueTeams);
-        setLocalMemberTeam(member?.team || "");
+
+        const memberTeamIds = uniqueTeams
+            .filter(team => team.members && team.members.includes(member.id))
+            .map(team => team.id);
+        setLocalMemberTeams(memberTeamIds);
     }, [teams, member]);
 
     useEffect(() =>
@@ -525,8 +525,13 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                 )
             );
 
-            if(localMemberTeam === oldTeam.name)
-                setLocalMemberTeam(updatedTeam.name);
+            setMembers(prevMembers =>
+                prevMembers.map(m =>
+                    m.id === member.id && m.teams.includes(oldTeam.name)
+                        ? { ...m, teams: m.teams.map(t => t === oldTeam.name ? updatedTeam.name : t) }
+                        : m
+                )
+            );
         }catch(err){
             console.error('Failed to update team:', err);
         }finally{
@@ -539,48 +544,53 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
 
     const handleToggleTeam = async (teamId) =>
     {
-        if (!onAddToTeam || !member?.userId)
+        if(!onAddToTeam || !member?.id)
             return;
 
-        try {
+        try{
             setIsLoading(true);
-            const isCurrentlyInTeam = localMemberTeam === teamId;
+            const isCurrentlyInTeam = localMemberTeams.includes(teamId);
 
-            if (isCurrentlyInTeam) {
-                // Remove from team
+            if(isCurrentlyInTeam)
+            {
                 await axios.delete(
                     `http://localhost:8080/api/teams/${teamId}/members`,
                     {
-                        params: { userId: member.userId },
+                        params: { userId: member.id },
                         withCredentials: true,
-                        headers: {
+                        headers:
+                        {
                             'Authorization': `Bearer ${await getToken()}`,
                         },
                     }
                 );
-                setLocalMemberTeam(""); // Clear team assignment
-            } else {
-                // Add to team
-                await axios.post(
-                    `http://localhost:8080/api/teams/${teamId}/members`,
-                    null,
-                    {
-                        params: { userId: member.userId },
-                        withCredentials: true,
-                        headers: {
-                            'Authorization': `Bearer ${await getToken()}`,
-                        },
-                    }
+                setLocalMemberTeams(prev => prev.filter(id => id !== teamId));
+                setLocalTeams(prevTeams =>
+                    prevTeams.map(team =>
+                        team.id === teamId
+                            ? { ...team, members: team.members?.filter(id => id !== member.id) || [] }
+                            : team
+                    )
                 );
-                setLocalMemberTeam(teamId); // Set new team assignment
-            }
 
-            // Optional: Refresh teams data if needed
-            // await fetchTeams();
-        } catch (err) {
+                onRemoveFromTeam(member.id, teamId);
+            }
+            else
+            {
+                await onAddToTeam(member.id, teamId);
+                setLocalMemberTeams(prev => [...prev, teamId]);
+                setLocalTeams(prevTeams =>
+                    prevTeams.map(team =>
+                        team.id === teamId
+                            ? { ...team, members: [...(team.members || []), member.id] }
+                            : team
+                    )
+                );
+            }
+        }catch(err){
             console.error('Failed to assign team to member:', err);
             alert(err.response?.data?.message || "Failed to update team assignment");
-        } finally {
+        }finally{
             setIsLoading(false);
         }
     };
@@ -649,16 +659,14 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
     const confirmDeleteTeam = async (team) =>
     {
         if(!onDeleteTeam || !team?.id)
-            return;
+        return;
 
         try{
             setIsLoading(true);
             await onDeleteTeam(team.id);
 
             setLocalTeams(prev => prev.filter(t => t.id !== team.id));
-            if (localMemberTeam === team.name) {
-                setLocalMemberTeam("");
-            }
+            setLocalMemberTeams(prev => prev.filter(id => id !== team.id));
         }catch(err){
             console.error('Failed to delete team:', err);
         }finally{
@@ -716,7 +724,7 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                                     isEditing={editingTeamId === team.id}
                                     editingTeamName={editingTeamName}
                                     editingTeamIcon={editingTeamIcon}
-                                    localMemberTeam={localMemberTeam}
+                                    localMemberTeams={localMemberTeams}
                                     onEdit={handleEditTeam}
                                     onSave={handleSaveTeam}
                                     onDelete={handleDeleteTeam}
