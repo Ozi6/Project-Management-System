@@ -57,8 +57,11 @@ public class ProjectController
     }
 
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<?> deleteProject(@PathVariable Long projectId)
-    {
+    public ResponseEntity<?> deleteProject(
+            @PathVariable Long projectId,
+            @RequestHeader("userId") String userId) {
+        
+        projectService.verifyProjectOwner(projectId, userId);
         projectService.deleteProject(projectId);
         return ResponseEntity.ok().build();
     }
@@ -99,8 +102,11 @@ public class ProjectController
             @RequestParam("projectName") String projectName,
             @RequestParam("description") String description,
             @RequestParam(value = "dueDate", required = false) String dueDateStr,
-            @RequestParam(value = "backgroundImage", required = false) MultipartFile backgroundImage)
-    {
+            @RequestParam(value = "backgroundImage", required = false) MultipartFile backgroundImage,
+            @RequestHeader("userId") String userId) {
+        
+        projectService.verifyProjectOwner(projectId, userId);
+        
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setProjectId(projectId);
         projectDTO.setProjectName(projectName);

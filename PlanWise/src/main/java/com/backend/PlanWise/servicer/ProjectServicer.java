@@ -26,6 +26,7 @@ import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
+import com.backend.PlanWise.Exceptions.AccessDeniedException;
 
 @Service
 public class ProjectServicer
@@ -462,5 +463,18 @@ public class ProjectServicer
         Project updatedProject = projectRepository.save(existingProject);
 
         return convertToDTO(updatedProject);
+    }
+
+    public boolean isProjectOwner(Long projectId, String userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        
+        return project.getOwner().getUserId().equals(userId);
+    }
+
+    public void verifyProjectOwner(Long projectId, String userId) {
+        if (!isProjectOwner(projectId, userId)) {
+            throw new AccessDeniedException("User is not the owner of this project");
+        }
     }
 }
