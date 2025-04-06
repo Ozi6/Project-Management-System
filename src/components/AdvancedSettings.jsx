@@ -175,7 +175,7 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                     id: member.userId,
                     name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
                     email: member.email,
-                    teams: memberTeams,
+                    teams: member.teams,
                     role: member.userId === user.id ? "Owner" : member.role || "Member",
                     avatar: member.profileImageUrl
                         ? `${member.profileImageUrl}?width=150&height=150`
@@ -352,11 +352,11 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
             setTeams(prevTeams =>
                 prevTeams.map(team =>
                     team.id === teamId
-                        ? {
-                            ...team,
-                            members: [...(team.members || []), memberId]
-                        }
-                        : team
+                    ? {
+                        ...team,
+                        members: [...(team.members || []), memberId]
+                    }
+                    : team
                 )
             );
         }catch(err){
@@ -417,11 +417,12 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
         setMemberToRemove(member);
     };
 
-  const filteredMembers = members.filter(
+    const filteredMembers = members.filter(
     (member) =>
-      member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+        member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
 
   return (
     <ErrorBoundary>
@@ -511,9 +512,6 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                                 )}
                             </div>
                             <p className="text-sm text-[var(--text-color3)]">{member.email}</p>
-                            <p className="text-sm text-[var(--text-color3)]">
-                                Teams: {member.teams.length > 0 ? member.teams.join(", ") : "None"}
-                            </p>
                         </div>
                     </div>
 
