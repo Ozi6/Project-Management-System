@@ -147,6 +147,11 @@ const Dashboard = () => {
         teamMembers: 0,
         completionRate: 0
     });
+    const [statsChanges, setStatsChanges] = useState({
+      totalProjects: { value: 0, direction: 'up' },
+      inProgress: { value: 0, direction: 'up' },
+      completed: { value: 0, direction: 'up' }
+    });
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
@@ -197,32 +202,173 @@ const Dashboard = () => {
 
     // Sample data that would normally come from an API
     useEffect(() => {
-        // Simulate API call to fetch projects
-        const sampleProjects = [
-            { id: 1, name: 'Website Redesign', progress: 75, status: t("dashboard.progress"), dueDate: '2025-04-15', owner: 'Alice' },
-            { id: 2, name: 'Mobile App Development', progress: 30, status: t("dashboard.progress"), dueDate: '2025-05-01', owner: 'Bob' },
-            { id: 3, name: 'Database Migration', progress: 100, status: t("dashboard.complete"), dueDate: '2025-03-28', owner: 'Charlie' },
-            { id: 4, name: 'Marketing Campaign', progress: 50, status: t("dashboard.progress"), dueDate: '2025-03-18', owner: 'Diana' },
-            { id: 5, name: 'Product Launch', progress: 10, status: t("dashboard.progress"), dueDate: '2025-06-01', owner: 'Emma' },
-        ];
-
-        setProjects(sampleProjects);
-
-        // Calculate stats
-        const inProgressCount = sampleProjects.filter(p => p.status === 'In Progress').length;
-        const completedCount = sampleProjects.filter(p => p.status === 'Completed').length;
-        const totalTasks = sampleProjects.length;
-
-        setStats({
-            totalProjects: totalTasks,
+      const fetchProjects = async () => {
+        if (!isLoaded || !user) return;
+        
+        //setIsLoadingProjects(true);
+        try {
+          const token = await getToken();
+          
+          // Fetch user's projects
+          const projectsResponse = await axios.get(
+            `http://localhost:8080/api/projects/user/${user.id}/related`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              withCredentials: true,
+            }
+          );
+          
+          // Get projects data
+          const projectsData = projectsResponse.data;
+          
+          // For each project, fetch its progress
+          const projectsWithProgress = await Promise.all(
+            projectsData.map(async (project) => {
+              try {
+                const progressResponse = await axios.get(
+                  `http://localhost:8080/api/projects/${project.projectId}/progress`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                    withCredentials: true,
+                  }
+                );
+                
+                // Format the project data to match our UI needs
+                return {
+                  id: project.projectId,
+                  name: project.projectName,
+                  progress: progressResponse.data || 0,
+                  status: progressResponse.data === 100 ? t("dashboard.complete") : t("dashboard.progress"),
+                  dueDate: project.dueDate || new Date().toISOString().split('T')[0],
+                  owner: project.ownerName || "You",
+                  description: project.description
+                };
+              } catch (error) {
+                console.error(`Error fetching progress for project ${project.projectId}:`, error);
+                // Return project with default progress if progress fetch fails
+                return {
+                  id: project.projectId,
+                  name: project.projectName,
+                  progress: 0,
+                  status: t("dashboard.progress"),
+                  dueDate: project.dueDate || new Date().toISOString().split('T')[0],
+                  owner: project.ownerName || "You",
+                  description: project.description
+                };
+              }
+            })
+          );
+          
+          setProjects(projectsWithProgress);
+          // Fetch data for 3 boxes
+          try {
+            const statsResponse = await axios.get(
+              `http://localhost:8080/api/projects/user/${user.id}/dashboard-stats`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+                withCredentials: true,
+              }
+            );
+            
+            const dashboardStats = statsResponse.data;
+            console.log("Completed persentage for 3rd box:", dashboardStats)
+            
+            // Set stats changes based on real data
+            setStatsChanges({
+              totalProjects: { 
+                value: dashboardStats.projectsGrowthPercent, 
+                direction: dashboardStats.projectsGrowthPercent >= 0 ? 'up' : 'down' 
+              },
+              inProgress: { 
+                value: dashboardStats.inProgressGrowthPercent, 
+                direction: dashboardStats.inProgressGrowthPercent >= 0 ? 'up' : 'down' 
+              },
+              completed: { 
+                value: dashboardStats.completionPercent, 
+                direction: dashboardStats.completionGrowthPercent >= 0 ? 'up' : 'down' 
+              }
+            });
+            
+          } catch (error) {
+            console.error("Error fetching dashboard stats:", error);
+            // Fallback to sample data if API call fails
+            setStatsChanges({
+              totalProjects: { value: 12, direction: 'up' },
+              inProgress: { value: 5, direction: 'down' },
+              completed: { value: 8, direction: 'up' }
+            });
+          }
+  
+          
+          // Calculate stats based on real data
+          const inProgressCount = projectsWithProgress.filter(p => p.status === t("dashboard.progress")).length;
+          const completedCount = projectsWithProgress.filter(p => p.status === t("dashboard.complete")).length;
+          const totalProjects = projectsWithProgress.length;
+          
+          setStats({
+            totalProjects: totalProjects,
             inProgress: inProgressCount,
             completed: completedCount,
-            upcomingDeadlines: 3,
-            teamMembers: new Set(sampleProjects.map(p => p.owner)).size,
-            completionRate: Math.round((completedCount / totalTasks) * 100)
+            upcomingDeadlines: projectsWithProgress.filter(p => {
+              const dueDate = new Date(p.dueDate);
+              const today = new Date();
+              const diffTime = dueDate - today;
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              return diffDays > 0 && diffDays <= 7; // Due within a week
+            }).length,
+            teamMembers: new Set(projectsWithProgress.map(p => p.owner)).size,
+            completionRate: totalProjects > 0 ? Math.round((completedCount / totalProjects) * 100) : 0,
+          });
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+          // Fallback to sample data if API call fails
+          useSampleData();
+        } finally {
+          //setIsLoadingProjects(false);
+        }
+      };
+          // Fallback function to use sample data if API fails
+      const useSampleData = () => {
+        const sampleProjects = [
+          {
+            id: 1,
+            name: "Website Redesign",
+            progress: 75,
+            status: t("dashboard.progress"),
+            dueDate: "2025-04-15",
+            owner: "Alice",
+          },
+          // ... other sample projects ...
+        ];
+        
+        setProjects(sampleProjects);
+        
+        // Calculate stats from sample data
+        const inProgressCount = sampleProjects.filter(p => p.status === t("dashboard.progress")).length;
+        const completedCount = sampleProjects.filter(p => p.status === t("dashboard.complete")).length;
+        const totalTasks = sampleProjects.length;
+        
+        setStats({
+          totalProjects: totalTasks,
+          inProgress: inProgressCount,
+          completed: completedCount,
+          upcomingDeadlines: 3,
+          teamMembers: new Set(sampleProjects.map(p => p.owner)).size,
+          completionRate: Math.round((completedCount / totalTasks) * 100),
         });
-    }, []);
-
+      };
+      
+      fetchProjects();
+    }, [isLoaded, user, getToken, t]);
+  
+  
+    
     // In the Dashboard component
     useEffect(() => {
         setActiveTab('dashboard');
@@ -375,9 +521,14 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                    <span className="flex items-center text-[var(--homepage-text-bright)]">
-                                        <ArrowUp className="h-3 w-3 mr-1 text-[var(--homepage-text-bright)]" /> 12%
-                                    </span>
+                                <span className={`flex items-center ${statsChanges.totalProjects.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
+                                  {statsChanges.totalProjects.direction === 'up' ? (
+                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.totalProjects.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
+                                  ) : (
+                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
+                                  )}
+                                  {Math.abs(statsChanges.totalProjects.value)}%
+                                </span>
                                     <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
                                 </div>
                             </motion.div>
@@ -398,10 +549,17 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                    <span className="flex items-center text-red-500">
-                                        <ArrowDown className="h-3 w-3 mr-1 text-red-500" /> 5%
-                                    </span>
-                                    <span className="ml-1 text-red-500">{t("dashboard.week")}</span>
+                                <span className={`flex items-center ${statsChanges.inProgress.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
+                                  {statsChanges.inProgress.direction === 'up' ? (
+                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.inProgress.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
+                                  ) : (
+                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
+                                  )}
+                                  {Math.abs(statsChanges.inProgress.value)}%
+                                </span>
+                                <span className={`ml-1 ${statsChanges.inProgress.direction === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+                                  {t("dashboard.week")}
+                                </span>
                                 </div>
                             </motion.div>
 
@@ -421,9 +579,14 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                    <span className="flex items-center text-[var(--homepage-text-bright)]">
-                                        <ArrowUp className="h-3 w-3 mr-1 text-[var(--homepage-text-bright)]" /> 8%
-                                    </span>
+                                <span className={`flex items-center ${statsChanges.completed.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
+                                  {statsChanges.completed.direction === 'up' ? (
+                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.completed.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
+                                  ) : (
+                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
+                                  )}
+                                  {Math.abs(statsChanges.completed.value)}%
+                                </span>
                                     <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
                                 </div>
                             </motion.div>

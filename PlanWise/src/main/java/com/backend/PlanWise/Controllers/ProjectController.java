@@ -4,6 +4,7 @@ import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -134,6 +136,28 @@ public class ProjectController
         else
             return ResponseEntity.notFound().build();
     }
+        @GetMapping("/{id}/progress")
+    public ResponseEntity<Integer> getProjectProgress(@PathVariable Long id) {
+        try {
+            int progress = projectService.getProjectProgress(id);
+            return ResponseEntity.ok(progress);
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/user/{userId}/dashboard-stats")
+    public ResponseEntity<Map<String, Object>> getDashboardStats(@PathVariable String userId) {
+        try {
+            Map<String, Object> stats = projectService.getDashboardStats(userId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    //comment to check fif this filed added to commit
 
     @GetMapping("/{projectId}/teams")
     public ResponseEntity<List<TeamDTO>> getProjectTeams(
