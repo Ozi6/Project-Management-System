@@ -2,6 +2,7 @@ package com.backend.PlanWise.Controllers;
 
 import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
 import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
+import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
@@ -132,5 +133,51 @@ public class ProjectController
             return ResponseEntity.ok(updatedProject);
         else
             return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/{projectId}/teams")
+    public ResponseEntity<List<TeamDTO>> getProjectTeams(
+            @PathVariable Long projectId)
+    {
+        List<TeamDTO> teams = projectService.getProjectTeams(projectId);
+        return ResponseEntity.ok(teams);
+    }
+
+    @PostMapping("/{projectId}/teams/{teamId}/members/{userId}")
+    public ResponseEntity<Void> addMemberToTeam(
+            @PathVariable Long projectId,
+            @PathVariable Long teamId,
+            @PathVariable String userId)
+    {
+        projectService.addMemberToTeam(projectId, teamId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{projectId}/teams/{teamId}")
+    public ResponseEntity<TeamDTO> updateTeam(
+            @PathVariable Long projectId,
+            @PathVariable Long teamId,
+            @RequestBody TeamDTO teamDTO)
+    {
+        TeamDTO updatedTeam = projectService.updateTeam(projectId, teamId, teamDTO);
+        return ResponseEntity.ok(updatedTeam);
+    }
+
+    @DeleteMapping("/{projectId}/teams/{teamId}")
+    public ResponseEntity<Void> deleteTeam(
+            @PathVariable Long projectId,
+            @PathVariable Long teamId)
+    {
+        projectService.deleteTeam(projectId, teamId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{projectId}/teams")
+    public ResponseEntity<TeamDTO> createTeam(
+            @PathVariable Long projectId,
+            @RequestBody TeamDTO teamDTO)
+    {
+        TeamDTO createdTeam = projectService.createTeam(projectId, teamDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
 }

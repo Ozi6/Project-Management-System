@@ -1,9 +1,11 @@
 package com.backend.PlanWise.servicer;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -476,5 +478,75 @@ public class ProjectServicer
         if (!isProjectOwner(projectId, userId)) {
             throw new AccessDeniedException("User is not the owner of this project");
         }
+    }
+
+    @Autowired
+    private TeamDataPool teamDataPool;
+
+    public List<TeamDTO> getProjectTeams(Long projectId)
+    {
+        List<Team> teams = teamDataPool.findByProjectProjectId(projectId);
+        return teams.stream()
+                .map(this::convertTeamToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void addMemberToTeam(Long projectId, Long teamId, String userId)
+    {
+        Team team = teamDataPool.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+        if(!team.getProject().getProjectId().equals(projectId))
+            throw new ResourceNotFoundException("Team not found in this project");
+
+        User user = userDataPool.findByUserId(userId);
+        if(user == null)
+            throw new ResourceNotFoundException("User not found");
+
+        team.getMembers().add(user);
+        teamDataPool.save(team);
+    }
+
+    public TeamDTO updateTeam(Long projectId, Long teamId, TeamDTO teamDTO)
+    {
+        Team team = teamDataPool.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+        if(!team.getProject().getProjectId().equals(projectId))
+            throw new ResourceNotFoundException("Team not found in this project");
+
+        team.setTeamName(teamDTO.getTeamName());
+        team.setIconName(teamDTO.getIconName());
+        team.setUpdatedAt(LocalDateTime.now());
+
+        Team updatedTeam = teamDataPool.save(team);
+        return convertTeamToDTO(updatedTeam);
+    }
+
+    public void deleteTeam(Long projectId, Long teamId)
+    {
+        Team team = teamDataPool.findById(teamId)
+                .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
+
+        if(!team.getProject().getProjectId().equals(projectId))
+            throw new ResourceNotFoundException("Team not found in this project");
+
+        teamDataPool.delete(team);
+    }
+
+    public TeamDTO createTeam(Long projectId, TeamDTO teamDTO)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found"));
+
+        Team team = new Team();
+        team.setTeamName(teamDTO.getTeamName());
+        team.setIconName(teamDTO.getIconName());
+        team.setProject(project);
+        team.setCreatedAt(LocalDateTime.now());
+        team.setUpdatedAt(LocalDateTime.now());
+
+        Team savedTeam = teamDataPool.save(team);
+        return convertTeamToDTO(savedTeam);
     }
 }
