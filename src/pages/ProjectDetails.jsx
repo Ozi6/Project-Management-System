@@ -51,6 +51,8 @@ const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
     const [dataReady, setDataReady] = useState(false);
+    const [teams, setTeams] = useState([]);
+    const [members, setMembers] = useState([]);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
     const fetchProjectProgress = async () => {
@@ -94,6 +96,9 @@ const ProjectDetails = () => {
 
                 const projectData = response.data;
 
+                setTeams(projectData.teams || []);
+                setMembers(projectData.members || []);
+
                 if(projectData.backgroundImage)
                     setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
 
@@ -101,9 +106,12 @@ const ProjectDetails = () => {
                     ? projectData.categories
                     : (projectData.categories ? [projectData.categories] : []);
 
+                console.log(response.data);
+
                 const formattedColumns = projectCategories.map(category =>
                 {
-                    const formattedCategory = {
+                    const formattedCategory =
+                    {
                         ...category,
                         title: category.categoryName || 'Unnamed Category',
                         tagColor: category.color || 'gray',
@@ -136,6 +144,8 @@ const ProjectDetails = () => {
                                             checked: entry.isChecked || false,
                                             dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
                                             warningThreshold: entry.warningThreshold || null,
+                                            assignedUsers: entry.assignedUsers || [],
+                                            assignedTeams: entry.assignedTeams || [],
                                             id: entry.entryId || uuidv4(),
                                             file: fileObject
                                         };
@@ -1004,12 +1014,16 @@ const ProjectDetails = () => {
         try{
             const token = await getToken();
 
+            console.log(entry);
+
             const updatePayload =
             {
                 entryName: entry.text,
                 isChecked: entry.checked || false,
                 dueDate: entry.dueDate,
-                warningThreshold: entry.warningThreshold
+                warningThreshold: entry.warningThreshold,
+                assignedUsers: entry.assignedUsers || [],
+                assignedTeams: entry.assignedTeams || []
             };
 
             if (updateData.fileOperation)
@@ -1377,6 +1391,8 @@ const ProjectDetails = () => {
                                                         onEntryUpdate={(listId, entryIndex, updateData) =>
                                                             handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
                                                         }
+                                                        members={members}
+                                                        teams={teams}
                                                     />
                                                 </motion.div>
                                             ))}

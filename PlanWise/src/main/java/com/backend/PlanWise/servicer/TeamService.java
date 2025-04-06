@@ -98,4 +98,16 @@ public class TeamService
         dto.setProfileImageUrl(user.getProfileImageUrl());
         return dto;
     }
+
+    public TeamDTO convertToTeamDTO(Team team)
+    {
+        TeamDTO dto = new TeamDTO();
+        dto.setTeamId(team.getTeamId());
+        dto.setTeamName(team.getTeamName());
+        dto.setMembers(team.getMembers().stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toSet()));
+        dto.setIconName(team.getIconName());
+        return dto;
+    }
 }

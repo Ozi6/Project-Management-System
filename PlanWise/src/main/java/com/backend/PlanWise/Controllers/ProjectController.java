@@ -109,8 +109,8 @@ public class ProjectController
             @RequestParam("description") String description,
             @RequestParam(value = "dueDate", required = false) String dueDateStr,
             @RequestParam(value = "backgroundImage", required = false) MultipartFile backgroundImage,
-            @RequestHeader("userId") String userId) {
-        
+            @RequestHeader("userId") String userId)
+    {
         projectService.verifyProjectOwner(projectId, userId);
         
         ProjectDTO projectDTO = new ProjectDTO();
@@ -145,14 +145,15 @@ public class ProjectController
     }
 
 
-        @GetMapping("/{id}/progress")
-    public ResponseEntity<Integer> getProjectProgress(@PathVariable Long id) {
-        try {
+    @GetMapping("/{id}/progress")
+    public ResponseEntity<Integer> getProjectProgress(@PathVariable Long id)
+    {
+        try{
             int progress = projectService.getProjectProgress(id);
             return ResponseEntity.ok(progress);
-        } catch (ResourceNotFoundException e) {
+        }catch(ResourceNotFoundException e){
             return ResponseEntity.notFound().build();
-        } catch (Exception e) {
+        }catch(Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

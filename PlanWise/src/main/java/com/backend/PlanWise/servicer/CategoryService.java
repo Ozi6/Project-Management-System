@@ -73,6 +73,9 @@ public class CategoryService
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private TeamService teamService;
+
     public Set<CategoryDTO> getCategoriesByProjectId(Long projectId)
     {
         List<Category> categories = categoryDataPool.findByProjectProjectId(projectId);
@@ -113,6 +116,11 @@ public class CategoryService
                         for(User user : entry.getAssignedUsers())
                             userDTOs.add(userService.convertToDTO(user));
                         entryDTO.setAssignedUsers(userDTOs);
+
+                        Set<TeamDTO> teamDTOs = new HashSet<>();
+                        for(Team team : entry.getAssignedTeams())
+                            teamDTOs.add(teamService.convertToTeamDTO(team));
+                        entryDTO.setAssignedTeams(teamDTOs);
 
                         return entryDTO;
                     }).collect(Collectors.toSet());

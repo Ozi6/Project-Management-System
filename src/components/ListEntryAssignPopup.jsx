@@ -12,7 +12,7 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
         assignedUsers: entry.assignedUsers || []
     });
     
-    const assignedTeamIds = formData.assignedTeams.map(team => team.id);
+    const assignedTeamIds = formData.assignedTeams.map(team => team.teamId);
     const assignedUserIds = formData.assignedUsers.map(user => user.userId);
     
     const [availableTeams, setAvailableTeams] = useState([]);
@@ -20,13 +20,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
 
     useEffect(() =>
     {
-        setAvailableTeams(teams.filter(team => !assignedTeamIds.includes(team.id)));
+        setAvailableTeams(teams.filter(team => !assignedTeamIds.includes(team.teamId)));
         setAvailableUsers(users.filter(user => !assignedUserIds.includes(user.userId)));
     }, [teams, users, assignedTeamIds, assignedUserIds]);
 
     const addTeam = (teamId) =>
     {
-        const teamToAdd = teams.find(t => t.id === teamId);
+        const teamToAdd = teams.find(t => t.teamId === teamId);
         if(teamToAdd && !assignedTeamIds.includes(teamId))
         {
             setFormData(prev => ({
@@ -40,14 +40,15 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
     {
         setFormData(prev => ({
             ...prev,
-            assignedTeams: prev.assignedTeams.filter(team => team.id !== teamId)
+            assignedTeams: prev.assignedTeams.filter(team => team.teamId !== teamId)
         }));
     };
 
     const addUser = (userId) =>
     {
         const userToAdd = users.find(u => u.userId === userId);
-        if (userToAdd && !assignedUserIds.includes(userId)) {
+        if(userToAdd && !assignedUserIds.includes(userId))
+        {
             setFormData(prev => ({
                 ...prev,
                 assignedUsers: [...prev.assignedUsers, userToAdd]
@@ -107,13 +108,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
                             <div className="max-h-40 overflow-y-auto">
                                 {formData.assignedTeams.map((team) => (
                                     <div
-                                        key={team.id}
+                                        key={team.teamId}
                                         className="flex justify-between items-center bg-[var(--features-icon-color)]/20 text-[var(--features-text-color)] px-2 py-1 mb-1 rounded text-sm"
                                     >
                                         {team.teamName}
                                         <button
                                             type="button"
-                                            onClick={() => removeTeam(team.id)}
+                                            onClick={() => removeTeam(team.teamId)}
                                             className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                         >
                                             <FaTimes />
@@ -130,13 +131,13 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
                             <div className="max-h-40 overflow-y-auto">
                                 {availableTeams.map((z) => (
                                     <div
-                                        key={z.id}
+                                        key={z.teamId}
                                         className="flex justify-between items-center px-2 py-1 mb-1 bg-[var(--features-icon-color)]/20 text-[var(--features-text-color)] rounded text-sm"
                                     >
                                         {z.teamName}
                                         <button
                                             type="button"
-                                            onClick={() => addTeam(z.id)}
+                                            onClick={() => addTeam(z.teamId)}
                                             className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
                                         >
                                             {t("prode.ass.add")}
@@ -227,7 +228,7 @@ ListEntryAssignPopup.propTypes = {
         file: PropTypes.instanceOf(File),
         assignedTeams: PropTypes.arrayOf(
             PropTypes.shape({
-                id: PropTypes.string.isRequired,
+                teamId: PropTypes.string.isRequired,
                 teamName: PropTypes.string.isRequired,
                 teamIcon: PropTypes.elementType,
             })
