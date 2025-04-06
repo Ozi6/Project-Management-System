@@ -115,5 +115,6 @@ public interface ProjectDataPool extends JpaRepository<Project, Long> {
                         "AND le.is_checked = true " +
                         "AND le.updated_at >= :startDate", nativeQuery = true)
         Integer countEntriesCompletedSince(@Param("userId") String userId, @Param("startDate") LocalDate startDate);
+    //comment to check fif this filed added to commit
 
 }

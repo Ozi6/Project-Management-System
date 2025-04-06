@@ -41,6 +41,7 @@ const ProjectDetails = () => {
     const [activeTab, setActiveTab] = useState("team");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [showProgressBar, setShowProgressBar] = useState(false);
+    const [projectProgress, setProjectProgress] = useState(0);
     const [columns, setColumns] = useState([]);
     const [containerWidth, setContainerWidth] = useState(0);
     const [selectedEntryId, setSelectedEntryId] = useState(null);
@@ -50,9 +51,29 @@ const ProjectDetails = () => {
     const [error, setError] = useState(null);
     const [backgroundImage, setBackgroundImage] = useState(null);
     const [dataReady, setDataReady] = useState(false);
-    const [teams, setTeams] = useState([]);
-    const [members, setMembers] = useState([]);
+
     const { searchTerm, filteredColumns, performSearch } = useSearch();
+    const fetchProjectProgress = async () => {
+        if (!isLoaded || !user || !id) return;
+        
+        try {
+            const token = await getToken();
+            const response = await axios.get(
+                `http://localhost:8080/api/projects/${id}/progress`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+            
+            setProjectProgress(response.data);
+            console.log("Project progress:", response.data);
+        } catch (error) {
+            console.error("Error fetching project progress:", error);
+        }
+    };
 
     useEffect(() =>
     {
@@ -73,9 +94,6 @@ const ProjectDetails = () => {
                 });
 
                 const projectData = response.data;
-
-                setTeams(projectData.teams || []);
-                setMembers(projectData.members || []);
 
                 if(projectData.backgroundImage)
                     setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
@@ -119,8 +137,6 @@ const ProjectDetails = () => {
                                             checked: entry.isChecked || false,
                                             dueDate: entry.dueDate ? new Date(entry.dueDate) : null,
                                             warningThreshold: entry.warningThreshold || null,
-                                            assignedUsers: entry.assignedUsers || [],
-                                            assignedTeams: entry.assignedTeams || [],
                                             id: entry.entryId || uuidv4(),
                                             file: fileObject
                                         };
@@ -156,12 +172,17 @@ const ProjectDetails = () => {
     {
         if(dataReady && !isHorizontalLayout)
         {
+            fetchProjectProgress();
             const container = document.getElementById("columns-container");
             if(container)
                 redistributeTasks(container.offsetWidth);
         }
     },[dataReady]);
-
+    useEffect(() => {
+        if (dataReady && columns.length > 0) {
+            fetchProjectProgress();
+        }
+    }, [columns]);
     const BASE_MIN_COLUMN_WIDTH = 315;
     const MIN_COLUMN_WIDTH = BASE_MIN_COLUMN_WIDTH;
 
@@ -464,6 +485,7 @@ const ProjectDetails = () => {
                     taskList.entries[entryIndex].checked = isChecked;
                 entry.isChecked = isChecked;
                 setColumns(newColumns);
+                fetchProjectProgress();
             }catch(err){
                 console.error('Error updating entry check status:', err.response ? err.response.data : err);
             }
@@ -988,9 +1010,7 @@ const ProjectDetails = () => {
                 entryName: entry.text,
                 isChecked: entry.checked || false,
                 dueDate: entry.dueDate,
-                warningThreshold: entry.warningThreshold,
-                assignedUsers: entry.assignedUsers,
-                assignedTeams: entry.assignedTeams 
+                warningThreshold: entry.warningThreshold
             };
 
             if (updateData.fileOperation)
@@ -1296,7 +1316,7 @@ const ProjectDetails = () => {
                                             <div className="bg-white p-4 rounded-lg shadow">
                                                 <h3 className="text-md text-[var(--features-text-color)] font-semibold mb-2">Project Progress</h3>
                                                 <div className="px-2">
-                                                    <ProgressBar tasks={displayColumns} isCompact={true} />
+                                                    <ProgressBar tasks={displayColumns} progress={projectProgress} isCompact={true} />
                                                 </div>
                                             </div>
                                         </motion.div>
@@ -1358,8 +1378,6 @@ const ProjectDetails = () => {
                                                         onEntryUpdate={(listId, entryIndex, updateData) =>
                                                             handleEntryUpdate(columnIndex, taskIndex, listId, entryIndex, updateData)
                                                         }
-                                                        members={members}
-                                                        teams={teams}
                                                     />
                                                 </motion.div>
                                             ))}
@@ -1373,7 +1391,7 @@ const ProjectDetails = () => {
 
                 {/* Desktop progress bar - hidden on mobile */}
                 <div className={`hidden md:block`}>
-                    <ProgressBar tasks={displayColumns} />
+                    <ProgressBar tasks={displayColumns} progress={projectProgress} />
                 </div>
             </div>
         </div>

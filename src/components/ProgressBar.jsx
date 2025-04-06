@@ -3,7 +3,7 @@ import Confetti from 'react-confetti';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
-const ProgressBar = ({ tasks }) => {
+const ProgressBar = ({ tasks, progress: fetchedProgress }) => {
     const {t} = useTranslation();
     const [progress, setProgress] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -28,7 +28,7 @@ const ProgressBar = ({ tasks }) => {
     }, []);
 
     useEffect(() => {
-        if (!tasks || tasks.length === 0)
+        if (fetchedProgress === undefined && !tasks || tasks.length === 0)
             return;
 
         let totalEntries = 0;
@@ -48,15 +48,15 @@ const ProgressBar = ({ tasks }) => {
         });
 
         const calculatedProgress = totalEntries > 0 ? Math.floor((checkedEntries / totalEntries) * 100) : 0;
-        
+        const newProgress = fetchedProgress !== undefined ? fetchedProgress : calculatedProgress;
         // Store current progress before updating it
         const previousProgress = prevProgressRef.current;
         
         // Update progress state
-        setProgress(calculatedProgress);
+        setProgress(newProgress);
         
         // Update reference for next render
-        prevProgressRef.current = calculatedProgress;
+        prevProgressRef.current = newProgress;
         
         // Clear any existing timeout when the tasks change
         if (timerRef.current) {
@@ -65,7 +65,7 @@ const ProgressBar = ({ tasks }) => {
         }
         
         // Show confetti ONLY when transitioning from <100 to 100
-        if (calculatedProgress === 100 && previousProgress < 100 && totalEntries > 0) {
+        if (newProgress === 100 && previousProgress < 100 && (fetchedProgress !== undefined || totalEntries > 0)) {
             setShowConfetti(true);
             timerRef.current = setTimeout(() => {
                 setShowConfetti(false);
@@ -73,7 +73,7 @@ const ProgressBar = ({ tasks }) => {
             }, 8000);
         }
         // Hide confetti immediately if progress drops below 100%
-        else if (calculatedProgress < 100 && showConfetti) {
+        else if (newProgress < 100 && showConfetti) {
             setShowConfetti(false);
         }
         
@@ -83,7 +83,7 @@ const ProgressBar = ({ tasks }) => {
                 timerRef.current = null;
             }
         };
-    }, [tasks, showConfetti]);
+    }, [tasks, fetchedProgress, showConfetti]);
 
     // Color gradient based on progress
     const getProgressColor = () => {
