@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -25,6 +27,7 @@ import java.util.Set;
 @RequestMapping("/api/projects")
 public class ProjectController
 {
+    private static final Logger log = LoggerFactory.getLogger(ProjectController.class);
 
     @Autowired
     private ProjectServicer projectService;
@@ -131,11 +134,14 @@ public class ProjectController
         }
 
         ProjectDTO updatedProject = projectService.updateProject(projectId, projectDTO);
+        log.info("Updated project: ", updatedProject);
         if(updatedProject != null)
             return ResponseEntity.ok(updatedProject);
         else
             return ResponseEntity.notFound().build();
     }
+
+
         @GetMapping("/{id}/progress")
     public ResponseEntity<Integer> getProjectProgress(@PathVariable Long id) {
         try {
