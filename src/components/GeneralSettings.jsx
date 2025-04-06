@@ -96,14 +96,14 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
             const token = await getToken();
 
             const formData = new FormData();
-            formData.append('id', projectId);
+            // formData.append('id', projectId);
             formData.append('projectName', projectName);
             formData.append('description', projectDescription);
-            formData.append('dueDate', dueDate ? new Date(dueDate).toISOString() : null);
+            formData.append('dueDate', dueDate ? new Date(dueDate).toISOString().substring(0, 10) : null);
 
             if(backgroundImageFile)
                 formData.append('backgroundImage', backgroundImageFile);
-
+            console.log("USER:", user);
             const response = await axios.put(
                 `http://localhost:8080/api/projects/${projectId}/update`,
                 formData,
@@ -111,7 +111,8 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                     withCredentials: true,
                     headers: {
                         'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data'
+                        'Content-Type': 'multipart/form-data',
+                        'userId': user.id, // Add userId header
                     }
                 }
             );
