@@ -42,8 +42,6 @@ const ProjectManagement = () => {
                     },
                 });
 
-                console.log(response);
-
                 const projects = response.data.map(project => (
                 {
                     projectId: project.projectId,

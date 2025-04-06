@@ -66,7 +66,6 @@ const ListEntryAssignPopup = ({ entry, onAssign, onClose, teams, users }) =>
     const handleSubmit = (e) =>
     {
         e.preventDefault();
-        console.log("Submitting assignment data:", formData);
         
         onAssign(formData);
         onClose();

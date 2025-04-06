@@ -116,7 +116,10 @@ public class ProjectController
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setProjectId(projectId);
         projectDTO.setProjectName(projectName);
-        projectDTO.setDescription(description);
+        if(description == null);
+            projectDTO.setDescription("");
+        else
+            projectDTO.setDescription(description);
 
         if(dueDateStr != null && !dueDateStr.equals("null"))
         {

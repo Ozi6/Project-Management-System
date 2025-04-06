@@ -205,11 +205,8 @@ const ListEntry = ({
                 )}
                 {(assignedUsers.length > 0 || assignedTeams.length > 0) && (
                     <div className="flex items-center gap-2 mt-1">
-                        {console.log("assignedUsers:", assignedUsers)}
                         {assignedTeams.map((team) => {
-                            console.log("Team in map:", team);
                             const TeamIcon = team.teamIcon;
-                            console.log("TeamIcon component:", TeamIcon);
                             return (
                                 <div
                                     key={team.id}

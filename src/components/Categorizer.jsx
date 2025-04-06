@@ -44,7 +44,6 @@ const Categorizer = ({
     };
 
     const handleEditCategorizerCardDone = (newTitle, newTagColor) => {
-        console.log("Done clicked", newTitle, newTagColor);
         try {
             onUpdateCategory(categoryId, newTitle, newTagColor);
         } catch (error) {

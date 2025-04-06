@@ -81,8 +81,6 @@ const InvitePeople = ({ isOpen, onClose, projectId }) => {
         setLoading(true);
 
         try{
-            console.log(email);
-            console.log(members);
             await axios.post('http://localhost:8080/api/invitations',
             {
                 projectId: projectId,
@@ -126,8 +124,6 @@ const InvitePeople = ({ isOpen, onClose, projectId }) => {
                     },
                 }
             );
-
-            console.log("Invitation response:", response.data);
 
             //Format: http://localhost:5173/invitations/3?token=abc123-def456
             const inviteLink = `${window.location.origin}/invitations/${response.data.invitationId}?token=${response.data.token}`;

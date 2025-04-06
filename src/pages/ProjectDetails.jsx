@@ -69,7 +69,6 @@ const ProjectDetails = () => {
             );
             
             setProjectProgress(response.data);
-            console.log("Project progress:", response.data);
         } catch (error) {
             console.error("Error fetching project progress:", error);
         }

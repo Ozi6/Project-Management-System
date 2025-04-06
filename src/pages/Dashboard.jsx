@@ -277,7 +277,6 @@ const Dashboard = () => {
             );
             
             const dashboardStats = statsResponse.data;
-            console.log("Completed persentage for 3rd box:", dashboardStats)
             
             // Set stats changes based on real data
             setStatsChanges({
