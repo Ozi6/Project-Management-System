@@ -116,7 +116,7 @@ public class ProjectController
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setProjectId(projectId);
         projectDTO.setProjectName(projectName);
-        if(description == null);
+        if(description == null)
             projectDTO.setDescription("");
         else
             projectDTO.setDescription(description);
