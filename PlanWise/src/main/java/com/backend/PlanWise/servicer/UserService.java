@@ -21,53 +21,55 @@ public class UserService {
     private EntityManager entityManager;
 
     @Transactional
-    public User getOrCreateLocalUser(String clerkUserId, String email, String username, String profileImageUrl)
-    {
-        try{
-            User existingUser = userDataPool.findByUserId(clerkUserId);
-            
-            if(existingUser != null)
-            {
-                boolean needsUpdate = false;
-                
-                if(email != null && !email.equals(existingUser.getEmail()))
-                {
-                    existingUser.setEmail(email);
-                    needsUpdate = true;
-                }
-                
-                if(username != null && !username.equals(existingUser.getUsername()))
-                {
-                    existingUser.setUsername(username);
-                    needsUpdate = true;
-                }
-
-                if(profileImageUrl != null && !profileImageUrl.equals((existingUser.getProfileImageUrl())))
-                {
-                    existingUser.setProfileImageUrl(profileImageUrl);
-                    needsUpdate = true;
-                }
-                
-                if(needsUpdate)
-                    return userDataPool.save(existingUser);
-
-                return existingUser;
-            }
-            else
-            {
-                User newUser = new User();
-                newUser.setUserId(clerkUserId);
-                newUser.setEmail(email);
-                newUser.setUsername(username);
-                
-                return userDataPool.save(newUser);
-            }
-        }catch(DataIntegrityViolationException e){
-            User conflictedUser = userDataPool.findByEmailOrUsername(email, username);
-            if(conflictedUser != null)
-                return conflictedUser;
-            throw e;
+    public User getOrCreateLocalUser(String clerkUserId, String email, String username, String profileImageUrl) {
+        // First try to find existing user
+        User existingUser = userDataPool.findByUserId(clerkUserId);
+        if (existingUser != null) {
+            return updateUserIfNeeded(existingUser, email, username, profileImageUrl);
         }
+        
+        // If not found, try to create new user with proper error handling
+        try {
+            User newUser = new User();
+            newUser.setUserId(clerkUserId);
+            newUser.setEmail(email);
+            newUser.setUsername(username);
+            newUser.setProfileImageUrl(profileImageUrl);
+            
+            return userDataPool.save(newUser);
+        } catch (DataIntegrityViolationException e) {
+            // If save fails due to duplicate, fetch the existing user
+            User conflictedUser = userDataPool.findByUserId(clerkUserId);
+            if (conflictedUser != null) {
+                return updateUserIfNeeded(conflictedUser, email, username, profileImageUrl);
+            }
+            throw new RuntimeException("Failed to create or find user", e);
+        }
+    }
+
+    private User updateUserIfNeeded(User user, String email, String username, String profileImageUrl) {
+        boolean needsUpdate = false;
+        
+        if (email != null && !email.equals(user.getEmail())) {
+            user.setEmail(email);
+            needsUpdate = true;
+        }
+        
+        if (username != null && !username.equals(user.getUsername())) {
+            user.setUsername(username);
+            needsUpdate = true;
+        }
+
+        if (profileImageUrl != null && !profileImageUrl.equals(user.getProfileImageUrl())) {
+            user.setProfileImageUrl(profileImageUrl);
+            needsUpdate = true;
+        }
+        
+        if (needsUpdate) {
+            return userDataPool.save(user);
+        }
+        
+        return user;
     }
 
     @Transactional
