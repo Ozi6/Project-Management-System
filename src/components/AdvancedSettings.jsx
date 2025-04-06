@@ -6,7 +6,6 @@ import { useUser, useAuth } from "@clerk/clerk-react";
 import InvitePeople from "./InvitePeople";
 import ManageAccessModal from "./ManageAccessModal";
 import ErrorBoundary from "./ErrorBoundary";
-import Dropdown from "./Dropdown";
 import SimpleModal from "./SimpleModal";
 import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
@@ -107,51 +106,92 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     const isProjectOwner = isOwner;
 
     const [members, setMembers] = useState([]);
+    const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() =>
     {
-        const fetchMembers = async () =>
+
+    }, [projectId, getToken, t]);
+
+    useEffect(() =>
+    {
+        const fetchData = async () =>
         {
-            try{
-                const token = await getToken();
-                const response = await axios.get(
-                    `http://localhost:8080/api/projects/${projectId}/members`,
-                    {
-                        withCredentials: true,
-                        headers:
-                        {
-                            'Authorization': `Bearer ${token}`,
-                        },
-                    }
-                );
-
-                const membersData = response.data.map(member => (
-                {
-                    id: member.userId,
-                    name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
-                    email: member.email,
-                    team: member.team || "",
-                    role: member.userId == user.I? "Owner" : member.role || "Member",
-                    avatar: member.profileImageUrl
-                        ? `${member.profileImageUrl}?width=150&height=150`
-                        : `https://i.pravatar.cc/150?u=${member.email}`
-                }));
-
-                console.log(membersData);
-
-                setMembers(membersData);
-                setLoading(false);
-            }catch(err){
-                console.error('Error fetching members:', err);
-                setError(t("pro.errd"));
-                setLoading(false);
-            }
+            await fetchTeams();
+            await fetchMembers();
         };
 
-        fetchMembers();
+        fetchData();
     },[projectId, getToken, t]);
+
+    const fetchTeams = async () =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}/teams`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const teamsData = response.data.map(team => (
+            {
+                id: team.teamId,
+                name: team.teamName,
+                icon: team.iconName,
+                members: team.members ? team.members.map(m => m.userId) : []
+            }));
+
+            setTeams(teamsData);
+        }catch(err){
+            console.error('Error fetching teams:', err);
+            setError(t("pro.errd"));
+        }
+    };
+
+    const fetchMembers = async () =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}/members`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const membersData = response.data.map(member => (
+            {
+                id: member.userId,
+                name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
+                email: member.email,
+                team: member.team || "",
+                role: member.userId == user.I ? "Owner" : member.role || "Member",
+                avatar: member.profileImageUrl
+                    ? `${member.profileImageUrl}?width=150&height=150`
+                    : `https://i.pravatar.cc/150?u=${member.email}`
+            }));
+
+            setMembers(membersData);
+
+            setLoading(false);
+        }catch(err){
+            console.error('Error fetching members:', err);
+            setError(t("pro.errd"));
+            setLoading(false);
+        }
+    };
   
   // Define roles
   const roles = ["Admin", "Member", "Guest"];
@@ -161,11 +201,6 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberToRemove, setMemberToRemove] = useState(null);
   const [memberToManageTeams, setMemberToManageTeams] = useState(null);
-  const [teams, setTeams] = useState([
-    { id: 1, name: "Engineering", icon: "Wrench" },
-    { id: 2, name: "Marketing", icon: "BarChart" },
-    { id: 3, name: "Design", icon: "Paintbrush" },
-  ]);
   
   const [permissions, setPermissions] = useState(
     members.reduce(
@@ -223,18 +258,35 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     });
   };
 
-  const deleteTeam = (teamName) => {
-    if (!teamName || typeof teamName !== "string") {
-      console.warn("Cannot delete team: invalid team name");
-      return;
-    }
-    setTeams(teams.filter((team) => team.name !== teamName));
-    setMembers(
-      members.map((member) =>
-        member.team === teamName ? { ...member, team: "" } : member
-      )
-    );
-  };
+    const deleteTeam = async (teamId) =>
+    {
+        try{
+            const token = await getToken();
+            await axios.delete(
+                `http://localhost:8080/api/projects/${projectId}/teams/${teamId}`,
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setTeams(prevTeams => prevTeams.filter(team => team.id !== teamId));
+            setMembers(prevMembers =>
+                prevMembers.map(member =>
+                    member.team === teams.find(t => t.id === teamId)?.name
+                        ? { ...member, team: "" }
+                        : member
+                )
+            );
+            return true;
+        }catch(err){
+            console.error('Error deleting team:', err);
+            return false;
+        }
+    };
 
   const confirmRemoveMember = (id) => {
     if (!id) {
@@ -245,16 +297,32 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     setMemberToRemove(null); // Close the modal after confirmation
   };
 
-  const addToTeam = (memberId, teamName) => {
-    if (!memberId) {
-      console.warn("Invalid memberId for addToTeam");
-      return;
-    }
-    setMembers(
-      members.map((member) =>
-        member.id === memberId ? { ...member, team: teamName || "" } : member
-      )
-    );
+    const addToTeam = async (memberId, teamId) =>
+    {
+        try{
+            const token = await getToken();
+            await axios.post(
+                `http://localhost:8080/api/projects/${projectId}/teams/${teamId}/members/${memberId}`,
+                {},
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            setMembers(prevMembers =>
+                prevMembers.map(member =>
+                    member.id === memberId
+                        ? { ...member, team: teams.find(t => t.id === teamId)?.name || "" }
+                        : member
+                )
+            );
+        }catch(err){
+            console.error('Error adding member to team:', err);
+        }
     };
 
     const getInitial = (name) =>
@@ -268,41 +336,37 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     };
 
 
-  const editTeam = (updatedTeam, oldTeam) => {
-    if (!updatedTeam || !updatedTeam.name || !updatedTeam.name.trim()) {
-      console.warn("Cannot edit team: updatedTeam or name is invalid");
-      return;
-    }
-  
-    if (oldTeam) {
-      // Update existing team based on ID
-      const updatedTeams = teams.map((team) =>
-        team.id === oldTeam.id ? updatedTeam : team
-      );
-      setTeams(updatedTeams);
-  
-      // Update members with the new team name if it changed
-      setMembers((prevMembers) =>
-        prevMembers.map((member) =>
-          member.team === oldTeam.name && oldTeam.name !== updatedTeam.name
-            ? { ...member, team: updatedTeam.name }
-            : member
-        )
-      );
-    } else {
-      // Add new team only if explicitly intended (no oldTeam provided)
-      const existingTeam = teams.find((team) => team.id === updatedTeam.id);
-      if (!existingTeam) {
-        setTeams((prevTeams) => [...prevTeams, updatedTeam]);
-      } else {
-        // If ID exists but no oldTeam, update instead of adding
-        const updatedTeams = teams.map((team) =>
-          team.id === updatedTeam.id ? updatedTeam : team
-        );
-        setTeams(updatedTeams);
-      }
-    }
-  };
+    const editTeam = async (updatedTeam, oldTeam) =>
+    {
+        try{
+            const token = await getToken();
+            const response = await axios.put(
+                `http://localhost:8080/api/projects/${projectId}/teams/${oldTeam.id}`,
+                {
+                    teamName: updatedTeam.name,
+                    iconName: updatedTeam.icon
+                },
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === oldTeam.id
+                        ? { ...team, name: updatedTeam.name, icon: updatedTeam.icon }
+                        : team
+                )
+            );
+        } catch (err) {
+            console.error('Error updating team:', err);
+        }
+    };
 
   const handleRemoveClick = (member) => {
     if (!member || !member.id) {
@@ -475,16 +539,17 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
               onCancel={() => setMemberToRemove(null)}
             />
             
-            {memberToManageTeams && (
-              <ManageTeamsModal
-                member={memberToManageTeams}
-                teams={teams || []}
-                onAddToTeam={addToTeam}
-                onEditTeam={editTeam}
-                onDeleteTeam={deleteTeam}
-                onClose={() => setMemberToManageTeams(null)}
-              />
-            )}
+                {memberToManageTeams && (
+                    <ManageTeamsModal
+                        member={memberToManageTeams}
+                        teams={teams || []}
+                        onAddToTeam={addToTeam}
+                        onEditTeam={editTeam}
+                        onDeleteTeam={deleteTeam}
+                        onClose={() => setMemberToManageTeams(null)}
+                        projectId={projectId}
+                    />
+                )}
           </>
         )}
       </div>

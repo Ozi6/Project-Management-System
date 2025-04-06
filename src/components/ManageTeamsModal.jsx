@@ -5,6 +5,8 @@ import { FaUsers, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase, FaServe
 import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
 import { IoMdPeople, IoMdSettings } from "react-icons/io";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
+import { useUser, useAuth } from "@clerk/clerk-react";
 
 const iconMap = {
   Users: FaUsers,
@@ -103,7 +105,7 @@ const TeamDeleteConfirmation = ({ teamName, onConfirm, onCancel }) => {
   );
 };
 
-const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose }) => {
+const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId }) => {
   const {t} = useTranslation();
   const [localMemberTeam, setLocalMemberTeam] = useState(member?.team || "");
   const [localTeams, setLocalTeams] = useState(Array.isArray(teams) ? [...teams] : []);
@@ -168,16 +170,22 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
     setShowIconMenuForTeamId(null);
   };
 
-  const handleToggleTeam = (teamName) => {
-    if (!onAddToTeam || !member || !member.id) return;
-    const newTeam = localMemberTeam === teamName ? "" : teamName;
-    onAddToTeam(member.id, newTeam);
-    setLocalMemberTeam(newTeam);
-  };
+    const handleToggleTeam = (teamId) =>
+    {
+        if(!onAddToTeam || !member || !member.id)
+            return;
+        const currentTeam = localTeams.find(t => t.id === teamId);
+        const newTeamId = localMemberTeam === currentTeam?.name ? "" : teamId;
+        onAddToTeam(member.id, newTeamId);
+        setLocalMemberTeam(newTeamId ? currentTeam?.name : "");
+    };
 
-  const handleDeleteTeam = (teamName) => {
-    setTeamToDelete(teamName);
-  };
+    const handleDeleteTeam = (teamId) =>
+    {
+        const teamToDelete = localTeams.find(t => t.id === teamId);
+        if(teamToDelete)
+            setTeamToDelete(teamToDelete);
+    };
 
   const handleIconSelect = (iconName) => {
     if (editingTeamId) {
@@ -199,28 +207,65 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
     setShowIconMenuForTeamId(null);
   };
 
-  const handleAddTeam = () => {
-    if (!onEditTeam || !newTeamName.trim()) return;
-    const newTeam = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name: newTeamName.trim(),
-      icon: newTeamIcon
-    };
-    setLocalTeams(prev => [...prev, newTeam]);
-    onEditTeam(newTeam, null);
-    setNewTeamName("");
-    setNewTeamIcon("Users");
-    setIsAddingTeam(false);
-  };
+    const { getToken } = useAuth();
 
-  const confirmDeleteTeam = (teamName) => {
-    if (!onDeleteTeam || !teamName) return;
-    onDeleteTeam(teamName);
-    setLocalTeams(prev => prev.filter(team => team.name !== teamName));
-    if (localMemberTeam === teamName) setLocalMemberTeam("");
-    setTeamToDelete(null);
-    setEditingTeamId(null);
-  };
+    const handleAddTeam = async () =>
+    {
+        if(!newTeamName.trim())
+            return;
+
+        try{
+            const token = await getToken();
+            const response = await axios.post(
+                `http://localhost:8080/api/projects/${projectId}/teams`,
+                {
+                    teamName: newTeamName.trim(),
+                    iconName: newTeamIcon
+                },
+                {
+                    withCredentials: true,
+                    headers:
+                    {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const newTeam =
+            {
+                id: response.data.teamId,
+                name: response.data.teamName,
+                icon: response.data.iconName,
+                members: []
+            };
+
+            setLocalTeams(prev => [...prev, newTeam]);
+            setNewTeamName("");
+            setNewTeamIcon("Users");
+            setIsAddingTeam(false);
+        }catch(err){
+            console.error('Error creating team:', err);
+        }
+    };
+
+    const confirmDeleteTeam = (team) =>
+    {
+        if(!onDeleteTeam || !team?.id)
+            return;
+
+        onDeleteTeam(team.id).then(() =>
+        {
+            setLocalTeams(prev => prev.filter(t => t.id !== team.id));
+            if(localMemberTeam === team.name)
+                setLocalMemberTeam("");
+            setTeamToDelete(null);
+            setEditingTeamId(null);
+        }).catch(err =>
+        {
+            console.error('Failed to delete team:', err);
+        });
+    };
 
   const handleModalClose = () => {
     setEditingTeamId(null);
@@ -296,19 +341,18 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                           className="border p-1 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
                           onKeyPress={(e) => e.key === 'Enter' && handleSaveTeam(team)}
                         />
-                        <label className="flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={localMemberTeam === team.name}
-                            onChange={() => handleToggleTeam(team.name)}
-                            className="hidden"
-                          />
-                          <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${
-                            localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
-                          }`}>
-                            {localMemberTeam === team.name && <Check size={16} className="text-white" />}
-                          </span>
-                        </label>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={localMemberTeam === team.name}
+                                    onChange={() => handleToggleTeam(team.id)}
+                                    className="hidden"
+                                />
+                                <span className={`w-6 h-6 flex items-center justify-center rounded-full border-2 transition-all duration-200 ${localMemberTeam === team.name ? "bg-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/70" : "bg-white border-gray-300 hover:border-gray-500"
+                                    }`}>
+                                    {localMemberTeam === team.name && <Check size={16} className="text-white" />}
+                                </span>
+                            </label>
                       </div>
                       <div className="flex justify-between gap-2">
                         <button 
@@ -317,11 +361,11 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
                         >
                           {t("adset.save")}
                         </button>
-                        <button 
-                          onClick={() => handleDeleteTeam(team.name)} 
-                          className="bg-[var(--bug-report)]/90 !text-white px-2 py-1 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
-                        >
-                          {t("prode.del")}
+                            <button 
+                                onClick={() => handleDeleteTeam(team.id)}
+                                className="bg-[var(--bug-report)]/90 !text-white px-2 py-1 rounded hover:bg-[var(--bug-report)] flex-1 transition-all duration-200"
+                            >
+                              {t("prode.del")}
                         </button>
                         <button 
                           onClick={handleCancelEdit} 
@@ -429,11 +473,11 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
         </motion.div>
       </AnimatePresence>
 
-      <TeamDeleteConfirmation
-        teamName={teamToDelete}
-        onConfirm={confirmDeleteTeam}
-        onCancel={() => setTeamToDelete(null)}
-      />
+        <TeamDeleteConfirmation
+            teamName={teamToDelete?.name}
+            onConfirm={() => confirmDeleteTeam(teamToDelete)}
+            onCancel={() => setTeamToDelete(null)}
+        />
     </>
   );
 };

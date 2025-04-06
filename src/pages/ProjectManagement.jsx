@@ -151,18 +151,20 @@ const ProjectManagement = () => {
 
 
     const addNewProject = async () => {
+        if (!isLoaded || !user) return;
+        
         try {
             const token = await getToken();
             const creationTime = new Date().toISOString();
             const projectData = {
                 projectName: newProjectDetails.project_name,
-                description: newProjectDetails.description, // Changed to match state
+                description: newProjectDetails.description,
                 lastUpdated: creationTime,
                 createdAt: creationTime,
                 owner: {
                     userId: user.id,
                     email: user.primaryEmailAddress?.emailAddress || "unknown@example.com",
-                    username: user.fullName || user.username || "Unknown User"
+                    username: user.username || "Unknown User"
                 },
                 dueDate: newProjectDetails.dueDate,
                 members: [],
@@ -171,62 +173,79 @@ const ProjectManagement = () => {
                 isOwner: true
             };
 
-            const response = await axios.post('http://localhost:8080/api/projects', projectData, {
+            // 1. Create the project
+            await axios.post('http://localhost:8080/api/projects', projectData, {
                 withCredentials: true,
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
             });
+            
+            // 2. Fetch the updated projects list
+            const response = await axios.get(`http://localhost:8080/api/projects/user/${user.id}/related`, {
+                withCredentials: true,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
-            const newProject = {
-                projectId: response.data.projectId,
-                projectName: response.data.projectName,
-                description: response.data.description,
-                dueDate: response.data.dueDate,
-                OwnerID: user.id,
-                Categories: response.data.categories || [],
-                lastUpdated: response.data.lastUpdated,
-                isOwner: true,
-                progress: 0,
-                status: "In Progress",
-            };
+            // 3. Transform and update state with fresh data
+            const projects = response.data.map(project => ({
+                projectId: project.projectId,
+                projectName: project.projectName,
+                description: project.description,
+                ownerId: project.owner?.userId,
+                ownerUsername: project.owner?.username,
+                categories: project.categories || [],
+                isOwner: project.owner?.userId === user.id,
+                teamMembers: project.members,
+                progress: calculateProgress(project.categories),
+                status: determineStatus(project.categories),
+                dueDate: project.dueDate,
+                lastUpdated: project.lastUpdated
+            }));
 
-            setActiveProjects([...activeProjects, newProject]);
+            setActiveProjects(projects);
+            
+            // 4. Reset form and close popup
             setNewProjectDetails({
                 project_name: "",
                 description: "",
                 dueDate: new Date(),
             });
             setIsAddProjectPopUpOpen(false);
+            
         } catch (error) {
             console.error("Error creating project:", error.response?.data || error.message);
             alert(`Failed to create project: ${error.response?.data?.message || 'Unknown error'}`);
         }
     };
 
-    const deleteProject = async (projectId) =>
-    {
+    const deleteProject = async (projectId) => {
         if (!isLoaded || !user)
             return;
-
-        try{
+    
+        try {
             const token = await getToken();
-            await axios.delete(`http://localhost:8080/api/projects/${projectId}`,
-            {
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}`, {
                 withCredentials: true,
-                headers:
-                {
-                    'Authorization': `Bearer ${token}`
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
                 }
             });
-
+    
             const updatedProjects = activeProjects.filter(project => project.projectId !== projectId);
             setActiveProjects(updatedProjects);
             setFilteredProjects(updatedProjects);
-        }catch(error){
+        } catch (error) {
             console.error("Error deleting project:", error);
-            //handle error (show notification maybe toast)
+            if (error.response && error.response.status === 403) {
+                alert("You don't have permission to delete this project");
+            } else {
+                alert("An error occurred while deleting the project");
+            }
         }
     };
 
