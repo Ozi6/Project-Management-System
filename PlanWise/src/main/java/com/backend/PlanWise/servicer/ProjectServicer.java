@@ -259,20 +259,7 @@ public class ProjectServicer
         log.info("💾 Saving project to database...");
 
         Project savedProject = projectRepository.save(project);
-
-        recentActivityService.createActivity(
-            owner.getUserId(),
-            savedProject.getProjectId(),
-            "CREATE",  // <-- Make sure this is <= 20 chars
-            "PROJECT",
-            savedProject.getProjectId(),
-            savedProject.getProjectName(),
-            null,
-            null
-        );
     
-
-
         return convertToDTO(savedProject);
     }
 
