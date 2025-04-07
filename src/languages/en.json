@@ -9,6 +9,21 @@
     "dark": "Dark",
     "pink": "Pink"
   },
+
+  "dashboard": {
+    "noUpcomingDeadlines": "No upcoming deadlines",
+    "upcoming": "Upcoming",
+    "risk": "At Risk",
+    "track": "On Track"
+  },
+
+  "cal": {
+    "due_in": "due in",
+    "days": "days",
+    "left": "left",
+    "days_left": "days left"
+  },
+
   "sidebar.user": "User",
   "sidebar.dash": "Dashboard",
   "sidebar.gantt": "Gantt Chart",

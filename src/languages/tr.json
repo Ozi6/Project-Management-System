@@ -10,6 +10,20 @@
     "pink": "Pembe"
   },
 
+  "dashboard": {
+  "noUpcomingDeadlines": "Yaklaşan son teslim tarihi yok",
+  "upcoming": "Yaklaşan",
+  "risk": "Riskli",
+  "track": "Takip Ediliyor"
+  },
+
+  "cal": {
+    "due_in": "",
+    "days": "gün içinde teslim",
+    "left": "kaldı",
+    "days_left": "gün kaldı"
+  },
+
   "sidebar.user": "Kullanıcı",
   "sidebar.dash": "Gösterge Paneli",
   "sidebar.gantt": "Gantt Şeması",
