@@ -715,7 +715,34 @@
   "faq5a": "Yes, we use industry-standard encryption and security measures to protect your data.",
 
   "faq.title": "Frequently Asked Questions",
-  "faq.subtitle": "Find answers to the most common questions about PlanWise."
+  "faq.subtitle": "Find answers to the most common questions about PlanWise.",
 
+  "invitation.declined": "Invitation Declined",
+  "invitation.accepted": "Invitation Accepted",
 
+  "invitationresponse.logpls": "Please login first to view this invitation 🔐",
+  "invitationresponse.logplsttl": "Login Required",
+  "invitationresponse.alraccepted": "This invitation has already been accepted! 🎉",
+  "invitationresponse.alrdeclined": "This invitation was declined. ❌",
+  "invitationresponse.notforu": "This invitation is not for you! 😇",
+  "invitationresponse.oops": "Oops!",
+  "invitationresponse.geninvaccess": "This is a general invite page. You need the specific token link to access it.",
+  "invitationresponse.geninvaccessttl": "Invalid Access",
+  "invitationresponse.invexp": "This invitation has expired. ⏰",
+  "invitationresponse.invexpttl": "Expired",
+  "invitationresponse.accept": "Invitation accepted successfully! You are now part of the project. 🎊",
+  "invitationresponse.decline": "Invitation declined successfully.",
+  "invitationresponse.footrone": "PlanWise - Need help?",
+  "invitationresponse.footrtwo": "Contact Support",
+  "invitationresponse.dash": "Go to Dashboard",
+  "invitationresponse.notfoundttl": "Invitation Not Found 😕",
+  "invitationresponse.notfound": "The invitation you're looking for doesn't exist or has expired.",
+  "invitationresponse.declinechoice": "Decline",
+  "invitationresponse.alrmemberttl": "You're already a member!",
+  "invitationresponse.alrmember": "You can't accept this invitation because you're already part of this project.",
+  "invitationresponse.dntsharelink": "This link can be used by anyone who has it. Only share with trusted people.",
+  "invitationresponse.geninv": "You've accessed a general project invitation link 🎯",
+  "invitationresponse.geninvttl": "Project Invitation Link ✨",
+  "invitationresponse.inv": "You've been invited to join a project 🎯",
+  "invitationresponse.invttl": "Project Invitation ✨"
 }

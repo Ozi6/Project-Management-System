@@ -694,8 +694,38 @@
 
 
   "faq.title": "Sıkça Sorulan Sorular",
-  "faq.subtitle": "PlanWise hakkında en yaygın soruların cevaplarını bulun."
+  "faq.subtitle": "PlanWise hakkında en yaygın soruların cevaplarını bulun.",
 
+
+  "invitation.declined": "Davet Reddedildi",
+  "invitation.accepted": "Davet Kabul Edildi",
+
+
+  "invitationresponse.logpls": "Bu davetiyeyi görmek için lütfen giriş yapınız 🔐",
+  "invitationresponse.logplsttl": "Giriş Yapılması Gerekli",
+  "invitationresponse.alraccepted": "Bu davet zaten kabul edildi! 🎉",
+  "invitationresponse.alrdeclined": "Bu davet reddedildi! ❌",
+  "invitationresponse.notforu": "Bu davet sizin için değil! 😇",
+  "invitationresponse.oops": "Ups!",
+  "invitationresponse.geninvaccess": "Bu sayfa genel davet sayfasıdır. Erişmek için spesifik tokenli linke sahip olman gerekli.",
+  "invitationresponse.geninvaccessttl": "Geçersiz Erişim",
+  "invitationresponse.invexp": "Bu davetiyenin geçerliliği kalkmıştır. ⏰",
+  "invitationresponse.invexpttl": "Geçerliliği Kalkmış",
+  "invitationresponse.accept": "Davet başarıyla kabul edildi! Artık projenin bir parçasısınız! 🎊",
+  "invitationresponse.decline": "Davet başarıyla reddedildi.",
+  "invitationresponse.footrone": "PlanWise - Yardım Lazım Mı?",
+  "invitationresponse.footrtwo": "İletişime Geç",
+  "invitationresponse.dash": "Gösterge Paneline Git",
+  "invitationresponse.notfoundttl": "Davetiye Bulunamadı 😕",
+  "invitationresponse.notfound": "Aradığınız davetiye ya tarihi geçmiş ya da yok.",
+  "invitationresponse.declinechoice": "Reddet",
+  "invitationresponse.alrmemberttl": "Zaten üyesiniz!",
+  "invitationresponse.alrmember": "Zaten bu projenin bir üyesi olduğunuz için davetiyeyi kabul edemezsiniz.",
+  "invitationresponse.dntsharelink": "Bu linki sahip olan herkes kullanabilir. Sadece güvendiğiniz kişilerle paylaşın.",
+  "invitationresponse.geninv": "Bir genel proje davetine eriştiniz 🎯",
+  "invitationresponse.geninvttl": "Proje Davet Linki ✨",
+  "invitationresponse.inv": "Bir projeye katılmaya davet edildiniz 🎯",
+  "invitationresponse.invttl": "Proje Davetiyesi ✨"
 }
 
   

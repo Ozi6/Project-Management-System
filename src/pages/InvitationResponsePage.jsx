@@ -36,9 +36,9 @@ const InvitationResponsePage = () =>
             if(!isSignedIn)
             {
                 setError({
-                    message: 'Please login first to view this invitation 🔐',
+                    message: t("invitationresponse.logpls"),
                     icon: 'alert',
-                    title: 'Login Required',
+                    title: t("invitationresponse.logplsttl"),
                     emoji: '🔒'
                 });
                 setLoading(false);
@@ -64,12 +64,12 @@ const InvitationResponsePage = () =>
                 {
                     const statusMap = {
                         'Accepted': {
-                            message: 'This invitation has already been accepted! 🎉',
+                            message: t("invitationresponse.alraccepted"),
                             icon: 'party',
                             emoji: '🥳'
                         },
                         'Declined': {
-                            message: 'This invitation was declined. ❌',
+                            message: t("invitationresponse.alrdeclined"),
                             icon: 'thumbsdown',
                             emoji: '😶'
                         }
@@ -91,9 +91,9 @@ const InvitationResponsePage = () =>
                         if(!isRecipient)
                         {
                             setError({
-                                message: 'This invitation is not for you! 😇',
+                                message: t("invitationresponse.notforu"),
                                 icon: 'feather',
-                                title: 'Oops!',
+                                title: t("invitationresponse.oops"),
                                 emoji: ''
                             });
                             return;
@@ -102,9 +102,9 @@ const InvitationResponsePage = () =>
                     else
                     {
                         setError({
-                            message: 'This is a general invite page. You need the specific token link to access it.',
+                            message: t("invitationresponse.geninvaccess"),
                             icon: 'alert',
-                            title: 'Invalid Access',
+                            title: t("invitationresponse.geninvaccessttl"),
                             emoji: '🔐'
                         });
                         return;
@@ -114,9 +114,9 @@ const InvitationResponsePage = () =>
                 if(new Date(response.data.expiresAt) < new Date())
                 {
                     setError({
-                        message: 'This invitation has expired. ⏰',
+                        message: t("invitationresponse.invexp"),
                         icon: 'alert',
-                        title: 'Expired',
+                        title: t("invitationresponse.invexpttl"),
                         emoji: '😞'
                     });
                     return;
@@ -206,12 +206,12 @@ const InvitationResponsePage = () =>
 
             setSuccess(accept ?
             {
-                message: 'Invitation accepted successfully! You are now part of the project. 🎊',
+                message: t("invitationresponse.accept"),
                 emoji: '🚀'
             }
             :
             {
-                message: 'Invitation declined successfully.',
+                message: t("invitationresponse.decline"),
                 emoji: '👋'
             });
 
@@ -424,7 +424,7 @@ const InvitationResponsePage = () =>
                                     variants={buttonHoverVariants}
                                     onClick={() => navigate('/dashboard')}
                                     className="bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] hover:bg-[var(--hover-color)] text-white py-3 px-6 rounded-lg transition-colors flex items-center shadow-md hover:shadow-xl">
-                                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                                    {t("invitationresponse.dash")} <ArrowRight className="ml-2 h-4 w-4" />
                                 </motion.button>
                             </motion.div>
                         ) : success ? (
@@ -470,20 +470,20 @@ const InvitationResponsePage = () =>
                                     </motion.div>
                                     <motion.h2 className="text-2xl font-bold text-[var(--features-title-color)]">
                                         {invitation.isGeneralInvite
-                                            ? "Project Invitation Link ✨"
-                                            : "Project Invitation ✨"}
+                                            ? t("invitationresponse.geninvttl")
+                                            : t("invitationresponse.invttl")}
                                     </motion.h2>
                                     <motion.p className="text-[var(--features-text-color)] mt-1">
                                         {invitation.isGeneralInvite
-                                            ? "You've accessed a general project invitation link 🎯"
-                                            : "You've been invited to join a project 🎯"}
+                                            ? t("invitationresponse.geninv")
+                                            : t("invitationresponse.inv") }
                                     </motion.p>
                                     {invitation.isGeneralInvite && (
                                         <motion.div
                                             initial={{ scale: 0.9, opacity: 0 }}
                                             animate={{ scale: 1, opacity: 1 }}
                                             className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 text-sm">
-                                            This link can be used by anyone who has it. Only share with trusted people.
+                                            {t("invitationresponse.dntsharelink")}
                                         </motion.div>
                                     )}
                                 </div>
@@ -577,9 +577,9 @@ const InvitationResponsePage = () =>
                                             <UserCheck className="h-5 w-5 text-amber-600" />
                                         </motion.div>
                                         <div className="ml-3">
-                                            <h3 className="text-sm font-medium text-amber-800">You're already a member!</h3>
+                                            <h3 className="text-sm font-medium text-amber-800">{t("invitationresponse.alrmemberttl")}</h3>
                                             <div className="mt-1 text-sm text-amber-700">
-                                                <p>You can't accept this invitation because you're already part of this project.</p>
+                                                <p>{t("invitationresponse.alrmember")}</p>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -622,7 +622,7 @@ const InvitationResponsePage = () =>
                                             ) : (
                                                 <>
                                                     <XCircle className="h-5 w-5 mr-2" />
-                                                    Decline
+                                                    {t("invitationresponse.declinechoice")}
                                                 </>
                                             )}
                                         </motion.button>
@@ -642,15 +642,15 @@ const InvitationResponsePage = () =>
                                     className="w-20 h-20 rounded-full bg-gradient-to-br from-yellow-100 to-yellow-200 flex items-center justify-center mb-6 shadow-lg">
                                     <AlertCircle className="h-10 w-10 text-yellow-500" />
                                 </motion.div>
-                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">Invitation Not Found 😕</h2>
-                                <p className="text-[var(--features-text-color)] mb-6">The invitation you're looking for doesn't exist or has expired.</p>
+                                                <h2 className="text-2xl font-bold text-[var(--features-title-color)] mb-3">{t("invitationresponse.notfoundttl")}</h2>
+                                <p className="text-[var(--features-text-color)] mb-6">{t("invitationresponse.notfound")}</p>
                                 <motion.button
                                     whileHover="hover"
                                     variants={buttonHoverVariants}
                                     whileTap={{ scale: 0.95 }}
                                     onClick={() => navigate('/dashboard')}
                                     className="bg-gradient-to-r from-[var(--features-icon-color)] to-[var(--hover-color)] text-white py-3 px-6 rounded-lg transition-colors flex items-center shadow-md hover:shadow-xl">
-                                    Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                                    {t("invitationresponse.dash")} <ArrowRight className="ml-2 h-4 w-4" />
                                 </motion.button>
                             </motion.div>
                         )}
@@ -663,7 +663,7 @@ const InvitationResponsePage = () =>
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
                 className="py-4 text-center text-[var(--features-text-color)] text-sm">
-                {new Date().getFullYear()} PlanWise - Need help?
+                {new Date().getFullYear()} {t("invitationresponse.footrone")}
                 <motion.a
                     whileHover={{ scale: 1.05 }}
                     className="text-[var(--features-icon-color)] hover:underline ml-1"
@@ -672,7 +672,7 @@ const InvitationResponsePage = () =>
                         e.preventDefault();
                         navigate('/', { state: { scrollToBottom: true } });
                     }}>
-                    Contact Support
+                    {t("invitationresponse.footrtwo")}
                 </motion.a>
             </motion.div>
         </div>
