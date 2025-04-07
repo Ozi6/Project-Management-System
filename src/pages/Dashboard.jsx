@@ -696,15 +696,8 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                <span className={`flex items-center ${statsChanges.totalProjects.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
-                                  {statsChanges.totalProjects.direction === 'up' ? (
-                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.totalProjects.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
-                                  ) : (
-                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
-                                  )}
-                                  {Math.abs(statsChanges.totalProjects.value)}%
-                                </span>
-                                    <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
+                                  {/* Remove percentage stats, just show the period text */}
+                                  
                                 </div>
                             </motion.div>
 
@@ -724,17 +717,7 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                <span className={`flex items-center ${statsChanges.inProgress.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
-                                  {statsChanges.inProgress.direction === 'up' ? (
-                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.inProgress.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
-                                  ) : (
-                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
-                                  )}
-                                  {Math.abs(statsChanges.inProgress.value)}%
-                                </span>
-                                <span className={`ml-1 ${statsChanges.inProgress.direction === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                                  {t("dashboard.week")}
-                                </span>
+                                  
                                 </div>
                             </motion.div>
 
@@ -754,15 +737,7 @@ const Dashboard = () => {
                                     </span>
                                 </div>
                                 <div className="mt-2 flex items-center text-xs">
-                                <span className={`flex items-center ${statsChanges.completed.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`}>
-                                  {statsChanges.completed.direction === 'up' ? (
-                                    <ArrowUp className={`h-3 w-3 mr-1 ${statsChanges.completed.direction === 'up' ? 'text-[var(--homepage-text-bright)]' : 'text-red-500'}`} />
-                                  ) : (
-                                    <ArrowDown className="h-3 w-3 mr-1 text-red-500" />
-                                  )}
-                                  {Math.abs(statsChanges.completed.value)}%
-                                </span>
-                                    <span className="ml-1 text-[var(--homepage-text-bright)]">{t("dashboard.month")}</span>
+                                  
                                 </div>
                             </motion.div>
                         </div>
@@ -779,7 +754,7 @@ const Dashboard = () => {
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.proprog")}</h2>
                                     <Link to="/projects" className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center">
-                                        {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
+                                        
                                     </Link>
                                 </div>
                                 <div className="space-y-4">
@@ -828,7 +803,7 @@ const Dashboard = () => {
                                         to="/activities" 
                                         className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center"
                                     >
-                                        {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
+                                        
                                     </Link>
                                 </div>
                                 <div className="space-y-4">
