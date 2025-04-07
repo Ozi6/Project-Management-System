@@ -112,11 +112,6 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
 
     useEffect(() =>
     {
-
-    }, [projectId, getToken, t]);
-
-    useEffect(() =>
-    {
         const fetchData = async () =>
         {
             await fetchTeams();
@@ -171,20 +166,24 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                 }
             );
 
-            const membersData = response.data.map(member => (
+            const membersData = response.data.map(member =>
             {
-                id: member.userId,
-                name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
-                email: member.email,
-                team: member.team || "",
-                role: member.userId == user.I ? "Owner" : member.role || "Member",
-                avatar: member.profileImageUrl
-                    ? `${member.profileImageUrl}?width=150&height=150`
-                    : `https://i.pravatar.cc/150?u=${member.email}`
-            }));
+                const memberTeams = teams
+                    .filter(team => team.members && team.members.includes(member.userId))
+                    .map(team => team.name);
+                return{
+                    id: member.userId,
+                    name: (member.username || member.email) + (member.userId === user.id ? " (You)" : ""),
+                    email: member.email,
+                    teams: member.teams,
+                    role: member.userId === user.id ? "Owner" : member.role || "Member",
+                    avatar: member.profileImageUrl
+                        ? `${member.profileImageUrl}?width=150&height=150`
+                        : `https://i.pravatar.cc/150?u=${member.email}`
+                };
+            });
 
             setMembers(membersData);
-
             setLoading(false);
         }catch(err){
             console.error('Error fetching members:', err);
@@ -288,14 +287,39 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
         }
     };
 
-  const confirmRemoveMember = (id) => {
-    if (!id) {
-      console.warn("Invalid id for confirmRemoveMember");
-      return;
-    }
-    setMembers(members.filter((member) => member.id !== id));
-    setMemberToRemove(null); // Close the modal after confirmation
-  };
+    const removeFromTeam = (memberId, teamId) =>
+    {
+        const teamName = teams.find(t => t.id === teamId)?.name;
+        if(!teamName)
+            return;
+
+        setMembers(prevMembers =>
+            prevMembers.map(member =>
+                member.id === memberId
+                    ? { ...member, teams: member.teams.filter(t => t !== teamName) }
+                    : member
+            )
+        );
+
+        setTeams(prevTeams =>
+            prevTeams.map(team =>
+                team.id === teamId
+                    ? { ...team, members: team.members.filter(id => id !== memberId) }
+                    : team
+            )
+        );
+    };
+
+    const confirmRemoveMember = (id) =>
+    {
+        if (!id)
+        {
+            console.warn("Invalid id for confirmRemoveMember");
+            return;
+        }
+        setMembers(members.filter((member) => member.id !== id));
+        setMemberToRemove(null);
+    };
 
     const addToTeam = async (memberId, teamId) =>
     {
@@ -313,11 +337,26 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                 }
             );
 
+            const teamName = teams.find(t => t.id === teamId)?.name;
             setMembers(prevMembers =>
                 prevMembers.map(member =>
                     member.id === memberId
-                        ? { ...member, team: teams.find(t => t.id === teamId)?.name || "" }
+                        ? {
+                            ...member,
+                            teams: [...(member.teams || []), teamName].filter(Boolean)
+                        }
                         : member
+                )
+            );
+
+            setTeams(prevTeams =>
+                prevTeams.map(team =>
+                    team.id === teamId
+                    ? {
+                        ...team,
+                        members: [...(team.members || []), memberId]
+                    }
+                    : team
                 )
             );
         }catch(err){
@@ -368,19 +407,22 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
         }
     };
 
-  const handleRemoveClick = (member) => {
-    if (!member || !member.id) {
-      console.warn("Cannot remove member: invalid member data");
-      return;
-    }
-    setMemberToRemove(member); // Open the confirmation modal
-  };
+    const handleRemoveClick = (member) =>
+    {
+        if (!member || !member.id)
+        {
+            console.warn("Cannot remove member: invalid member data");
+            return;
+        }
+        setMemberToRemove(member);
+    };
 
-  const filteredMembers = members.filter(
+    const filteredMembers = members.filter(
     (member) =>
-      member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+        member && (member.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        member.email?.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+
 
   return (
     <ErrorBoundary>
@@ -437,44 +479,41 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
         </div>
 
         <div className="space-y-4">
-          {filteredMembers.map((member) => (
-            <div
-              key={member.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-hover-bg)] hover:shadow-lg"
-            >
-              <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
-                {member.avatar ? (
-                    <img
-                        src={member.avatar}
-                        alt={member.name}
-                        className="w-12 h-12 rounded-full flex-shrink-0"
-                        onError={(e) =>
-                        {
-                            e.target.onerror = null;
-                            e.target.src = '';
-                            e.target.style.display = 'none';
-                            // This will make the fallback div show instead
-                        }}
-                    />
-                ) : (
-                    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {getInitial(member.name)}
+            {filteredMembers.map((member) => (
+                <div
+                    key={member.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[var(--gray-card1)] shadow rounded-lg transition-all duration-300 ease-in-out hover:bg-[var(--features-hover-bg)] hover:shadow-lg"
+                >
+                    <div className="flex items-center text-[var(--features-title-color)] space-x-4 mb-4 sm:mb-0">
+                        {member.avatar ? (
+                            <img
+                                src={member.avatar}
+                                alt={member.name}
+                                className="w-12 h-12 rounded-full flex-shrink-0"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = '';
+                                    e.target.style.display = 'none';
+                                }}
+                            />
+                        ) : (
+                            <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                                {getInitial(member.name)}
+                            </div>
+                        )}
+                        <div>
+                            <div className="flex items-center flex-wrap gap-2">
+                                <p className="text-lg font-medium">{member.name}</p>
+                                {member.role === "Owner" && (
+                                    <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
+                                        <UserCheck className="w-3 h-3 mr-1" />
+                                        {t("adset.own")}
+                                    </span>
+                                )}
+                            </div>
+                            <p className="text-sm text-[var(--text-color3)]">{member.email}</p>
+                        </div>
                     </div>
-                )}
-                <div>
-                  <div className="flex items-center flex-wrap gap-2">
-                    <p className="text-lg font-medium">{member.name}</p>
-                    {member.role === "Owner" && (
-                      <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex items-center">
-                        <UserCheck className="w-3 h-3 mr-1" />
-                        {t("adset.own")}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-[var(--text-color3)]">{member.email}</p>
-                  <p className="text-xs text-[var(--features-text-color)]">{t("adset.team2")}: {member.team || "None"}</p>
-                </div>
-              </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:space-x-2">
                 {/* Manage Access Button */}
@@ -548,6 +587,7 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                         onDeleteTeam={deleteTeam}
                         onClose={() => setMemberToManageTeams(null)}
                         projectId={projectId}
+                        onRemoveFromTeam={removeFromTeam}
                     />
                 )}
           </>

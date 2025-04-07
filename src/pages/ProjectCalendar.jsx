@@ -85,9 +85,6 @@ const ProjectCalendar = () => {
                                             const createdAt = new Date(entry.createdAt);
                                             let startDate = createdAt.toISOString().split('T')[0];
 
-                                            console.log(createdAt);
-                                            console.log(entry.dueDate);
-
                                             let endDate = new Date(entry.dueDate).toISOString().split('T')[0];;
 
                                             let status = entry.isChecked ? t("dashboard.complete") : t("gantt.in");

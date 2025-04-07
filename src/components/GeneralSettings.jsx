@@ -42,7 +42,6 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                 });
 
                 const projectData = response.data;
-                console.log(projectData);
 
                 if(projectData.projectName)
                     setProjectName(projectData.projectName);
@@ -109,10 +108,11 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                 formData,
                 {
                     withCredentials: true,
-                    headers: {
+                    headers:
+                    {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
-                        'userId': user.id, // Add userId header
+                        'userId': user.id
                     }
                 }
             );

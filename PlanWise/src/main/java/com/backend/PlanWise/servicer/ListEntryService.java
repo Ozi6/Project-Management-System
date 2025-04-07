@@ -1,5 +1,13 @@
 package com.backend.PlanWise.servicer;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.backend.PlanWise.DataPool.ListEntryDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
@@ -8,17 +16,14 @@ import com.backend.PlanWise.DataTransferObjects.FileDTO;
 import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
-import com.backend.PlanWise.model.*;
+import com.backend.PlanWise.model.File;
+import com.backend.PlanWise.model.ListEntry;
+import com.backend.PlanWise.model.TaskList;
+import com.backend.PlanWise.model.Team;
+import com.backend.PlanWise.model.User;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ListEntryService
@@ -38,6 +43,9 @@ public class ListEntryService
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private RecentActivityService recentActivityService;
 
     public ListEntryDTO createEntry(ListEntryDTO listEntryDTO, Long taskListId) {
         TaskList taskList = taskListDataPool.findById(taskListId)
@@ -60,6 +68,14 @@ public class ListEntryService
         }
 
         ListEntry savedEntry = listEntryDataPool.save(entry);
+
+        recentActivityService.createSystemActivity(
+            savedEntry.getTaskList().getCategory().getProject().getProjectId(), 
+            "CREATE", 
+            "ENTRY", 
+            savedEntry.getEntryId(), 
+            savedEntry.getEntryName()
+            );
         return convertToDTO(savedEntry);
     }
 
@@ -67,6 +83,15 @@ public class ListEntryService
     {
         ListEntry existingEntry = listEntryDataPool.findById(entryId)
                 .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
+
+                recentActivityService.createSystemActivity(
+                    existingEntry.getTaskList().getCategory().getProject().getProjectId(), 
+                    "UPDATE", 
+                    "ENTRY", 
+                    existingEntry.getEntryId(), 
+                    existingEntry.getEntryName()
+                    );
+
 
         existingEntry.setEntryName(listEntryDTO.getEntryName());
         if (listEntryDTO.getIsChecked() != null)
@@ -113,6 +138,9 @@ public class ListEntryService
         }
 
         ListEntry updatedEntry = listEntryDataPool.save(existingEntry);
+
+        
+
         return convertToDTO(updatedEntry);
     }
 
@@ -121,6 +149,14 @@ public class ListEntryService
     {
         ListEntry entry = listEntryDataPool.findById(entryId)
                 .orElseThrow(() -> new RuntimeException("Entry not found with id: " + entryId));
+
+        recentActivityService.createSystemActivity(
+            entry.getTaskList().getCategory().getProject().getProjectId(), 
+            "DELETE", 
+            "ENTRY", 
+            entry.getEntryId(), 
+            entry.getEntryName()
+            );
 
         File attachedFile = entry.getFile();
         try{

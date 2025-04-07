@@ -13,8 +13,7 @@ import java.util.Map;
 @Repository
 public interface ProjectDataPool extends JpaRepository<Project, Long> {
         @Query("SELECT DISTINCT p FROM Project p " +
-                        "LEFT JOIN FETCH p.categories c " +
-                        "LEFT JOIN FETCH c.taskLists tl " +
+                        "LEFT JOIN FETCH p.categories c " +                        "LEFT JOIN FETCH c.taskLists tl " +
                         "LEFT JOIN FETCH tl.entries e " +
                         "WHERE p.owner.userId = :userId")
         List<Project> findByOwnerUserId(@Param("userId") String userId);
@@ -115,6 +114,9 @@ public interface ProjectDataPool extends JpaRepository<Project, Long> {
                         "AND le.is_checked = true " +
                         "AND le.updated_at >= :startDate", nativeQuery = true)
         Integer countEntriesCompletedSince(@Param("userId") String userId, @Param("startDate") LocalDate startDate);
-    //comment to check fif this filed added to commit
 
+        @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END " +
+                "FROM Project p JOIN p.members u " +
+                "WHERE p.projectId = :projectId AND u.userId = :userId")
+        boolean existsUserInProject(@Param("projectId") Long projectId, @Param("userId") String userId);
 }

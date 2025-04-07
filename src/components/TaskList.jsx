@@ -74,8 +74,7 @@ const TaskList = ({
             setEditableTagColor(newTagColor);
             setIsEditing(false);
 
-            if (onUpdateTaskList)
-                onUpdateTaskList(listId, newTitle, newTagColor);
+           
         }catch(error){
             console.error('Error updating task list:', error);
         }
@@ -219,7 +218,6 @@ const TaskList = ({
             const sourceEntry = entries[sourceIndex];
 
             try {
-                console.log(sourceEntryTrueId);
                 if (sourceEntry.id && listId !== sourceListId && sourceEntryTrueId)
                     await moveEntryToNewList(sourceEntryTrueId, listId);
 
@@ -537,11 +535,9 @@ const TaskList = ({
 
     const moveEntryToNewList = async (entryId, newTaskListId) =>
     {
-        console.log(`Moving entry ${entryId} to list ${newTaskListId}`);
         try{
             const token = await getToken();
             const url = `http://localhost:8080/api/entries/${entryId}/move?taskListId=${newTaskListId}`;
-            console.log("Request URL:", url);
 
             const response = await axios.put(
                 url,

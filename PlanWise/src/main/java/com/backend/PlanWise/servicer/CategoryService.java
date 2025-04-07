@@ -7,14 +7,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.backend.PlanWise.DataTransferObjects.*;
-import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.PlanWise.DataPool.CategoryDataPool;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TaskListDataPool;
+import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
+import com.backend.PlanWise.DataTransferObjects.FileDTO;
+import com.backend.PlanWise.DataTransferObjects.ListEntryDTO;
+import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
+import com.backend.PlanWise.DataTransferObjects.TeamDTO;
+import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.model.Category;
+import com.backend.PlanWise.model.File;
+import com.backend.PlanWise.model.Project;
+import com.backend.PlanWise.model.TaskList;
+import com.backend.PlanWise.model.Team;
+import com.backend.PlanWise.model.User;
 
 import jakarta.transaction.Transactional;
 
@@ -55,10 +65,11 @@ public class CategoryService
 
         // Create recent activity
         String userId = project.getOwner().getUserId(); // or get current user from security context
-        recentActivityService.createActivity(
+        recentActivityService.createSimpleActivity(
             userId,
-            "created",
-            "Category",
+            savedCategory.getProject().getProjectId(),
+            "CREATE",
+            "CATEGORY",
             savedCategory.getCategoryId()
         );
 
@@ -72,6 +83,9 @@ public class CategoryService
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TeamService teamService;
 
     public Set<CategoryDTO> getCategoriesByProjectId(Long projectId)
     {
@@ -114,6 +128,11 @@ public class CategoryService
                             userDTOs.add(userService.convertToDTO(user));
                         entryDTO.setAssignedUsers(userDTOs);
 
+                        Set<TeamDTO> teamDTOs = new HashSet<>();
+                        for(Team team : entry.getAssignedTeams())
+                            teamDTOs.add(teamService.convertToTeamDTO(team));
+                        entryDTO.setAssignedTeams(teamDTOs);
+
                         return entryDTO;
                     }).collect(Collectors.toSet());
                     taskListDTO.setEntries(entryDTOs);
@@ -142,14 +161,29 @@ public class CategoryService
         return fileDTO;
     }
 
-    public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO)
-    {
+    public CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO) {
         Category existingCategory = categoryDataPool.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // Store old values if needed for activity
+        String oldName = existingCategory.getCategoryName();
+        String oldColor = existingCategory.getColor();
+        
         existingCategory.setCategoryName(categoryDTO.getCategoryName());
         existingCategory.setColor(categoryDTO.getColor());
         existingCategory.setUpdatedAt(LocalDateTime.now());
+        
         Category updatedCategory = categoryDataPool.save(existingCategory);
+        
+        // Create recent activity for category update
+        recentActivityService.createSystemActivity(
+            updatedCategory.getProject().getProjectId(),
+            "UPDATE",
+            "CATEGORY",
+            updatedCategory.getCategoryId(),
+            updatedCategory.getCategoryName()
+        );
+    
         CategoryDTO updatedCategoryDTO = new CategoryDTO();
         updatedCategoryDTO.setCategoryId(updatedCategory.getCategoryId());
         updatedCategoryDTO.setCategoryName(updatedCategory.getCategoryName());
@@ -158,14 +192,30 @@ public class CategoryService
     }
 
     @Transactional
-    public void deleteCategory(Long categoryId)
-    {
+    public void deleteCategory(Long categoryId) {
+        // 1. First load the category with its project
+        Category category = categoryDataPool.findById(categoryId)
+            .orElseThrow(() -> new RuntimeException("Category not found"));
+        
+        // 2. Get all related task lists (for deletion)
         List<Long> taskListIds = taskListDataPool.findTaskListIdsByCategoryId(categoryId);
-        if (!taskListIds.isEmpty())
-        {
+        
+        // 3. Delete all entries in task lists
+        if (!taskListIds.isEmpty()) {
             listEntryService.deleteAllByTaskListIds(taskListIds);
             taskListDataPool.deleteByCategoryId(categoryId);
         }
+        
+        // 4. Delete the category itself
         categoryDataPool.deleteById(categoryId);
+        
+        // 5. Create activity AFTER successful deletion
+        recentActivityService.createSystemActivity(
+            category.getProject().getProjectId(),  // Correct project ID
+            "DELETE",
+            "CATEGORY",
+            categoryId,
+            category.getCategoryName()
+        );
     }
 }

@@ -2,17 +2,23 @@ package com.backend.PlanWise.servicer;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.backend.PlanWise.DataPool.TeamDataPool;
-import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.backend.PlanWise.DataPool.ProjectDataPool;
+import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.CategoryDTO;
 import com.backend.PlanWise.DataTransferObjects.FileDTO;
@@ -21,6 +27,8 @@ import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.DataTransferObjects.TaskListDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.Exceptions.AccessDeniedException;
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
@@ -28,7 +36,6 @@ import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
-import com.backend.PlanWise.Exceptions.AccessDeniedException;
 
 @Service
 public class ProjectServicer
@@ -46,6 +53,7 @@ public class ProjectServicer
 
     @Autowired
     private RecentActivityService recentActivityService;
+
 
     public List<ProjectDTO> getAllProjects()
     {
@@ -251,14 +259,7 @@ public class ProjectServicer
         log.info("💾 Saving project to database...");
 
         Project savedProject = projectRepository.save(project);
-
-        recentActivityService.createActivity(
-            owner.getUserId(),
-            "created",
-            "Project",
-            savedProject.getProjectId()
-        );
-
+    
         return convertToDTO(savedProject);
     }
 
@@ -433,12 +434,18 @@ public class ProjectServicer
 
         projectRepository.save(project);
 
-        recentActivityService.createActivity(
-                userId,
-                "removed",
-                "Member",
-                projectId
-        );
+         // Add activity log
+    recentActivityService.createActivity(
+        project.getOwner().getUserId(),
+        projectId,
+        "REMOVE",
+        "MEMBER",
+        Long.valueOf(memberToRemove.getUserId()), //BOOM
+        memberToRemove.getUsername(),
+        null,
+        null
+    );
+
     }
 
     public void deleteProject(Long projectId)
@@ -450,6 +457,50 @@ public class ProjectServicer
     {
         Project existingProject = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+                if (projectDTO.getProjectName() != null && !projectDTO.getProjectName().equals(existingProject.getProjectName())) {
+                    recentActivityService.createActivity(
+                        existingProject.getOwner().getUserId(),
+                        projectId,
+                        "UPDATE",
+                        "PROJECT",
+                        projectId,
+                        existingProject.getProjectName(),
+                        existingProject.getProjectName(),
+                        projectDTO.getProjectName()
+                    );
+                }
+                
+                if (projectDTO.getDescription() != null && !projectDTO.getDescription().equals(existingProject.getDescription())) {
+                    recentActivityService.createActivity(
+                        existingProject.getOwner().getUserId(),
+                        projectId,
+                        "UPDATE",
+                        "PROJECT",
+                        projectId,
+                        existingProject.getProjectName(),
+                        "Description updated",
+                        null
+                    );
+                }
+
+                // Track due date changes
+                if (projectDTO.getDueDate() != null && !projectDTO.getDueDate().equals(existingProject.getDueDate())) {
+                    String oldDate = existingProject.getDueDate() != null ? 
+                        existingProject.getDueDate().toString() : "No due date";
+                    String newDate = projectDTO.getDueDate().toString();
+                    
+                    recentActivityService.createActivity(
+                        existingProject.getOwner().getUserId(),
+                        projectId,
+                        "UPDATE",
+                        "PROJECT",
+                        projectId,
+                        existingProject.getProjectName(),
+                        "Due date: " + oldDate,
+                        "Due date: " + newDate
+                    );
+                }
 
         if(projectDTO.getProjectName() != null)
             existingProject.setProjectName(projectDTO.getProjectName());
@@ -610,6 +661,9 @@ public class ProjectServicer
 
         if(!team.getProject().getProjectId().equals(projectId))
             throw new ResourceNotFoundException("Team not found in this project");
+
+        team.getMembers().clear();
+        teamDataPool.save(team);
 
         teamDataPool.delete(team);
     }

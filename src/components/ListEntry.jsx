@@ -3,8 +3,9 @@ import { useState, useRef, useEffect } from "react";
 import AnimatedCheckbox from "./AnimatedCheckbox";
 import { AnimatePresence } from "framer-motion";
 import ListEntryPopup from "./ListEntryPopup";
-import { FaExclamationCircle, FaPaperclip } from "react-icons/fa"; // Import an icon library for the red exclamation mark
+import { FaExclamationCircle, FaPaperclip } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { ALL_ICONS } from "./ICON_CATEGORIES";
 
 const ListEntry = ({
     text = "",
@@ -205,18 +206,15 @@ const ListEntry = ({
                 )}
                 {(assignedUsers.length > 0 || assignedTeams.length > 0) && (
                     <div className="flex items-center gap-2 mt-1">
-                        {console.log("assignedUsers:", assignedUsers)}
-                        {assignedTeams.map((team) => {
-                            console.log("Team in map:", team);
-                            const TeamIcon = team.teamIcon;
-                            console.log("TeamIcon component:", TeamIcon);
-                            return (
+                        {assignedTeams.map((team) =>
+                        {
+                            const TeamIcon = ALL_ICONS[team.iconName] || ALL_ICONS[`Fa${team.iconName}`];
+                            return(
                                 <div
                                     key={team.id}
                                     className="tooltip"
-                                    title={team.teamName || 'Unnamed Team'}
-                                >
-                                    {TeamIcon ? <TeamIcon className="text-[var(--text-color3)] w-4 h-4" /> : 'No icon'}
+                                    title={team.teamName || 'Unnamed Team'}>
+                                    {TeamIcon ? (<TeamIcon className="text-[var(--text-color3)] w-4 h-4" />) : (<span className="text-xs">No icon ({team.iconName})</span>)}
                                 </div>
                             );
                         })}
