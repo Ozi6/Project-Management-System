@@ -27,7 +27,8 @@ const Header = ({ title, action, rightContent }) => {
         navigate('/login');
     };
 
-   
+    // Check if the current route is the project details page
+    const isProjectDetailsPage = location.pathname.startsWith('/project/');
 
     // Track window width for responsive behavior
     useEffect(() => {
@@ -386,6 +387,14 @@ const Header = ({ title, action, rightContent }) => {
                
                  {isLandingPage ? renderDesktopNavigation() : renderDesktopTitleAction()}
                  {renderMobileMenuButton()}
+                 {isProjectDetailsPage && (
+                    <button
+                        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                        onClick={() => alert('Notifications clicked!')}
+                    >
+                        Notifications
+                    </button>
+                )}
             </header>
             
             {/* Mobile menu */}

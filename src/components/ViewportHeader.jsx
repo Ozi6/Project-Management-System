@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
-import { Menu, X, PlusCircle, Moon, Sun } from 'lucide-react';
+import { Menu, X, PlusCircle, Moon, Sun, Bell } from 'lucide-react';
 // import { useDarkMode } from '../scripts/DarkModeContext';
 import logo from '../assets/logo5.png';
 import FeaturesDropdown from './FeaturesDropdown';
@@ -13,6 +13,7 @@ import SearchBar from './SearchBar';
 import { useSearch } from '../scripts/SearchContext';
 import ThemeSwitcher from '../ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
 
 const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer, zoomLevel = 1, onZoomChange }) => {
     const {t} = useTranslation();
@@ -21,6 +22,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const { performSearch, filterColumns } = useSearch();
+    const [recentChanges, setRecentChanges] = useState([]);
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const isProjectDetailsPage = location.pathname.startsWith('/project/');
+    const projectId = isProjectDetailsPage ? location.pathname.split('/project/')[1]?.split('/')[0] : null;
+
+    // Check if the current route is a project details page
 
     const handleSearch = (term) => {
         performSearch(term);
@@ -317,6 +324,152 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         );
     };
 
+    // Fix the notification button and dropdown rendering
+    const renderNotificationButton = () => {
+        if (!isProjectDetailsPage) return null;
+
+        return (
+            <div className="relative">
+                <button
+                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full transition-all duration-200"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                    <Bell size={20} />
+                </button>
+                {isDropdownOpen && renderNotificationDropdown()}
+            </div>
+        );
+    };
+
+    // Update the useEffect that fetches recent changes - Fix the URL to match your controller
+    useEffect(() => {
+        if (projectId && isProjectDetailsPage) {
+            console.log(`Fetching activities for project: ${projectId}`);
+            
+            // Changed URL from /recent-activities to /activities to match your backend controller
+            axios.get(`http://localhost:8080/api/projects/${projectId}/activities`)
+                .then(response => {
+                    console.log('API response:', response.data);
+                    // Handle the response data structure correctly
+                    const activities = response.data || [];
+                    setRecentChanges(activities);
+                })
+                .catch(error => {
+                    console.error('Error fetching recent changes:', error);
+                    setRecentChanges([]);
+                });
+        }
+    }, [projectId, isProjectDetailsPage]);
+
+    // Modify the renderNotificationDropdown function to group similar activities
+
+const renderNotificationDropdown = () => {
+    // Group similar activities that happened within a short time window
+    const groupedActivities = [];
+    
+    if (Array.isArray(recentChanges) && recentChanges.length > 0) {
+        // Create a copy of activities for processing
+        const sortedActivities = [...recentChanges].sort((a, b) => 
+            new Date(b.activityTime) - new Date(a.activityTime)
+        );
+        
+        // Group similar activities (same user, entity, action type) within 5 seconds
+        let currentGroup = null;
+        
+        sortedActivities.forEach(activity => {
+            const activityTime = new Date(activity.activityTime).getTime();
+            
+            if (currentGroup && 
+                currentGroup.userName === activity.userName &&
+                currentGroup.entityType === activity.entityType &&
+                currentGroup.entityId === activity.entityId &&
+                currentGroup.actionType === activity.actionType &&
+                Math.abs(activityTime - new Date(currentGroup.activityTime).getTime()) < 5000) {
+                // Similar activity, increment count
+                currentGroup.count += 1;
+                // Update time to most recent
+                if (activityTime > new Date(currentGroup.activityTime).getTime()) {
+                    currentGroup.activityTime = activity.activityTime;
+                }
+            } else {
+                // New group
+                currentGroup = {...activity, count: 1};
+                groupedActivities.push(currentGroup);
+            }
+        });
+    }
+
+    return (
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+            <div className="p-4">
+                <h3 className="text-sm font-semibold text-gray-700 border-b pb-2">Recent Activities</h3>
+                <ul className="mt-2 space-y-2">
+                    {groupedActivities.length > 0 ? (
+                        groupedActivities.map((activity, index) => (
+                            <li key={index} className="text-sm py-2 border-b border-gray-100">
+                                <div className="flex items-start">
+                                    <div className="w-6 h-6 bg-gray-300 rounded-full mr-2 flex items-center justify-center text-xs">
+                                        {activity.userName?.charAt(0) || 'U'}
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-800">
+                                            <span className="font-medium">{activity.userName || 'A user'}</span>
+                                            <span> {formatActionType(activity.actionType)} </span>
+                                            <span className="font-medium text-blue-600">
+                                                {formatEntityType(activity.entityType)}
+                                            </span>
+                                            {activity.entityName && (
+                                                <span className="font-medium"> "{activity.entityName}"</span>
+                                            )}
+                                            {activity.count > 1 && (
+                                                <span className="text-gray-500 text-xs ml-1">
+                                                    ({activity.count} times)
+                                                </span>
+                                            )}
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            {new Date(activity.activityTime).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="text-sm text-gray-500 py-2">No recent activities found</li>
+                    )}
+                </ul>
+            </div>
+        </div>
+    );
+};
+
+    // Helper functions to format the activity data
+    const formatActionType = (actionType) => {
+        switch (actionType?.toLowerCase()) {
+            case 'create': return 'created a';
+            case 'update': return 'updated a';
+            case 'delete': return 'deleted a';
+            case 'complete': return 'completed a';
+            case 'assign': return 'assigned a';
+            case 'move': return 'moved a';
+            default: return 'modified a';
+        }
+    };
+
+    const formatEntityType = (entityType) => {
+        switch (entityType?.toLowerCase()) {
+            case 'project': return 'project';
+            case 'category': return 'category';
+            case 'tasklist': return 'task list';
+            case 'entry': return 'task';
+            case 'team': return 'team';
+            case 'comment': return 'comment';
+            case 'bug_comment': return 'bug comment';
+            case 'bug_report': return 'bug report';
+            default: return entityType?.toLowerCase() || 'item';
+        }
+    };
+
     return (
         <div className="relative">
             <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-[var(--bg-color)]/95 shadow-md backdrop-blur-sm z-[1000]">
@@ -354,6 +507,9 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 
                 {/* Controls - Responsive Layout */}
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-4 ml-auto mr-2 sm:mr-4 flex-shrink-0">
+                    {/* Notification Button */}
+                    {renderNotificationButton()}
+
                     {/* Zoom Control */}
                     {renderZoomControl()}
                     {renderMobileZoomControl()}
