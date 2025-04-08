@@ -24,6 +24,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
     const [error, setError] = useState(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useEffect(() => {
         if (!isLoaded || !user || !projectId)
@@ -114,7 +115,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
     const confirmDelete = (e) =>
     {
         e.stopPropagation();
-        isOwner ? handleDeleteProject() : handleLeaveProject();
+        isProjectOwner ? handleDeleteProject() : handleLeaveProject();
         setShowDeleteConfirm(false);
     };
 
@@ -337,7 +338,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
                         </button>
                     )}
 
-                    {isOwner ? (<button
+                    {isProjectOwner ? (<button
                         onClick={handleDeleteClick}
                         className={`bg-red-500 !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out ${isProjectOwner ? "hover:bg-red-600" : "opacity-50 cursor-not-allowed"}`}
                     >
@@ -370,7 +371,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
                                     <div className="bg-red-100 p-2 rounded-full">
                                         <AlertTriangle className="h-6 w-6 text-red-600" />
                                     </div>
-                                    <h3 className="text-lg font-bold ml-3 text-gray-800">{isOwner ? t("procard.del") : t("procard.leave")}</h3>
+                                    <h3 className="text-lg font-bold ml-3 text-gray-800">{isProjectOwner ? t("procard.del") : t("procard.leave")}</h3>
                                     <button
                                         onClick={cancelDelete}
                                         className="ml-auto p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
@@ -381,7 +382,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
 
                                 <div className="mb-6">
                                     <p className="text-gray-600">
-                                        {isOwner ? t("procard.deld") : t("procard.leaved")} <span className="font-semibold">{name}</span>? {isOwner ? t("procard.deld2") : t("procard.leaved2")}
+                                        {isProjectOwner ? t("procard.deld") : t("procard.leaved")} <span className="font-semibold">{projectName}</span>? {isProjectOwner ? t("procard.deld2") : t("procard.leaved2")}
                                     </p>
                                 </div>
 
@@ -397,8 +398,8 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
                                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center"
                                     >
 
-                                        {isOwner ? <Trash2 className="h-4 w-4 mr-1.5" /> : <DoorOpen className="h-4 w-4 mr-1.5" />}
-                                        {isOwner ? t("procard.del") : t("procard.leave")}
+                                        {isProjectOwner ? <Trash2 className="h-4 w-4 mr-1.5" /> : <DoorOpen className="h-4 w-4 mr-1.5" />}
+                                        {isProjectOwner ? t("procard.del") : t("procard.leave")}
                                     </button>
                                 </div>
                             </motion.div>
