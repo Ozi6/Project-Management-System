@@ -410,7 +410,7 @@ const NewTeamForm = ({
                     value={newTeamName}
                     onChange={(e) => onNameChange(e.target.value)}
                     className="border p-2 rounded w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]"
-                    placeholder={t("adset.team_name_placeholder")}
+                    placeholder={t("team.entertname")}
                     onKeyDown={(e) => e.key === 'Enter' && newTeamName.trim() && onAddTeam()}/>
             </div>
             <div className="flex justify-between gap-2">
@@ -422,7 +422,7 @@ const NewTeamForm = ({
                             : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}>
                     <Plus size={16}/>
-                    {t("adset.create_team")}
+                    {t("team.crnewteam")}
                 </button>
                 <button
                     onClick={onCancel}
