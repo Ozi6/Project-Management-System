@@ -769,5 +769,54 @@
   "invitationresponse.geninv": "You've accessed a general project invitation link 🎯",
   "invitationresponse.geninvttl": "Project Invitation Link ✨",
   "invitationresponse.inv": "You've been invited to join a project 🎯",
-  "invitationresponse.invttl": "Project Invitation ✨"
+  "invitationresponse.invttl": "Project Invitation ✨",
+
+  "activity": {
+    "system": "PlanWise",
+    "project": {
+      "created": "{{actor}} created project {{projectName}}",
+      "updated": "{{actor}} updated project {{projectName}}"
+    },
+    "category": {
+      "created": "{{actor}} created a category in project {{projectName}}",
+      "updated": "{{actor}} updated a category in project {{projectName}}"
+    },
+    "actions": {
+      "created": "created",
+      "updated": "updated",
+      "deleted": "deleted",
+      "added": "added",
+      "removed": "removed"
+    },
+    "entity": {
+      "the": "{{type}}",
+      "types": {
+        "task": "task",
+        "tasklist": "task list",
+        "entry": "entry",
+        "comment": "comment",
+        "attachment": "attachment",
+        "category": "category",
+        "project": "project",
+        "user": "user",
+        "team": "team"
+      }
+    },
+    "generic": "{{entityName}} {{action}} {{entityType}} in project {{projectName}}",
+    "time": {
+      "just_now": "just now",
+      "minutes_ago": "{{minutes}} minutes ago",
+      "hours_ago": "{{hours}} hours ago",
+      "days_ago": "{{days}} days ago",
+      "weeks_ago": "{{weeks}} weeks ago",
+      "months_ago": "{{months}} months ago",
+      "years_ago": "{{years}} years ago"
+    },
+    "notifications": {
+      "title": "Recent Activities",
+      "mark_all_read": "Mark all as read",
+      "no_activities": "No recent activities",
+      "loading": "Loading activities..."
+    }
+  }
 }

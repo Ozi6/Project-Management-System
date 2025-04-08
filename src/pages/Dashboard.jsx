@@ -13,6 +13,7 @@ import Sidebar from '../components/Sidebar';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { generateActivityMessage } from '../utils/activityUtils';
 
 const Dashboard = () => {
     const { t } = useTranslation();
@@ -198,7 +199,10 @@ const Dashboard = () => {
                     // Add project name to each activity
                     const activitiesWithProject = activitiesResponse.data.map(activity => ({
                         ...activity,
-                        projectName: projectMap[activity.projectId]
+                        project: {
+                            projectId: activity.projectId,
+                            projectName: projectMap[activity.projectId] || 'Unknown Project'
+                        }
                     }));
                     
                     allActivities.push(...activitiesWithProject);
@@ -215,6 +219,7 @@ const Dashboard = () => {
             setRecentActivities(sortedActivities);
         } catch (error) {
             console.error('Error fetching recent activities:', error);
+            setRecentActivities([]); // Set empty array on error
         } finally {
             setIsLoadingActivities(false);
         }
@@ -232,13 +237,13 @@ const Dashboard = () => {
         const diffInSeconds = Math.floor((now - activityDate) / 1000);
 
         if (diffInSeconds < 60)
-            return 'Just now';
+            return t('activity.time.just_now');
         if (diffInSeconds < 3600)
-            return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+            return t('activity.time.minutes_ago', { minutes: Math.floor(diffInSeconds / 60) });
         if (diffInSeconds < 86400)
-            return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+            return t('activity.time.hours_ago', { hours: Math.floor(diffInSeconds / 3600) });
         if (diffInSeconds < 604800)
-            return `${Math.floor(diffInSeconds / 86400)} days ago`;
+            return t('activity.time.days_ago', { days: Math.floor(diffInSeconds / 86400) });
 
         return activityDate.toLocaleDateString();
     };
@@ -605,7 +610,7 @@ const Dashboard = () => {
             case 'UPDATE':
                 return <FileText className="h-4 w-4 text-white" />;
             case 'DELETE':
-                return <AlertCircle className="h-4 w-4 text-[var(--bug-report)]" />;
+                return <AlertCircle className="h-4 w-4 text-white" />;
             case 'ADD':
                 return <Heart className="h-4 w-4 text-white" />;
             case 'REMOVE':
@@ -826,14 +831,14 @@ const Dashboard = () => {
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center justify-between">
                                                         <p className="text-sm font-medium text-[var(--features-text-color)] truncate">
-                                                            {activity.user?.username || 'System'}
+                                                            {activity.user?.username || 'PlanWise'}
                                                         </p>
                                                         <span className="text-xs text-[var(--features-title-color)]">
                                                             {formatActivityTime(activity.activityTime)}
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-[var(--features-title-color)]">
-                                                        {activity.message || `${activity.actionType} ${activity.entityType}`}
+                                                        {generateActivityMessage(activity, t)}
                                                     </p>
                                                     {activity.entityName && (
                                                         <p className="text-xs text-[var(--features-icon-color)] truncate">

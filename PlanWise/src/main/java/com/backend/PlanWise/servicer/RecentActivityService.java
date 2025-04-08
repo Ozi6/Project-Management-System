@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +13,7 @@ import com.backend.PlanWise.DataPool.RecentActivityDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.RecentActivityDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.RecentActivity;
 import com.backend.PlanWise.model.User;
@@ -121,60 +121,9 @@ public class RecentActivityService {
         dto.setActivityTime(activity.getActivityTime());
         dto.setSeen(activity.isSeen());
         
-        dto.setMessage(generateActivityMessage(activity));
-        
         return dto;
     }
 
-    private String generateActivityMessage(RecentActivity activity) {
-        // Special case for project creation
-        if ("PROJECT".equals(activity.getEntityType())) {
-            String actor = (activity.getUser() != null) 
-                ? activity.getUser().getUsername() != null 
-                    ? activity.getUser().getUsername() 
-                    : activity.getUser().getUserId()
-                : "System";
-                if("UPDATED".equals(activity.getActionType())){ //fix this BOOM
-
-                    return String.format("%s updated project %s", actor,activity.getProject().getProjectName());
-                }
-                else
-                {
-                    return String.format("%s created project %s", actor,activity.getProject().getProjectName());
-                }
-            
-        }
-
-        if ("CATEGORY".equals(activity.getEntityType())) {
-            String actor = (activity.getUser() != null) 
-                ? activity.getUser().getUsername() != null 
-                    ? activity.getUser().getUsername() 
-                    : activity.getUser().getUserId()
-                : "System";
-            //if it is updated return to updated messge version of below if not return down below BOOM
-            return String.format("%s created a category in project %s", actor,activity.getProject().getProjectName());
-        }
-    
-        String action = switch (activity.getActionType()) {
-            case "CREATE" -> "is the created";
-            case "UPDATE" -> "was an updated ";
-            case "DELETE" -> "was a deleted ";
-            case "ADD" -> "was an added ";
-            case "REMOVE" -> "was a removed ";
-            default -> activity.getActionType().toLowerCase();
-        };
-        
-        String entityName = activity.getEntityName() != null 
-            ? "'" + activity.getEntityName() + "'" 
-            : "the " + activity.getEntityType().toLowerCase();
-        
-        // Format for all activities (including system ones)
-        return String.format("%s %s %s in project %s", 
-            entityName,
-            action,
-            activity.getEntityType().toLowerCase(),
-            activity.getProject().getProjectName());
-    }
     // Additional method to handle simple activity creation
     @Transactional
     public RecentActivity createSimpleActivity(String userId, Long projectId, 

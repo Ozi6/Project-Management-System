@@ -14,6 +14,7 @@ import ThemeSwitcher from '../ThemeSwitcher';
 import { useTranslation } from 'react-i18next';
 import { useUser, useAuth } from "@clerk/clerk-react";
 import axios from "axios";
+import { generateActivityMessage } from '../utils/activityUtils';
 
 const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer, zoomLevel = 1, onZoomChange, projectId }) => {
     const { t } = useTranslation();
@@ -189,12 +190,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                         className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200"
                     >
                         <div className="flex justify-between items-center px-4 py-2 bg-gray-50 border-b border-gray-200">
-                            <h3 className="font-medium text-gray-700">Recent Activities</h3>
+                            <h3 className="font-medium text-gray-700">{t('activity.notifications.title')}</h3>
                             <button 
                                 onClick={handleSeeAllClick}
                                 className="text-sm text-blue-600 hover:text-blue-800"
                             >
-                                Mark all as read
+                                {t('activity.notifications.mark_all_read')}
                             </button>
                         </div>
 
@@ -202,6 +203,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                             {isLoadingActivities ? (
                                 <div className="flex justify-center items-center h-32">
                                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                                    <span className="ml-2 text-gray-500">{t('activity.notifications.loading')}</span>
                                 </div>
                             ) : recentActivities.length > 0 ? (
                                 recentActivities.map((activity) => (
@@ -223,7 +225,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between">
                                                     <p className="text-sm font-medium text-gray-800 truncate">
-                                                        {activity.user?.username || 'System'}
+                                                        {activity.user?.username || t('activity.system')}
                                                     </p>
                                                     <span className="text-xs text-gray-500">
                                                         {formatActivityTime(activity.activityTime)}
@@ -232,7 +234,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                                 <p className={`text-sm ${
                                                     !activity.seen ? 'font-semibold text-gray-900' : 'text-gray-700'
                                                 }`}>
-                                                    {activity.message || `${activity.actionType} ${activity.entityType}`}
+                                                    {generateActivityMessage(activity, t)}
                                                 </p>
                                                 {activity.entityName && (
                                                     <p className="text-xs text-gray-500 truncate">
@@ -245,7 +247,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                 ))
                             ) : (
                                 <div className="px-4 py-6 text-center text-gray-500">
-                                    No recent activities
+                                    {t('activity.notifications.no_activities')}
                                 </div>
                             )}
                         </div>

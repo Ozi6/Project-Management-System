@@ -254,9 +254,6 @@
   "prode.ass.add": "Ekle",
   "prode.ass.ass": "Görevi Ata",
 
-
-
-
   "cal.tit": "Takvim",
   "cal.cal": "Proje Takvimi",
   "cal.today": "Bugün",
@@ -266,7 +263,6 @@
   "cal.due_soon": "Yakında",
   "cal.upcoming": "Yaklaşan",
   "cal.completed": "Tamamlanmış",
-
 
   "team.mem": "Üye",
   "team.mid": "Orta",
@@ -352,8 +348,6 @@
   "adset.delcon": "Silme Onayı",
   "adset.add2": "Ekle",
   "adset.text": "Yeni takım ismi",
-
-
 
   "login": "Giriş Yap",
   "signup": "Kayıt Ol",
@@ -534,13 +528,13 @@
   "TCM.B": "Pano",
 
   "TCF": "Bugün Daha İyi Takımlar Oluşturun",
-  "TCFd": "Görevleri atamaya, iş yüklerini yönetmeye ve PlanWise’ın takım yönetim araçlarıyla verimli bir şekilde işbirliği yapmaya başlayın.",
+  "TCFd": "Görevleri atamaya, iş yüklerini yönetmeye ve PlanWise'ın takım yönetim araçlarıyla verimli bir şekilde işbirliği yapmaya başlayın.",
   "TCFButt": "Başlayın",
 
   "TT.tit": "Görev Takibi",
   "TT.subtit": "Projelerinizi kapsamlı görev yönetimiyle kontrol altında tutun",
   "TT.head": "GÖREVLERİNİZİ TAKİP ETMEYİ ASLA BIRAKMAYIN",
-  "TT.headd": "PlanWise’ın güçlü görev takip sistemi, küçük günlük işlerden karmaşık çok aşamalı iş akışlarına kadar her şeyi yönetmenize yardımcı olur. Herkesin sorumluluklarını yerine getirdiğinden emin olun ve hiçbir şeyin gözden kaçmamasını sağlayın.",
+  "TT.headd": "PlanWise'ın güçlü görev takip sistemi, küçük günlük işlerden karmaşık çok aşamalı iş akışlarına kadar her şeyi yönetmenize yardımcı olur. Herkesin sorumluluklarını yerine getirdiğinden emin olun ve hiçbir şeyin gözden kaçmamasını sağlayın.",
   "TT.head.task": "Tüm görevlerin tam görünürlüğü",
   "TT.head.prog": "Proje ilerlemesi",
   "TT.mid.tit": "Görev Takibini İş Başında Görün",
@@ -601,9 +595,8 @@
   "TT.foot.tit2.3": "Otomatik durum güncellemeleri",
 
   "TTFtit": "Görev Yönetiminizi Kolaylaştırmaya Hazır mısınız?",
-  "TTFtitd": "PlanWise’a katılarak verimliliği artırın ve projelerinizi zamanında teslim edin.",
+  "TTFtitd": "PlanWise'a katılarak verimliliği artırın ve projelerinizi zamanında teslim edin.",
   "TTFtitButt": "Başlayın",
-
 
   "ToS": "Hizmet Koşulları",
   "ToS.update": "Son güncelleme: 1 Mart 2025",
@@ -672,8 +665,6 @@
   "PP3.5": "Güncellemeler, güvenlik uyarıları ve destek hakkında sizinle iletişim kurmak",
   "PP3.6": "Sahtekarlığı tespit etmek ve önlemek",
 
-
-
   "ASTit": "Ekip çalışmasını daha verimli hale getirmek için buradayız",
   "ASSubtit": "PlanWise, organizasyonların daha iyi iş birliği ve görev yönetimi ile daha fazlasını başarmalarına yardımcı olma tutkusuna sahip bir ekip tarafından geliştirildi.",
   "ASd": "Hikayemiz",
@@ -715,14 +706,11 @@
   "faq4a": "Kesinlikle! Hesap ayarlarınızdan aboneliğinizi dilediğiniz zaman iptal edebilirsiniz.",
   "faq5a": "Evet, verilerinizi korumak için endüstri standardı şifreleme ve güvenlik önlemleri kullanıyoruz.",
 
-
   "faq.title": "Sıkça Sorulan Sorular",
   "faq.subtitle": "PlanWise hakkında en yaygın soruların cevaplarını bulun.",
 
-
   "invitation.declined": "Davet Reddedildi",
   "invitation.accepted": "Davet Kabul Edildi",
-
 
   "invitationresponse.logpls": "Bu davetiyeyi görmek için lütfen giriş yapınız 🔐",
   "invitationresponse.logplsttl": "Giriş Yapılması Gerekli",
@@ -748,7 +736,56 @@
   "invitationresponse.geninv": "Bir genel proje davetine eriştiniz 🎯",
   "invitationresponse.geninvttl": "Proje Davet Linki ✨",
   "invitationresponse.inv": "Bir projeye katılmaya davet edildiniz 🎯",
-  "invitationresponse.invttl": "Proje Davetiyesi ✨"
+  "invitationresponse.invttl": "Proje Davetiyesi ✨",
+
+  "activity": {
+    "system": "PlanWise",
+    "project": {
+      "created": "{{actor}} projeyi oluşturdu {{projectName}}",
+      "updated": "{{actor}} projeyi güncelledi {{projectName}}"
+    },
+    "category": {
+      "created": "{{actor}} projede bir kategori oluşturdu {{projectName}}",
+      "updated": "{{actor}} projede bir kategoriyi güncelledi {{projectName}}"
+    },
+    "actions": {
+      "created": "oluşturulan",
+      "updated": "güncellenen",
+      "deleted": "silinen",
+      "added": "eklenen",
+      "removed": "kaldırılan"
+    },
+    "entity": {
+      "the": "{{type}}",
+      "types": {
+        "task": "görev.",
+        "tasklist": "görev listesi.",
+        "entry": "girdi.",
+        "comment": "yorum.",
+        "attachment": "ek.",
+        "category": "kategori.",
+        "project": "proje.",
+        "user": "kullanıcı",
+        "team": "takım"
+      }
+    },
+    "generic": "{{entityName}} {{action}} {{entityType}} Proje: {{projectName}}",
+    "time": {
+      "just_now": "az önce",
+      "minutes_ago": "{{minutes}} dakika önce",
+      "hours_ago": "{{hours}} saat önce",
+      "days_ago": "{{days}} gün önce",
+      "weeks_ago": "{{weeks}} hafta önce",
+      "months_ago": "{{months}} ay önce",
+      "years_ago": "{{years}} yıl önce"
+    },
+    "notifications": {
+      "title": "Son Aktiviteler",
+      "mark_all_read": "Okundu",
+      "no_activities": "Henüz aktivite yok",
+      "loading": "Aktiviteler yükleniyor..."
+    }
+  }
 }
 
   
