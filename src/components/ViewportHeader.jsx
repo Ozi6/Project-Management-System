@@ -3,7 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
 import { Menu, X, PlusCircle, Moon, Sun, Bell } from 'lucide-react';
-import logo from '../assets/logo5.png';
+import logoLight from '../assets/logo5.png';
+import logoDark from '../assets/logodark.png';
+import logoPink from '../assets/logopink.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import ResourcesDropdown from './ResourcesDropdown';
 import ResourcesContent from './ResourcesContent';
@@ -30,6 +32,49 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
     const [isLoadingActivities, setIsLoadingActivities] = useState(false);
     const activitiesRef = useRef(null);
     const { getToken } = useAuth();
+    const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme") || "light");
+
+    // Get the appropriate logo based on the current theme
+    const getLogoByTheme = () => {
+        switch(currentTheme) {
+            case "dark":
+                return logoDark;
+            case "pink":
+                return logoPink;
+            default:
+                return logoLight;
+        }
+    };
+
+    // Listen for theme changes
+    useEffect(() => {
+        const handleThemeChange = () => {
+            // Get theme from localStorage
+            const theme = localStorage.getItem("theme") || "light";
+            setCurrentTheme(theme);
+        };
+
+        // Initial theme check
+        handleThemeChange();
+
+        // Listen for theme changes from localStorage
+        window.addEventListener('storage', handleThemeChange);
+        
+        // Create a custom event listener for theme changes
+        const themeChangeListener = (e) => {
+            if (e.detail && e.detail.theme) {
+                setCurrentTheme(e.detail.theme);
+            }
+        };
+        
+        // Add the custom event listener
+        window.addEventListener('themeChanged', themeChangeListener);
+
+        return () => {
+            window.removeEventListener('storage', handleThemeChange);
+            window.removeEventListener('themeChanged', themeChangeListener);
+        };
+    }, []);
 
     const fetchRecentActivities = async () =>
     {
@@ -172,12 +217,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     onClick={() => {
                         setShowActivities(!showActivities);
                     }}
-                    className="p-2 rounded-full hover:bg-gray-200 transition-colors duration-200 relative"
+                    className="p-2 rounded-full hover:bg-[var(--hover-color)]/20 transition-colors duration-200 relative"
                     aria-label="Recent Activities"
                 >
                     <Bell size={windowWidth < 640 ? 18 : 22} />
                     {unseenCount > 0 && (
-                        <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        <span className="absolute top-0 right-0 bg-[var(--features-icon-color)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                             {unseenCount}
                         </span>
                     )}
@@ -187,13 +232,25 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute right-0 mt-2 w-72 sm:w-80 bg-white rounded-lg shadow-lg overflow-hidden z-50 border border-gray-200"
+                        className="absolute right-0 mt-2 w-72 sm:w-80 rounded-lg shadow-lg overflow-hidden z-50 border"
+                        style={{
+                            backgroundColor: "var(--bg-color)",
+                            borderColor: "var(--features-border)"
+                        }}
                     >
-                        <div className="flex justify-between items-center px-4 py-2 bg-gray-50 border-b border-gray-200">
-                            <h3 className="font-medium text-gray-700">{t('activity.notifications.title')}</h3>
+                        <div className="flex justify-between items-center px-4 py-2 border-b"
+                            style={{
+                                backgroundColor: "var(--bg-color)",
+                                borderColor: "var(--features-border)"
+                            }}
+                        >
+                            <h3 className="font-medium" style={{color: "var(--features-title-color)"}}>
+                                {t('activity.notifications.title')}
+                            </h3>
                             <button 
                                 onClick={handleSeeAllClick}
-                                className="text-sm text-blue-600 hover:text-blue-800"
+                                className="text-sm hover:opacity-80 transition-opacity"
+                                style={{color: "var(--features-icon-color)"}}
                             >
                                 {t('activity.notifications.mark_all_read')}
                             </button>
@@ -202,42 +259,42 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                         <div className="max-h-80 overflow-y-auto">
                             {isLoadingActivities ? (
                                 <div className="flex justify-center items-center h-32">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-                                    <span className="ml-2 text-gray-500">{t('activity.notifications.loading')}</span>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"
+                                        style={{borderColor: "var(--features-icon-color)"}}
+                                    ></div>
+                                    <span className="ml-2" style={{color: "var(--features-text-color)"}}>
+                                        {t('activity.notifications.loading')}
+                                    </span>
                                 </div>
                             ) : recentActivities.length > 0 ? (
                                 recentActivities.map((activity) => (
                                     <div
                                         key={activity.activityId}
                                         onClick={() => handleActivityClick(activity.activityId)}
-                                        className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-                                            !activity.seen ? 'bg-blue-50' : ''
+                                        className={`px-4 py-3 border-b cursor-pointer transition-colors ${
+                                            !activity.seen ? 'bg-opacity-10' : ''
                                         }`}
+                                        style={{
+                                            borderColor: "var(--features-border)",
+                                            backgroundColor: !activity.seen ? "var(--gray-card3)" : "transparent",
+                                            color: "var(--features-text-color)"
+                                        }}
                                     >
-                                        <div className="flex items-start gap-2">
-                                            <div className="flex-shrink-0 mt-1">
-                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs ${
-                                                    !activity.seen ? 'bg-blue-600' : 'bg-gray-400'
-                                                }`}>
+                                        <div className="flex items-start gap-3">
+                                            <div className="flex-shrink-0">
+                                                <span className="text-lg" style={{color: "var(--features-icon-color)"}}>
                                                     {getActivityIcon(activity.actionType)}
-                                                </div>
+                                                </span>
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between">
-                                                    <p className="text-sm font-medium text-gray-800 truncate">
-                                                        {activity.user?.username || t('activity.system')}
-                                                    </p>
-                                                    <span className="text-xs text-gray-500">
-                                                        {formatActivityTime(activity.activityTime)}
-                                                    </span>
-                                                </div>
-                                                <p className={`text-sm ${
-                                                    !activity.seen ? 'font-semibold text-gray-900' : 'text-gray-700'
-                                                }`}>
-                                                    {generateActivityMessage(activity, t)}
+                                                <p className="text-sm font-medium" style={{color: "var(--features-title-color)"}}>
+                                                    {activity.description}
+                                                </p>
+                                                <p className="text-xs mt-1" style={{color: "var(--features-text-color)"}}>
+                                                    {formatActivityTime(activity.activityTime)}
                                                 </p>
                                                 {activity.entityName && (
-                                                    <p className="text-xs text-gray-500 truncate">
+                                                    <p className="text-xs mt-1 truncate" style={{color: "var(--features-text-color)"}}>
                                                         {activity.entityName}
                                                     </p>
                                                 )}
@@ -246,7 +303,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                     </div>
                                 ))
                             ) : (
-                                <div className="px-4 py-6 text-center text-gray-500">
+                                <div className="px-4 py-6 text-center" style={{color: "var(--features-text-color)"}}>
                                     {t('activity.notifications.no_activities')}
                                 </div>
                             )}
@@ -511,7 +568,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
 
                     <Link to="/" className="flex items-center mr-2 sm:mr-4 md:mr-8 flex-shrink-0">
                         <img
-                            src={logo}
+                            src={getLogoByTheme()}
                             alt="PlanWise Logo"
                             className="h-[28px] sm:h-[32px] md:h-[40px] w-auto object-contain" />
                     </Link>

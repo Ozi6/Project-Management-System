@@ -3,7 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 import { Menu, X, ArrowRight, AlertCircle, ShieldAlert } from 'lucide-react';
-import logo from '../assets/logo5.png';
+import logoLight from '../assets/logo5.png';
+import logoDark from '../assets/logodark.png';
+import logoPink from '../assets/logopink.png';
 import FeaturesDropdown from './FeaturesDropdown';
 import FeaturesContent from './FeaturesContent';
 import ResourcesDropdown from './ResourcesDropdown';
@@ -18,6 +20,7 @@ const Header = ({ title, action, rightContent }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const { user } = useUser();
+    const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme") || "light");
     
     // Check if user has admin role
     const isAdmin = user?.publicMetadata?.role === 'admin';
@@ -27,7 +30,27 @@ const Header = ({ title, action, rightContent }) => {
         navigate('/login');
     };
 
-   
+    // Listen for theme changes
+    useEffect(() => {
+        const handleThemeChange = (event) => {
+            setCurrentTheme(event.detail.theme);
+        };
+
+        window.addEventListener('themeChanged', handleThemeChange);
+        return () => window.removeEventListener('themeChanged', handleThemeChange);
+    }, []);
+
+    // Get the appropriate logo based on current theme
+    const getLogo = () => {
+        switch(currentTheme) {
+            case 'dark':
+                return logoDark;
+            case 'pink':
+                return logoPink;
+            default:
+                return logoLight;
+        }
+    };
 
     // Track window width for responsive behavior
     useEffect(() => {
@@ -372,10 +395,10 @@ const Header = ({ title, action, rightContent }) => {
         <div className="relative">
             <header className="px-3 md:px-5 py-1.5 flex items-center w-full box-border h-14 bg-[var(--bg-color)]/95 shadow-sm backdrop-blur-sm sticky top-0 z-[1000]">
                
-                <div className="flex  rounded-lg px-1 h-full bg-white mr-4">
+                <div className="flex rounded-lg px-1 h-full bg-[var(--bg-color)]/95 mr-4">
                     <Link to="/" className="flex items-center ">
                         <img 
-                            src={logo} 
+                            src={getLogo()} 
                             alt="PlanWise Logo" 
                             className="h-[26px] md:h-[32px] w-auto object-contain" 
                         />

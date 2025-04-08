@@ -1,0 +1,131 @@
+.radio {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  height: 100%;
+}
+
+.radio input {
+  display: none;
+}
+
+.radio label {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+}
+
+.radio label svg {
+  width: 20px;
+  height: 20px;
+  fill: #666;
+  transition: all 0.3s ease;
+}
+
+/* Theme-specific heart colors */
+.theme-light > svg {
+  fill: #2563eb; /* Blue */
+}
+
+.theme-dark > svg {
+  fill: #BB86FC; /* Purple - dark theme icon color */
+}
+
+.theme-pink > svg {
+  fill: #d81b60; /* Pink */
+}
+
+.radio > label::before,
+.radio > label::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: var(--theme-color, #ff9e0b);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  transition:
+    transform 0.4s ease,
+    opacity 0.4s ease;
+}
+
+.radio > label::before {
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+}
+
+.radio > label::after {
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+}
+
+.radio > label:hover {
+  transform: scale(1.2);
+  animation: pulse 0.6s infinite alternate;
+}
+
+/* Heart glow and animation on hover */
+.radio > label:hover > svg {
+  filter: drop-shadow(0 0 15px var(--theme-color, rgba(255, 158, 11, 0.9)));
+  animation: shimmer 1s ease infinite alternate;
+}
+
+/* Selected heart styling - using nth-child to target the correct label */
+.radio > input:nth-child(1):checked ~ label:nth-of-type(1) > svg {
+  fill: #2563eb;
+  filter: drop-shadow(0 0 15px rgba(37, 99, 235, 0.9));
+  animation: pulse 0.8s infinite alternate;
+}
+
+.radio > input:nth-child(2):checked ~ label:nth-of-type(2) > svg {
+  fill: #BB86FC;
+  filter: drop-shadow(0 0 15px rgba(187, 134, 252, 0.9));
+  animation: pulse 0.8s infinite alternate;
+}
+
+.radio > input:nth-child(3):checked ~ label:nth-of-type(3) > svg {
+  fill: #d81b60;
+  filter: drop-shadow(0 0 15px rgba(216, 27, 96, 0.9));
+  animation: pulse 0.8s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes particle-explosion {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    filter: drop-shadow(0 0 10px var(--theme-color, rgba(255, 158, 11, 0.5)));
+  }
+  100% {
+    filter: drop-shadow(0 0 20px var(--theme-color, rgba(255, 158, 11, 1)));
+  }
+} 
