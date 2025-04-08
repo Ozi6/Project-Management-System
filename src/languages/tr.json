@@ -11,10 +11,10 @@
   },
 
   "dashboard": {
-  "noUpcomingDeadlines": "Yaklaşan son teslim tarihi yok",
-  "upcoming": "Yaklaşan",
-  "risk": "Riskli",
-  "track": "Takip Ediliyor"
+    "noUpcomingDeadlines": "Yaklaşan son teslim tarihi yok",
+    "upcoming": "Yaklaşan",
+    "risk": "Riskli",
+    "track": "Takip Ediliyor"
   },
 
   "cal": {
@@ -40,10 +40,11 @@
   "procard.comp": "Tamamlandı",
   "procard.team": "Takım",
   "procard.due": "Son Tarih",
-  "procard.upd": "Güncellendi",
+  "procard.upd": "Yaratıldı",
   "procard.own": "Proje Sahibi",
   "procard.prog": "İlerleme",
   "procard.del": "Projeyi Sil",
+  "procard.leave": "Leave Project",
   "procard.deld": "Silmek istediğinizden emin misiniz:",
   "procard.deld2": "Bu işlem geri alınamaz.",
   "procard.add": "Yeni Proje Oluştur",
@@ -152,7 +153,7 @@
   "bug.can": "İptal",
   "bug.by": "Raporlayan",
   "bug.date": "Raporlama tarihi:",
-  "bug.write":"Yorumunu buraya yaz...",
+  "bug.write": "Yorumunu buraya yaz...",
   "bug.id": "Olay ID",
   "bug.com": "Yorumlar",
   "bug.comd": "Yorumunuzu buraya yazın...",

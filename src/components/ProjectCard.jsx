@@ -1,5 +1,5 @@
 ﻿import { useNavigate } from "react-router-dom";
-import { Calendar, Users, Clock, Trash2, AlertTriangle, X } from "lucide-react";
+import { Calendar, Users, Clock, Trash2, AlertTriangle, X, DoorOpen } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -127,15 +127,26 @@ const ProjectCard = ({
                 </div>
                 
                 {/* Delete button */}
-                <div className="mt-5 flex justify-end">
-                    <button 
+                {isOwner ? (<div className="mt-5 flex justify-end">
+                    <button
                         onClick={handleDeleteClick}
                         className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors flex items-center"
                     >
                         <Trash2 className="h-3.5 w-3.5 mr-1" />
                         {t("procard.del")}
                     </button>
-                </div>
+                </div>)
+                :
+                <div className="mt-5 flex justify-end">
+                    <button
+                        onClick={handleDeleteClick}
+                        className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 rounded transition-colors flex items-center"
+                    >
+                        <DoorOpen className="h-3.5 w-3.5 mr-1" />
+                        {t("procard.leave")}
+                    </button>
+                </div>}
+
             </div>
 
             {/* Custom Delete Confirmation Modal */}
