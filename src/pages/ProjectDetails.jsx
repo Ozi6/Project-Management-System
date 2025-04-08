@@ -1165,13 +1165,13 @@ const ProjectDetails = () => {
         <div className="flex flex-col h-screen">
             {backgroundImage && (
                 <div
-                    className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat"
+                    className="fixed inset-0 z-0 bg-center bg-cover bg-no-repeat"
                     style={{
                         backgroundImage: `url(${backgroundImage})`,
                     }}
                 >
                     <div
-                        className="absolute inset-0 backdrop-blur-sm"
+                        className="fixed inset-0 backdrop-blur-sm"
                         style={{ backgroundColor: getOverlayColor() }}
                     ></div>
                 </div>
@@ -1220,7 +1220,7 @@ const ProjectDetails = () => {
                 </div>
 
                 {/* Sidebar - hidden on mobile, shown on md+ screens */}
-                <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5">
+                <div className="hidden md:block fixed top-15 left-0 h-full bg-[var(--bg-color)] shadow-md z-10">
                     <Sidebar
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
@@ -1346,7 +1346,7 @@ const ProjectDetails = () => {
                                         width: '100%',
                                         marginBottom: '20px',
                                     }}
-                                    className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-8`}
+                                    className={`flex ${isHorizontalLayout ? 'overflow-x-auto' : 'flex-wrap'} gap-4 mt-6 px-4 md:pl-20`}
                                 >
                                     {displayColumns.map((tasks, columnIndex) => (
                                         <motion.div
