@@ -433,19 +433,6 @@ public class ProjectServicer
         );
 
         projectRepository.save(project);
-
-         // Add activity log
-    recentActivityService.createActivity(
-        project.getOwner().getUserId(),
-        projectId,
-        "REMOVE",
-        "MEMBER",
-        Long.valueOf(memberToRemove.getUserId()), //BOOM
-        memberToRemove.getUsername(),
-        null,
-        null
-    );
-
     }
 
     public void deleteProject(Long projectId)

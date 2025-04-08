@@ -170,7 +170,7 @@ const ProjectCard = ({
                                 <div className="bg-red-100 p-2 rounded-full">
                                     <AlertTriangle className="h-6 w-6 text-red-600" />
                                 </div>
-                                <h3 className="text-lg font-bold ml-3 text-gray-800">{t("procard.del")}</h3>
+                                <h3 className="text-lg font-bold ml-3 text-gray-800">{isOwner ? t("procard.del") : t("procard.leave")}</h3>
                                 <button 
                                     onClick={cancelDelete}
                                     className="ml-auto p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
@@ -181,7 +181,7 @@ const ProjectCard = ({
                             
                             <div className="mb-6">
                                 <p className="text-gray-600">
-                                {t("procard.deld")} <span className="font-semibold">{name}</span>? {t("procard.deld2")}
+                                    {isOwner ? t("procard.deld") : t("procard.leaved")} <span className="font-semibold">{name}</span>? {isOwner ? t("procard.deld2") : t("procard.leaved2")}
                                 </p>
                             </div>
                             
@@ -196,8 +196,9 @@ const ProjectCard = ({
                                     onClick={confirmDelete}
                                     className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center"
                                 >
-                                    <Trash2 className="h-4 w-4 mr-1.5" />
-                                    {t("procard.del")}
+
+                                    {isOwner ? <Trash2 className="h-4 w-4 mr-1.5" /> : <DoorOpen className="h-4 w-4 mr-1.5" />}
+                                    {isOwner ? t("procard.del") : t("procard.leave")}
                                 </button>
                             </div>
                         </motion.div>

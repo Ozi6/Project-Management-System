@@ -247,6 +247,35 @@ const ProjectManagement = () => {
         }
     };
 
+    const leaveProject = async (projectId) =>
+    {
+        if(!isLoaded || !user)
+            return;
+
+        try{
+            const token = await getToken();
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}/members/${user.id}`,
+            {
+                withCredentials: true,
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+            const updatedProjects = activeProjects.filter(project => project.projectId !== projectId);
+            setActiveProjects(updatedProjects);
+            setFilteredProjects(updatedProjects);
+        }catch(error){
+            console.error("Error leaving project:", error);
+            if(error.response && error.response.status === 403)
+                alert("You don't have permission to leaving this project");
+            else
+                alert("An error occurred while leaving the project");
+        }
+    };
+
     useEffect(() =>
     {
         const handleResize = () =>
@@ -435,7 +464,7 @@ const ProjectManagement = () => {
                                                 progress={project.progress}
                                                 status={project.status}
                                                 isOwner={project.isOwner}
-                                                onDelete={deleteProject}
+                                                onDelete={project.isOwner ? deleteProject : leaveProject}
                                                 dueDate={project.dueDate}
                                                 teamMembers={project.teamMembers == null ? 1 : project.teamMembers.length}
                                                 lastUpdated={project.lastUpdated}
