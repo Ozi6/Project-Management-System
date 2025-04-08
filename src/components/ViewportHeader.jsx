@@ -564,7 +564,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
     return(
         <div className="relative">
             <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-[var(--bg-color)]/95 shadow-md backdrop-blur-sm z-[1000]">
-                <div className="flex items-center  rounded-lg px-3 h-full bg-white">
+                <div className="flex items-center  rounded-lg px-3 h-full ">
 
                     <Link to="/" className="flex items-center mr-2 sm:mr-4 md:mr-8 flex-shrink-0">
                         <img
