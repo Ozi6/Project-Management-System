@@ -167,6 +167,7 @@
   "set.no": "no file selected",
   "set.advanced": "Advanced Settings",
   "set.delete": "Delete Project",
+  "set.leave": "Leave Project",
   "set.per": "You need to be the project owner to modify these settings",
   "set.named": "My Project",
   "set.dd": "A brief description of my project.",
