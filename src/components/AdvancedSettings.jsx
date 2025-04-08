@@ -650,6 +650,7 @@ const AdvancedSettings = ({ setShowAdvanced, projectId }) => {
                         onClose={() => setMemberToManageTeams(null)}
                         projectId={projectId}
                         onRemoveFromTeam={removeFromTeam}
+                        onTeamCreated={(newTeam) => {setTeams(prev => [...prev, newTeam]);}}
                     />
                 )}
           </>

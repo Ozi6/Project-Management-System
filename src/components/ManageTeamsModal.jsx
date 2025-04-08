@@ -453,7 +453,7 @@ const ModalHeader = ({ member }) =>
     );
 };
 
-const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId, onRemoveFromTeam }) =>
+const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam, onClose, projectId, onRemoveFromTeam, onTeamCreated }) =>
 {
     const { t } = useTranslation();
     const [localMemberTeams, setLocalMemberTeams] = useState([]);
@@ -650,6 +650,10 @@ const ManageTeamsModal = ({ member, teams, onAddToTeam, onEditTeam, onDeleteTeam
             setNewTeamName("");
             setNewTeamIcon("Users");
             setIsAddingTeam(false);
+
+            if(onTeamCreated)
+                onTeamCreated(newTeam);
+
         }catch(err){
             console.error('Error creating team:', err);
         }finally{
