@@ -601,17 +601,17 @@ const Dashboard = () => {
     const getActivityIcon = (actionType) => {
         switch (actionType) {
             case 'CREATE':
-                return <Plus className="h-4 w-4 text-green-500" />;
+                return <Plus className="h-4 w-4 text-white" />;
             case 'UPDATE':
-                return <FileText className="h-4 w-4 text-blue-500" />;
+                return <FileText className="h-4 w-4 text-white" />;
             case 'DELETE':
-                return <AlertCircle className="h-4 w-4 text-red-500" />;
+                return <AlertCircle className="h-4 w-4 text-[var(--bug-report)]" />;
             case 'ADD':
-                return <Heart className="h-4 w-4 text-pink-500" />;
+                return <Heart className="h-4 w-4 text-white" />;
             case 'REMOVE':
-                return <ArrowDown className="h-4 w-4 text-orange-500" />;
+                return <ArrowDown className="h-4 w-4 text-white" />;
             default:
-                return <Activity className="h-4 w-4 text-[var(--features-icon-color)]" />;
+                return <Activity className="h-4 w-4 text-white" />;
         }
     };
 
@@ -845,10 +845,10 @@ const Dashboard = () => {
                                                     {(activity.oldValue || activity.newValue) && (
                                                         <div className="text-xs mt-1">
                                                             {activity.oldValue && (
-                                                                <span className="text-red-500 line-through mr-2">{activity.oldValue}</span>
+                                                                <span className="text-[var(--bug-report)] line-through mr-2">{activity.oldValue}</span>
                                                             )}
                                                             {activity.newValue && (
-                                                                <span className="text-green-500">{activity.newValue}</span>
+                                                                <span className="text-[var(--homepage-text-bright)]">{activity.newValue}</span>
                                                             )}
                                                         </div>
                                                     )}
@@ -871,64 +871,64 @@ const Dashboard = () => {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Upcoming deadlines */}
                             <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: 0.6, duration: 0.5 }}
-    className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
->
-    <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.upcoming")}</h2>
-        <button
-            onClick={navigateToCalendar}
-            className="text-sm flex items-center text-[var(--features-icon-color)] hover:underline"
-        >
-            <Calendar className="h-4 w-4 mr-1" />
-            {t("dashboard.view.timeline")}
-        </button>
-    </div>
-    <div className="space-y-3">
-        {isLoadingDeadlines ? (
-            <div className="flex justify-center items-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
-            </div>
-        ) : upcomingDeadlines.length > 0 ? (
-            upcomingDeadlines.slice(0, 4).map(deadline => {
-                const statusText = deadline.status === 'overdue' ? t("dashboard.risk") : 
-                                   deadline.status === 'warning' ? t("dashboard.risk") : // Changed to use "Riskli" for warning
-                                   t("dashboard.upcoming");
-                
-                return (
-                    <div key={deadline.id} className="flex items-center !bg-[var(--bg-color)] justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                        <div>
-                            <h3 className="font-medium text-[var(--features-text-color)]">{deadline.task}</h3>
-                            <p className="text-xs text-[var(--features-title-color)]">{deadline.project} • {deadline.category}</p>
-                        </div>
-                        <div className="flex flex-col items-end">
-                            <div className="flex items-center mb-1">
-                                {getStatusIcon(statusText)}
-                                <span className={`ml-1 text-xs font-medium ${getStatusColor(statusText)}`}>
-                                    {statusText}
-                                </span>
-                            </div>
-                            <span className="text-xs text-[var(--features-title-color)]">
-                                {new Date(deadline.dueDate).toLocaleDateString()}
-                                {deadline.daysUntilDue === 0 && ` (${t("cal.due_today")})`}
-                                {deadline.daysUntilDue === 1 && ` (${t("cal.due_tomorrow")})`}
-                                {deadline.daysUntilDue > 1 && deadline.daysUntilDue <= 3 && ` (${t("cal.due_in")} ${deadline.daysUntilDue} ${t("cal.days")})`}
-                                {deadline.daysUntilDue > 3 && ` (${t("cal.due_in")} ${deadline.daysUntilDue} ${t("cal.days")})`}
-                                {deadline.daysUntilDue < 0 && ` (${Math.abs(deadline.daysUntilDue)} ${t("cal.days_overdue")})`}
-                            </span>
-                        </div>
-                    </div>
-                );
-            })
-        ) : (
-            <div className="text-center py-4 text-sm text-[var(--features-title-color)]">
-                {t("dashboard.noUpcomingDeadlines")}
-            </div>
-        )}
-    </div>
-</motion.div>
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.6, duration: 0.5 }}
+                                className="bg-[var(--bg-color)] p-5 rounded-xl shadow-sm border border-[var(--loginpage-bg)]"
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.upcoming")}</h2>
+                                    <button
+                                        onClick={navigateToCalendar}
+                                        className="text-sm flex items-center text-[var(--features-icon-color)] hover:underline"
+                                    >
+                                        <Calendar className="h-4 w-4 mr-1" />
+                                        {t("dashboard.view.timeline")}
+                                    </button>
+                                </div>
+                                <div className="space-y-3">
+                                    {isLoadingDeadlines ? (
+                                        <div className="flex justify-center items-center h-32">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
+                                        </div>
+                                    ) : upcomingDeadlines.length > 0 ? (
+                                        upcomingDeadlines.slice(0, 4).map(deadline => {
+                                            const statusText = deadline.status === 'overdue' ? t("dashboard.risk") : 
+                                                            deadline.status === 'warning' ? t("dashboard.risk") : // Changed to use "Riskli" for warning
+                                                            t("dashboard.upcoming");
+                                            
+                                            return (
+                                                <div key={deadline.id} className="flex items-center !bg-[var(--bg-color)] justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    <div>
+                                                        <h3 className="font-medium text-[var(--features-text-color)]">{deadline.task}</h3>
+                                                        <p className="text-xs text-[var(--features-title-color)]">{deadline.project} • {deadline.category}</p>
+                                                    </div>
+                                                    <div className="flex flex-col items-end">
+                                                        <div className="flex items-center mb-1">
+                                                            {getStatusIcon(statusText)}
+                                                            <span className={`ml-1 text-xs font-medium ${getStatusColor(statusText)}`}>
+                                                                {statusText}
+                                                            </span>
+                                                        </div>
+                                                        <span className="text-xs text-[var(--features-title-color)]">
+                                                            {new Date(deadline.dueDate).toLocaleDateString()}
+                                                            {deadline.daysUntilDue === 0 && ` (${t("cal.due_today")})`}
+                                                            {deadline.daysUntilDue === 1 && ` (${t("cal.due_tomorrow")})`}
+                                                            {deadline.daysUntilDue > 1 && deadline.daysUntilDue <= 3 && ` (${t("cal.due_in")} ${deadline.daysUntilDue} ${t("cal.days")})`}
+                                                            {deadline.daysUntilDue > 3 && ` (${t("cal.due_in")} ${deadline.daysUntilDue} ${t("cal.days")})`}
+                                                            {deadline.daysUntilDue < 0 && ` (${Math.abs(deadline.daysUntilDue)} ${t("cal.days_overdue")})`}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="text-center py-4 text-sm text-[var(--features-title-color)]">
+                                            {t("dashboard.noUpcomingDeadlines")}
+                                        </div>
+                                    )}
+                                </div>
+                            </motion.div>
 
                             {/* Documents with blue accents */}
                             <motion.div

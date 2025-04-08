@@ -874,7 +874,7 @@ const IncidentsBugs = () => {
                         setCommentText(e.target.value);
                         if (commentError) setCommentError('');
                       }}
-                      placeholder="Write your comment here..."
+                      placeholder= {t("bug.write")}
                       rows="3"
                       className={`w-full p-3 bg-[var(--bg-color)] border ${commentError ? 'border-red-500' : 'border-[var(--features-icon-color)]/30'} text-[var(--text-color3)] rounded-lg focus:ring-2 focus:ring-[var(--features-icon-color)] focus:border-transparent transition-all duration-200 mb-2`}
                     ></textarea>
@@ -890,14 +890,14 @@ const IncidentsBugs = () => {
                         }}
                         className="px-3 py-1.5 text-sm rounded-lg bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        Cancel
+                        {t("bug.can")}
                       </button>
                       <button
                         type="button"
                         onClick={handleAddComment}
                         className="px-3 py-1.5 text-sm rounded-lg bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)] transition-colors shadow-sm"
                       >
-                        Submit
+                        {t("bug.sub")}
                       </button>
                     </div>
                   </div>

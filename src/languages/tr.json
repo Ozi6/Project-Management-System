@@ -21,7 +21,10 @@
     "due_in": "",
     "days": "gün içinde teslim",
     "left": "kaldı",
-    "days_left": "gün kaldı"
+    "days_left": "gün kaldı",
+    "due_tomorrow": "Yarına",
+    "due_today": "Bugüne",
+    "days_overdue": "gün geç kalındı"
   },
 
   "sidebar.user": "Kullanıcı",
@@ -63,6 +66,7 @@
   "dashboard.complete": "Tamamlandı",
   "dashboard.proprog": "Proje İlerlemesi",
   "dashboard.recent": "Son Faaliyetler",
+  "dashboard.noActivities": "Son faaliyet yok",
   "dashboard.upcoming": "Yaklaşan Son Tarihler",
   "dashboard.doc": "Son Belgeler",
   "dashboard.view.timeline": "Zaman Çizelgesini Görüntüle",
@@ -125,7 +129,7 @@
   "bug.filtered": "Filtrelenmiş Raporlar",
   "bug.ench": "İyileştirme",
   "bug.feature": "Özellik",
-  "bug.bug": "Hata",
+  "bug.nocom": "Yorum Yok",
 
   "bug.replies": "yanıt",
   "bug.reply": "yanıt",
@@ -146,9 +150,10 @@
   "bug.hi": "Yüksek",
   "bug.med": "Orta",
   "bug.can": "İptal",
-  "bug.by": "Raporlayan:",
+  "bug.by": "Raporlayan",
   "bug.date": "Raporlama tarihi:",
-  "bug.id": "Olay ID:",
+  "bug.write":"Yorumunu buraya yaz...",
+  "bug.id": "Olay ID",
   "bug.com": "Yorumlar",
   "bug.comd": "Yorumunuzu buraya yazın...",
   "bug.sub": "Gönder",

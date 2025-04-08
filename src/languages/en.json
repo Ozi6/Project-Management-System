@@ -21,7 +21,10 @@
     "due_in": "due in",
     "days": "days",
     "left": "left",
-    "days_left": "days left"
+    "days_left": "days left",
+    "due_tomorrow": "Due tomorrow",
+    "due_today": "Due today",
+    "days_overdue": "days overdue"
   },
 
   "sidebar.user": "User",
@@ -223,6 +226,7 @@
   "dashboard.complete": "Completed",
   "dashboard.proprog": "Project Progress",
   "dashboard.recent": "Recent Activity",
+  "dashboard.noActivities": "No recent activities",
   "dashboard.upcoming": "Upcoming Deadlines",
   "dashboard.doc": "Recent Documents",
   "dashboard.view.timeline": "View Timeline",
@@ -287,6 +291,7 @@
   "bug.hi": "High",
   "bug.med": "Medium",
   "bug.can": "Cancel",
+  "bug.write":"Write your comment here...",
   "bug.by": "Reported by:",
   "bug.date": "Date reported:",
   "bug.id": "Incident ID:",
@@ -446,7 +451,7 @@
   "resources2d": "Frequently asked questions.",
 
   "hero1": "Transform Your Project Management with",
-  "hero2": "Manage Projects 27/7",
+  "hero2": "Manage Projects 24/7",
   "hero3": "100%",
   "hero4": "Free",
   "hero1d": "Streamline collaboration, boost productivity, and deliver projects successfully with our powerful project management solution.",
