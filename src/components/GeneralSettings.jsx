@@ -167,7 +167,7 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
             const formData = new FormData();
             // formData.append('id', projectId);
             formData.append('projectName', projectName);
-            formData.append('description', projectDescription);
+            formData.append('description', projectDescription ? projectDescription : "");
             formData.append('dueDate', dueDate ? new Date(dueDate).toISOString().substring(0, 10) : null);
 
             if(backgroundImageFile)

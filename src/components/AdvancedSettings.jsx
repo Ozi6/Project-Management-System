@@ -11,7 +11,7 @@ import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-const RemoveConfirmationModal = ({ member, onConfirm, projectId }) => {
+const RemoveConfirmationModal = ({ member, onConfirm, projectId, onCancel }) => {
     const { t } = useTranslation();
 
   return (
@@ -312,13 +312,40 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
 
     const confirmRemoveMember = (id) =>
     {
-        if (!id)
+        if (!id || user.id === id)
         {
             console.warn("Invalid id for confirmRemoveMember");
             return;
         }
         setMembers(members.filter((member) => member.id !== id));
+        leaveProject(id);
         setMemberToRemove(null);
+    };
+
+    const leaveProject = async (userId) =>
+    {
+        if (!user)
+            return;
+
+        try{
+            const token = await getToken();
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}/members/${userId}`,
+            {
+                withCredentials: true,
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+        } catch (error) {
+            console.error("Error leaving project:", error);
+            if (error.response && error.response.status === 403)
+                alert("You don't have permission to leaving this project");
+            else
+                alert("An error occurred while leaving the project");
+        }
     };
 
     const addToTeam = async (memberId, teamId) =>
@@ -373,7 +400,6 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
             return parts[0].charAt(0).toUpperCase();
         return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
     };
-
 
     const editTeam = async (updatedTeam, oldTeam) =>
     {
