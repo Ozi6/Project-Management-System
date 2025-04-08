@@ -860,9 +860,6 @@ const Dashboard = () => {
                                     )}
                                 </div>
                             </motion.div>
-
-
-
                         </div>
 
                         {/* Third row with blue accents */}
