@@ -674,7 +674,6 @@ const Dashboard = () => {
                                 <Link to="/projects" className="bg-[var(--bg-color4)]bg-[var(--bg-color4)]/20 hover:bg-[var(--bg-color4)]/30 transition-colors py-2 px-4 rounded-lg flex items-center text-sm backdrop-blur-sm">
                                     {t("dashboard.view")} <ChevronRight className="h-4 w-4 ml-1" />
                                 </Link>
-
                             </div>
                         </motion.div>
 
@@ -744,17 +743,16 @@ const Dashboard = () => {
 
                         {/* Main dashboard content with blue accents */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Projects overview */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4, duration: 0.5 }}
-                                className="bg-[var(--bg-color)] p-5 rounded-xl text-[var(--features-title-color)] shadow-sm border border-[var(--loginpage-bg)] lg:col-span-2"
-                            >
+                                className="bg-[var(--bg-color)] p-5 rounded-xl text-[var(--features-title-color)] shadow-sm border border-[var(--loginpage-bg)] lg:col-span-2">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="font-semibold text-[var(--features-title-color)]">{t("dashboard.proprog")}</h2>
                                     <Link to="/projects" className="text-sm text-[var(--features-icon-color)] hover:underline flex items-center">
-                                        
+                                        {t("dashboard.viewall")} <ChevronRight className="h-4 w-4" />
+
                                     </Link>
                                 </div>
                                 <div className="space-y-4">
