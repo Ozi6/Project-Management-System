@@ -156,6 +156,7 @@ CREATE TABLE recent_activity (
     old_value TEXT,  -- Previous value (for updates)
     new_value TEXT,  -- New value (for updates)
     activity_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    seen BOOLEAN not null DEFAULT false,
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

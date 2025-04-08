@@ -14,6 +14,7 @@ public class RecentActivityDTO {
     private String newValue;
     private LocalDateTime activityTime;
     private String message; // Computed message for display
+    private boolean seen;
 
     // Getters and Setters
     public Long getActivityId() { return activityId; }
@@ -38,4 +39,6 @@ public class RecentActivityDTO {
     public void setActivityTime(LocalDateTime activityTime) { this.activityTime = activityTime; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+    public boolean getSeen() {return seen;}
+    public void setSeen(boolean seen) {this.seen = seen;}
 }

@@ -1180,6 +1180,7 @@ const ProjectDetails = () => {
                 isHorizontalLayout={isHorizontalLayout}
                 toggleLayout={toggleLayout}
                 onAddCategorizer={handleAddCategorizer}
+                projectId={id}
             />
             <div className="flex flex-1 relative">
                 {/* Mobile menu toggle button */}

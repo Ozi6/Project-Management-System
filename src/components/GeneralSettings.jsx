@@ -3,6 +3,9 @@ import { FaCog, FaSave } from "react-icons/fa";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Calendar, Users, Clock, Trash2, AlertTriangle, X, DoorOpen } from "lucide-react";  
+import { motion, AnimatePresence } from "framer-motion";
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import axios from "axios";
 
 const GeneralSettings = ({ setShowAdvanced, projectId }) => {
@@ -75,6 +78,52 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
         fetchData();
     }, [isLoaded, projectId, user, getToken]);
 
+    const handleDeleteClick = (e) =>
+    {
+        e.stopPropagation();
+        setShowDeleteConfirm(true);
+    };
+
+    const handleLeaveProject = async () =>
+    {
+        if(!isLoaded || !user)
+            return;
+
+        try{
+            const token = await getToken();
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}/members/${user.id}`,
+            {
+                withCredentials: true,
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+            navigate('/dashboard');
+        }catch(error){
+            console.error("Error leaving project:", error);
+            if(error.response && error.response.status === 403)
+                alert("You don't have permission to leaving this project");
+            else
+                alert("An error occurred while leaving the project");
+        }
+    };
+
+    const confirmDelete = (e) =>
+    {
+        e.stopPropagation();
+        isOwner ? handleDeleteProject() : handleLeaveProject();
+        setShowDeleteConfirm(false);
+    };
+
+    const cancelDelete = (e) =>
+    {
+        e.stopPropagation();
+        setShowDeleteConfirm(false);
+    };
+
     const handleBackgroundImageChange = (e) =>
     {
         if(!isProjectOwner)
@@ -88,13 +137,31 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
         }
     };
 
-    const handleDeleteProject = () =>
+    const handleDeleteProject = async () =>
     {
         if(!isProjectOwner)
             return;
 
-        if(window.confirm(t("set.warn")))
-            console.log(t("set.warn.ok"));
+        try{
+            const token = await getToken();
+            await axios.delete(`http://localhost:8080/api/projects/${projectId}`,
+            {
+                withCredentials: true,
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+            navigate('/dashboard');
+        }catch(error){
+            console.error("Error deleting project:", error);
+            if(error.response && error.response.status === 403)
+                alert("You don't have permission to delete this project");
+            else
+                alert("An error occurred while deleting the project");
+        }
     };
 
     const handleSaveChanges = async () => {
@@ -110,7 +177,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
 
             const formData = new FormData();
             formData.append('projectName', projectName);
-            formData.append('description', projectDescription);
+            formData.append('description', projectDescription ? projectDescription : "");
             formData.append('dueDate', dueDate ? new Date(dueDate).toISOString().substring(0, 10) : null);
 
             if (backgroundImageFile)
@@ -270,15 +337,74 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
                         </button>
                     )}
 
-                    <button
-                        onClick={handleDeleteProject}
-                        className={`bg-red-500 !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out ${isProjectOwner ? "hover:bg-red-600" : "opacity-50 cursor-not-allowed"
-                            }`}
-                        disabled={!isProjectOwner}
+                    {isOwner ? (<button
+                        onClick={handleDeleteClick}
+                        className={`bg-red-500 !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out ${isProjectOwner ? "hover:bg-red-600" : "opacity-50 cursor-not-allowed"}`}
                     >
                         {t("set.delete")}
-                    </button>
+                    </button>) : <button
+                        onClick={handleDeleteClick}
+                        className={`bg-red-500 !text-white font-semibold py-3 px-6 rounded-xl transition duration-200 ease-in-out hover:bg-red-600`}
+                    >
+                        {t("set.leave")}
+                    </button>}
+
                 </div>
+                <AnimatePresence>
+                    {showDeleteConfirm && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={cancelDelete}
+                            className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                onClick={e => e.stopPropagation()}
+                                className="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4"
+                            >
+                                <div className="flex items-center mb-4">
+                                    <div className="bg-red-100 p-2 rounded-full">
+                                        <AlertTriangle className="h-6 w-6 text-red-600" />
+                                    </div>
+                                    <h3 className="text-lg font-bold ml-3 text-gray-800">{isOwner ? t("procard.del") : t("procard.leave")}</h3>
+                                    <button
+                                        onClick={cancelDelete}
+                                        className="ml-auto p-1 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <X className="h-5 w-5" />
+                                    </button>
+                                </div>
+
+                                <div className="mb-6">
+                                    <p className="text-gray-600">
+                                        {isOwner ? t("procard.deld") : t("procard.leaved")} <span className="font-semibold">{name}</span>? {isOwner ? t("procard.deld2") : t("procard.leaved2")}
+                                    </p>
+                                </div>
+
+                                <div className="flex justify-end space-x-3">
+                                    <button
+                                        onClick={cancelDelete}
+                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                    >
+                                        {t("prode.can")}
+                                    </button>
+                                    <button
+                                        onClick={confirmDelete}
+                                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors flex items-center"
+                                    >
+
+                                        {isOwner ? <Trash2 className="h-4 w-4 mr-1.5" /> : <DoorOpen className="h-4 w-4 mr-1.5" />}
+                                        {isOwner ? t("procard.del") : t("procard.leave")}
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

@@ -11,7 +11,7 @@ import ManageTeamsModal from "./ManageTeamsModal";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-const RemoveConfirmationModal = ({ member, onConfirm, projectId }) => {
+const RemoveConfirmationModal = ({ member, onConfirm, projectId, onCancel }) => {
     const { t } = useTranslation();
 
   return (
@@ -426,9 +426,9 @@ const AdvancedSettings = ({ setShowAdvanced, projectId }) => {
         return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
     };
 
-
-    const editTeam = async (updatedTeam, oldTeam) => {
-        try {
+    const editTeam = async (updatedTeam, oldTeam) =>
+    {
+        try{
             const token = await getToken();
             await axios.put(
                 `http://localhost:8080/api/projects/${projectId}/teams/${oldTeam.id}`,

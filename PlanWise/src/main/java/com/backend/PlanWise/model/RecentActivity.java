@@ -47,6 +47,19 @@ public class RecentActivity {
     @Column(nullable = false)
     private LocalDateTime activityTime = LocalDateTime.now();
 
+    public boolean isSeen()
+    {
+        return seen;
+    }
+
+    public void setSeen(boolean seen)
+    {
+        this.seen = seen;
+    }
+
+    @Column(nullable = false)
+    private boolean seen = false;
+
     // Getters and Setters
     public Long getActivityId() { return activityId; }
     public void setActivityId(Long activityId) { this.activityId = activityId; }

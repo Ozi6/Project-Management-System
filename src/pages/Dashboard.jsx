@@ -810,7 +810,7 @@ const Dashboard = () => {
                                             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--features-icon-color)]"></div>
                                         </div>
                                     ) : recentActivities.length > 0 ? (
-                                        recentActivities.slice(0, 4).map((activity) => (
+                                        recentActivities.slice(0, 3).map((activity) => (
                                             <motion.div
                                                 key={activity.activityId}
                                                 initial={{ opacity: 0, x: -10 }}
@@ -860,9 +860,6 @@ const Dashboard = () => {
                                     )}
                                 </div>
                             </motion.div>
-
-
-
                         </div>
 
                         {/* Third row with blue accents */}

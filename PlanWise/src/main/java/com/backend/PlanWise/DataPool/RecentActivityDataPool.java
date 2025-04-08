@@ -1,6 +1,7 @@
 package com.backend.PlanWise.DataPool;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,8 @@ public interface RecentActivityDataPool extends JpaRepository<RecentActivity, Lo
         @Param("projectId") Long projectId, 
         @Param("entityType") String entityType
     );
+
+    List<RecentActivity> findByProjectProjectId(Long projectId);
+
+    Optional<RecentActivity> findByActivityIdAndProjectProjectId(Long activityId, Long projectId);
 }

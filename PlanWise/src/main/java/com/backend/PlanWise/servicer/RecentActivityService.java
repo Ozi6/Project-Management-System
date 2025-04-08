@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +56,7 @@ public class RecentActivityService {
         activity.setOldValue(oldValue);
         activity.setNewValue(newValue);
         activity.setActivityTime(LocalDateTime.now());
+        activity.setSeen(false);
 
         return recentActivityRepository.save(activity);
     }
@@ -72,6 +74,7 @@ public class RecentActivityService {
         activity.setEntityId(entityId);
         activity.setEntityName(entityName);
         activity.setActivityTime(LocalDateTime.now());
+        activity.setSeen(false);
 
         return recentActivityRepository.save(activity);
     }
@@ -116,6 +119,7 @@ public class RecentActivityService {
         dto.setOldValue(activity.getOldValue());
         dto.setNewValue(activity.getNewValue());
         dto.setActivityTime(activity.getActivityTime());
+        dto.setSeen(activity.isSeen());
         
         dto.setMessage(generateActivityMessage(activity));
         
@@ -186,5 +190,22 @@ public class RecentActivityService {
             null, // oldValue
             null  // newValue
         );
+    }
+
+    @Transactional
+    public void markActivityAsSeen(Long projectId, Long activityId)
+    {
+        RecentActivity activity = recentActivityRepository.findByActivityIdAndProjectProjectId(activityId, projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Activity not found"));
+        activity.setSeen(true);
+        recentActivityRepository.save(activity);
+    }
+
+    @Transactional
+    public void markAllActivitiesAsSeen(Long projectId)
+    {
+        List<RecentActivity> activities = recentActivityRepository.findByProjectProjectId(projectId);
+        activities.forEach(activity -> activity.setSeen(true));
+        recentActivityRepository.saveAll(activities);
     }
 }
