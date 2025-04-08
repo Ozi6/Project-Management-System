@@ -98,46 +98,68 @@ const ManageRoleModal = ({ member, onClose, onUpdateRole, roles, currentRole }) 
   );
 };
 
-const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
-{
+const AdvancedSettings = ({ setShowAdvanced, projectId }) => {
     const {t} = useTranslation();
     const { getToken } = useAuth();
     const { user } = useUser();
-    const isProjectOwner = isOwner;
-
+    
+    // Remove isOwner prop dependency and fetch from backend
+    const [isProjectOwner, setIsProjectOwner] = useState(false);
     const [members, setMembers] = useState([]);
     const [teams, setTeams] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() =>
-    {
-        const fetchData = async () =>
-        {
+    useEffect(() => {
+        const fetchData = async () => {
+            // First check ownership status from backend
+            await checkOwnership();
             await fetchTeams();
             await fetchMembers();
         };
 
-        fetchData();
-    },[projectId, getToken, t]);
+        if (user && projectId) {
+            fetchData();
+        }
+    }, [projectId, getToken, t, user]);
 
-    const fetchTeams = async () =>
-    {
-        try{
+    const checkOwnership = async () => {
+        try {
+            const token = await getToken();
+            const response = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}/isOwner`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'userId': user.id
+                    },
+                }
+            );
+            setIsProjectOwner(response.data.isOwner);
+        } catch (err) {
+            console.error('Error checking project ownership:', err);
+            setIsProjectOwner(false);
+            setError('Failed to verify ownership status');
+        }
+    };
+
+    // Rest of your fetch functions with added error handling
+    const fetchTeams = async () => {
+        try {
             const token = await getToken();
             const response = await axios.get(
                 `http://localhost:8080/api/projects/${projectId}/teams`,
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
+                        'userId': user.id
                     },
                 }
             );
 
-            const teamsData = response.data.map(team => (
-            {
+            const teamsData = response.data.map(team => ({
                 id: team.teamId,
                 name: team.teamName,
                 icon: team.iconName,
@@ -145,7 +167,7 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
             }));
 
             setTeams(teamsData);
-        }catch(err){
+        } catch (err) {
             console.error('Error fetching teams:', err);
             setError(t("pro.errd"));
         }
@@ -257,17 +279,16 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     });
   };
 
-    const deleteTeam = async (teamId) =>
-    {
-        try{
+    const deleteTeam = async (teamId) => {
+        try {
             const token = await getToken();
             await axios.delete(
                 `http://localhost:8080/api/projects/${projectId}/teams/${teamId}`,
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
+                        'userId': user.id
                     },
                 }
             );
@@ -281,8 +302,13 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                 )
             );
             return true;
-        }catch(err){
-            console.error('Error deleting team:', err);
+        } catch (err) {
+            if (err.response && err.response.status === 403) {
+                setError('Permission denied: Only the project owner can delete teams');
+            } else {
+                console.error('Error deleting team:', err);
+                setError('Failed to delete team');
+            }
             return false;
         }
     };
@@ -310,33 +336,54 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
         );
     };
 
-    const confirmRemoveMember = (id) =>
-    {
-        if (!id)
-        {
+    const confirmRemoveMember = async (id) => {
+        if (!id) {
             console.warn("Invalid id for confirmRemoveMember");
             return;
         }
-        setMembers(members.filter((member) => member.id !== id));
-        setMemberToRemove(null);
+        
+        try {
+            const token = await getToken();
+            await axios.delete(
+                `http://localhost:8080/api/projects/${projectId}/members/${id}`,
+                {
+                    withCredentials: true,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'userId': user.id
+                    },
+                }
+            );
+            
+            setMembers(members.filter((member) => member.id !== id));
+            setMemberToRemove(null);
+        } catch (err) {
+            if (err.response && err.response.status === 403) {
+                setError('Permission denied: Only the project owner can remove members');
+            } else {
+                console.error('Error removing member:', err);
+                setError('Failed to remove member');
+                setMemberToRemove(null);
+            }
+        }
     };
 
-    const addToTeam = async (memberId, teamId) =>
-    {
-        try{
+    const addToTeam = async (memberId, teamId) => {
+        try {
             const token = await getToken();
             await axios.post(
                 `http://localhost:8080/api/projects/${projectId}/teams/${teamId}/members/${memberId}`,
                 {},
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
+                        'userId': user.id
                     },
                 }
             );
 
+            // Rest of the function remains the same
             const teamName = teams.find(t => t.id === teamId)?.name;
             setMembers(prevMembers =>
                 prevMembers.map(member =>
@@ -359,8 +406,13 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                     : team
                 )
             );
-        }catch(err){
-            console.error('Error adding member to team:', err);
+        } catch (err) {
+            if (err.response && err.response.status === 403) {
+                setError('Permission denied: Only the project owner can add members to teams');
+            } else {
+                console.error('Error adding member to team:', err);
+                setError('Failed to add member to team');
+            }
         }
     };
 
@@ -375,11 +427,10 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
     };
 
 
-    const editTeam = async (updatedTeam, oldTeam) =>
-    {
-        try{
+    const editTeam = async (updatedTeam, oldTeam) => {
+        try {
             const token = await getToken();
-            const response = await axios.put(
+            await axios.put(
                 `http://localhost:8080/api/projects/${projectId}/teams/${oldTeam.id}`,
                 {
                     teamName: updatedTeam.name,
@@ -387,10 +438,10 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                 },
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json',
+                        'userId': user.id
                     },
                 }
             );
@@ -403,7 +454,12 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
                 )
             );
         } catch (err) {
-            console.error('Error updating team:', err);
+            if (err.response && err.response.status === 403) {
+                setError('Permission denied: Only the project owner can edit teams');
+            } else {
+                console.error('Error updating team:', err);
+                setError('Failed to update team');
+            }
         }
     };
 
@@ -426,6 +482,12 @@ const AdvancedSettings = ({ setShowAdvanced, isOwner, projectId }) =>
 
   return (
     <ErrorBoundary>
+        {error && (
+            <div className="p-3 mb-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                {error}
+            </div>
+        )}
+        
       <div className="p-4 md:p-6 w-full">
         <h2 className="text-xl font-bold mb-4 text-[var(--features-title-color)]">{t("adset.tit")}</h2>
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">

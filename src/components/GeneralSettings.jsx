@@ -5,44 +5,57 @@ import { UserCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import axios from "axios";
 
-const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
+const GeneralSettings = ({ setShowAdvanced, projectId }) => {
     const { t } = useTranslation();
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
 
-    const isProjectOwner = isOwner || false;
-
+    // Remove isOwner prop and fetch it from backend
+    const [isProjectOwner, setIsProjectOwner] = useState(false);
     const [projectName, setProjectName] = useState(t("set.name"));
     const [projectDescription, setProjectDescription] = useState(t("set.dd"));
     const [backgroundImage, setBackgroundImage] = useState("/src/img_back.jpg");
     const [backgroundImageFile, setBackgroundImageFile] = useState(null);
-    const [isPublic, setIsPublic] = useState(false);
     const [dueDate, setDueDate] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
     const [saving, setSaving] = useState(false);
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         if (!isLoaded || !user || !projectId)
             return;
 
-        const fetchProjectDetails = async () =>
-        {
-            try{
+        const fetchData = async () => {
+            try {
                 const token = await getToken();
-                const response = await axios.get(`http://localhost:8080/api/projects/${projectId}/details`,
-                {
-                    withCredentials: true,
-                    headers:
+                
+                // Fetch ownership status from backend
+                const ownershipResponse = await axios.get(
+                    `http://localhost:8080/api/projects/${projectId}/isOwner`,
                     {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'userId': user.id
+                        },
+                    }
+                );
+                setIsProjectOwner(ownershipResponse.data.isOwner);
+                
+                // Fetch project details
+                const detailsResponse = await axios.get(
+                    `http://localhost:8080/api/projects/${projectId}/details`,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    }
+                );
 
-                const projectData = response.data;
-
+                const projectData = detailsResponse.data;
+                
                 if(projectData.projectName)
                     setProjectName(projectData.projectName);
                 setProjectDescription(projectData.description);
@@ -52,14 +65,14 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
                     setBackgroundImage(`data:image/jpeg;base64,${projectData.backgroundImage}`);
 
                 setLoading(false);
-            }catch(err){
-                console.error('Error fetching project details:', err);
+            } catch (err) {
+                console.error('Error fetching project data:', err);
                 setError('Failed to load project settings');
                 setLoading(false);
             }
         };
 
-        fetchProjectDetails();
+        fetchData();
     }, [isLoaded, projectId, user, getToken]);
 
     const handleBackgroundImageChange = (e) =>
@@ -85,31 +98,30 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
     };
 
     const handleSaveChanges = async () => {
-        if(!isProjectOwner || !projectId)
+        // We'll still keep this check in the frontend for UI responsiveness
+        if (!isProjectOwner || !projectId)
             return;
-
+            
         setSaving(true);
         setSaveSuccess(false);
 
-        try{
+        try {
             const token = await getToken();
 
             const formData = new FormData();
-            // formData.append('id', projectId);
             formData.append('projectName', projectName);
             formData.append('description', projectDescription);
             formData.append('dueDate', dueDate ? new Date(dueDate).toISOString().substring(0, 10) : null);
 
-            if(backgroundImageFile)
+            if (backgroundImageFile)
                 formData.append('backgroundImage', backgroundImageFile);
-            console.log("USER:", user);
+
             const response = await axios.put(
                 `http://localhost:8080/api/projects/${projectId}/update`,
                 formData,
                 {
                     withCredentials: true,
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
                         'userId': user.id
@@ -118,16 +130,17 @@ const GeneralSettings = ({ setShowAdvanced, isOwner, projectId }) => {
             );
 
             setSaveSuccess(true);
-
-            setTimeout(() =>
-            {
+            setTimeout(() => {
                 setSaveSuccess(false);
             }, 3000);
-
-        }catch(err){
-            console.error('Error updating project:', err);
-            setError('Failed to update project settings');
-        }finally{
+        } catch (err) {
+            if (err.response && err.response.status === 403) {
+                setError('Permission denied: Only the project owner can update project details');
+            } else {
+                console.error('Error updating project:', err);
+                setError('Failed to update project settings');
+            }
+        } finally {
             setSaving(false);
         }
     };

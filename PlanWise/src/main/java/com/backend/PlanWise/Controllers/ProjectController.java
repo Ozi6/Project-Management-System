@@ -225,4 +225,12 @@ public class ProjectController
         TeamDTO createdTeam = projectService.createTeam(projectId, teamDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdTeam);
     }
+
+    @GetMapping("/{projectId}/isOwner")
+    public ResponseEntity<Map<String, Boolean>> checkProjectOwnership(
+            @PathVariable Long projectId,
+            @RequestHeader("userId") String userId) {
+        boolean isOwner = projectService.isProjectOwner(projectId, userId);
+        return ResponseEntity.ok(Map.of("isOwner", isOwner));
+    }
 }

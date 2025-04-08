@@ -585,7 +585,7 @@ public class ProjectServicer
     //comment to check fif this filed added to commit
 
 
-    public boolean isProjectOwner(Long projectId, String userId) {
+   /*  public boolean isProjectOwner(Long projectId, String userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
         
@@ -596,7 +596,7 @@ public class ProjectServicer
         if (!isProjectOwner(projectId, userId)) {
             throw new AccessDeniedException("User is not the owner of this project");
         }
-    }
+    } */
 
     @Autowired
     private TeamDataPool teamDataPool;
@@ -669,5 +669,31 @@ public class ProjectServicer
 
         Team savedTeam = teamDataPool.save(team);
         return convertTeamToDTO(savedTeam);
+    }
+    
+    /**
+     * Verifies if a user is the owner of a project
+     * @throws AccessDeniedException if user is not the owner
+     */
+    public void verifyProjectOwner(Long projectId, String userId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        
+        if (!project.getOwner().getUserId().equals(userId)) {
+            throw new AccessDeniedException("User is not the project owner");
+        }
+    }
+    
+    /**
+     * Checks if a user is the owner of a project without throwing an exception
+     */
+    public boolean isProjectOwner(Long projectId, String userId) {
+        try {
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+            return project.getOwner().getUserId().equals(userId);
+        } catch (Exception e) {
+            return false;
+        }
     }
 }
