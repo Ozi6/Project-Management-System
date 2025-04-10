@@ -36,7 +36,9 @@ const ProjectDetails = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
 
-    const isOwner = location.state?.isOwner || false;
+    const [hasAccess, setHasAccess] = useState(false);
+    const [accessChecking, setAccessChecking] = useState(true);
+    const [isOwner, setIsOwner] = useState(location.state?.isOwner || false);
 
     const [activeTab, setActiveTab] = useState("team");
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -55,6 +57,66 @@ const ProjectDetails = () => {
     const [members, setMembers] = useState([]);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
+
+    useEffect(() => {
+        if (!isLoaded || !user || !id) return;
+        
+        const checkProjectAccess = async () => {
+            try {
+                setAccessChecking(true);
+                const token = await getToken();
+                
+                const response = await axios.get(
+                    `http://localhost:8080/api/projects/${id}/members`,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+                
+                const isMember = response.data.some(member => member.userId === user.id);
+                
+                const ownerResponse = await axios.get(
+                    `http://localhost:8080/api/projects/${id}/isOwner`,
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'userId': user.id
+                        }
+                    }
+                );
+                
+                setIsOwner(ownerResponse.data.isOwner);
+                setHasAccess(isMember || ownerResponse.data.isOwner);
+                
+                if (!isMember && !ownerResponse.data.isOwner) {
+                    navigate('/dashboard', { 
+                        state: { 
+                            accessDenied: true,
+                            message: "You don't have access to this project" 
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error("Error checking project access:", error);
+                navigate('/dashboard', { 
+                    state: { 
+                        accessDenied: true,
+                        message: "Failed to verify project access" 
+                    }
+                });
+            } finally {
+                setAccessChecking(false);
+            }
+        };
+        
+        checkProjectAccess();
+        
+    }, [id, isLoaded, user, getToken, navigate]);
+
     const fetchProjectProgress = async () => {
         if (!isLoaded || !user || !id) return;
         
@@ -1105,6 +1167,17 @@ const ProjectDetails = () => {
             iconColor: 'text-gray-600'
         }
     ];
+
+    if (accessChecking) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-[var(--loginpage-bg)]">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--features-icon-color)] mx-auto"></div>
+                    <p className="mt-4 text-[var(--features-title-color)]">Verifying project access...</p>
+                </div>
+            </div>
+        );
+    }
 
     if(loading)
     {

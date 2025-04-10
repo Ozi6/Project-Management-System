@@ -20,6 +20,16 @@ const Dashboard = () => {
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
     const [recentFiles, setRecentFiles] = useState([]);
+    const location = useLocation();
+    const [accessDeniedMessage, setAccessDeniedMessage] = useState(null);
+
+    useEffect(() => {
+        if (location.state?.accessDenied) {
+            setAccessDeniedMessage(location.state.message || "Access denied");
+            // Clear the state after displaying the message
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
 
     useEffect(() => {
         const syncUserData = async () =>
@@ -155,7 +165,6 @@ const Dashboard = () => {
     });
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [recentActivities, setRecentActivities] = useState([]);
     const [isLoadingActivities, setIsLoadingActivities] = useState(false);
@@ -681,6 +690,26 @@ const Dashboard = () => {
                                 </Link>
                             </div>
                         </motion.div>
+
+                        {accessDeniedMessage && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3 }}
+                                className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-md"
+                            >
+                                <div className="flex">
+                                    <div className="flex-shrink-0">
+                                        <AlertCircle className="h-5 w-5 text-red-500" />
+                                    </div>
+                                    <div className="ml-3">
+                                        <p className="text-sm text-red-700">
+                                            {accessDeniedMessage}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
 
                         {/* Stats with blue accents */}
                         <div className="flex justify-center gap-6 flex-wrap">
