@@ -331,6 +331,7 @@
   "adset.copyError": "Link kopyalanırken Hata Oldu",
   "adset.sending": "Davet Gönderiliyor...",
   "adset.alreadyMember": "Bu kullanıcı zaten projede üye",
+  "adset.no_teams": "Bu projede hiç takım yok",
 
   "adset.add": "Takım Ekle",
   "adset.teaman": "Takımları Yönet",
