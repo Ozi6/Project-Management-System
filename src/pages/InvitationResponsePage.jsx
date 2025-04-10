@@ -381,7 +381,7 @@ const InvitationResponsePage = () =>
     return (
         <div className="flex flex-col min-h-screen bg-gradient-to-br from-[var(--loginpage-bg)] to-[var(--loginpage-bg2)]">
             <div className="w-full bg-gradient-to-r from-[var(--features-icon-color)] via-purple-500 to-[var(--hover-color)] shadow-lg z-10">
-                <Header title={<span className="text-xl font-bold text-white">{t("invitation.title") || "Project Invitation"}</span>} />
+                <Header title={<span className="text-xl font-bold text-darkblue">{t("invitation.title") || "Project Invitation"}</span>} />
             </div>
             <div className="flex-1 flex items-center justify-center p-6">
                 <motion.div

@@ -90,6 +90,7 @@ public class TaskListService
                 .orElseThrow(() -> new RuntimeException("TaskList not found with id: " + taskListId));
 
         existingTaskList.setTaskListName(taskListDTO.getTaskListName());
+        existingTaskList.setColor(taskListDTO.getColor());
 
         TaskList updatedTaskList = taskListDataPool.save(existingTaskList);
 
