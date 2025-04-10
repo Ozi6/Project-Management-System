@@ -12,6 +12,7 @@ const GeneralSettings = ({ setShowAdvanced, projectId }) => {
     const { t } = useTranslation();
     const { user, isLoaded } = useUser();
     const { getToken } = useAuth();
+    const navigate = useNavigate();
 
     // Remove isOwner prop and fetch it from backend
     const [isProjectOwner, setIsProjectOwner] = useState(false);
