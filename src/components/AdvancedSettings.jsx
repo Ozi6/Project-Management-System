@@ -578,16 +578,7 @@ const AdvancedSettings = ({ setShowAdvanced, projectId }) => {
                     </div>
 
               <div className="flex flex-wrap items-center gap-2 sm:space-x-2">
-                {/* Manage Access Button */}
-                <button
-                  className={`bg-[var(--homepage-text-bright)]/80 !text-white px-3 py-1.5 text-sm rounded-lg transition flex-1 sm:flex-none ${
-                    isProjectOwner ? "hover:bg-[var(--homepage-text-bright)]/50" : "opacity-50 cursor-not-allowed"
-                  }`}
-                  onClick={() => isProjectOwner && setSelectedMember(member)}
-                  disabled={!isProjectOwner}
-                >
-                  {t("adset.acc")}
-                </button>
+                
 
                 {/* Manage Team Button */}
                 <button
