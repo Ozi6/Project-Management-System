@@ -85,6 +85,8 @@
   "dashboard.week": "geçen haftadan beri",
   "dashboard.month": "geçen aydan beri",
   "dashboard.from": "Proje: ",
+  "dashboard.noProjects": "Henüz proje yok",
+  "dashboard.noDocuments": "Henüz belge yok",
 
   "gantt.tit": "Proje Zaman Çizelgesi",
   "gantt.projects": "Projeler",

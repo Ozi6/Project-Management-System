@@ -248,6 +248,8 @@
   "dashboard.week": "since last week",
   "dashboard.month": "since last month",
   "dashboard.from": "In Project: ",
+  "dashboard.noProjects": "No projects yet",
+  "dashboard.noDocuments": "No documents yet",
 
   "gantt.tit": "Project Timeline",
   "gantt.projects": "Projects",

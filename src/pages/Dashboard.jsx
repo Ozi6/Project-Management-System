@@ -761,33 +761,39 @@ const Dashboard = () => {
                                     </Link>
                                 </div>
                                 <div className="space-y-4">
-                                    {projects.slice(0, 4).map(project => (
-                                        <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-[var(--features-icon-color)]/30 rounded-lg transition-colors">
-                                            <div className="flex flex-col sm:flex-row sm:items-center mb-2 sm:mb-0">
-                                                <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs mr-3">
-                                                    {project.owner.charAt(0)}
+                                    {projects.length > 0 ? (
+                                        projects.slice(0, 4).map(project => (
+                                            <div key={project.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 hover:bg-[var(--features-icon-color)]/30 rounded-lg transition-colors">
+                                                <div className="flex flex-col sm:flex-row sm:items-center mb-2 sm:mb-0">
+                                                    <div className="w-8 h-8 rounded-full bg-[var(--features-icon-color)] flex items-center justify-center text-white text-xs mr-3">
+                                                        {project.owner.charAt(0)}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-medium">{project.name}</h3>
+                                                        <p className="text-xs text-[var(--features-text-color)]">{t("dashboard.due")}{`: ${new Date(project.dueDate).toLocaleDateString()}`}</p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-medium">{project.name}</h3>
-                                                    <p className="text-xs text-[var(--features-text-color)]">{t("dashboard.due")}{`: ${new Date(project.dueDate).toLocaleDateString()}`}</p>
-                                                </div>
-                                            </div>
-                                            <div className="w-full sm:w-1/3">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <span className="text-xs text-[var(--features-text-color)]">{project.progress}%</span>
-                                                    <span className="text-xs font-medium" style={{ color: project.progress === 100 ? '#10B981' : 'var(--features-icon-color)' }}>
-                                                        {project.status}
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                                    <div
-                                                        className={`h-1.5 rounded-full ${project.progress === 100 ? 'bg-green-500' : 'bg-[var(--features-icon-color)]'}`}
-                                                        style={{ width: `${project.progress}%` }}>
+                                                <div className="w-full sm:w-1/3">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-xs text-[var(--features-text-color)]">{project.progress}%</span>
+                                                        <span className="text-xs font-medium" style={{ color: project.progress === 100 ? '#10B981' : 'var(--features-icon-color)' }}>
+                                                            {project.status}
+                                                        </span>
+                                                    </div>
+                                                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                                                        <div
+                                                            className={`h-1.5 rounded-full ${project.progress === 100 ? 'bg-green-500' : 'bg-[var(--features-icon-color)]'}`}
+                                                            style={{ width: `${project.progress}%` }}>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8 text-sm text-[var(--features-title-color)]">
+                                            {t("dashboard.noProjects") || "No projects yet"}
                                         </div>
-                                    ))}
+                                    )}
                                 </div>
                             </motion.div>
 
@@ -964,8 +970,8 @@ const Dashboard = () => {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="space-y-3">
-                                            { }
+                                        <div className="text-center py-8 text-sm text-[var(--features-title-color)]">
+                                            {t("dashboard.noDocuments") || "No recent documents"}
                                         </div>
                                     )}
                                 </div>
