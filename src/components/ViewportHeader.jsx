@@ -81,21 +81,38 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         setIsLoadingActivities(true);
         try{
             const token = await getToken();
+
+            const projectResponse = await axios.get(
+                `http://localhost:8080/api/projects/${projectId}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    withCredentials: true
+                }
+            );
+            const projectName = projectResponse.data.projectName;
+
             const response = await axios.get(
                 `http://localhost:8080/api/projects/${projectId}/activities`,
                 {
-                    headers:
-                    {
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                     },
                     withCredentials: true
                 }
             );
 
-            const sortedActivities = response.data
+            const activitiesWithProject = response.data.map(activity => ({
+                ...activity,
+                project: {
+                    projectId: projectId,
+                    projectName: projectName
+                }
+            }));
+            const sortedActivities = activitiesWithProject
                 .sort((a, b) => new Date(b.activityTime) - new Date(a.activityTime))
                 .slice(0, 5);
-
             setRecentActivities(sortedActivities);
         }catch(error){
             console.error('Error fetching recent activities:', error);
@@ -288,7 +305,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium" style={{color: "var(--features-title-color)"}}>
-                                                    {activity.description}
+                                                    {generateActivityMessage(activity, t)}
                                                 </p>
                                                 <p className="text-xs mt-1" style={{color: "var(--features-text-color)"}}>
                                                     {formatActivityTime(activity.activityTime)}
