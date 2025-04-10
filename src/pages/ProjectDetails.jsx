@@ -55,6 +55,7 @@ const ProjectDetails = () => {
     const [dataReady, setDataReady] = useState(false);
     const [teams, setTeams] = useState([]);
     const [members, setMembers] = useState([]);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
@@ -1298,6 +1299,7 @@ const ProjectDetails = () => {
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
                         customNavItems={customNavItems}
+                        onCollapseChange={setIsSidebarCollapsed}
                     />
                 </div>
 
@@ -1317,13 +1319,27 @@ const ProjectDetails = () => {
                                 customNavItems={customNavItems}
                                 isMobile={true}
                                 closeMobileMenu={() => setIsMobileSidebarOpen(false)}
+                                isCollapsed={isSidebarCollapsed}
+                                onCollapseChange={setIsSidebarCollapsed}
                             />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
                 {/* Main content area */}
-                <div className="flex-1 overflow-auto">
+                <motion.div
+                    className="flex-1 overflow-auto"
+                    animate={{
+                        marginLeft: isSidebarCollapsed ? '12rem' : '2rem'
+                    }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    onAnimationComplete={() =>
+                    {
+                        const container = document.getElementById("columns-container");
+                        if(container && !isHorizontalLayout)
+                            redistributeTasks(container.offsetWidth);
+                    }}
+                >
                     <AnimatePresence mode="wait">
                         {loading ? (
                             <motion.div
@@ -1476,7 +1492,7 @@ const ProjectDetails = () => {
                             </motion.div>
                         )}
                     </AnimatePresence>
-                </div>
+                </motion.div>
 
                 {/* Desktop progress bar - hidden on mobile */}
                 <div className={`hidden md:block`}>

@@ -22,7 +22,8 @@ import {
 import { SignedIn, SignedOut, useUser, UserButton } from "@clerk/clerk-react";
 import { useTranslation } from 'react-i18next';
 
-const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, closeMobileMenu }) => {
+const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, closeMobileMenu,  isCollapsed,
+    onCollapseChange}) => {
   const {t} = useTranslation();
   const [isOpen, setIsOpen] = useState(true);
   const { user } = useUser();
@@ -40,7 +41,10 @@ const Sidebar = ({ activeTab, setActiveTab, customNavItems, isMobile = false, cl
 
   const toggleSidebar = () => {
     if (!isMobile) {
-      setIsOpen(!isOpen);
+        setIsOpen(!isOpen);
+        if (onCollapseChange) {
+            onCollapseChange(!isOpen);
+        }
     }
   };
 
