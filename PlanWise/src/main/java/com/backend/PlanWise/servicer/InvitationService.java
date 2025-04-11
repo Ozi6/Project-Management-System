@@ -72,7 +72,7 @@ public class InvitationService
 
     private String generateInvitationLink(int invitationId)
     {
-        return "localhost:5173/invitations/" + invitationId;
+        return "http://localhost:5173/invitations/" + invitationId;
     }
 
     public Invitation getInvitationById(int invitationId)
