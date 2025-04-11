@@ -16,7 +16,7 @@ import { KanbanSquare, Layout, Settings, Users, Activity } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search as SearchIcon, X } from "lucide-react";
+import { Search as SearchIcon, X, BookOpen } from "lucide-react";
 
 const ICON_CATEGORIES = {
     Basic: [
@@ -633,6 +633,15 @@ const Teams = () =>
             state: { isOwner },
             color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
             iconColor: 'text-[var(--sidebar-teams-color)]'
+        },
+        {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${projectId}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'settings',

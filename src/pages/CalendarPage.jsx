@@ -3,7 +3,7 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, Use
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity, BookOpen } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -146,52 +146,61 @@ const CalendarPage = () => {
     }, [i18n.language]);
 
     const customNavItems =
-        [
-            {
-                id: 'dashboard',
-                icon: Layout,
-                label: t("sidebar.dash"),
-                path: '/dashboard',
-                iconColor: 'text-blue-600',
-                defaultColor: true
-            },
-            {
-                id: 'projects',
-                icon: KanbanSquare,
-                label: t("sidebar.this"),
-                path: `/project/${id}`,
-                state: { isOwner },
-                color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
-                iconColor: 'text-[var(--sidebar-projects-color)]'
-            },
-            {
-                id: 'activity',
-                icon: Activity,
-                label: t("sidebar.act"),
-                path: `/project/${id}/activity`,
-                state: { isOwner },
-                color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
-                iconColor: 'text-amber-600'
-            },
-            {
-                id: 'teams',
-                icon: UsersIcon,
-                label: t("sidebar.team"),
-                path: `/project/${id}/teams`,
-                state: { isOwner },
-                color: 'bg-green-100 text-green-600',
-                iconColor: 'text-green-600'
-            },
-            {
-                id: 'settings',
-                icon: Settings,
-                label: t("sidebar.set"),
-                path: `/project/${id}/settings`,
-                state: { isOwner },
-                color: 'bg-gray-100 text-gray-600',
-                iconColor: 'text-gray-600'
-            }
-        ];
+    [
+        {
+            id: 'dashboard',
+            icon: Layout,
+            label: t("sidebar.dash"),
+            path: '/dashboard',
+            iconColor: 'text-blue-600',
+            defaultColor: true
+        },
+        {
+            id: 'projects',
+            icon: KanbanSquare,
+            label: t("sidebar.this"),
+            path: `/project/${id}`,
+            state: { isOwner },
+            color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
+            iconColor: 'text-[var(--sidebar-projects-color)]'
+        },
+        {
+            id: 'activity',
+            icon: Activity,
+            label: t("sidebar.act"),
+            path: `/project/${id}/activity`,
+            state: { isOwner },
+            color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
+            iconColor: 'text-amber-600'
+        },
+        {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
+        },
+        {
+            id: 'teams',
+            icon: UsersIcon,
+            label: t("sidebar.team"),
+            path: `/project/${id}/teams`,
+            state: { isOwner },
+            color: 'bg-green-100 text-green-600',
+            iconColor: 'text-green-600'
+        },
+        {
+            id: 'settings',
+            icon: Settings,
+            label: t("sidebar.set"),
+            path: `/project/${id}/settings`,
+            state: { isOwner },
+            color: 'bg-gray-100 text-gray-600',
+            iconColor: 'text-gray-600'
+        }
+    ];
 
     useEffect(() =>
     {

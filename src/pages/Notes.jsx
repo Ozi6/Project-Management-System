@@ -40,7 +40,6 @@ const Notes = () =>
     const isOwner = location.state?.isOwner || false;
     const [newNoteColor, setNewNoteColor] = useState("yellow");
     const [sortBy, setSortBy] = useState("updated");
-    const [expandedNote, setExpandedNote] = useState(null);
     const [viewNoteModal, setViewNoteModal] = useState(null);
 
     useEffect(() =>
@@ -116,7 +115,7 @@ const Notes = () =>
             {
                 id: 103,
                 title: "Database Schema Updates",
-                content: "I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues.",
+                content: "I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues. I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues. I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues.",
                 createdAt: "2025-04-01T16:20:00Z",
                 updatedAt: "2025-04-03T11:15:00Z",
                 author:
@@ -230,18 +229,134 @@ const Notes = () =>
         setIsMobileSidebarOpen(!isMobileSidebarOpen);
     };
 
-    const [expandedNotes, setExpandedNotes] = useState({});
-    const toggleNoteExpansion = (noteId) =>
+    const openViewNoteModal = (note, isShared) =>
     {
-        setExpandedNotes(prev => ({
-            ...prev,
-            [noteId]: !prev[noteId]
-        }));
+        setViewNoteModal({
+            ...note,
+            isShared
+        });
+    };
+
+    const NoteViewModal = ({ note, onClose }) =>
+    {
+        if(!note)
+            return null;
+
+        return(
+            <AnimatePresence>
+                <motion.div
+                    className="fixed inset-0 bg-gray-800/50 backdrop-blur-xs"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    onClick={onClose}
+                    style={{ zIndex: 1000 }} />
+                <motion.div
+                    className="fixed inset-0 flex items-center justify-center px-4"
+                    initial={{ y: "-20%", opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: "100%", opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 150, damping: 15 }}
+                    style={{ zIndex: 1001 }}>
+                    <div className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto border ${colorVariants[note.color]?.border || colorVariants.default.border}`}>
+                        <div className="flex justify-between items-center p-5 border-b border-gray-200">
+                            <div className="flex items-center gap-2">
+                                {note.isPinned ? (
+                                    <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
+                                ) : (
+                                    <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
+                                )}
+                                <h3 className="text-xl font-semibold text-gray-800">{note.title}</h3>
+                                {note.isPinned && (
+                                    <FaThumbtack className="text-amber-500" size={16} />
+                                )}
+                            </div>
+                            <button
+                                onClick={onClose}
+                                className="p-1 rounded-full hover:bg-gray-200 transition-colors">
+                                <X size={24} />
+                            </button>
+                        </div>
+                        <div className="p-6"
+                            style={{
+                                backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
+                                backgroundSize: "100% 32px",
+                                lineHeight: "32px"
+                            }}>
+                            <div className="text-gray-700 break-words whitespace-pre-wrap mb-6"
+                                style={{
+                                    lineHeight: "32px",
+                                    minHeight: "200px"
+                                }}>
+                                {note.content}
+                            </div>
+
+                            {note.isShared && note.author && (
+                                <div className="flex items-center gap-2 mt-6 pt-4 border-t border-gray-200">
+                                    <img
+                                        src={note.author.image}
+                                        alt={note.author.name}
+                                        className="w-6 h-6 rounded-full"
+                                    />
+                                    <span className="text-sm text-gray-600">{note.author.name}</span>
+                                </div>
+                            )}
+
+                            <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
+                                <div>
+                                    Created: {formatDate(note.createdAt)}
+                                </div>
+                                <div>
+                                    Updated: {formatDate(note.updatedAt)}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50">
+                            {note.isShared && (
+                                <button
+                                    onClick={() => {
+                                        onClose();
+                                        handleEditNote(note, true);
+                                    }}
+                                    className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
+                                    <FaPencilAlt size={14} />
+                                    Edit
+                                </button>
+                            )}
+                            {!note.isShared && (
+                                <>
+                                    <button
+                                        onClick={() => {
+                                            onClose();
+                                            toggleShareStatus(note.id);
+                                        }}
+                                        className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
+                                        <FaShare size={14} />
+                                        Share
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            onClose();
+                                            handleEditNote(note, false);
+                                        }}
+                                        className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-md hover:bg-indigo-100">
+                                        <FaPencilAlt size={14} />
+                                        Edit
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+        );
     };
 
     const addNote = () =>
     {
-        if (!newNoteTitle.trim()) return;
+        if(!newNoteTitle.trim())
+            return;
 
         const newNote =
         {
@@ -620,26 +735,19 @@ const Notes = () =>
                                                         style={{
                                                             lineHeight: "32px",
                                                             textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
-                                                            maxHeight: expandedNote === note.id ? "none" : "160px",
+                                                            maxHeight: "160px",
                                                             overflow: "hidden"
                                                         }}>
-                                                        {note.content}
-                                                        {note.content.length > 200 && (
+                                                        {note.content.length > 160
+                                                            ? `${note.content.substring(0, 160)}...`
+                                                            : note.content}
+
+                                                        {note.content.length > 160 && (
                                                             <button
-                                                                onClick={() => toggleNoteExpansion(note.id)}
-                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
-                                                            >
-                                                                {expandedNote === note.id ? (
-                                                                    <>
-                                                                        <span>Show less</span>
-                                                                        <FaChevronUp className="ml-1" size={12} />
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <span>Read more</span>
-                                                                        <FaChevronDown className="ml-1" size={12} />
-                                                                    </>
-                                                                )}
+                                                                onClick={() => openViewNoteModal(note, false)}
+                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
+                                                                <span>Read more</span>
+                                                                <FaChevronDown className="ml-1" size={12} />
                                                             </button>
                                                         )}
                                                     </div>
@@ -699,29 +807,23 @@ const Notes = () =>
                                                         </div>
                                                     </div>
 
-                                                    <div className="mt-3 mb-4 text-gray-600 text-sm break-words"
+                                                    <div className="mt-3 mb-4 text-gray-700 text-sm break-words"
                                                         style={{
                                                             lineHeight: "32px",
-                                                            maxHeight: expandedNote === note.id ? "none" : "160px",
+                                                            textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
+                                                            maxHeight: "160px",
                                                             overflow: "hidden"
                                                         }}>
-                                                        {note.content}
-                                                        {note.content.length > 200 && (
+                                                        {note.content.length > 160
+                                                            ? `${note.content.substring(0, 160)}...`
+                                                            : note.content}
+
+                                                        {note.content.length > 160 && (
                                                             <button
-                                                                onClick={() => toggleNoteExpansion(note.id)}
-                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
-                                                            >
-                                                                {expandedNote === note.id ? (
-                                                                    <>
-                                                                        <span>Show less</span>
-                                                                        <FaChevronUp className="ml-1" size={12} />
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <span>Read more</span>
-                                                                        <FaChevronDown className="ml-1" size={12} />
-                                                                    </>
-                                                                )}
+                                                                onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
+                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
+                                                                <span>Read more</span>
+                                                                <FaChevronDown className="ml-1" size={12} />
                                                             </button>
                                                         )}
                                                     </div>
@@ -798,29 +900,23 @@ const Notes = () =>
                                                         </div>
                                                     </div>
 
-                                                    <div className="mt-3 mb-4 text-gray-600 text-sm break-words"
+                                                    <div className="mt-3 mb-4 text-gray-700 text-sm break-words"
                                                         style={{
                                                             lineHeight: "32px",
-                                                            maxHeight: expandedNote === note.id ? "none" : "160px",
+                                                            textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
+                                                            maxHeight: "160px",
                                                             overflow: "hidden"
                                                         }}>
-                                                        {note.content}
-                                                        {note.content.length > 200 && (
+                                                        {note.content.length > 160
+                                                            ? `${note.content.substring(0, 160)}...`
+                                                            : note.content}
+
+                                                        {note.content.length > 160 && (
                                                             <button
-                                                                onClick={() => toggleNoteExpansion(note.id)}
-                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
-                                                            >
-                                                                {expandedNote === note.id ? (
-                                                                    <>
-                                                                        <span>Show less</span>
-                                                                        <FaChevronUp className="ml-1" size={12} />
-                                                                    </>
-                                                                ) : (
-                                                                    <>
-                                                                        <span>Read more</span>
-                                                                        <FaChevronDown className="ml-1" size={12} />
-                                                                    </>
-                                                                )}
+                                                                onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
+                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
+                                                                <span>Read more</span>
+                                                                <FaChevronDown className="ml-1" size={12} />
                                                             </button>
                                                         )}
                                                     </div>
@@ -883,30 +979,23 @@ const Notes = () =>
                                                                 </button>
                                                             </div>
                                                         </div>
-
-                                                        <div className="mt-3 mb-4 text-gray-600 text-sm break-words"
+                                                        <div className="mt-3 mb-4 text-gray-700 text-sm break-words"
                                                             style={{
                                                                 lineHeight: "32px",
-                                                                maxHeight: expandedNote === note.id ? "none" : "160px",
+                                                                textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
+                                                                maxHeight: "160px",
                                                                 overflow: "hidden"
                                                             }}>
-                                                            {note.content}
-                                                            {note.content.length > 200 && (
+                                                            {note.content.length > 160
+                                                                ? `${note.content.substring(0, 160)}...`
+                                                                : note.content}
+
+                                                            {note.content.length > 160 && (
                                                                 <button
-                                                                    onClick={() => toggleNoteExpansion(note.id)}
-                                                                    className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
-                                                                >
-                                                                    {expandedNote === note.id ? (
-                                                                        <>
-                                                                            <span>Show less</span>
-                                                                            <FaChevronUp className="ml-1" size={12} />
-                                                                        </>
-                                                                    ) : (
-                                                                        <>
-                                                                            <span>Read more</span>
-                                                                            <FaChevronDown className="ml-1" size={12} />
-                                                                        </>
-                                                                    )}
+                                                                    onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
+                                                                    className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
+                                                                    <span>Read more</span>
+                                                                    <FaChevronDown className="ml-1" size={12} />
                                                                 </button>
                                                             )}
                                                         </div>
@@ -1155,6 +1244,12 @@ const Notes = () =>
                         onCancel={() => setNoteToDelete(null)}/>)
                 }
             </div>
+            {viewNoteModal && (
+                <NoteViewModal
+                    note={viewNoteModal}
+                    onClose={() => setViewNoteModal(null)}
+                />
+            )}
         </div>
     );
 }

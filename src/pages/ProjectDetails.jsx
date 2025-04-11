@@ -9,13 +9,14 @@ import Categorizer from "../components/Categorizer";
 import { SearchProvider, useSearch } from '../scripts/SearchContext';
 import ProgressBar from '../components/ProgressBar';
 import { 
-  Activity, 
-  KanbanSquare, 
-  Layout, 
-  Settings, 
-  Users as UsersIcon, 
-  Menu, 
-  Plus 
+    Activity, 
+    KanbanSquare, 
+    Layout, 
+    Settings, 
+    Users as UsersIcon, 
+    BookOpen,
+    Menu, 
+    Plus 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1157,6 +1158,15 @@ const ProjectDetails = () => {
             state: { isOwner },
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
+        },
+        {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'settings',
