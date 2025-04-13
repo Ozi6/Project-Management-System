@@ -15,7 +15,8 @@ import {
   Settings, 
   Users as UsersIcon, 
   Menu, 
-  Plus 
+  Plus,
+  FileText 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
@@ -1166,6 +1167,14 @@ const ProjectDetails = () => {
             state: { isOwner },
             color: 'bg-gray-100 text-gray-600',
             iconColor: 'text-gray-600'
+        },
+        {
+            id: 'notes',
+            icon: FileText,
+            label: t("sidebar.notes") || "Notes",
+            path: `/project/${id}/notes`,
+            color: 'bg-orange-100 text-orange-600',
+            iconColor: 'text-orange-600'
         }
     ];
 

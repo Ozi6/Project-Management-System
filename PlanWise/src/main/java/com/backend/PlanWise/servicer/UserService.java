@@ -115,4 +115,34 @@ public class UserService {
             return userId;
         }
     }
+
+    public String getUserIdFromToken(String token) 
+    {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length > 1) {
+                String payload = new String(java.util.Base64.getDecoder().decode(parts[1]));
+                return payload.split("\"userId\":\"")[1].split("\"")[0];
+            }
+        } catch (Exception e) {
+            // Handle exception if needed
+        }
+        return null;
+        
+    }
+
+    public String getUserFullName(String token) 
+    {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length > 1) {
+                String payload = new String(java.util.Base64.getDecoder().decode(parts[1]));
+                return payload.split("\"fullName\":\"")[1].split("\"")[0];
+            }
+        } catch (Exception e) {
+            // Handle exception if needed
+        }
+        return null;
+
+    }
 }

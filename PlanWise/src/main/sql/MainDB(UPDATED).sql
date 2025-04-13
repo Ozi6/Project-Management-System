@@ -172,6 +172,18 @@ CREATE TABLE invitations (
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
+CREATE TABLE notes (
+id BIGINT AUTO_INCREMENT PRIMARY KEY,
+title VARCHAR(255) NOT NULL,
+content TEXT NOT NULL,
+user_id VARCHAR(255) NOT NULL,
+user_full_name VARCHAR(255),
+project_id INT NOT NULL, -- also updated this to match the type
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
+);
+
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 
 CREATE INDEX idx_categories_project ON categories(project_id);
