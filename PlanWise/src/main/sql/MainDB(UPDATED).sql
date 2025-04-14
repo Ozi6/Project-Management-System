@@ -172,6 +172,19 @@ CREATE TABLE invitations (
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
+CREATE TABLE messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    sender_id VARCHAR(100) NOT NULL,
+    content VARCHAR(1000) NOT NULL,
+    timestamp DATETIME NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id),
+    FOREIGN KEY (sender_id) REFERENCES users(user_id)
+);
+
+CREATE INDEX idx_message_project_id ON messages(project_id);
+CREATE INDEX idx_message_timestamp ON messages(timestamp);
+
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 
 CREATE INDEX idx_categories_project ON categories(project_id);
