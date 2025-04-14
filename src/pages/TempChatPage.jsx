@@ -12,6 +12,7 @@ import Sidebar from "../components/Sidebar";
 import { SearchProvider } from '../scripts/SearchContext';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
+import { ALL_ICONS } from "../components/ICON_CATEGORIES";
 
 const ProjectChatWrapper = () => {
     return(
@@ -73,68 +74,81 @@ const TempChatPage = () => {
     }
   }, [id, userId, getToken]);
   
-  // Fetch channels for the project
-  useEffect(() => {
-    const fetchChannels = async () => {
+  // Modify the fetchChannels function to include team data
+const fetchChannels = async () => {
+  try {
+    setLoading(true);
+    const token = await getToken();
+    const response = await axios.get(
+      `http://localhost:8080/api/messages/channels/project/${id}`,
+      {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }
+    );
+    
+    // Get team data for mapping team icons to channels
+    const teamsResponse = await axios.get(
+      `http://localhost:8080/api/projects/${id}/teams`,
+      {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }
+    );
+    
+    // Create a map of teamId -> team data (with icon name)
+    const teamMap = {};
+    teamsResponse.data.forEach(team => {
+      teamMap[team.teamId] = {
+        teamName: team.teamName,
+        iconName: team.iconName
+      };
+    });
+    
+    // For each channel, get unread count and add team data if it's a team channel
+    const channelsWithUnread = await Promise.all(response.data.map(async (channel) => {
       try {
-        setLoading(true);
-        const token = await getToken();
-        const response = await axios.get(
-          `http://localhost:8080/api/messages/channels/project/${id}`,
+        const unreadResponse = await axios.get(
+          `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
           {
             headers: { 'Authorization': `Bearer ${token}` }
           }
         );
         
-        // For each channel, get unread count
-        const channelsWithUnread = await Promise.all(response.data.map(async (channel) => {
-          try {
-            const unreadResponse = await axios.get(
-              `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
-              {
-                headers: { 'Authorization': `Bearer ${token}` }
-              }
-            );
-            return {
-              ...channel,
-              unreadCount: unreadResponse.data
-            };
-          } catch (err) {
-            console.error('Error getting unread count:', err);
-            return {
-              ...channel,
-              unreadCount: 0
-            };
-          }
-        }));
+        // Add team info if it's a team channel
+        let teamData = null;
+        if (channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId]) {
+          teamData = teamMap[channel.teamId];
+        }
         
-        setChannels(channelsWithUnread);
-        
-        // Select first channel by default if none selected
-        /* if (!selectedChannel && channelsWithUnread.length > 0) {
-          setSelectedChannel(channelsWithUnread[0]);
-          fetchMessages(channelsWithUnread[0].channelId);
-        } else if (channelsWithUnread.length === 0) {
-          // No channels exist - this shouldn't happen if you create a General channel for each project
-          setError("No channels available for this project");
-        } */
-        
-        setLoading(false);
+        return {
+          ...channel,
+          unreadCount: unreadResponse.data,
+          teamData: teamData
+        };
       } catch (err) {
-        console.error('Error fetching channels:', err);
-        setError('Failed to load channels');
-        setLoading(false);
+        console.error('Error getting unread count:', err);
+        
+        // Add team info even if unread count fails
+        let teamData = null;
+        if (channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId]) {
+          teamData = teamMap[channel.teamId];
+        }
+        
+        return {
+          ...channel,
+          unreadCount: 0,
+          teamData: teamData
+        };
       }
-    };
+    }));
     
-    if (id && userId) {
-      fetchChannels();
-      
-      // Set up polling for channel updates (every 30 seconds)
-      const intervalId = setInterval(fetchChannels, 2000);
-      return () => clearInterval(intervalId);
-    }
-  }, [id, userId, getToken]);
+    setChannels(channelsWithUnread);
+    setLoading(false);
+  } catch (err) {
+    console.error('Error fetching channels:', err);
+    setError('Failed to load channels');
+    setLoading(false);
+  }
+};
   
   // Fetch users in project (for displaying avatars and names)
   useEffect(() => {
@@ -240,6 +254,17 @@ const fetchMessages = async (channelId) => {
       return () => clearInterval(intervalId);
     }
   }, [selectedChannel]);
+  
+  // Add this useEffect after your other useEffects
+useEffect(() => {
+  if (id && userId) {
+    fetchChannels();
+    
+    // Set up polling for channel updates (every 30 seconds)
+    const intervalId = setInterval(fetchChannels, 2000);
+    return () => clearInterval(intervalId);
+  }
+}, [id, userId]);
   
   // Function to scroll to bottom of messages
   const scrollToBottom = () => {
@@ -398,7 +423,22 @@ const fetchMessages = async (channelId) => {
                 {selectedChannel?.channelType === 'PROJECT' ? (
                   <Hash size={18} className="mr-2 text-[var(--features-icon-color)]" />
                 ) : (
-                  <Users size={18} className="mr-2 text-[var(--features-icon-color)]" />
+                  (() => {
+                    // For team channels, use the team icon
+                    let TeamIcon = Users; // Default icon
+                    
+                    if (selectedChannel?.teamData && selectedChannel.teamData.iconName) {
+                      const IconComponent = ALL_ICONS[selectedChannel.teamData.iconName] || 
+                                          ALL_ICONS[`Fa${selectedChannel.teamData.iconName}`] ||
+                                          ALL_ICONS[`Md${selectedChannel.teamData.iconName}`];
+                      
+                      if (IconComponent) {
+                        TeamIcon = IconComponent;
+                      }
+                    }
+                    
+                    return <TeamIcon size={18} className="mr-2 text-[var(--features-icon-color)]" />;
+                  })()
                 )}
                 <div>
                   <h2 className="text-lg font-medium text-[var(--features-text-color)]">
@@ -406,7 +446,7 @@ const fetchMessages = async (channelId) => {
                   </h2>
                   {selectedChannel?.channelType === 'TEAM' && (
                     <div className="text-xs text-[var(--features-text-color)] opacity-70">
-                      Team Channel • Members only
+                      Team Channel • {selectedChannel.teamData?.teamName || 'Team'} • Members only
                     </div>
                   )}
                 </div>
@@ -582,32 +622,48 @@ const fetchMessages = async (channelId) => {
                   </h3>
                 </div>
                 
-                {teamChannels.map(channel => (
-                  <div 
-                    key={channel.channelId}
-                    onClick={() => setSelectedChannel(channel)}
-                    className={`flex items=center px-4 py-2 rounded-md cursor-pointer mb-1 ${
-                      selectedChannel?.channelId === channel.channelId
-                        ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
-                        : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
-                    }`}
-                  >
-                    <Users size={16} className="mr-2 flex-shrink-0" />
-                    <div className="flex-1 truncate">
-                      <div className="text-sm font-medium">{channel.channelName}</div>
-                      {channel.lastMessageContent && (
-                        <div className="text-xs opacity-70 truncate">
-                          {channel.lastMessageSender}: {channel.lastMessageContent}
+                {teamChannels.map(channel => {
+                  // Get the icon component from the team data
+                  let TeamIcon = Users; // Default icon
+                  
+                  if (channel.teamData && channel.teamData.iconName) {
+                    // Try to get the icon from ALL_ICONS using the iconName
+                    const IconComponent = ALL_ICONS[channel.teamData.iconName] || 
+                                          ALL_ICONS[`Fa${channel.teamData.iconName}`] ||
+                                          ALL_ICONS[`Md${channel.teamData.iconName}`];
+                    
+                    if (IconComponent) {
+                      TeamIcon = IconComponent;
+                    }
+                  }
+                  
+                  return (
+                    <div 
+                      key={channel.channelId}
+                      onClick={() => setSelectedChannel(channel)}
+                      className={`flex items=center px-4 py-2 rounded-md cursor-pointer mb-1 ${
+                        selectedChannel?.channelId === channel.channelId
+                          ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
+                          : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
+                      }`}
+                    >
+                      <TeamIcon size={16} className="mr-2 flex-shrink-0" />
+                      <div className="flex-1 truncate">
+                        <div className="text-sm font-medium">{channel.channelName}</div>
+                        {channel.lastMessageContent && (
+                          <div className="text-xs opacity-70 truncate">
+                            {channel.lastMessageSender}: {channel.lastMessageContent}
+                          </div>
+                        )}
+                      </div>
+                      {channel.unreadCount > 0 && (
+                        <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items=center justify-center ml-2">
+                          {channel.unreadCount}
                         </div>
                       )}
                     </div>
-                    {channel.unreadCount > 0 && (
-                      <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items=center justify-center ml-2">
-                        {channel.unreadCount}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
