@@ -31,6 +31,8 @@ import ProjectCalendar from './pages/ProjectCalendar';
 import Teams from './pages/Teams';
 import "./i18n"; 
 import InvitationPage from './pages/InvitationPage';
+import TempChatPage from './pages/TempChatPage';
+
 
 //import Documentation from "./pages/Documentation";
 
@@ -72,6 +74,10 @@ function AnimatedRoutes() {
                 <Route path="/invitations/:id" element={<PageWrapper><InvitationResponsePage /></PageWrapper>} />
                 {/* Add the new incidents-bugs route */}
                 <Route path="/bugs" element={<PageWrapper><IncidentsBugs /></PageWrapper>}/>
+
+
+                <Route path="/temp-chat" element={<PageWrapper><TempChatPage /></PageWrapper>} />
+                <Route path="/project/:id/temp-chat" element={<PageWrapper><TempChatPage /></PageWrapper>} />
                 
                 {/* Invitations */}
                 <Route path="/invitations/:invitationId" element={<PageWrapper><InvitationPage /></PageWrapper>} />

@@ -3,7 +3,7 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, Use
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity } from "lucide-react";
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity,MessageCircle } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -181,6 +181,12 @@ const CalendarPage = () => {
                 state: { isOwner },
                 color: 'bg-green-100 text-green-600',
                 iconColor: 'text-green-600'
+            },
+            {
+                id: 'chat',
+                icon: MessageCircle,
+                label: t("sidebar.chat"),
+                path: `/project/${id}/temp-chat`,
             },
             {
                 id: 'settings',

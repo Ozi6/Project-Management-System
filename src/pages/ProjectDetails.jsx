@@ -14,11 +14,13 @@ import {
   Layout, 
   Settings, 
   Users as UsersIcon, 
-  Menu, 
+  Menu,
+  MessageCircle, 
   Plus 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
+import ChatBox from "../components/ChatBox";
 
 const ProjectDetailsWrapper = () => {
     return(
@@ -1157,6 +1159,12 @@ const ProjectDetails = () => {
             state: { isOwner },
             color: 'bg-green-100 text-green-600',
             iconColor: 'text-green-600'
+        },
+        {
+            id: 'chat',
+            icon: MessageCircle,
+            label: t("sidebar.chat"),
+            path: `/project/${id}/temp-chat`,
         },
         {
             id: 'settings',

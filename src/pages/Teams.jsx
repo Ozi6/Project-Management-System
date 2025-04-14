@@ -6,17 +6,19 @@ import {
     FaUsers, FaTasks, FaHome, FaCog, FaChartLine, FaPencilAlt, FaTrash,
     FaUserPlus, FaBars, FaHeart, FaSearch, FaUserFriends, FaDragon, FaCode,
     FaPalette, FaServer, FaCogs, FaLightbulb, FaChartBar, FaFolder, FaDatabase,
-    FaDesktop, FaPaintBrush, FaRocket, FaShieldAlt, FaGem, FaStar, FaMagic
+    FaDesktop, FaPaintBrush, FaRocket, FaShieldAlt, FaGem, FaStar, FaMagic,
 } from "react-icons/fa";
+
 import { MdGroupAdd, MdAssignment, MdWork, MdBuild, MdFolderOpen } from "react-icons/md";
 import { IoMdPeople, IoMdSettings } from "react-icons/io";
 import { Link } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
-import { KanbanSquare, Layout, Settings, Users, Activity } from "lucide-react";
+import { KanbanSquare, Layout, Settings, Users, Activity,MessageCircle } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search as SearchIcon, X } from "lucide-react";
+
 
 const ICON_CATEGORIES = {
     Basic: [
@@ -633,6 +635,12 @@ const Teams = () =>
             state: { isOwner },
             color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
             iconColor: 'text-[var(--sidebar-teams-color)]'
+        },
+        {
+            id: 'chat',
+            icon: MessageCircle,
+            label: t("sidebar.chat"),
+            path: `/project/${projectId}/temp-chat`,
         },
         {
             id: 'settings',
