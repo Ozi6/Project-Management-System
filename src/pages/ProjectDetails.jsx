@@ -60,8 +60,10 @@ const ProjectDetails = () => {
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
-    useEffect(() => {
-        if (!isLoaded || !user || !id) return;
+    useEffect(() =>
+    {
+        if(!isLoaded || !user || !id)
+            return;
         
         const checkProjectAccess = async () => {
             try {

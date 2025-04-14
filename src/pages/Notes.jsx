@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { Link } from 'react-router-dom';
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth, useUser } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
 import
 {
@@ -19,6 +19,7 @@ import
 
 const Notes = () =>
 {
+    const { user, isLoaded } = useUser();
     const { id: projectId } = useParams();
     const { t } = useTranslation();
     const { getToken } = useAuth();
@@ -28,7 +29,7 @@ const Notes = () =>
     const [searchTerm, setSearchTerm] = useState("");
     const [showAddNoteModal, setShowAddNoteModal] = useState(false);
     const [showEditNoteModal, setShowEditNoteModal] = useState(false);
-    const [editNoteData, setEditNoteData] = useState({ id: null, title: "", content: "", isPinned: false, isShared: false, color: "yellow" });
+    const [editNoteData, setEditNoteData] = useState({ id: null, title: "", content: "", pinned: false, shared: false, color: "yellow" });
     const [notes, setNotes] = useState([]);
     const [sharedNotes, setSharedNotes] = useState([]);
     const [newNoteTitle, setNewNoteTitle] = useState("");
@@ -41,97 +42,238 @@ const Notes = () =>
     const [newNoteColor, setNewNoteColor] = useState("yellow");
     const [sortBy, setSortBy] = useState("updated");
     const [viewNoteModal, setViewNoteModal] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    const fetchNotes = async () =>
+    {
+        if(!isLoaded || !user || !projectId)
+            return;
+        try{
+            setIsLoading(true);
+            const token = await getToken();
+
+            const response = await fetch(`http://localhost:8080/api/projects/${projectId}/notes`,
+            {
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to fetch notes');
+
+            const data = await response.json();
+
+            const allNotes = data;
+            const sharedNotes = allNotes.filter(note => note.shared && note.userId !== user.id);
+            const personalNotes = allNotes.filter(note => note.userId.userId === user.id && !sharedNotes.includes(note));
+
+            setNotes(personalNotes);
+            setSharedNotes(sharedNotes);
+            setIsLoading(false);
+        }catch(err){
+            setError(err.message);
+            setIsLoading(false);
+        }
+    };
 
     useEffect(() =>
     {
-        setNotes(
-        [
+        fetchNotes();
+    },[projectId, user]);
+
+    const addNote = async () =>
+    {
+        if(!newNoteTitle.trim())
+            return;
+
+        try{
+            const token = await getToken();
+            const response = await fetch('http://localhost:8080/api/notes',
             {
-                id: 1,
-                title: "Project Requirements",
-                content: "We need to finalize the user stories by Friday. Make sure to include acceptance criteria for each story.",
-                createdAt: "2025-04-05T14:30:00Z",
-                updatedAt: "2025-04-08T09:15:00Z",
-                isPinned: true,
-                isShared: false,
-                color: "blue"
-            },
+                method: 'POST',
+                headers:
+                {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                },
+                body: JSON.stringify(
+                {
+                    title: newNoteTitle.trim(),
+                    content: newNoteContent.trim(),
+                    projectId: parseInt(projectId),
+                    color: newNoteColor,
+                    pinned: newNotePinned,
+                    shared: newNoteShared
+                })
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to add note');
+
+            const newNote = await response.json();
+
+            const noteWithColor =
             {
-                id: 2,
-                title: "Meeting Notes - April 2",
-                content: "Discussed the timeline for the next sprint. We agreed to focus on the user authentication features first, followed by the dashboard components.",
-                createdAt: "2025-04-02T16:00:00Z",
-                updatedAt: "2025-04-02T18:45:00Z",
-                isPinned: false,
-                isShared: false,
-                color: "green"
-            },
+                ...newNote,
+                color: newNoteColor,
+                pinned: newNotePinned
+            };
+
+            if(newNoteShared)
+                setSharedNotes(prev => [...prev, noteWithColor]);
+            else
+                setNotes(prev => [...prev, noteWithColor]);
+
+            setNewNoteTitle("");
+            setNewNoteContent("");
+            setNewNotePinned(false);
+            setNewNoteShared(false);
+            setShowAddNoteModal(false);
+        }catch(err){
+            setError(err.message);
+        }
+    };
+
+    const editNote = async () =>
+    {
+        if(!editNoteData.title.trim())
+            return;
+
+        try {
+
+            const token = await getToken();
+
+            const noteResponse = await fetch(`http://localhost:8080/api/notes/${editNoteData.id}`,
             {
-                id: 3,
-                title: "Design Feedback",
-                content: "The client liked the new color palette but requested changes to the navigation menu. Consider making it more accessible on mobile devices.",
-                createdAt: "2025-03-28T11:20:00Z",
-                updatedAt: "2025-03-30T13:10:00Z",
-                isPinned: false,
-                isShared: false,
-                color: "purple"
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id,
+                },
+            });
+
+            if(!noteResponse.ok)
+                throw new Error('Failed to fetch note');
+
+            const existingNote = await noteResponse.json();
+
+            const response = await fetch(`http://localhost:8080/api/notes/${editNoteData.id}`,
+            {
+                method: 'PUT',
+                headers:
+                {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                },
+                body: JSON.stringify(
+                {
+                    title: editNoteData.title.trim(),
+                    content: editNoteData.content.trim(),
+                    shared: editNoteData.shared,
+                    color: editNoteData.color,
+                    pinned: editNoteData.pinned,
+                    userId: existingNote.userId
+                })
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to update note');
+
+            const updatedNote = await response.json();
+
+            const updatedNoteWithProps =
+            {
+                ...updatedNote,
+                color: editNoteData.color,
+                pinned: editNoteData.pinned,
+                shared: editNoteData.shared,
+                ...(editNoteData.shared &&
+                {
+                    author:
+                    {
+                        name: user.fullName || 'Current User',
+                        email: user.primaryEmailAddress?.emailAddress || 'user@example.com',
+                        image: user.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com',
+                    },
+                    userId:
+                    {
+                        userId: existingNote.userId.userId,
+                        username: existingNote.userId?.username || user.username || 'Current User',
+                        profileImageUrl: existingNote.userId?.profileImageUrl || user.imageUrl || 'https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com',
+                    },
+                }),
+            };
+
+            if(editNoteData.shared)
+            {
+                setNotes((prev) => prev.filter((note) => note.id !== updatedNoteWithProps.id));
+                setSharedNotes((prev) =>
+                {
+                    const exists = prev.some((note) => note.id === updatedNoteWithProps.id);
+                    if(exists)
+                    {
+                        return prev.map((note) =>
+                            note.id === updatedNoteWithProps.id ? updatedNoteWithProps : note
+                        );
+                    }
+                    return [...prev, updatedNoteWithProps];
+                });
             }
-        ]);
-
-        setSharedNotes(
-        [
+            else
             {
-                id: 101,
-                title: "API Documentation",
-                content: "Here's the documentation for the new API endpoints. Please review and provide feedback by April 15.",
-                createdAt: "2025-04-07T10:00:00Z",
-                updatedAt: "2025-04-07T10:00:00Z",
-                author:
+                setSharedNotes((prev) => prev.filter((note) => note.id !== updatedNoteWithProps.id));
+                setNotes((prev) =>
                 {
-                    name: "Alex Johnson",
-                    email: "alex@example.com",
-                    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=alex@example.com"
-                },
-                isPinned: true,
-                isShared: true,
-                color: "orange"
-            },
-            {
-                id: 102,
-                title: "Sprint Planning",
-                content: "Here are the tasks we'll be focusing on for the next two weeks. Please update your estimates and availability.",
-                createdAt: "2025-04-05T13:45:00Z",
-                updatedAt: "2025-04-06T09:30:00Z",
-                author:
-                {
-                    name: "Sarah Williams",
-                    email: "sarah@example.com",
-                    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=sarah@example.com"
-                },
-                isPinned: false,
-                isShared: true,
-                color: "blue"
-            },
-            {
-                id: 103,
-                title: "Database Schema Updates",
-                content: "I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues. I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues. I've updated the database schema to accommodate the new features. Check the attached diagram and let me know if you see any issues.",
-                createdAt: "2025-04-01T16:20:00Z",
-                updatedAt: "2025-04-03T11:15:00Z",
-                author:
-                {
-                    name: "Michael Chen",
-                    email: "michael@example.com",
-                    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=michael@example.com"
-                },
-                isPinned: false,
-                isShared: true,
-                color: "green"
+                    const exists = prev.some((note) => note.id === updatedNoteWithProps.id);
+                    if(exists)
+                    {
+                        return prev.map((note) =>
+                            note.id === updatedNoteWithProps.id ? updatedNoteWithProps : note
+                        );
+                    }
+                    return [...prev, updatedNoteWithProps];
+                });
             }
-        ]);
-    }, []);
 
+            setShowEditNoteModal(false);
+            setEditNoteData({ id: null, title: "", content: "", pinned: editNoteData.pinned, shared: false, color: editNoteData.color || yellow });
+        }catch(err){
+            setError(err.message);
+        }
+    };
 
+    const deleteNote = async (noteId, shared) =>
+    {
+        try{
+            const token = await getToken();
+            const response = await fetch(`http://localhost:8080/api/notes/${noteId}`,
+            {
+                method: 'DELETE',
+                headers:
+                {
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                }
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to delete note');
+
+            if(shared)
+                setSharedNotes(prev => prev.filter(note => note.id !== noteId));
+            else
+                setNotes(prev => prev.filter(note => note.id !== noteId));
+            setNoteToDelete(null);
+        }catch(err){
+            setError(err.message);
+        }
+    };
 
     const colorVariants =
     {
@@ -229,11 +371,11 @@ const Notes = () =>
         setIsMobileSidebarOpen(!isMobileSidebarOpen);
     };
 
-    const openViewNoteModal = (note, isShared) =>
+    const openViewNoteModal = (note, shared) =>
     {
         setViewNoteModal({
             ...note,
-            isShared
+            shared
         });
     };
 
@@ -262,13 +404,13 @@ const Notes = () =>
                     <div className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto border ${colorVariants[note.color]?.border || colorVariants.default.border}`}>
                         <div className="flex justify-between items-center p-5 border-b border-gray-200">
                             <div className="flex items-center gap-2">
-                                {note.isPinned ? (
+                                {note.pinned ? (
                                     <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
                                 ) : (
                                     <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
                                 )}
                                 <h3 className="text-xl font-semibold text-gray-800">{note.title}</h3>
-                                {note.isPinned && (
+                                {note.pinned && (
                                     <FaThumbtack className="text-amber-500" size={16} />
                                 )}
                             </div>
@@ -292,14 +434,14 @@ const Notes = () =>
                                 {note.content}
                             </div>
 
-                            {note.isShared && note.author && (
+                            {note.shared && note.userId && (
                                 <div className="flex items-center gap-2 mt-6 pt-4 border-t border-gray-200">
                                     <img
-                                        src={note.author.image}
-                                        alt={note.author.name}
+                                        src={note.userId.profileImageUrl}
+                                        alt={note.userId.username}
                                         className="w-6 h-6 rounded-full"
                                     />
-                                    <span className="text-sm text-gray-600">{note.author.name}</span>
+                                    <span className="text-sm text-gray-600">{note.userId.username}</span>
                                 </div>
                             )}
 
@@ -313,7 +455,7 @@ const Notes = () =>
                             </div>
                         </div>
                         <div className="flex justify-end gap-3 p-4 border-t border-gray-200 bg-gray-50">
-                            {note.isShared && (
+                            {note.shared && (
                                 <button
                                     onClick={() => {
                                         onClose();
@@ -324,7 +466,7 @@ const Notes = () =>
                                     Edit
                                 </button>
                             )}
-                            {!note.isShared && (
+                            {!note.shared && (
                                 <>
                                     <button
                                         onClick={() => {
@@ -353,118 +495,122 @@ const Notes = () =>
         );
     };
 
-    const addNote = () =>
-    {
-        if(!newNoteTitle.trim())
-            return;
-
-        const newNote =
-        {
-            id: Date.now(),
-            title: newNoteTitle.trim(),
-            content: newNoteContent.trim(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isPinned: newNotePinned,
-            isShared: newNoteShared,
-            color: ["blue", "green", "purple", "orange"][Math.floor(Math.random() * 4)]
-        };
-
-        if(newNoteShared)
-        {
-            newNote.author =
-            {
-                name: "Current User",
-                email: "user@example.com",
-                image: "https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com"
-            };
-            setSharedNotes(prev => [...prev, newNote]);
-        }
-        else
-            setNotes(prev => [...prev, newNote]);
-
-        setNewNoteTitle("");
-        setNewNoteContent("");
-        setNewNotePinned(false);
-        setNewNoteShared(false);
-        setShowAddNoteModal(false);
-    };
-
-    const editNote = () =>
-    {
-        if (!editNoteData.title.trim()) return;
-
-        const updatedNote =
-        {
-            ...editNoteData,
-            updatedAt: new Date().toISOString()
-        };
-
-        if(editNoteData.isShared)
-            setSharedNotes(prev => prev.map(note => note.id === editNoteData.id ? updatedNote : note));
-        else
-            setNotes(prev => prev.map(note => note.id === editNoteData.id ? updatedNote : note));
-
-        setShowEditNoteModal(false);
-        setEditNoteData({ id: null, title: "", content: "", isPinned: false, isShared: false });
-    };
-
-    const deleteNote = (noteId, isShared) =>
-    {
-        if(isShared)
-            setSharedNotes(prev => prev.filter(note => note.id !== noteId));
-        else
-            setNotes(prev => prev.filter(note => note.id !== noteId));
-        setNoteToDelete(null);
-    };
-
-    const handleEditNote = (note, isShared) =>
+    const handleEditNote = (note, shared) =>
     {
         setEditNoteData({
             id: note.id,
             title: note.title,
             content: note.content,
-            isPinned: note.isPinned,
-            isShared: isShared
+            pinned: note.pinned,
+            shared: note.shared,
+            color: note.color || "yellow"
         });
         setShowEditNoteModal(true);
     };
 
-    const togglePinStatus = (noteId, isShared) =>
+    const togglePinStatus = async (noteId, shared) =>
     {
-        if(isShared)
-        {
-            setSharedNotes(prev => prev.map(note =>
-                note.id === noteId ? { ...note, isPinned: !note.isPinned } : note
-            ));
-        }
-        else
-        {
-            setNotes(prev => prev.map(note =>
-                note.id === noteId ? { ...note, isPinned: !note.isPinned } : note
-            ));
+        try{
+            const token = await getToken();
+            const note = shared
+                ? sharedNotes.find(note => note.id === noteId)
+                : notes.find(note => note.id === noteId);
+
+            if(!note)
+                return;
+
+            if(shared)
+            {
+                setSharedNotes(prev => prev.map(note =>
+                    note.id === noteId ? { ...note, pinned: !note.pinned } : note
+                ));
+            }
+            else
+            {
+                setNotes(prev => prev.map(note =>
+                    note.id === noteId ? { ...note, pinned: !note.pinned } : note
+                ));
+            }
+
+            console.log(note);
+            
+            const response = await fetch(`http://localhost:8080/api/notes/${noteId}`,
+            {
+                method: 'PATCH',
+                headers:
+                {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                },
+                body: JSON.stringify({
+                    pinned: !note.pinned
+                })
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to update pin status');
+
+        }catch(err){
+            if(shared)
+            {
+                setSharedNotes(prev => prev.map(note =>
+                    note.id === noteId ? { ...note, pinned: note.pinned } : note
+                ));
+            }
+            else
+            {
+                setNotes(prev => prev.map(note =>
+                    note.id === noteId ? { ...note, pinned: note.pinned } : note
+                ));
+            }
+            setError(err.message);
         }
     };
 
-    const toggleShareStatus = (noteId) =>
+    const toggleShareStatus = async (noteId) =>
     {
-        const noteToShare = notes.find(note => note.id === noteId);
-        if(noteToShare)
-        {
-            setNotes(prev => prev.filter(note => note.id !== noteId));
+        try{
+            const token = await getToken();
+            const noteToShare = notes.find(note => note.id === noteId);
+            if(!noteToShare)
+                return;
 
+            setNotes(prev => prev.filter(note => note.id !== noteId));
             const sharedNote =
             {
                 ...noteToShare,
-                isShared: true,
+                shared: true,
                 author:
                 {
-                    name: "Current User",
-                    email: "user@example.com",
-                    image: "https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com"
+                    name: user.fullName || "Current User",
+                    email: user.primaryEmailAddress?.emailAddress || "user@example.com",
+                    image: user.imageUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com"
                 }
             };
             setSharedNotes(prev => [...prev, sharedNote]);
+
+            const response = await fetch(`http://localhost:8080/api/notes/${noteId}`,
+            {
+                method: 'PATCH',
+                headers:
+                {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                    'userId': user.id
+                },
+                body: JSON.stringify({
+                    shared: true
+                })
+            });
+
+            if(!response.ok)
+                throw new Error('Failed to share note');
+
+        }catch(err){
+            setSharedNotes(prev => prev.filter(note => note.id !== noteId));
+            setNotes(prev => [...prev, noteToShare]);
+            setError(err.message);
         }
     };
 
@@ -605,6 +751,32 @@ const Notes = () =>
         setIsMobileSidebarOpen(false);
     }, [location.pathname]);
 
+    if(error)
+    {
+        return(
+            <div className="flex items-center justify-center h-screen">
+                <div className="text-center p-6 bg-red-50 rounded-lg">
+                    <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Notes</h2>
+                    <p className="text-red-500">{error}</p>
+                    <button
+                        onClick={fetchNotes}
+                        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if(isLoading)
+    {
+        return(
+            <div className="flex items-center justify-center h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+        );
+    }
+
     return(
         <div className="flex flex-col h-screen bg-gray-50">
             <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-indigo-300">
@@ -693,15 +865,15 @@ const Notes = () =>
                                 sortedPersonalNotes.length > 0 ? (
                                     <>
                                     {sortedPersonalNotes
-                                        .filter(note => note.isPinned)
+                                        .filter(note => note.pinned)
                                         .map((note) => (
                                             <div
                                                 key={note.id}
                                                 className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md relative`}
                                                 style={{
-                                                    transform: note.isPinned ? "rotate(-1deg)" : "none"
+                                                    transform: note.pinned ? "rotate(-1deg)" : "none"
                                                 }}>
-                                                {note.isPinned && (
+                                                {note.pinned && (
                                                     <div className="absolute -top-3 -right-3 w-6 h-6 bg-amber-500 rounded-full z-10 shadow-md" />
                                                 )}
                                                 <div className="p-5 relative z-0"
@@ -725,7 +897,7 @@ const Notes = () =>
                                                             <button
                                                                 onClick={() => togglePinStatus(note.id, false)}
                                                                 className="p-1.5 rounded hover:bg-white/80 text-amber-500"
-                                                                title={note.isPinned ? "Unpin note" : "Pin note"}>
+                                                                title={note.pinned ? "Unpin note" : "Pin note"}>
                                                                 <FaThumbtack size={16} />
                                                             </button>
                                                         </div>
@@ -770,7 +942,7 @@ const Notes = () =>
                                                                 <FaPencilAlt size={14} />
                                                             </button>
                                                             <button
-                                                                onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: false })}
+                                                                onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: false })}
                                                                 className="p-1.5 rounded hover:bg-white/80"
                                                                 title="Delete note">
                                                                 <FaTrash size={14} />
@@ -781,7 +953,7 @@ const Notes = () =>
                                             </div>
                                         ))}
                                         {sortedPersonalNotes
-                                        .filter(note => !note.isPinned)
+                                        .filter(note => !note.pinned)
                                         .map((note) => (
                                             <div
                                                 key={note.id}
@@ -820,7 +992,7 @@ const Notes = () =>
 
                                                         {note.content.length > 160 && (
                                                             <button
-                                                                onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
+                                                                onClick={() => openViewNoteModal(note, false)} // Set shared to true for shared notes
                                                                 className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
                                                                 <span>Read more</span>
                                                                 <FaChevronDown className="ml-1" size={12} />
@@ -846,7 +1018,7 @@ const Notes = () =>
                                                                 <FaPencilAlt size={14} />
                                                             </button>
                                                             <button
-                                                                onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: false })}
+                                                                onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: false })}
                                                                 className="p-1.5 rounded hover:bg-white/80"
                                                                 title="Delete note">
                                                                 <FaTrash size={14} />
@@ -873,93 +1045,108 @@ const Notes = () =>
                             (
                                 sortedSharedNotes.length > 0 ? (
                                     <>
-                                    {sortedSharedNotes
-                                        .filter(note => note.isPinned)
-                                        .map((note) => (
-                                            <div
-                                                key={note.id}
-                                                className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}>
-                                                <div className="p-5"
-                                                    style={{
-                                                        backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
-                                                        backgroundSize: "100% 32px",
-                                                        lineHeight: "32px"
-                                                    }}>
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
-                                                            <h3 className="font-semibold text-gray-800">{note.title}</h3>
-                                                        </div>
-                                                        <div className="flex gap-1">
-                                                            <button
-                                                                onClick={() => togglePinStatus(note.id, true)}
-                                                                className="p-1.5 rounded hover:bg-white/80 text-amber-500"
-                                                                title="Unpin note">
-                                                                <FaThumbtack size={16} />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="mt-3 mb-4 text-gray-700 text-sm break-words"
-                                                        style={{
-                                                            lineHeight: "32px",
-                                                            textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
-                                                            maxHeight: "160px",
-                                                            overflow: "hidden"
-                                                        }}>
-                                                        {note.content.length > 160
-                                                            ? `${note.content.substring(0, 160)}...`
-                                                            : note.content}
-
-                                                        {note.content.length > 160 && (
-                                                            <button
-                                                                onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
-                                                                className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
-                                                                <span>Read more</span>
-                                                                <FaChevronDown className="ml-1" size={12} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="flex justify-between items-center mt-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <img
-                                                                src={note.author.image}
-                                                                alt={note.author.name}
-                                                                className="w-6 h-6 rounded-full"
-                                                            />
-                                                            <span className="text-xs text-gray-600">{note.author.name}</span>
-                                                        </div>
-                                                        <div className="text-xs text-gray-500">
-                                                            {formatDate(note.updatedAt)}
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="flex justify-end gap-2 mt-2">
-                                                        <button
-                                                            onClick={() => handleEditNote(note, true)}
-                                                            className="p-1.5 rounded hover:bg-white/80"
-                                                            title="Edit note">
-                                                            <FaPencilAlt size={14} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
-                                                            className="p-1.5 rounded hover:bg-white/80"
-                                                            title="Delete note">
-                                                            <FaTrash size={14} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-
                                         {sortedSharedNotes
-                                            .filter(note => !note.isPinned)
+                                            .filter(note => note.pinned)
                                             .map((note) => (
                                                 <div
                                                     key={note.id}
-                                                    className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}>
-                                                    <div className="p-5"
+                                                    className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}
+                                                >
+                                                    <div
+                                                        className="p-5"
+                                                        style={{
+                                                            backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
+                                                            backgroundSize: "100% 32px",
+                                                            lineHeight: "32px",
+                                                        }}
+                                                    >
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
+                                                                <h3 className="font-semibold text-gray-800">{note.title}</h3>
+                                                            </div>
+                                                            <div className="flex gap-1">
+                                                                {isOwner ? (
+                                                                    <button
+                                                                        onClick={() => togglePinStatus(note.id, true)}
+                                                                        className="p-1.5 rounded hover:bg-white/80 text-amber-500"
+                                                                        title="Unpin note"
+                                                                    >
+                                                                        <FaThumbtack size={16} />
+                                                                    </button>
+                                                                ) : (
+                                                                    <FaThumbtack size={16} className="text-amber-500" title="Pinned note" />
+                                                                )}
+                                                            </div>
+                                                        </div>
+
+                                                        <div
+                                                            className="mt-3 mb-4 text-gray-700 text-sm break-words"
+                                                            style={{
+                                                                lineHeight: "32px",
+                                                                textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
+                                                                maxHeight: "160px",
+                                                                overflow: "hidden",
+                                                            }}
+                                                        >
+                                                            {note.content.length > 160
+                                                                ? `${note.content.substring(0, 160)}...`
+                                                                : note.content}
+
+                                                            {note.content.length > 160 && (
+                                                                <button
+                                                                    onClick={() => openViewNoteModal(note, true)}
+                                                                    className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
+                                                                >
+                                                                    <span>Read more</span>
+                                                                    <FaChevronDown className="ml-1" size={12} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="flex justify-between items-center mt-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <img
+                                                                    src={note.userId.profileImageUrl}
+                                                                    alt={note.userId.username}
+                                                                    className="w-6 h-6 rounded-full"
+                                                                />
+                                                                <span className="text-xs text-gray-600">{note.userId.username}</span>
+                                                            </div>
+                                                            <div className="text-xs text-gray-500">{formatDate(note.updatedAt)}</div>
+                                                        </div>
+
+                                                        {isOwner && (
+                                                            <div className="flex justify-end gap-2 mt-2">
+                                                                <button
+                                                                    onClick={() => handleEditNote(note, true)}
+                                                                    className="p-1.5 rounded hover:bg-white/80"
+                                                                    title="Edit note"
+                                                                >
+                                                                    <FaPencilAlt size={14} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
+                                                                    className="p-1.5 rounded hover:bg-white/80"
+                                                                    title="Delete note"
+                                                                >
+                                                                    <FaTrash size={14} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+
+                                        {sortedSharedNotes
+                                            .filter(note => !note.pinned)
+                                            .map((note) => (
+                                                <div
+                                                    key={note.id}
+                                                    className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}
+                                                >
+                                                    <div
+                                                        className="p-5"
                                                         style={{
                                                             backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                                             backgroundSize: "100% 32px",
@@ -971,20 +1158,23 @@ const Notes = () =>
                                                                 <h3 className="font-semibold text-gray-800">{note.title}</h3>
                                                             </div>
                                                             <div className="flex gap-1">
-                                                                <button
-                                                                    onClick={() => togglePinStatus(note.id, true)}
-                                                                    className="p-1.5 rounded hover:bg-white/80 text-gray-400 hover:text-amber-500"
-                                                                    title="Pin note">
-                                                                    <FaThumbtack size={16} />
-                                                                </button>
+                                                                {isOwner && (
+                                                                    <button
+                                                                        onClick={() => togglePinStatus(note.id, true)}
+                                                                        className="p-1.5 rounded hover:bg-white/80 text-gray-400 hover:text-amber-500"
+                                                                        title="Pin note">
+                                                                        <FaThumbtack size={16}/>
+                                                                    </button>
+                                                                )}
                                                             </div>
                                                         </div>
-                                                        <div className="mt-3 mb-4 text-gray-700 text-sm break-words"
+                                                        <div
+                                                            className="mt-3 mb-4 text-gray-700 text-sm break-words"
                                                             style={{
                                                                 lineHeight: "32px",
                                                                 textShadow: "0px 0px 1px rgba(255,255,255,0.5)",
                                                                 maxHeight: "160px",
-                                                                overflow: "hidden"
+                                                                overflow: "hidden",
                                                             }}>
                                                             {note.content.length > 160
                                                                 ? `${note.content.substring(0, 160)}...`
@@ -992,7 +1182,7 @@ const Notes = () =>
 
                                                             {note.content.length > 160 && (
                                                                 <button
-                                                                    onClick={() => openViewNoteModal(note, false)} // Set isShared to true for shared notes
+                                                                    onClick={() => openViewNoteModal(note, true)}
                                                                     className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
                                                                     <span>Read more</span>
                                                                     <FaChevronDown className="ml-1" size={12} />
@@ -1003,38 +1193,35 @@ const Notes = () =>
                                                         <div className="flex justify-between items-center mt-2">
                                                             <div className="flex items-center gap-2">
                                                                 <img
-                                                                    src={note.author.image}
-                                                                    alt={note.author.name}
-                                                                    className="w-6 h-6 rounded-full"
-                                                                />
-                                                                <span className="text-xs text-gray-600">{note.author.name}</span>
+                                                                    src={note.userId.profileImageUrl}
+                                                                    alt={note.userId.username}
+                                                                    className="w-6 h-6 rounded-full"/>
+                                                                <span className="text-xs text-gray-600">{note.userId.username}</span>
                                                             </div>
-                                                            <div className="text-xs text-gray-500">
-                                                                {formatDate(note.updatedAt)}
-                                                            </div>
+                                                            <div className="text-xs text-gray-500">{formatDate(note.updatedAt)}</div>
                                                         </div>
 
-                                                        <div className="flex justify-end gap-2 mt-2">
-                                                            <button
-                                                                onClick={() => handleEditNote(note, true)}
-                                                                className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Edit note">
-                                                                <FaPencilAlt size={14} />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
-                                                                className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Delete note">
-                                                                <FaTrash size={14} />
-                                                            </button>
-                                                        </div>
+                                                        {isOwner && (
+                                                            <div className="flex justify-end gap-2 mt-2">
+                                                                <button
+                                                                    onClick={() => handleEditNote(note, true)}
+                                                                    className="p-1.5 rounded hover:bg-white/80"
+                                                                    title="Edit note">
+                                                                    <FaPencilAlt size={14}/>
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
+                                                                    className="p-1.5 rounded hover:bg-white/80"
+                                                                    title="Delete note">
+                                                                    <FaTrash size={14}/>
+                                                                </button>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
                                     </>
-                                )
-                                :
-                                (
+                                ) : (
                                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
                                         <div className="relative">
                                             <FileText size={64} className="mb-4 opacity-30" />
@@ -1046,7 +1233,8 @@ const Notes = () =>
                                         <p className="text-sm text-gray-400 mb-4">Create your first note to get started</p>
                                         <button
                                             onClick={() => setShowAddNoteModal(true)}
-                                            className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shadow-md flex items-center gap-2">
+                                            className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shadow-md flex items-center gap-2"
+                                        >
                                             <FaPlus size={16} />
                                             Create new note
                                         </button>
@@ -1170,13 +1358,14 @@ const Notes = () =>
                                 exit={{ opacity: 0 }}
                                 transition={{ duration: 0.3 }}
                                 onClick={() => setShowEditNoteModal(false)}
-                                style={{ zIndex: 1000 }}/>
+                                style={{ zIndex: 10000 }} />
                             <motion.div
                                 className="fixed inset-0 flex items-center justify-center px-4"
                                 initial={{ y: "-20%", opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: "100%", opacity: 0 }}
-                                transition={{ type: "spring", stiffness: 150, damping: 15 }}>
+                                transition={{ type: "spring", stiffness: 150, damping: 15 }}
+                                style={{ zIndex: 10001 }}>
                                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
                                     <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
                                         <h3 className="text-xl font-semibold">Edit Note</h3>
@@ -1194,7 +1383,22 @@ const Notes = () =>
                                                 value={editNoteData.title}
                                                 onChange={(e) => setEditNoteData({ ...editNoteData, title: e.target.value })}
                                                 placeholder="Note title"
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                                        </div>
+                                        <div className="mb-6">
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">Note Color</label>
+                                            <div className="flex gap-2 flex-wrap">
+                                                {Object.keys(colorVariants).filter(color => color !== 'default').map((color) => (
+                                                    <button
+                                                        key={color}
+                                                        type="button"
+                                                        onClick={() => setEditNoteData({ ...editNoteData, color })}
+                                                        className={`w-8 h-8 rounded-full border-2 ${editNoteData.color === color ? 'border-gray-800' : 'border-transparent'}`}
+                                                        style={{ backgroundColor: colorVariants[color].noteColor }}
+                                                        title={color.charAt(0).toUpperCase() + color.slice(1)}
+                                                    />
+                                                ))}
+                                            </div>
                                         </div>
                                         <div className="mb-4">
                                             <label className="block text-gray-700 text-sm font-medium mb-2">Content</label>
@@ -1209,10 +1413,19 @@ const Notes = () =>
                                                 <input
                                                     type="checkbox"
                                                     id="edit-pin-note"
-                                                    checked={editNoteData.isPinned}
-                                                    onChange={() => setEditNoteData({ ...editNoteData, isPinned: !editNoteData.isPinned })}
-                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/>
+                                                    checked={editNoteData.pinned}
+                                                    onChange={() => setEditNoteData({ ...editNoteData, pinned: !editNoteData.pinned })}
+                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
                                                 <label htmlFor="edit-pin-note" className="text-gray-700 text-sm">Pin Note</label>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <input
+                                                    type="checkbox"
+                                                    id="edit-share-note"
+                                                    checked={editNoteData.shared}
+                                                    onChange={() => setEditNoteData({ ...editNoteData, shared: !editNoteData.shared })}
+                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
+                                                <label htmlFor="edit-share-note" className="text-gray-700 text-sm">Share with Team</label>
                                             </div>
                                         </div>
                                         <div className="flex justify-end gap-3">
@@ -1226,7 +1439,8 @@ const Notes = () =>
                                                 disabled={!editNoteData.title.trim()}
                                                 className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${editNoteData.title.trim()
                                                         ? "bg-indigo-600 hover:bg-indigo-700"
-                                                        : "bg-indigo-400 cursor-not-allowed"}`}>
+                                                        : "bg-indigo-400 cursor-not-allowed"
+                                                    }`}>
                                                 Save Changes
                                             </button>
                                         </div>
@@ -1240,15 +1454,14 @@ const Notes = () =>
                 {noteToDelete &&(
                     <NoteDeleteConfirmation
                         noteTitle={noteToDelete.title}
-                        onConfirm={() => deleteNote(noteToDelete.id, noteToDelete.isShared)}
+                        onConfirm={() => deleteNote(noteToDelete.id, noteToDelete.shared)}
                         onCancel={() => setNoteToDelete(null)}/>)
                 }
             </div>
             {viewNoteModal && (
                 <NoteViewModal
                     note={viewNoteModal}
-                    onClose={() => setViewNoteModal(null)}
-                />
+                    onClose={() => setViewNoteModal(null)}/>
             )}
         </div>
     );
