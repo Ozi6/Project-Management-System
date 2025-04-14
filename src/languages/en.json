@@ -35,6 +35,7 @@
   "sidebar.act": "Activity",
   "sidebar.team": "Teams",
   "sidebar.set": "Settings",
+  "sidebar.chat": "Chat",
 
   "sidebar.help": "Issues & Help",
   "sidebar.iss": "User Issues",
@@ -66,7 +67,6 @@
 
   "toggle.h": "Horizontal",
   "toggle.v": "Vertical",
-  "sidebar.chat": "Chat",
   "prode.create": "Create Category",
   "prode.search": "Search categories, tasks, entries...",
   "prode.new": "New Categorizer",
@@ -155,7 +155,7 @@
   "team.slctd": "selected",
   "team.add": "Add",
   "team.nosearchfnd": "No teams found matching your search criteria",
-  "adset.no_teams":"No teams found",
+  "adset.no_teams": "No teams found",
 
   "icon.search": "Search Icons",
 
@@ -299,7 +299,7 @@
   "bug.hi": "High",
   "bug.med": "Medium",
   "bug.can": "Cancel",
-  "bug.write":"Write your comment here...",
+  "bug.write": "Write your comment here...",
   "bug.by": "Reported by:",
   "bug.date": "Date reported:",
   "bug.id": "Incident ID:",
