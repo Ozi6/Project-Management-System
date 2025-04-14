@@ -268,7 +268,13 @@ useEffect(() => {
   
   // Function to scroll to bottom of messages
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!messagesEndRef.current) return;
+    
+    // Find the scrollable container (the direct parent with overflow-y-auto)
+    const messageContainer = messagesEndRef.current.closest('.overflow-y-auto');
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
   };
   
   // Handle sending a message
