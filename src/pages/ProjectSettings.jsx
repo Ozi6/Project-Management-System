@@ -57,22 +57,22 @@ const ProjectSettings = () =>
             iconColor: 'text-green-600'
         },
         {
-            id: 'notes',
-            icon: BookOpen,
-            label: "Notes",
-            path: `/project/${id}/notes`,
-            state: { isOwner },
-            color: 'bg-indigo-100 text-indigo-600',
-            iconColor: 'text-indigo-600'
-        },
-        {
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
             path: `/project/${id}/chat`,
             state: { isOwner },
-            color: 'bg-indigo-100 text-indigo-600', //değiş
+            color: 'bg-indigo-100 text-indigo-600',
             iconColor: 'text-indigo-600'
+        },
+        {
+            id: 'notes',
+            icon: BookOpen,
+            label: t("notes.title"),
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-teal-100 text-teal-600',
+            iconColor: 'text-teal-600'
         },
         {
             id: 'settings',

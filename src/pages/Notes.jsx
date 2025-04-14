@@ -447,10 +447,10 @@ const Notes = () =>
 
                             <div className="flex justify-between items-center text-xs text-gray-500 mt-4">
                                 <div>
-                                    Created: {formatDate(note.createdAt)}
+                                    {t("dashboard.update")}: {formatDate(note.createdAt)}
                                 </div>
                                 <div>
-                                    Updated: {formatDate(note.updatedAt)}
+                                    {t("procard.upd")}: {formatDate(note.updatedAt)}
                                 </div>
                             </div>
                         </div>
@@ -463,7 +463,7 @@ const Notes = () =>
                                     }}
                                     className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
                                     <FaPencilAlt size={14} />
-                                    Edit
+                                    {t("prode.edit")}
                                 </button>
                             )}
                             {!note.shared && (
@@ -475,7 +475,7 @@ const Notes = () =>
                                         }}
                                         className="px-4 py-2 text-sm font-medium flex items-center gap-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-100">
                                         <FaShare size={14} />
-                                        Share
+                                        {t("notes.share")}
                                     </button>
                                     <button
                                         onClick={() => {
@@ -657,17 +657,17 @@ const Notes = () =>
             label: t("sidebar.chat"),
             path: `/project/${projectId}/chat`,
             state: { isOwner },
-            color: 'bg-indigo-100 text-indigo-600', //değiş
+            color: 'bg-indigo-100 text-indigo-600',
             iconColor: 'text-indigo-600'
         },
         {
             id: 'notes',
             icon: BookOpen,
-            label: "Notes",
+            label: t("notes.title"),
             path: `/project/${projectId}/notes`,
             state: { isOwner },
-            color: 'bg-indigo-100 text-indigo-600',
-            iconColor: 'text-indigo-600'
+            color: 'bg-teal-100 text-teal-600',
+            iconColor: 'text-teal-600'
         },
         {
             id: 'settings',
@@ -714,12 +714,12 @@ const Notes = () =>
                                         <button
                                             className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
                                             onClick={onCancel}>
-                                            Cancel
+                                            {t("prode.can")}
                                         </button>
                                         <button
                                             className="bg-[var(--bug-report)]/90 !text-white py-2 px-6 rounded-md hover:bg-[var(--bug-report)] transition-all duration-200 hover:scale-105 w-32"
                                             onClick={onConfirm}>
-                                            Delete
+                                            {t("prode.del")}
                                         </button>
                                     </div>
                                 </div>
@@ -790,11 +790,11 @@ const Notes = () =>
         <div className="flex flex-col h-screen bg-gray-50">
             <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-indigo-300">
                 <Header
-                    title={<span className="text-xl font-semibold text-indigo-600">Notes</span>}
+                    title={<span className="text-xl font-semibold text-indigo-600">{t("notes.title")}</span>}
                     action={{
                         onClick: () => setShowAddNoteModal(true),
                         icon: <FaPlus size={16} className="mr-2" />,
-                        label: "Add Note"
+                        label: t("notes.addNote")
                     }}/>
             </div>
             <div className="flex flex-1 overflow-hidden relative">
@@ -819,7 +819,7 @@ const Notes = () =>
                                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
                                 <input
                                     type="text"
-                                    placeholder="Search notes..."
+                                    placeholder={t("notes.search")}
                                     className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)} />
@@ -830,13 +830,13 @@ const Notes = () =>
                                         type="button"
                                         onClick={() => setNoteType("personal")}
                                         className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 ${noteType === "personal" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        Personal
+                                        {t("notes.personal")}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setNoteType("shared")}
                                         className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 ${noteType === "shared" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        Shared
+                                        {t("notes.shared")}
                                     </button>
                                 </div>
                                 <div className="inline-flex rounded-md shadow-sm ml-2" role="group">
@@ -844,7 +844,7 @@ const Notes = () =>
                                         type="button"
                                         onClick={() => setSortBy("updated")}
                                         className={`px-3 py-2 text-xs font-medium rounded-l-lg border border-gray-200 ${sortBy === "updated" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        Recent
+                                        {t("notes.recent") }
                                     </button>
                                     <button
                                         type="button"
@@ -856,14 +856,14 @@ const Notes = () =>
                                         type="button"
                                         onClick={() => setSortBy("color")}
                                         className={`px-3 py-2 text-xs font-medium rounded-r-lg border border-gray-200 ${sortBy === "color" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        Color
+                                        {t("notes.color")}
                                     </button>
                                 </div>
                                 <button
                                     onClick={() => setShowAddNoteModal(true)}
                                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 !text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm">
                                     <FaPlus size={16} />
-                                    <span className="hidden sm:inline">New Note</span>
+                                    <span className="hidden sm:inline">{t("notes.newnote")}</span>
                                 </button>
                             </div>
                         </div>
@@ -906,7 +906,7 @@ const Notes = () =>
                                                             <button
                                                                 onClick={() => togglePinStatus(note.id, false)}
                                                                 className="p-1.5 rounded hover:bg-white/80 text-amber-500"
-                                                                title={note.pinned ? "Unpin note" : "Pin note"}>
+                                                                title={note.pinned ? t("notes.unpin") : t("notes.pin")}>
                                                                 <FaThumbtack size={16} />
                                                             </button>
                                                         </div>
@@ -927,7 +927,7 @@ const Notes = () =>
                                                             <button
                                                                 onClick={() => openViewNoteModal(note, false)}
                                                                 className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
-                                                                <span>Read more</span>
+                                                                <span>{t("notes.readmore")}</span>
                                                                 <FaChevronDown className="ml-1" size={12} />
                                                             </button>
                                                         )}
@@ -935,25 +935,25 @@ const Notes = () =>
 
                                                     <div className="flex justify-between items-center text-xs text-gray-500 mt-auto pt-2 border-t border-gray-200">
                                                         <div>
-                                                            Updated {formatDate(note.updatedAt)}
+                                                            {t("notes.updated") } {formatDate(note.updatedAt)}
                                                         </div>
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => toggleShareStatus(note.id)}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Share note">
+                                                                title={t("notes.sharenote")}>
                                                                 <FaShare size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={() => handleEditNote(note, false)}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Edit note">
+                                                                title={t("notes.edit")}>
                                                                 <FaPencilAlt size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: false })}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Delete note">
+                                                                title={t("notes.delete")}>
                                                                 <FaTrash size={14} />
                                                             </button>
                                                         </div>
@@ -982,7 +982,7 @@ const Notes = () =>
                                                             <button
                                                                 onClick={() => togglePinStatus(note.id, false)}
                                                                 className="p-1.5 rounded hover:bg-white/80 text-gray-400 hover:text-amber-500"
-                                                                title="Pin note">
+                                                                title={t("notes.pin")}>
                                                                 <FaThumbtack size={16} />
                                                             </button>
                                                         </div>
@@ -1003,7 +1003,7 @@ const Notes = () =>
                                                             <button
                                                                 onClick={() => openViewNoteModal(note, false)} // Set shared to true for shared notes
                                                                 className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
-                                                                <span>Read more</span>
+                                                                <span>{t("notes.readmore")}</span>
                                                                 <FaChevronDown className="ml-1" size={12} />
                                                             </button>
                                                         )}
@@ -1011,25 +1011,25 @@ const Notes = () =>
 
                                                     <div className="flex justify-between items-center text-xs text-gray-500 mt-auto">
                                                         <div>
-                                                            Updated {formatDate(note.updatedAt)}
+                                                            {t("notes.updated")} {formatDate(note.updatedAt)}
                                                         </div>
                                                         <div className="flex gap-2">
                                                             <button
                                                                 onClick={() => toggleShareStatus(note.id)}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Share note">
+                                                                title={t("notes.sharenote")}>
                                                                 <FaShare size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={() => handleEditNote(note, false)}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Edit note">
+                                                                title={t("notes.edit")}>
                                                                 <FaPencilAlt size={14} />
                                                             </button>
                                                             <button
                                                                 onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: false })}
                                                                 className="p-1.5 rounded hover:bg-white/80"
-                                                                title="Delete note">
+                                                                title={t("notes.delete")}>
                                                                 <FaTrash size={14} />
                                                             </button>
                                                         </div>
@@ -1041,11 +1041,11 @@ const Notes = () =>
                                 ) : (
                                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
                                         <FileText size={48} className="mb-4 opacity-50" />
-                                        <p>No personal notes found</p>
+                                        <p>{t("notes.nopersonal")}</p>
                                         <button
                                             onClick={() => setShowAddNoteModal(true)}
                                             className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors">
-                                            Create your first note
+                                            {t("notes.createnote")}
                                         </button>
                                     </div>
                                 )
@@ -1079,7 +1079,7 @@ const Notes = () =>
                                                                     <button
                                                                         onClick={() => togglePinStatus(note.id, true)}
                                                                         className="p-1.5 rounded hover:bg-white/80 text-amber-500"
-                                                                        title="Unpin note"
+                                                                        title={t("notes.unpin")}
                                                                     >
                                                                         <FaThumbtack size={16} />
                                                                     </button>
@@ -1107,7 +1107,7 @@ const Notes = () =>
                                                                     onClick={() => openViewNoteModal(note, true)}
                                                                     className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}
                                                                 >
-                                                                    <span>Read more</span>
+                                                                    <span>{t("notes.readmore")}</span>
                                                                     <FaChevronDown className="ml-1" size={12} />
                                                                 </button>
                                                             )}
@@ -1130,14 +1130,14 @@ const Notes = () =>
                                                                 <button
                                                                     onClick={() => handleEditNote(note, true)}
                                                                     className="p-1.5 rounded hover:bg-white/80"
-                                                                    title="Edit note"
+                                                                    title={t("notes.edit")}
                                                                 >
                                                                     <FaPencilAlt size={14} />
                                                                 </button>
                                                                 <button
                                                                     onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: true })}
                                                                     className="p-1.5 rounded hover:bg-white/80"
-                                                                    title="Delete note"
+                                                                    title={t("notes.delete")}
                                                                 >
                                                                     <FaTrash size={14} />
                                                                 </button>
@@ -1171,7 +1171,7 @@ const Notes = () =>
                                                                     <button
                                                                         onClick={() => togglePinStatus(note.id, true)}
                                                                         className="p-1.5 rounded hover:bg-white/80 text-gray-400 hover:text-amber-500"
-                                                                        title="Pin note">
+                                                                        title={t("notes.pin")}>
                                                                         <FaThumbtack size={16}/>
                                                                     </button>
                                                                 )}
@@ -1193,7 +1193,7 @@ const Notes = () =>
                                                                 <button
                                                                     onClick={() => openViewNoteModal(note, true)}
                                                                     className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
-                                                                    <span>Read more</span>
+                                                                    <span>{t("notes.readmore")}</span>
                                                                     <FaChevronDown className="ml-1" size={12} />
                                                                 </button>
                                                             )}
@@ -1215,13 +1215,13 @@ const Notes = () =>
                                                                 <button
                                                                     onClick={() => handleEditNote(note, true)}
                                                                     className="p-1.5 rounded hover:bg-white/80"
-                                                                    title="Edit note">
+                                                                    title={t("notes.edit")}>
                                                                     <FaPencilAlt size={14}/>
                                                                 </button>
                                                                 <button
                                                                     onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: true })}
                                                                     className="p-1.5 rounded hover:bg-white/80"
-                                                                    title="Delete note">
+                                                                    title={t("notes.delete")}>
                                                                     <FaTrash size={14}/>
                                                                 </button>
                                                             </div>
@@ -1238,14 +1238,14 @@ const Notes = () =>
                                                 <X size={32} className="text-gray-400 opacity-70" />
                                             </div>
                                         </div>
-                                        <p className="text-lg mb-2">No notes found</p>
-                                        <p className="text-sm text-gray-400 mb-4">Create your first note to get started</p>
+                                        <p className="text-lg mb-2">{t("notes.nonotesttl")}</p>
+                                        <p className="text-sm text-gray-400 mb-4">{t("notes.nonotes")}</p>
                                         <button
                                             onClick={() => setShowAddNoteModal(true)}
                                             className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shadow-md flex items-center gap-2"
                                         >
                                             <FaPlus size={16} />
-                                            Create new note
+                                            {t("notes.createnote") }
                                         </button>
                                     </div>
                                 )
@@ -1274,7 +1274,7 @@ const Notes = () =>
                                 style={{ zIndex: 1001 }}>
                                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
                                     <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
-                                        <h3 className="text-xl font-semibold">Create New Note</h3>
+                                        <h3 className="text-xl font-semibold">{t("notes.createnote")}</h3>
                                         <button
                                             onClick={() => setShowAddNoteModal(false)}
                                             className="p-1 rounded-full hover:bg-indigo-700 transition-colors">
@@ -1283,16 +1283,16 @@ const Notes = () =>
                                     </div>
                                     <div className="p-6">
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Title</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
                                                 type="text"
                                                 value={newNoteTitle}
                                                 onChange={(e) => setNewNoteTitle(e.target.value)}
-                                                placeholder="Note title"
+                                                placeholder={t("notes.editttlfield")}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
                                         </div>
                                         <div className="mb-6">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Note Color</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.notecolor")}</label>
                                             <div className="flex gap-2 flex-wrap">
                                                 {Object.keys(colorVariants).filter(color => color !== 'default').map((color) => (
                                                     <button
@@ -1307,11 +1307,11 @@ const Notes = () =>
                                             </div>
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Content</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
                                             <textarea
                                                 value={newNoteContent}
                                                 onChange={(e) => setNewNoteContent(e.target.value)}
-                                                placeholder="Note content"
+                                                placeholder={t("notes.content")}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[150px]"></textarea>
                                         </div>
                                         <div className="flex items-center gap-6 mb-6">
@@ -1322,7 +1322,7 @@ const Notes = () =>
                                                     checked={newNotePinned}
                                                     onChange={() => setNewNotePinned(!newNotePinned)}
                                                     className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/>
-                                                <label htmlFor="pin-note" className="text-gray-700 text-sm">Pin Note</label>
+                                                <label htmlFor="pin-note" className="text-gray-700 text-sm">{t("notes.pinnote")}</label>
                                             </div>
                                             <div className="flex items-center">
                                                 <input
@@ -1331,14 +1331,14 @@ const Notes = () =>
                                                     checked={newNoteShared}
                                                     onChange={() => setNewNoteShared(!newNoteShared)}
                                                     className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/>
-                                                <label htmlFor="share-note" className="text-gray-700 text-sm">Share with Team</label>
+                                                <label htmlFor="share-note" className="text-gray-700 text-sm">{t("notes.sharewteam")}</label>
                                             </div>
                                         </div>
                                         <div className="flex justify-end gap-3">
                                             <button
                                                 onClick={() => setShowAddNoteModal(false)}
                                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                                Cancel
+                                                {t("prode.can")}
                                             </button>
                                             <button
                                                 onClick={addNote}
@@ -1347,7 +1347,7 @@ const Notes = () =>
                                                         ? "bg-indigo-600 hover:bg-indigo-700"
                                                         : "bg-indigo-400 cursor-not-allowed"
                                                     }`}>
-                                                Create Note
+                                                {t("notes.create")}
                                             </button>
                                         </div>
                                     </div>
@@ -1377,7 +1377,7 @@ const Notes = () =>
                                 style={{ zIndex: 10001 }}>
                                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
                                     <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
-                                        <h3 className="text-xl font-semibold">Edit Note</h3>
+                                        <h3 className="text-xl font-semibold">{t("notes.editnotecptl")}</h3>
                                         <button
                                             onClick={() => setShowEditNoteModal(false)}
                                             className="p-1 rounded-full hover:bg-indigo-700 transition-colors">
@@ -1386,16 +1386,16 @@ const Notes = () =>
                                     </div>
                                     <div className="p-6">
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Title</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
                                                 type="text"
                                                 value={editNoteData.title}
                                                 onChange={(e) => setEditNoteData({ ...editNoteData, title: e.target.value })}
-                                                placeholder="Note title"
+                                                placeholder={t("notes.editttlfield")}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
                                         </div>
                                         <div className="mb-6">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Note Color</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.notecolor")}</label>
                                             <div className="flex gap-2 flex-wrap">
                                                 {Object.keys(colorVariants).filter(color => color !== 'default').map((color) => (
                                                     <button
@@ -1410,11 +1410,11 @@ const Notes = () =>
                                             </div>
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">Content</label>
+                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
                                             <textarea
                                                 value={editNoteData.content}
                                                 onChange={(e) => setEditNoteData({ ...editNoteData, content: e.target.value })}
-                                                placeholder="Note content"
+                                                placeholder={t("notes.content")}
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[150px]"></textarea>
                                         </div>
                                         <div className="flex items-center gap-6 mb-6">
@@ -1425,7 +1425,7 @@ const Notes = () =>
                                                     checked={editNoteData.pinned}
                                                     onChange={() => setEditNoteData({ ...editNoteData, pinned: !editNoteData.pinned })}
                                                     className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                                                <label htmlFor="edit-pin-note" className="text-gray-700 text-sm">Pin Note</label>
+                                                <label htmlFor="edit-pin-note" className="text-gray-700 text-sm">{t("notes.pin")}</label>
                                             </div>
                                             <div className="flex items-center">
                                                 <input
@@ -1434,14 +1434,14 @@ const Notes = () =>
                                                     checked={editNoteData.shared}
                                                     onChange={() => setEditNoteData({ ...editNoteData, shared: !editNoteData.shared })}
                                                     className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                                                <label htmlFor="edit-share-note" className="text-gray-700 text-sm">Share with Team</label>
+                                                <label htmlFor="edit-share-note" className="text-gray-700 text-sm">{t("notes.sharewteam")}</label>
                                             </div>
                                         </div>
                                         <div className="flex justify-end gap-3">
                                             <button
                                                 onClick={() => setShowEditNoteModal(false)}
                                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                                                Cancel
+                                                {t("prode.can")}
                                             </button>
                                             <button
                                                 onClick={editNote}
@@ -1450,7 +1450,7 @@ const Notes = () =>
                                                         ? "bg-indigo-600 hover:bg-indigo-700"
                                                         : "bg-indigo-400 cursor-not-allowed"
                                                     }`}>
-                                                Save Changes
+                                                {t("prode.edit.save")}
                                             </button>
                                         </div>
                                     </div>
