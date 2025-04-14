@@ -31,12 +31,11 @@ import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
+import com.backend.PlanWise.model.MessageChannel;
+import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
-import com.backend.PlanWise.model.MessageChannel;
-import com.backend.PlanWise.model.Project;
-import com.backend.PlanWise.Controllers.MessageController;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -87,6 +86,7 @@ public class ProjectController
             // Assuming the first channel is the "General" channel we just created
             MessageChannel generalChannel = channels.get(0);
             messageController.updateReadStatus(generalChannel.getChannelId(), projectDTO.getOwner().getUserId(), LocalDateTime.now());
+            
         }
         
         return new ResponseEntity<>(newProject, HttpStatus.CREATED);

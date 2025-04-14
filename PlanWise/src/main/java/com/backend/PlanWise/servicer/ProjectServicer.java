@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.PlanWise.Controllers.MessageController;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
@@ -53,6 +54,9 @@ public class ProjectServicer
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MessageController messageController;
 
     @Autowired
     private RecentActivityService recentActivityService;
@@ -268,12 +272,16 @@ public class ProjectServicer
         Project savedProject = projectRepository.save(project);
     
         // Create a default "General" channel for the new project
+          // Create a default "General" channel for the new project
         MessageChannel defaultChannel = new MessageChannel();
         defaultChannel.setChannelName("General");
         defaultChannel.setChannelType("PROJECT");
         defaultChannel.setProjectId(savedProject.getProjectId());
         defaultChannel.setCreatedAt(LocalDateTime.now());
-        messageChannelRepository.save(defaultChannel);
+        MessageChannel savedChannel = messageChannelRepository.save(defaultChannel);
+        
+        // Initialize read status for project owner and members
+        messageController.initializeReadStatusForChannel(savedChannel.getChannelId(), savedProject.getProjectId());
     
         return convertToDTO(savedProject);
     }

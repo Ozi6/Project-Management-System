@@ -155,8 +155,39 @@ public class MessageController {
             @PathVariable Long channelId,
             @RequestBody String userId) {
         
-        updateReadStatus(channelId, userId, LocalDateTime.now());
-        return ResponseEntity.ok().build();
+        try {
+            // Clean the userId (it might contain quotes from JSON)
+            String cleanUserId = userId;
+            if (userId.startsWith("\"") && userId.endsWith("\"")) {
+                cleanUserId = userId.substring(1, userId.length() - 1);
+            }
+            cleanUserId = cleanUserId.trim();
+            
+            // Verify user exists first
+            Optional<User> userOpt = userRepository.findById(cleanUserId);
+            if (!userOpt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("X-Error-Reason", "User not found")
+                    .build();
+            }
+            
+            // Verify channel exists
+            Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
+            if (!channelOpt.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .header("X-Error-Reason", "Channel not found")
+                    .build();
+            }
+            
+            // Now update read status
+            updateReadStatus(channelId, cleanUserId, LocalDateTime.now());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .header("X-Error-Reason", e.getMessage())
+                .build();
+        }
     }
     
     // Get unread count for a user in a channel
@@ -246,6 +277,42 @@ public class MessageController {
             status.setUserId(userId);
             status.setLastReadTimestamp(timestamp);
             readStatusRepository.save(status);
+        }
+    }
+    
+    /**
+     * Initialize read status for all project members for a specific channel
+     */
+    public void initializeReadStatusForChannel(Long channelId, Long projectId) {
+        // Find the project
+        Optional<Project> projectOpt = projectRepository.findById(projectId);
+        if (!projectOpt.isPresent()) {
+            System.err.println("Project not found when initializing read status");
+            return;
+        }
+        
+        Project project = projectOpt.get();
+        LocalDateTime now = LocalDateTime.now();
+        
+        // Initialize for project owner
+        User owner = project.getOwner();
+        if (owner != null) {
+            try {
+                updateReadStatus(channelId, owner.getUserId(), now);
+            } catch (Exception e) {
+                System.err.println("Could not initialize read status for project owner: " + e.getMessage());
+            }
+        }
+        
+        // Initialize for all project members
+        for (User member : project.getMembers()) {
+            if (member != null) {
+                try {
+                    updateReadStatus(channelId, member.getUserId(), now);
+                } catch (Exception e) {
+                    System.err.println("Could not initialize read status for member " + member.getUserId() + ": " + e.getMessage());
+                }
+            }
         }
     }
     

@@ -186,7 +186,6 @@ CREATE TABLE message_channels (
         (channel_type = 'TEAM' AND team_id IS NOT NULL)
     )
 );
-
 CREATE TABLE channel_read_status (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     channel_id BIGINT NOT NULL,
@@ -196,21 +195,18 @@ CREATE TABLE channel_read_status (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     UNIQUE KEY unique_channel_user (channel_id, user_id)
 );
-
-
+SELECT * FROM message_channels;
 CREATE TABLE messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
     sender_id VARCHAR(100) NOT NULL,
-    content VARCHAR(1000) NOT NULL,
+    content TEXT NULL,
     channel_id BIGINT NOT NULL DEFAULT 1,
     timestamp DATETIME NOT NULL,
     FOREIGN KEY (project_id) REFERENCES projects(project_id),
     FOREIGN KEY (sender_id) REFERENCES users(user_id),
     FOREIGN KEY (channel_id) REFERENCES message_channels(channel_id)
 );
-
-
 
 CREATE INDEX idx_message_project_id ON messages(project_id);
 CREATE INDEX idx_message_timestamp ON messages(timestamp);
