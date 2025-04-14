@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Send, Search, ArrowLeft, Users, Hash, MessageSquare, 
-  PlusCircle, X, MessageCircle, Settings, Layout, Activity, KanbanSquare, UsersIcon
+  PlusCircle, X, MessageCircle, Settings, Layout, Activity, KanbanSquare, UsersIcon,BookOpen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next'; 
-import ViewportHeader from "../components/ViewportHeader";
+import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { SearchProvider } from '../scripts/SearchContext';
 import axios from 'axios';
@@ -362,7 +362,16 @@ useEffect(() => {
       id: 'chat',
       icon: MessageCircle,
       label: t("sidebar.chat"),
-      path: `/project/${id}/temp-chat`,
+      path: `/project/${id}/chat`,
+    },
+    {
+      id: 'notes',
+      icon: BookOpen,
+      label: "Notes",
+      path: `/project/${id}/notes`,
+      state: { isOwner },
+      color: 'bg-indigo-100 text-indigo-600',
+      iconColor: 'text-indigo-600'
     },
     {
       id: 'settings',
@@ -392,7 +401,7 @@ useEffect(() => {
 
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-color)]">
-      <ViewportHeader
+      <Header
         title={
           <div className="flex items-center">
             <span 

@@ -14,7 +14,7 @@ import
 import
 {
     KanbanSquare, Layout, Settings, Users, Activity,
-    BookOpen, X, FileText, Search as SearchIcon
+    BookOpen, X, FileText, Search as SearchIcon,MessageCircle
 } from "lucide-react";
 
 const Notes = () =>
@@ -650,6 +650,15 @@ const Notes = () =>
             state: { isOwner },
             color: 'bg-[var(--sidebar-teams-bg-color)] text-[var(--sidebar-teams-color)]',
             iconColor: 'text-[var(--sidebar-teams-color)]'
+        },
+        {
+            id: 'chat',
+            icon: MessageCircle,
+            label: t("sidebar.chat"),
+            path: `/project/${projectId}/chat`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600', //değiş
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'notes',

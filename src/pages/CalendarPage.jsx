@@ -195,7 +195,7 @@ const CalendarPage = () => {
                 id: 'chat',
                 icon: MessageCircle,
                 label: t("sidebar.chat"),
-                path: `/project/${id}/temp-chat`,
+                path: `/project/${id}/chat`,
             },
             {
                 id: 'settings',

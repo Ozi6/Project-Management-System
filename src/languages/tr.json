@@ -27,6 +27,8 @@
     "days_overdue": "gün geç kalındı"
   },
 
+  "sidebar.chat": "Sohbet",
+
   "sidebar.user": "Kullanıcı",
   "sidebar.dash": "Gösterge Paneli",
   "sidebar.gantt": "Gantt Şeması",

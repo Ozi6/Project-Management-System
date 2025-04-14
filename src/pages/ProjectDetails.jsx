@@ -1176,7 +1176,7 @@ const ProjectDetails = () => {
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
-            path: `/project/${id}/temp-chat`,
+            path: `/project/${id}/chat`,
             state: { isOwner },
             color: 'bg-indigo-100 text-indigo-600', //değiş
             iconColor: 'text-indigo-600'

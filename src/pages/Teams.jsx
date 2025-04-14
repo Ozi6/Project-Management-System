@@ -649,7 +649,7 @@ const Teams = () =>
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
-            path: `/project/${projectId}/temp-chat`,
+            path: `/project/${projectId}/chat`,
             state: { isOwner },
             color: 'bg-indigo-100 text-indigo-600', //değiş
             iconColor: 'text-indigo-600'
