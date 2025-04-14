@@ -20,7 +20,88 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Message {
+public class Message
+{
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Integer getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId)
+    {
+        this.projectId = projectId;
+    }
+
+    public String getSenderId()
+    {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId)
+    {
+        this.senderId = senderId;
+    }
+
+    public String getContent()
+    {
+        return content;
+    }
+
+    public void setContent(String content)
+    {
+        this.content = content;
+    }
+
+    public LocalDateTime getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp)
+    {
+        this.timestamp = timestamp;
+    }
+
+    public Long getChannelId()
+    {
+        return channelId;
+    }
+
+    public void setChannelId(Long channelId)
+    {
+        this.channelId = channelId;
+    }
+
+    public User getSender()
+    {
+        return sender;
+    }
+
+    public void setSender(User sender)
+    {
+        this.sender = sender;
+    }
+
+    public MessageChannel getChannel()
+    {
+        return channel;
+    }
+
+    public void setChannel(MessageChannel channel)
+    {
+        this.channel = channel;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

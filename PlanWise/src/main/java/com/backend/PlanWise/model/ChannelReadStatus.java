@@ -19,7 +19,68 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChannelReadStatus {
+public class ChannelReadStatus
+{
+    public Long getId()
+    {
+        return id;
+    }
+
+    public void setId(Long id)
+    {
+        this.id = id;
+    }
+
+    public Long getChannelId()
+    {
+        return channelId;
+    }
+
+    public void setChannelId(Long channelId)
+    {
+        this.channelId = channelId;
+    }
+
+    public String getUserId()
+    {
+        return userId;
+    }
+
+    public void setUserId(String userId)
+    {
+        this.userId = userId;
+    }
+
+    public LocalDateTime getLastReadTimestamp()
+    {
+        return lastReadTimestamp;
+    }
+
+    public void setLastReadTimestamp(LocalDateTime lastReadTimestamp)
+    {
+        this.lastReadTimestamp = lastReadTimestamp;
+    }
+
+    public MessageChannel getChannel()
+    {
+        return channel;
+    }
+
+    public void setChannel(MessageChannel channel)
+    {
+        this.channel = channel;
+    }
+
+    public User getUser()
+    {
+        return user;
+    }
+
+    public void setUser(User user)
+    {
+        this.user = user;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

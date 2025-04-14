@@ -265,35 +265,38 @@ public class MessageController {
         
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedMessage));
     }
-    
-    // Helper method to update read status
+
     @Transactional
-    public void updateReadStatus(Long channelId, String userId, LocalDateTime timestamp) {
-        try {
-            // Verify both user and channel actually exist
+    public void updateReadStatus(Long channelId, String userId, LocalDateTime timestamp)
+    {
+        try{
             boolean userExists = userRepository.existsById(userId);
             boolean channelExists = channelRepository.existsById(channelId);
             
-            if (!userExists || !channelExists) {
+            if(!userExists || !channelExists)
+            {
                 System.err.println("Cannot update read status - user or channel doesn't exist. " +
                                   "User exists: " + userExists + ", Channel exists: " + channelExists);
-                return; // Skip instead of throwing exception
+                return;
             }
         
             Optional<ChannelReadStatus> statusOpt = readStatusRepository.findByChannelIdAndUserId(channelId, userId);
             
-            if (statusOpt.isPresent()) {
+            if (statusOpt.isPresent())
+            {
                 ChannelReadStatus status = statusOpt.get();
                 status.setLastReadTimestamp(timestamp);
                 readStatusRepository.save(status);
-            } else {
+            }
+            else
+            {
                 ChannelReadStatus status = new ChannelReadStatus();
                 status.setChannelId(channelId);
                 status.setUserId(userId);
                 status.setLastReadTimestamp(timestamp);
                 readStatusRepository.save(status);
             }
-        } catch (Exception e) {
+        }catch(Exception e){
             System.err.println("Error updating read status: " + e.getMessage());
             e.printStackTrace();
         }

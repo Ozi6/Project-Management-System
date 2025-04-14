@@ -22,7 +22,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageChannel {
+public class MessageChannel
+{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "channel_id")
@@ -39,7 +40,87 @@ public class MessageChannel {
     
     @Column(name = "team_id")
     private Long teamId;
-    
+
+    public Set<Message> getMessages()
+    {
+        return messages;
+    }
+
+    public void setMessages(Set<Message> messages)
+    {
+        this.messages = messages;
+    }
+
+    public Project getProject()
+    {
+        return project;
+    }
+
+    public void setProject(Project project)
+    {
+        this.project = project;
+    }
+
+    public LocalDateTime getCreatedAt()
+    {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt)
+    {
+        this.createdAt = createdAt;
+    }
+
+    public Long getTeamId()
+    {
+        return teamId;
+    }
+
+    public void setTeamId(Long teamId)
+    {
+        this.teamId = teamId;
+    }
+
+    public Long getProjectId()
+    {
+        return projectId;
+    }
+
+    public void setProjectId(Long projectId)
+    {
+        this.projectId = projectId;
+    }
+
+    public String getChannelType()
+    {
+        return channelType;
+    }
+
+    public void setChannelType(String channelType)
+    {
+        this.channelType = channelType;
+    }
+
+    public String getChannelName()
+    {
+        return channelName;
+    }
+
+    public void setChannelName(String channelName)
+    {
+        this.channelName = channelName;
+    }
+
+    public Long getChannelId()
+    {
+        return channelId;
+    }
+
+    public void setChannelId(Long channelId)
+    {
+        this.channelId = channelId;
+    }
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
