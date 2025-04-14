@@ -16,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.PlanWise.Controllers.MessageController;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
@@ -32,10 +34,12 @@ import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
+import com.backend.PlanWise.model.MessageChannel;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
+import com.backend.PlanWise.repository.MessageChannelRepository;
 
 @Service
 public class ProjectServicer
@@ -52,7 +56,13 @@ public class ProjectServicer
     private UserService userService;
 
     @Autowired
+    private MessageController messageController;
+
+    @Autowired
     private RecentActivityService recentActivityService;
+
+    @Autowired
+    private MessageChannelRepository messageChannelRepository;
 
 
     public List<ProjectDTO> getAllProjects()
@@ -220,6 +230,7 @@ public class ProjectServicer
         return dto;
     }
 
+    @Transactional
     public ProjectDTO createProject(ProjectDTO projectDTO)
     {
         User owner = userService.getOrCreateLocalUser(
@@ -260,10 +271,22 @@ public class ProjectServicer
 
         Project savedProject = projectRepository.save(project);
     
+        // Create a default "General" channel for the new project
+          // Create a default "General" channel for the new project
+        MessageChannel defaultChannel = new MessageChannel();
+        defaultChannel.setChannelName("General");
+        defaultChannel.setChannelType("PROJECT");
+        defaultChannel.setProjectId(savedProject.getProjectId());
+        defaultChannel.setCreatedAt(LocalDateTime.now());
+        MessageChannel savedChannel = messageChannelRepository.save(defaultChannel);
+        
+        // Initialize read status for project owner and members
+        messageController.initializeReadStatusForChannel(savedChannel.getChannelId(), savedProject.getProjectId());
+    
         return convertToDTO(savedProject);
     }
 
-    private Project convertToEntity(ProjectDTO projectDTO)
+    public Project convertToEntity(ProjectDTO projectDTO)
     {
         Project project = new Project();
         project.setProjectName(projectDTO.getProjectName());
@@ -272,7 +295,7 @@ public class ProjectServicer
 
         project.setOwner(convertUserToEntity(projectDTO.getOwner()));
         project.setMembers(projectDTO.getMembers().stream()
-                .map(this::convertUserToEntity)
+                .map(this::convertUserToEntity)     
                 .collect(Collectors.toSet()));
         project.setTeams(projectDTO.getTeams().stream()
                 .map(this::convertTeamToEntity)
@@ -609,8 +632,7 @@ public class ProjectServicer
                 .collect(Collectors.toList());
     }
 
-    public void addMemberToTeam(Long projectId, Long teamId, String userId)
-    {
+    public void addMemberToTeam(Long projectId, Long teamId, String userId) {
         Team team = teamDataPool.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
 
@@ -623,6 +645,16 @@ public class ProjectServicer
 
         team.getMembers().add(user);
         teamDataPool.save(team);
+        
+        // Add user to team channel read status
+        List<MessageChannel> teamChannels = messageChannelRepository.findByProjectIdAndTeamId(projectId, teamId);
+        for (MessageChannel channel : teamChannels) {
+            try {
+                messageController.updateReadStatus(channel.getChannelId(), userId, LocalDateTime.now());
+            } catch (Exception e) {
+                System.err.println("Error initializing read status for new team member: " + e.getMessage());
+            }
+        }
     }
 
     public TeamDTO updateTeam(Long projectId, Long teamId, TeamDTO teamDTO)
@@ -667,8 +699,54 @@ public class ProjectServicer
         team.setCreatedAt(LocalDateTime.now());
         team.setUpdatedAt(LocalDateTime.now());
 
+        // Add initial members if provided
+        if (teamDTO.getMembers() != null && !teamDTO.getMembers().isEmpty()) {
+            Set<User> members = teamDTO.getMembers().stream()
+                    .map(userDTO -> userService.getOrCreateLocalUser(
+                            userDTO.getUserId(),
+                            userDTO.getEmail(),
+                            userDTO.getUsername(),
+                            userDTO.getProfileImageUrl()
+                    ))
+                    .collect(Collectors.toSet());
+            team.setMembers(members);
+        } else {
+            team.setMembers(new HashSet<>());
+        }
+
         Team savedTeam = teamDataPool.save(team);
+        
+        // Create a team chat channel automatically
+        MessageChannel teamChannel = new MessageChannel();
+        teamChannel.setChannelName(team.getTeamName() + " Chat");
+        teamChannel.setChannelType("TEAM");
+        teamChannel.setProjectId(projectId);
+        teamChannel.setTeamId(savedTeam.getTeamId());
+        teamChannel.setCreatedAt(LocalDateTime.now());
+        MessageChannel savedChannel = messageChannelRepository.save(teamChannel);
+        
+        // Initialize read status for all team members
+        initializeTeamChannelReadStatus(savedChannel.getChannelId(), savedTeam);
+        
         return convertTeamToDTO(savedTeam);
+    }
+
+    /**
+     * Initialize read status for all members of a team for a specific channel
+     */
+    private void initializeTeamChannelReadStatus(Long channelId, Team team) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        for (User member : team.getMembers()) {
+            if (member != null) {
+                try {
+                    messageController.updateReadStatus(channelId, member.getUserId(), now);
+                } catch (Exception e) {
+                    System.err.println("Could not initialize read status for team member " + 
+                        member.getUserId() + ": " + e.getMessage());
+                }
+            }
+        }
     }
     
     /**
@@ -695,5 +773,15 @@ public class ProjectServicer
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public boolean isUserMemberOfProject(Long projectId, String userId)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        return project.getMembers().stream()
+                .anyMatch(member -> member.getUserId().equals(userId));
+
     }
 }
