@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Send, Search, ArrowLeft, Users, Hash, MessageSquare, 
@@ -6,10 +6,12 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
-import { useTranslation } from 'react-i18next'; // Add this import
+import { useTranslation } from 'react-i18next'; 
 import ViewportHeader from "../components/ViewportHeader";
 import Sidebar from "../components/Sidebar";
 import { SearchProvider } from '../scripts/SearchContext';
+import axios from 'axios';
+import { useAuth } from '@clerk/clerk-react';
 
 const ProjectChatWrapper = () => {
     return(
@@ -22,157 +24,315 @@ const ProjectChatWrapper = () => {
 const TempChatPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { getToken, userId } = useAuth();
   const [message, setMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [channelSearchTerm, setChannelSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState("chat");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const [selectedChannel, setSelectedChannel] = useState({ id: 1, name: 'General', type: 'PROJECT' });
-  const {t} = useTranslation();
-  // Add near the top of your component with other state variables
+  const [channels, setChannels] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [selectedChannel, setSelectedChannel] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [projectName, setProjectName] = useState("");
+  const [users, setUsers] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
-  // Demo data
-  const projectName = "Project Management System";
+  const {t} = useTranslation();
+  const messagesEndRef = useRef(null);
   
-  const demoChannels = [
-    { id: 1, name: 'General', type: 'PROJECT', unreadCount: 0, lastMessageContent: 'Welcome to the project chat!', lastMessageSender: 'John Doe' },
-    { id: 2, name: 'Announcements', type: 'PROJECT', unreadCount: 3, lastMessageContent: 'Team meeting tomorrow at 10 AM', lastMessageSender: 'Project Manager' },
-    { id: 3, name: 'Development Team', type: 'TEAM', unreadCount: 0, lastMessageContent: 'I pushed the latest changes', lastMessageSender: 'Developer' },
-    { id: 4, name: 'Design Team', type: 'TEAM', unreadCount: 5, lastMessageContent: 'New mockups are ready for review', lastMessageSender: 'UI Designer' },
-    { id: 5, name: 'QA Team', type: 'TEAM', unreadCount: 0, lastMessageContent: 'Found a bug in the login flow', lastMessageSender: 'QA Engineer' },
-    { id: 6, name: 'Marketing', type: 'TEAM', unreadCount: 2, lastMessageContent: 'Launch campaign is scheduled for next week', lastMessageSender: 'Marketing Lead' },
-  ];
-  
-  const demoUsers = [
-    { id: 'user1', name: 'John Doe', avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff' },
-    { id: 'user2', name: 'Jane Smith', avatar: 'https://ui-avatars.com/api/?name=Jane+Smith&background=FF5733&color=fff' },
-    { id: 'user3', name: 'Robert Johnson', avatar: 'https://ui-avatars.com/api/?name=Robert+Johnson&background=27AE60&color=fff' },
-    { id: 'user4', name: 'Emily Davis', avatar: 'https://ui-avatars.com/api/?name=Emily+Davis&background=8E44AD&color=fff' },
-    { id: 'user5', name: 'Michael Wilson', avatar: 'https://ui-avatars.com/api/?name=Michael+Wilson&background=F39C12&color=fff' },
-  ];
-  
-  const generateDemoMessages = (channelId) => {
-    // Different messages for different channels
-    const baseMessages = [
-      { id: 1, content: "Hello everyone! Welcome to the channel.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 5) },
-      { id: 2, content: "Thanks for the welcome! Excited to collaborate here.", senderId: 'user2', timestamp: new Date(Date.now() - 86400000 * 5 + 3600000) },
-      { id: 3, content: "I've shared the project requirements in the documents section.", senderId: 'user3', timestamp: new Date(Date.now() - 86400000 * 4) },
-      { id: 4, content: "Has anyone started working on the wireframes yet?", senderId: 'user4', timestamp: new Date(Date.now() - 86400000 * 3) },
-      { id: 5, content: "I'll be working on them today. Should have something to share by tomorrow.", senderId: 'user5', timestamp: new Date(Date.now() - 86400000 * 3 + 1800000) },
-      { id: 6, content: "Great! Looking forward to seeing them.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 3 + 3600000) },
-      { id: 7, content: "I've encountered an issue with the database connection. Anyone available to help?", senderId: 'user3', timestamp: new Date(Date.now() - 86400000 * 2) },
-      { id: 8, content: "What specific error are you getting? I might be able to help.", senderId: 'user2', timestamp: new Date(Date.now() - 86400000 * 2 + 900000) },
-      { id: 9, content: "It's saying 'Connection refused'. I've checked the credentials and they seem correct.", senderId: 'user3', timestamp: new Date(Date.now() - 86400000 * 2 + 1800000) },
-      { id: 10, content: "Make sure the database server is running and the port is correct. Also check if there's a firewall blocking the connection.", senderId: 'user2', timestamp: new Date(Date.now() - 86400000 * 2 + 2700000) },
-      { id: 11, content: "That worked! Thanks for the help.", senderId: 'user3', timestamp: new Date(Date.now() - 86400000 * 2 + 3600000) },
-      { id: 12, content: "Weekly progress update: We're on track with most tasks, but we might need to extend the deadline for the API integration.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 1) },
-      { id: 13, content: "I agree. The third-party API documentation is not as comprehensive as we expected.", senderId: 'user4', timestamp: new Date(Date.now() - 86400000 * 1 + 1800000) },
-      { id: 14, content: "Let's discuss this in tomorrow's meeting and adjust the timeline accordingly.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 1 + 3600000) },
-      { id: 15, content: "Sounds good. I'll prepare a brief report on the challenges we're facing.", senderId: 'user4', timestamp: new Date(Date.now() - 86400000 * 1 + 5400000) },
-      { id: 16, content: "I've pushed the latest UI changes to the repository. Please pull and test when you get a chance.", senderId: 'user5', timestamp: new Date(Date.now() - 3600000) },
-      { id: 17, content: "Will do! I'll review it this afternoon.", senderId: 'user2', timestamp: new Date(Date.now() - 1800000) },
-      { id: 18, content: "Don't forget about the client demo next week. We need to make sure everything is stable by then.", senderId: 'user1', timestamp: new Date() }
-    ];
+  // Fetch project data (for name and check if user is owner)
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const token = await getToken();
+        // Fetch project details to get name
+        const projectResponse = await axios.get(`http://localhost:8080/api/projects/${id}`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+          }
+        });
+        setProjectName(projectResponse.data.projectName);
+        
+        // Check if current user is owner
+        const ownerResponse = await axios.get(`http://localhost:8080/api/projects/${id}/isOwner`, {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'userId': userId 
+          }
+        });
+        setIsOwner(ownerResponse.data);
+      } catch (err) {
+        console.error('Error fetching project data:', err);
+        setError('Failed to load project data');
+      }
+    };
     
-    // Add some channel-specific messages
-    if (channelId === 1) { // General
-      baseMessages.push({ id: 101, content: "Welcome to the General channel! This is where we discuss overall project coordination.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 7) });
-    } else if (channelId === 2) { // Announcements
-      baseMessages.push({ id: 102, content: "ANNOUNCEMENT: The new project timeline has been approved. Please check your email for details.", senderId: 'user1', timestamp: new Date(Date.now() - 86400000 * 6) });
-      baseMessages.push({ id: 103, content: "REMINDER: Team meeting tomorrow at 10 AM. We'll be discussing the upcoming sprint.", senderId: 'user1', timestamp: new Date(Date.now() - 3600000 * 12) });
-    } else if (channelId === 3) { // Development Team
-      baseMessages.push({ id: 104, content: "Has anyone experienced issues with the new version of the framework?", senderId: 'user3', timestamp: new Date(Date.now() - 86400000 * 4) });
-      baseMessages.push({ id: 105, content: "I've pushed the latest changes to the repo. Please review the PR when you get a chance.", senderId: 'user2', timestamp: new Date(Date.now() - 3600000 * 5) });
-    } else if (channelId === 4) { // Design Team
-      baseMessages.push({ id: 106, content: "The new mockups are ready for review in Figma.", senderId: 'user5', timestamp: new Date(Date.now() - 86400000 * 3) });
-      baseMessages.push({ id: 107, content: "I've updated the color palette based on client feedback. What do you think?", senderId: 'user5', timestamp: new Date(Date.now() - 3600000 * 8) });
+    if (id && userId) {
+      fetchProjectData();
     }
+  }, [id, userId, getToken]);
+  
+  // Fetch channels for the project
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        setLoading(true);
+        const token = await getToken();
+        const response = await axios.get(
+          `http://localhost:8080/api/messages/channels/project/${id}`,
+          {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }
+        );
+        
+        // For each channel, get unread count
+        const channelsWithUnread = await Promise.all(response.data.map(async (channel) => {
+          try {
+            const unreadResponse = await axios.get(
+              `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
+              {
+                headers: { 'Authorization': `Bearer ${token}` }
+              }
+            );
+            return {
+              ...channel,
+              unreadCount: unreadResponse.data
+            };
+          } catch (err) {
+            console.error('Error getting unread count:', err);
+            return {
+              ...channel,
+              unreadCount: 0
+            };
+          }
+        }));
+        
+        setChannels(channelsWithUnread);
+        
+        // Select first channel by default if none selected
+        if (!selectedChannel && channelsWithUnread.length > 0) {
+          setSelectedChannel(channelsWithUnread[0]);
+          fetchMessages(channelsWithUnread[0].channelId);
+        } else if (channelsWithUnread.length === 0) {
+          // No channels exist - this shouldn't happen if you create a General channel for each project
+          setError("No channels available for this project");
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching channels:', err);
+        setError('Failed to load channels');
+        setLoading(false);
+      }
+    };
     
-    return baseMessages.sort((a, b) => a.timestamp - b.timestamp);
+    if (id && userId) {
+      fetchChannels();
+      
+      // Set up polling for channel updates (every 30 seconds)
+      const intervalId = setInterval(fetchChannels, 2000);
+      return () => clearInterval(intervalId);
+    }
+  }, [id, userId, getToken]);
+  
+  // Fetch users in project (for displaying avatars and names)
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const token = await getToken();
+        const response = await axios.get(
+          `http://localhost:8080/api/projects/${id}/members`,
+          {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }
+        );
+        
+        // Transform to format needed for messages
+        const formattedUsers = response.data.map(user => ({
+          id: user.userId,
+          name: user.username,
+          avatar: user.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=0D8ABC&color=fff`
+        }));
+        
+        setUsers(formattedUsers);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+      }
+    };
+    
+    if (id) {
+      fetchUsers();
+    }
+  }, [id, getToken]);
+  
+  // Fetch messages for the selected channel
+  const fetchMessages = async (channelId) => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      const response = await axios.get(
+        `http://localhost:8080/api/messages/channel/${channelId}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      setMessages(response.data);
+      
+      // Mark channel as read
+      await axios.post(
+        `http://localhost:8080/api/messages/channel/${channelId}/read`,
+        userId,
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'text/plain'
+          }
+        }
+      );
+      
+      // Update unread count in channels list
+      setChannels(prev => 
+        prev.map(channel => 
+          channel.channelId === channelId 
+            ? { ...channel, unreadCount: 0 } 
+            : channel
+        )
+      );
+      
+      setLoading(false);
+      
+      // Scroll to bottom of messages
+      scrollToBottom();
+    } catch (err) {
+      console.error('Error fetching messages:', err);
+      setError('Failed to load messages');
+      setLoading(false);
+    }
   };
   
-  const [demoMessages] = useState(generateDemoMessages(selectedChannel.id));
+  // When channel changes, fetch messages
+  useEffect(() => {
+    if (selectedChannel) {
+      fetchMessages(selectedChannel.channelId);
+      
+      // Set up polling for message updates (every 10 seconds)
+      const intervalId = setInterval(() => fetchMessages(selectedChannel.channelId), 10000);
+      return () => clearInterval(intervalId);
+    }
+  }, [selectedChannel]);
   
-  const filteredMessages = searchTerm 
-    ? demoMessages.filter(msg => 
-        msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        demoUsers.find(u => u.id === msg.senderId)?.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : demoMessages;
-    
-  const filteredChannels = channelSearchTerm
-    ? demoChannels.filter(channel => 
-        channel.name.toLowerCase().includes(channelSearchTerm.toLowerCase())
-      )
-    : demoChannels;
-
-  const handleSendMessage = (e) => {
+  // Function to scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  
+  // Handle sending a message
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!message.trim()) return;
+    if (!message.trim() || !selectedChannel) return;
     
-    // In a real app, this would call an API
-    // For demo purposes, we just clear the input
-    setMessage('');
-    alert(`Message sent: ${message}`);
+    try {
+      const token = await getToken();
+      await axios.post(
+        `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`, 
+        {
+          senderId: userId,
+          content: message,
+          projectId: parseInt(id)
+        },
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      
+      // Clear input and refetch messages
+      setMessage('');
+      fetchMessages(selectedChannel.channelId);
+    } catch (err) {
+      console.error('Error sending message:', err);
+      alert('Failed to send message. Please try again.');
+    }
   };
   
   const formatMessageTime = (timestamp) => {
     return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
   };
+  
+  const filteredMessages = searchTerm 
+    ? messages.filter(msg => 
+        msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        msg.senderName?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : messages;
+    
+  const filteredChannels = channelSearchTerm
+    ? channels.filter(channel => 
+        channel.channelName.toLowerCase().includes(channelSearchTerm.toLowerCase())
+      )
+    : channels;
 
-  const customNavItems =
-    [
-        {
-            id: 'dashboard',
-            icon: Layout,
-            label: t("sidebar.dash"),
-            path: '/dashboard',
-            iconColor: 'text-blue-600',
-            defaultColor: true
-        },
-        {
-            id: 'projects',
-            icon: KanbanSquare,
-            label: t("sidebar.this"),
-            path: `/project/${id}`,
-            state: { isOwner },
-            color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
-            iconColor: 'text-[var(--sidebar-projects-color)]'
-        },
-        {
-            id: 'activity',
-            icon: Activity,
-            label: t("sidebar.act"),
-            path: `/project/${id}/activity`,
-            state: { isOwner },
-            color: 'bg-yellow-100 text-yellow-600',
-            iconColor: 'text-amber-600'
-        },
-        {
-            id: 'teams',
-            icon: UsersIcon,
-            label: t("sidebar.team"),
-            path: `/project/${id}/teams`,
-            state: { isOwner },
-            color: 'bg-green-100 text-green-600',
-            iconColor: 'text-green-600'
-        },
-        {
-            id: 'chat',
-            icon: MessageCircle,
-            label: t("sidebar.chat"),
-            path: `/project/${id}/temp-chat`,
-        },
-        {
-            id: 'settings',
-            icon: Settings,
-            label: t("sidebar.set"),
-            path: `/project/${id}/settings`,
-            state: { isOwner },
-            color: 'bg-gray-100 text-gray-600',
-            iconColor: 'text-gray-600'
-        }
-    ];
+  const customNavItems = [
+    {
+      id: 'dashboard',
+      icon: Layout,
+      label: t("sidebar.dash"),
+      path: '/dashboard',
+      iconColor: 'text-blue-600',
+      defaultColor: true
+    },
+    {
+      id: 'projects',
+      icon: KanbanSquare,
+      label: t("sidebar.this"),
+      path: `/project/${id}`,
+      state: { isOwner },
+      color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
+      iconColor: 'text-[var(--sidebar-projects-color)]'
+    },
+    {
+      id: 'activity',
+      icon: Activity,
+      label: t("sidebar.act"),
+      path: `/project/${id}/activity`,
+      state: { isOwner },
+      color: 'bg-yellow-100 text-yellow-600',
+      iconColor: 'text-amber-600'
+    },
+    {
+      id: 'teams',
+      icon: UsersIcon,
+      label: t("sidebar.team"),
+      path: `/project/${id}/teams`,
+      state: { isOwner },
+      color: 'bg-green-100 text-green-600',
+      iconColor: 'text-green-600'
+    },
+    {
+      id: 'chat',
+      icon: MessageCircle,
+      label: t("sidebar.chat"),
+      path: `/project/${id}/temp-chat`,
+    },
+    {
+      id: 'settings',
+      icon: Settings,
+      label: t("sidebar.set"),
+      path: `/project/${id}/settings`,
+      state: { isOwner },
+      color: 'bg-gray-100 text-gray-600',
+      iconColor: 'text-gray-600'
+    }
+  ];
+
+  // Find corresponding user for a message
+  const findUserForMessage = (userId) => {
+    return users.find(u => u.id === userId) || { 
+      name: 'Unknown User', 
+      avatar: `https://ui-avatars.com/api/?name=Unknown+User&background=888888&color=fff` 
+    };
+  };
 
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-color)]">
@@ -210,13 +370,13 @@ const TempChatPage = () => {
             {/* Channel header */}
             <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)] bg-[var(--bg-color)] flex items-center justify-between">
               <div className="flex items-center">
-                {selectedChannel.type === 'PROJECT' ? (
+                {selectedChannel?.channelType === 'PROJECT' ? (
                   <Hash size={18} className="mr-2 text-[var(--features-icon-color)]" />
                 ) : (
                   <Users size={18} className="mr-2 text-[var(--features-icon-color)]" />
                 )}
                 <h2 className="text-lg font-medium text-[var(--features-text-color)]">
-                  {selectedChannel.name}
+                  {selectedChannel?.channelName || 'Select a channel'}
                 </h2>
               </div>
               
@@ -240,20 +400,26 @@ const TempChatPage = () => {
             
             {/* Messages container */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {filteredMessages.length === 0 ? (
-                <div className="flex items-center justify-center h-full flex-col">
-                  <MessageSquare size={40} className="text-[var(--features-icon-color)] mb-4" />
+              {loading && !messages.length ? (
+                <div className="flex items-center justify-center h-full">
                   <div className="text-[var(--features-text-color)] text-center">
-                    {searchTerm 
-                      ? "No messages match your search" 
-                      : "No messages yet. Start the conversation!"}
                   </div>
+                </div>
+              ) : error ? (
+                <div className="flex items-center justify-center h-full flex-col">
+                  <div className="text-red-500 text-center">
+                    {error}
+                  </div>
+                </div>
+              ) : filteredMessages.length === 0 ? (
+                <div className="flex items-center justify-center h-full flex-col">
+                  
                 </div>
               ) : (
                 <>
                   {filteredMessages.map((msg) => {
-                    const user = demoUsers.find(u => u.id === msg.senderId);
-                    const isCurrentUser = msg.senderId === 'user1'; // Assume user1 is current user
+                    const user = findUserForMessage(msg.senderId);
+                    const isCurrentUser = msg.senderId === userId;
                     
                     return (
                       <div 
@@ -280,7 +446,7 @@ const TempChatPage = () => {
                         >
                           {!isCurrentUser && (
                             <div className="font-medium text-xs mb-1 text-[var(--features-icon-color)]">
-                              {user?.name || 'Unknown User'}
+                              {msg.senderName || user?.name || 'Unknown User'}
                             </div>
                           )}
                           <p className="whitespace-pre-wrap break-words">{msg.content}</p>
@@ -302,6 +468,7 @@ const TempChatPage = () => {
                       </div>
                     );
                   })}
+                  <div ref={messagesEndRef} />
                 </>
               )}
             </div>
@@ -315,12 +482,13 @@ const TempChatPage = () => {
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Type a message..."
                   className="flex-1 p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)]"
+                  disabled={!selectedChannel}
                 />
                 <motion.button
                   type="submit"
-                  disabled={!message.trim()}
+                  disabled={!message.trim() || !selectedChannel}
                   className={`p-3 rounded-lg ${
-                    message.trim() 
+                    message.trim() && selectedChannel
                       ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]' 
                       : 'bg-[var(--gray-card3)] text-[var(--text-color3)]'
                   } transition-colors disabled:opacity-50`}
@@ -361,25 +529,22 @@ const TempChatPage = () => {
                   <h3 className="text-xs font-medium text-[var(--features-text-color)]">
                     PROJECT
                   </h3>
-                  <button className="p-1 rounded-md hover:bg-[var(--gray-card3)]/50 text-[var(--features-icon-color)]">
-                    <PlusCircle size={14} />
-                  </button>
                 </div>
                 {filteredChannels
-                  .filter(channel => channel.type === 'PROJECT')
+                  .filter(channel => channel.channelType === 'PROJECT')
                   .map(channel => (
                   <div 
-                    key={channel.id}
+                    key={channel.channelId}
                     onClick={() => setSelectedChannel(channel)}
                     className={`flex items-center px-4 py-2 rounded-md cursor-pointer mb-1 ${
-                      selectedChannel.id === channel.id
+                      selectedChannel?.channelId === channel.channelId
                         ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
                         : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
                     }`}
                   >
                     <Hash size={16} className="mr-2 flex-shrink-0" />
                     <div className="flex-1 truncate">
-                      <div className="text-sm font-medium">{channel.name}</div>
+                      <div className="text-sm font-medium">{channel.channelName}</div>
                       {channel.lastMessageContent && (
                         <div className="text-xs opacity-70 truncate">
                           {channel.lastMessageSender}: {channel.lastMessageContent}
@@ -400,26 +565,23 @@ const TempChatPage = () => {
                   <h3 className="text-xs font-medium text-[var(--features-text-color)]">
                     TEAM CHATS
                   </h3>
-                  <button className="p-1 rounded-md hover:bg-[var(--gray-card3)]/50 text-[var(--features-icon-color)]">
-                    <PlusCircle size={14} />
-                  </button>
                 </div>
                 
                 {filteredChannels
-                  .filter(channel => channel.type === 'TEAM')
+                  .filter(channel => channel.channelType === 'TEAM')
                   .map(channel => (
                   <div 
-                    key={channel.id}
+                    key={channel.channelId}
                     onClick={() => setSelectedChannel(channel)}
                     className={`flex items-center px-4 py-2 rounded-md cursor-pointer mb-1 ${
-                      selectedChannel.id === channel.id
+                      selectedChannel?.channelId === channel.channelId
                         ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
                         : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
                     }`}
                   >
                     <Users size={16} className="mr-2 flex-shrink-0" />
                     <div className="flex-1 truncate">
-                      <div className="text-sm font-medium">{channel.name}</div>
+                      <div className="text-sm font-medium">{channel.channelName}</div>
                       {channel.lastMessageContent && (
                         <div className="text-xs opacity-70 truncate">
                           {channel.lastMessageSender}: {channel.lastMessageContent}
@@ -427,7 +589,7 @@ const TempChatPage = () => {
                       )}
                     </div>
                     {channel.unreadCount > 0 && (
-                      <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
+                      <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items=center justify-center ml-2">
                         {channel.unreadCount}
                       </div>
                     )}

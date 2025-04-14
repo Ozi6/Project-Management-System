@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
@@ -32,10 +33,12 @@ import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
 import com.backend.PlanWise.model.Category;
 import com.backend.PlanWise.model.File;
 import com.backend.PlanWise.model.ListEntry;
+import com.backend.PlanWise.model.MessageChannel;
 import com.backend.PlanWise.model.Project;
 import com.backend.PlanWise.model.TaskList;
 import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
+import com.backend.PlanWise.repository.MessageChannelRepository;
 
 @Service
 public class ProjectServicer
@@ -53,6 +56,9 @@ public class ProjectServicer
 
     @Autowired
     private RecentActivityService recentActivityService;
+
+    @Autowired
+    private MessageChannelRepository messageChannelRepository;
 
 
     public List<ProjectDTO> getAllProjects()
@@ -220,6 +226,7 @@ public class ProjectServicer
         return dto;
     }
 
+    @Transactional
     public ProjectDTO createProject(ProjectDTO projectDTO)
     {
         User owner = userService.getOrCreateLocalUser(
@@ -260,10 +267,18 @@ public class ProjectServicer
 
         Project savedProject = projectRepository.save(project);
     
+        // Create a default "General" channel for the new project
+        MessageChannel defaultChannel = new MessageChannel();
+        defaultChannel.setChannelName("General");
+        defaultChannel.setChannelType("PROJECT");
+        defaultChannel.setProjectId(savedProject.getProjectId());
+        defaultChannel.setCreatedAt(LocalDateTime.now());
+        messageChannelRepository.save(defaultChannel);
+    
         return convertToDTO(savedProject);
     }
 
-    private Project convertToEntity(ProjectDTO projectDTO)
+    public Project convertToEntity(ProjectDTO projectDTO)
     {
         Project project = new Project();
         project.setProjectName(projectDTO.getProjectName());
@@ -272,7 +287,7 @@ public class ProjectServicer
 
         project.setOwner(convertUserToEntity(projectDTO.getOwner()));
         project.setMembers(projectDTO.getMembers().stream()
-                .map(this::convertUserToEntity)
+                .map(this::convertUserToEntity)     
                 .collect(Collectors.toSet()));
         project.setTeams(projectDTO.getTeams().stream()
                 .map(this::convertTeamToEntity)

@@ -12,9 +12,12 @@ import lombok.NoArgsConstructor;
 public class MessageDTO {
     private Long id;
     private Integer projectId;
-    private String senderId;  // Changed from Long to String
-    private String senderName;
-    private String senderAvatar;
+    private String senderId;
     private String content;
     private LocalDateTime timestamp;
+    private Long channelId;
+    
+    // Additional fields for UI display
+    private String senderName;
+    private String senderAvatar;
 }

@@ -2,6 +2,7 @@ package com.backend.PlanWise.Controllers;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,12 @@ import com.backend.PlanWise.DataTransferObjects.ProjectDTO;
 import com.backend.PlanWise.DataTransferObjects.TeamDTO;
 import com.backend.PlanWise.DataTransferObjects.UserDTO;
 import com.backend.PlanWise.Exceptions.ResourceNotFoundException;
+import com.backend.PlanWise.repository.MessageChannelRepository;
 import com.backend.PlanWise.servicer.CategoryService;
 import com.backend.PlanWise.servicer.ProjectServicer;
+import com.backend.PlanWise.model.MessageChannel;
+import com.backend.PlanWise.model.Project;
+import com.backend.PlanWise.Controllers.MessageController;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -42,6 +47,11 @@ public class ProjectController
     @Autowired
     private ProjectServicer projectService;
 
+    @Autowired
+    private MessageController messageController;
+
+    @Autowired
+    private MessageChannelRepository messageChannelRepository;
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getAllProjects()
@@ -67,10 +77,19 @@ public class ProjectController
     }
 
     @PostMapping
-    public ResponseEntity<ProjectDTO> createProject(@RequestBody ProjectDTO projectDTO)
-    {
-        ProjectDTO createdProject = projectService.createProject(projectDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
+    public ResponseEntity<Project> createProject(@RequestBody ProjectDTO projectDTO) {
+        Project newProject = projectService.convertToEntity(projectService.createProject(projectDTO));
+        
+        // Initialize the read status for the project owner for the general channel
+        // This assumes your messageChannelRepository has a method to find by project ID
+        List<MessageChannel> channels = messageChannelRepository.findByProjectId(newProject.getProjectId());
+        if (!channels.isEmpty()) {
+            // Assuming the first channel is the "General" channel we just created
+            MessageChannel generalChannel = channels.get(0);
+            messageController.updateReadStatus(generalChannel.getChannelId(), projectDTO.getOwner().getUserId(), LocalDateTime.now());
+        }
+        
+        return new ResponseEntity<>(newProject, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{projectId}")
