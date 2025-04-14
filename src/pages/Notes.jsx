@@ -1135,7 +1135,7 @@ const Notes = () =>
                                                                     <FaPencilAlt size={14} />
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
+                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: true })}
                                                                     className="p-1.5 rounded hover:bg-white/80"
                                                                     title="Delete note"
                                                                 >
@@ -1219,7 +1219,7 @@ const Notes = () =>
                                                                     <FaPencilAlt size={14}/>
                                                                 </button>
                                                                 <button
-                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, isShared: true })}
+                                                                    onClick={() => setNoteToDelete({ id: note.id, title: note.title, shared: true })}
                                                                     className="p-1.5 rounded hover:bg-white/80"
                                                                     title="Delete note">
                                                                     <FaTrash size={14}/>

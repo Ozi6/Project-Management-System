@@ -195,7 +195,7 @@ CREATE TABLE channel_read_status (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     UNIQUE KEY unique_channel_user (channel_id, user_id)
 );
-SELECT * FROM message_channels;
+
 CREATE TABLE messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
