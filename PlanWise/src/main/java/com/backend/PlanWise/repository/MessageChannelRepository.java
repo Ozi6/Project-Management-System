@@ -12,4 +12,6 @@ public interface MessageChannelRepository extends JpaRepository<MessageChannel, 
     List<MessageChannel> findByProjectId(Long projectId);
     List<MessageChannel> findByProjectIdAndChannelType(Long projectId, String channelType);
     MessageChannel findByChannelIdAndProjectId(Long channelId, Long projectId);
+    List<MessageChannel> findByProjectIdAndTeamId(Long projectId, Long teamId);
+    List<MessageChannel> findByTeamId(Long teamId);
 }

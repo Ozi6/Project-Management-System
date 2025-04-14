@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.PlanWise.DataPool.ProjectDataPool;
+import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.MessageChannelDTO;
 import com.backend.PlanWise.DataTransferObjects.MessageDTO;
@@ -25,6 +27,7 @@ import com.backend.PlanWise.model.ChannelReadStatus;
 import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.model.MessageChannel;
 import com.backend.PlanWise.model.Project;
+import com.backend.PlanWise.model.Team;
 import com.backend.PlanWise.model.User;
 import com.backend.PlanWise.repository.ChannelReadStatusRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
@@ -264,56 +267,194 @@ public class MessageController {
     }
     
     // Helper method to update read status
+    @Transactional
     public void updateReadStatus(Long channelId, String userId, LocalDateTime timestamp) {
-        Optional<ChannelReadStatus> statusOpt = readStatusRepository.findByChannelIdAndUserId(channelId, userId);
+        try {
+            // Verify both user and channel actually exist
+            boolean userExists = userRepository.existsById(userId);
+            boolean channelExists = channelRepository.existsById(channelId);
+            
+            if (!userExists || !channelExists) {
+                System.err.println("Cannot update read status - user or channel doesn't exist. " +
+                                  "User exists: " + userExists + ", Channel exists: " + channelExists);
+                return; // Skip instead of throwing exception
+            }
         
-        if (statusOpt.isPresent()) {
-            ChannelReadStatus status = statusOpt.get();
-            status.setLastReadTimestamp(timestamp);
-            readStatusRepository.save(status);
-        } else {
-            ChannelReadStatus status = new ChannelReadStatus();
-            status.setChannelId(channelId);
-            status.setUserId(userId);
-            status.setLastReadTimestamp(timestamp);
-            readStatusRepository.save(status);
+            Optional<ChannelReadStatus> statusOpt = readStatusRepository.findByChannelIdAndUserId(channelId, userId);
+            
+            if (statusOpt.isPresent()) {
+                ChannelReadStatus status = statusOpt.get();
+                status.setLastReadTimestamp(timestamp);
+                readStatusRepository.save(status);
+            } else {
+                ChannelReadStatus status = new ChannelReadStatus();
+                status.setChannelId(channelId);
+                status.setUserId(userId);
+                status.setLastReadTimestamp(timestamp);
+                readStatusRepository.save(status);
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating read status: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
     /**
      * Initialize read status for all project members for a specific channel
      */
+    @Transactional
     public void initializeReadStatusForChannel(Long channelId, Long projectId) {
-        // Find the project
-        Optional<Project> projectOpt = projectRepository.findById(projectId);
-        if (!projectOpt.isPresent()) {
-            System.err.println("Project not found when initializing read status");
+        try {
+            // Find the project
+            Optional<Project> projectOpt = projectRepository.findById(projectId);
+            if (!projectOpt.isPresent()) {
+                System.err.println("Project not found when initializing read status");
+                return;
+            }
+            
+            Project project = projectOpt.get();
+            LocalDateTime now = LocalDateTime.now();
+            
+            // Initialize for all project members
+            for (User member : project.getMembers()) {
+                if (member != null) {
+                    try {
+                        // Only create read status if it doesn't exist
+                        Optional<ChannelReadStatus> statusOpt = readStatusRepository.findByChannelIdAndUserId(
+                                channelId, member.getUserId());
+                        
+                        if (!statusOpt.isPresent()) {
+                            ChannelReadStatus status = new ChannelReadStatus();
+                            status.setChannelId(channelId);
+                            status.setUserId(member.getUserId());
+                            status.setLastReadTimestamp(now);
+                            readStatusRepository.save(status);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Could not initialize read status for member " + 
+                            member.getUserId() + ": " + e.getMessage());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error initializing read status: " + e.getMessage());
+        }
+    }
+    
+    @Autowired
+    private TeamDataPool teamDataPool; // Assuming you have a similar data pool for teams
+    /**
+     * Initialize read status for team channel when a new member is added
+     */
+    @Transactional
+    public void initializeTeamChannelReadStatus(Long channelId, Long teamId) {
+        // Find the team
+        Optional<Team> teamOpt = teamDataPool.findById(teamId);
+        if (!teamOpt.isPresent()) {
+            System.err.println("Team not found when initializing read status");
             return;
         }
         
-        Project project = projectOpt.get();
+        Team team = teamOpt.get();
         LocalDateTime now = LocalDateTime.now();
         
-        // Initialize for project owner
-        User owner = project.getOwner();
-        if (owner != null) {
-            try {
-                updateReadStatus(channelId, owner.getUserId(), now);
-            } catch (Exception e) {
-                System.err.println("Could not initialize read status for project owner: " + e.getMessage());
+        // Initialize for all team members
+        for (User member : team.getMembers()) {
+            if (member != null) {
+                updateReadStatus(channelId, member.getUserId(), now);
             }
+        }
+    }
+    
+    /**
+     * Get all channels for a specific team
+     */
+    @GetMapping("/channels/team/{teamId}")
+    public ResponseEntity<List<MessageChannelDTO>> getTeamChannels(@PathVariable Long teamId) {
+        List<MessageChannel> channels = channelRepository.findByTeamId(teamId);
+        
+        List<MessageChannelDTO> channelDTOs = channels.stream()
+            .map(this::convertChannelToDTO)
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(channelDTOs);
+    }
+
+    /**
+     * Create a new team channel
+     */
+    @PostMapping("/channels/team")
+    public ResponseEntity<MessageChannelDTO> createTeamChannel(@RequestBody MessageChannelDTO channelDTO) {
+        // Verify team exists
+        if (channelDTO.getTeamId() == null) {
+            return ResponseEntity.badRequest().build();
         }
         
-        // Initialize for all project members
-        for (User member : project.getMembers()) {
-            if (member != null) {
-                try {
-                    updateReadStatus(channelId, member.getUserId(), now);
-                } catch (Exception e) {
-                    System.err.println("Could not initialize read status for member " + member.getUserId() + ": " + e.getMessage());
-                }
-            }
+        // Verify project exists
+        Optional<Project> projectOpt = projectRepository.findById(channelDTO.getProjectId());
+        if (!projectOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        
+        // Create channel
+        MessageChannel channel = new MessageChannel();
+        channel.setChannelName(channelDTO.getChannelName());
+        channel.setChannelType("TEAM"); // Force team type
+        channel.setProjectId(channelDTO.getProjectId());
+        channel.setTeamId(channelDTO.getTeamId());
+        channel.setCreatedAt(LocalDateTime.now());
+        
+        MessageChannel savedChannel = channelRepository.save(channel);
+        
+        // Initialize read status for all team members
+        initializeTeamChannelReadStatus(savedChannel.getChannelId(), savedChannel.getTeamId());
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(convertChannelToDTO(savedChannel));
+    }
+
+    /**
+     * Get if user can access channel (is member of team for team channels)
+     */
+    @GetMapping("/channel/{channelId}/access/{userId}")
+    public ResponseEntity<Boolean> canAccessChannel(
+            @PathVariable Long channelId,
+            @PathVariable String userId) {
+        
+        Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
+        if (!channelOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        
+        MessageChannel channel = channelOpt.get();
+        
+        // If it's a project channel, check if user is project member
+        if ("PROJECT".equals(channel.getChannelType())) {
+            Optional<Project> projectOpt = projectRepository.findById(channel.getProjectId());
+            if (!projectOpt.isPresent()) {
+                return ResponseEntity.ok(false);
+            }
+            
+            Project project = projectOpt.get();
+            boolean isMember = project.getMembers().stream()
+                    .anyMatch(member -> member.getUserId().equals(userId));
+                    
+            return ResponseEntity.ok(isMember);
+        } 
+        // If it's a team channel, check if user is team member
+        else if ("TEAM".equals(channel.getChannelType()) && channel.getTeamId() != null) {
+            Optional<Team> teamOpt = teamDataPool.findById(channel.getTeamId());
+            if (!teamOpt.isPresent()) {
+                return ResponseEntity.ok(false);
+            }
+            
+            Team team = teamOpt.get();
+            boolean isTeamMember = team.getMembers().stream()
+                    .anyMatch(member -> member.getUserId().equals(userId));
+                    
+            return ResponseEntity.ok(isTeamMember);
+        }
+        
+        return ResponseEntity.ok(false);
     }
     
     // Convert MessageChannel entity to DTO

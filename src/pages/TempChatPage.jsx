@@ -111,13 +111,13 @@ const TempChatPage = () => {
         setChannels(channelsWithUnread);
         
         // Select first channel by default if none selected
-        if (!selectedChannel && channelsWithUnread.length > 0) {
+        /* if (!selectedChannel && channelsWithUnread.length > 0) {
           setSelectedChannel(channelsWithUnread[0]);
           fetchMessages(channelsWithUnread[0].channelId);
         } else if (channelsWithUnread.length === 0) {
           // No channels exist - this shouldn't happen if you create a General channel for each project
           setError("No channels available for this project");
-        }
+        } */
         
         setLoading(false);
       } catch (err) {
@@ -166,28 +166,45 @@ const TempChatPage = () => {
     }
   }, [id, getToken]);
   
-  // Fetch messages for the selected channel
-  const fetchMessages = async (channelId) => {
+  // Modify the fetchMessages function to check access first
+const fetchMessages = async (channelId) => {
+  try {
+    setLoading(true);
+    const token = await getToken();
+    
+    // Check if user has access to this channel
+    const accessResponse = await axios.get(
+      `http://localhost:8080/api/messages/channel/${channelId}/access/${userId}`,
+      {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }
+    );
+    
+    if (!accessResponse.data) {
+      setError("You don't have access to this channel");
+      setLoading(false);
+      return;
+    }
+    
+    // User has access, fetch messages
+    const response = await axios.get(
+      `http://localhost:8080/api/messages/channel/${channelId}`,
+      {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }
+    );
+    
+    setMessages(response.data);
+    
+    // Try to mark channel as read
     try {
-      setLoading(true);
-      const token = await getToken();
-      const response = await axios.get(
-        `http://localhost:8080/api/messages/channel/${channelId}`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
-      
-      setMessages(response.data);
-      
-      // Mark channel as read
       await axios.post(
         `http://localhost:8080/api/messages/channel/${channelId}/read`,
-        userId,
+        JSON.stringify(userId),
         {
           headers: { 
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'text/plain'
+            'Content-Type': 'application/json'
           }
         }
       );
@@ -200,17 +217,18 @@ const TempChatPage = () => {
             : channel
         )
       );
-      
-      setLoading(false);
-      
-      // Scroll to bottom of messages
-      scrollToBottom();
-    } catch (err) {
-      console.error('Error fetching messages:', err);
-      setError('Failed to load messages');
-      setLoading(false);
+    } catch (markReadErr) {
+      console.warn("Could not mark channel as read:", markReadErr);
     }
-  };
+    
+    setLoading(false);
+    scrollToBottom();
+  } catch (err) {
+    console.error('Error fetching messages:', err);
+    setError('Failed to load messages');
+    setLoading(false);
+  }
+};
   
   // When channel changes, fetch messages
   useEffect(() => {
@@ -334,6 +352,13 @@ const TempChatPage = () => {
     };
   };
 
+  // Group channels by type in the render method
+  const projectChannels = filteredChannels
+    .filter(channel => channel.channelType === 'PROJECT');
+
+  const teamChannels = filteredChannels
+    .filter(channel => channel.channelType === 'TEAM');
+
   return (
     <div className="flex flex-col h-screen bg-[var(--bg-color)]">
       <ViewportHeader
@@ -375,27 +400,19 @@ const TempChatPage = () => {
                 ) : (
                   <Users size={18} className="mr-2 text-[var(--features-icon-color)]" />
                 )}
-                <h2 className="text-lg font-medium text-[var(--features-text-color)]">
-                  {selectedChannel?.channelName || 'Select a channel'}
-                </h2>
-              </div>
-              
-              <div className="relative">
-                <div className="flex items-center">
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <Search className="w-4 h-4 text-gray-400" />
+                <div>
+                  <h2 className="text-lg font-medium text-[var(--features-text-color)]">
+                    {selectedChannel?.channelName || 'Select a channel'}
+                  </h2>
+                  {selectedChannel?.channelType === 'TEAM' && (
+                    <div className="text-xs text-[var(--features-text-color)] opacity-70">
+                      Team Channel • Members only
                     </div>
-                    <input 
-                      type="text" 
-                      className="bg-[var(--bg-color)] border border-[var(--gray-card3)] text-[var(--text-color3)] text-sm rounded-lg focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)] w-48 pl-10 p-2"
-                      placeholder="Search in chat..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+                  )}
                 </div>
               </div>
+              
+              {/* Rest of the header */}
             </div>
             
             {/* Messages container */}
@@ -530,9 +547,7 @@ const TempChatPage = () => {
                     PROJECT
                   </h3>
                 </div>
-                {filteredChannels
-                  .filter(channel => channel.channelType === 'PROJECT')
-                  .map(channel => (
+                {projectChannels.map(channel => (
                   <div 
                     key={channel.channelId}
                     onClick={() => setSelectedChannel(channel)}
@@ -567,13 +582,11 @@ const TempChatPage = () => {
                   </h3>
                 </div>
                 
-                {filteredChannels
-                  .filter(channel => channel.channelType === 'TEAM')
-                  .map(channel => (
+                {teamChannels.map(channel => (
                   <div 
                     key={channel.channelId}
                     onClick={() => setSelectedChannel(channel)}
-                    className={`flex items-center px-4 py-2 rounded-md cursor-pointer mb-1 ${
+                    className={`flex items=center px-4 py-2 rounded-md cursor-pointer mb-1 ${
                       selectedChannel?.channelId === channel.channelId
                         ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
                         : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'

@@ -632,8 +632,7 @@ public class ProjectServicer
                 .collect(Collectors.toList());
     }
 
-    public void addMemberToTeam(Long projectId, Long teamId, String userId)
-    {
+    public void addMemberToTeam(Long projectId, Long teamId, String userId) {
         Team team = teamDataPool.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team not found"));
 
@@ -646,6 +645,16 @@ public class ProjectServicer
 
         team.getMembers().add(user);
         teamDataPool.save(team);
+        
+        // Add user to team channel read status
+        List<MessageChannel> teamChannels = messageChannelRepository.findByProjectIdAndTeamId(projectId, teamId);
+        for (MessageChannel channel : teamChannels) {
+            try {
+                messageController.updateReadStatus(channel.getChannelId(), userId, LocalDateTime.now());
+            } catch (Exception e) {
+                System.err.println("Error initializing read status for new team member: " + e.getMessage());
+            }
+        }
     }
 
     public TeamDTO updateTeam(Long projectId, Long teamId, TeamDTO teamDTO)
@@ -690,8 +699,54 @@ public class ProjectServicer
         team.setCreatedAt(LocalDateTime.now());
         team.setUpdatedAt(LocalDateTime.now());
 
+        // Add initial members if provided
+        if (teamDTO.getMembers() != null && !teamDTO.getMembers().isEmpty()) {
+            Set<User> members = teamDTO.getMembers().stream()
+                    .map(userDTO -> userService.getOrCreateLocalUser(
+                            userDTO.getUserId(),
+                            userDTO.getEmail(),
+                            userDTO.getUsername(),
+                            userDTO.getProfileImageUrl()
+                    ))
+                    .collect(Collectors.toSet());
+            team.setMembers(members);
+        } else {
+            team.setMembers(new HashSet<>());
+        }
+
         Team savedTeam = teamDataPool.save(team);
+        
+        // Create a team chat channel automatically
+        MessageChannel teamChannel = new MessageChannel();
+        teamChannel.setChannelName(team.getTeamName() + " Chat");
+        teamChannel.setChannelType("TEAM");
+        teamChannel.setProjectId(projectId);
+        teamChannel.setTeamId(savedTeam.getTeamId());
+        teamChannel.setCreatedAt(LocalDateTime.now());
+        MessageChannel savedChannel = messageChannelRepository.save(teamChannel);
+        
+        // Initialize read status for all team members
+        initializeTeamChannelReadStatus(savedChannel.getChannelId(), savedTeam);
+        
         return convertTeamToDTO(savedTeam);
+    }
+
+    /**
+     * Initialize read status for all members of a team for a specific channel
+     */
+    private void initializeTeamChannelReadStatus(Long channelId, Team team) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        for (User member : team.getMembers()) {
+            if (member != null) {
+                try {
+                    messageController.updateReadStatus(channelId, member.getUserId(), now);
+                } catch (Exception e) {
+                    System.err.println("Could not initialize read status for team member " + 
+                        member.getUserId() + ": " + e.getMessage());
+                }
+            }
+        }
     }
     
     /**

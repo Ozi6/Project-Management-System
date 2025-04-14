@@ -640,7 +640,7 @@ const Teams = () =>
             id: 'notes',
             icon: BookOpen,
             label: "Notes",
-            path: `/project/${id}/notes`,
+            path: `/project/${projectId}/notes`,
             state: { isOwner },
             color: 'bg-indigo-100 text-indigo-600',
             iconColor: 'text-indigo-600'
@@ -649,7 +649,7 @@ const Teams = () =>
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
-            path: `/project/${id}/temp-chat`,
+            path: `/project/${projectId}/temp-chat`,
             state: { isOwner },
             color: 'bg-indigo-100 text-indigo-600', //değiş
             iconColor: 'text-indigo-600'
