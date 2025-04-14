@@ -15,7 +15,8 @@ import {
   Settings, 
   Users as UsersIcon, 
   Menu,
-  MessageCircle, 
+  MessageCircle,
+  BookOpen,
   Plus 
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -61,8 +62,10 @@ const ProjectDetails = () => {
 
     const { searchTerm, filteredColumns, performSearch } = useSearch();
 
-    useEffect(() => {
-        if (!isLoaded || !user || !id) return;
+    useEffect(() =>
+    {
+        if(!isLoaded || !user || !id)
+            return;
         
         const checkProjectAccess = async () => {
             try {
@@ -1161,10 +1164,22 @@ const ProjectDetails = () => {
             iconColor: 'text-green-600'
         },
         {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
+        },
+        {
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
             path: `/project/${id}/temp-chat`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600', //değiş
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'settings',

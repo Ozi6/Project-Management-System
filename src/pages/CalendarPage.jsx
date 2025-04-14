@@ -3,7 +3,7 @@ import { Calendar, ChevronLeft, ChevronRight, Plus, Search, Filter, SortAsc, Use
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
-import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity,MessageCircle } from "lucide-react";
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity,MessageCircle,BookOpen } from "lucide-react";
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -172,6 +172,15 @@ const CalendarPage = () => {
                 state: { isOwner },
                 color: 'bg-[var(--sidebar-gantt-bg-color)] text-[var(--sidebar-gantt-color)]',
                 iconColor: 'text-amber-600'
+            },
+            {
+                id: 'notes',
+                icon: BookOpen,
+                label: "Notes",
+                path: `/project/${id}/notes`,
+                state: { isOwner },
+                color: 'bg-indigo-100 text-indigo-600',
+                iconColor: 'text-indigo-600'
             },
             {
                 id: 'teams',

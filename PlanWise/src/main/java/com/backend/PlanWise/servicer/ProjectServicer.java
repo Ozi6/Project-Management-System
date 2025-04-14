@@ -696,4 +696,14 @@ public class ProjectServicer
             return false;
         }
     }
+
+    public boolean isUserMemberOfProject(Long projectId, String userId)
+    {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+
+        return project.getMembers().stream()
+                .anyMatch(member -> member.getUserId().equals(userId));
+
+    }
 }

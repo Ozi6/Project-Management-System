@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import AdvancedSettings from "../components/AdvancedSettings";
 import GeneralSettings from "../components/GeneralSettings";
 import Header from "../components/Header";
-import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity, Menu,MessageCircle } from "lucide-react";
+import { KanbanSquare, Layout, Settings, Users as UsersIcon, Activity, Menu,MessageCircle,BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const ProjectSettings = () =>
@@ -57,10 +57,22 @@ const ProjectSettings = () =>
             iconColor: 'text-green-600'
         },
         {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
+        },
+        {
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
             path: `/project/${id}/temp-chat`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600', //değiş
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'settings',

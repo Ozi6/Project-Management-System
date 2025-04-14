@@ -17,7 +17,7 @@ import { KanbanSquare, Layout, Settings, Users, Activity,MessageCircle } from "l
 import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search as SearchIcon, X } from "lucide-react";
+import { Search as SearchIcon, X, BookOpen } from "lucide-react";
 
 
 const ICON_CATEGORIES = {
@@ -637,10 +637,22 @@ const Teams = () =>
             iconColor: 'text-[var(--sidebar-teams-color)]'
         },
         {
+            id: 'notes',
+            icon: BookOpen,
+            label: "Notes",
+            path: `/project/${id}/notes`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600',
+            iconColor: 'text-indigo-600'
+        },
+        {
             id: 'chat',
             icon: MessageCircle,
             label: t("sidebar.chat"),
-            path: `/project/${projectId}/temp-chat`,
+            path: `/project/${id}/temp-chat`,
+            state: { isOwner },
+            color: 'bg-indigo-100 text-indigo-600', //değiş
+            iconColor: 'text-indigo-600'
         },
         {
             id: 'settings',

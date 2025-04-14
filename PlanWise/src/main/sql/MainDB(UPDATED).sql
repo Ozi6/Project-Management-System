@@ -172,6 +172,7 @@ CREATE TABLE invitations (
     FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
+
 CREATE TABLE messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     project_id INT NOT NULL,
@@ -184,6 +185,22 @@ CREATE TABLE messages (
 
 CREATE INDEX idx_message_project_id ON messages(project_id);
 CREATE INDEX idx_message_timestamp ON messages(timestamp);
+
+CREATE TABLE notes (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	title VARCHAR(255) NOT NULL,
+	content TEXT NOT NULL,
+	shared boolean NOT NULL DEFAULT false,
+	user_id VARCHAR(255) NOT NULL,
+    color VARCHAR(255) NOT NULL,
+    pinned boolean NOT NULL DEFAULT false,
+	project_id INT NOT NULL,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 
 CREATE INDEX idx_projects_owner ON projects(owner_id);
 

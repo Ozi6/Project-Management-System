@@ -32,7 +32,7 @@ import Teams from './pages/Teams';
 import "./i18n"; 
 import InvitationPage from './pages/InvitationPage';
 import TempChatPage from './pages/TempChatPage';
-
+import Notes from './pages/Notes';
 
 //import Documentation from "./pages/Documentation";
 
@@ -70,6 +70,7 @@ function AnimatedRoutes() {
                 <Route path="/project/:id/settings" element={<PageWrapper><ProjectSettings /></PageWrapper>} />
                 <Route path="/project/:id/activity" element={<PageWrapper><Activity /></PageWrapper>} />
                 <Route path="/project/:id/teams" element={<PageWrapper><Teams /></PageWrapper>} />
+                <Route path="/project/:id/notes" element={<PageWrapper><Notes /></PageWrapper> } />
                 <Route path="/admin/issues" element={<PageWrapper><Issues /></PageWrapper>} />
                 <Route path="/invitations/:id" element={<PageWrapper><InvitationResponsePage /></PageWrapper>} />
                 {/* Add the new incidents-bugs route */}
