@@ -128,4 +128,31 @@ public class Message
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", referencedColumnName = "channel_id", insertable = false, updatable = false)
     private MessageChannel channel;
+
+    public LocalDateTime getEditedAt()
+    {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt)
+    {
+        this.editedAt = editedAt;
+        this.isEdited = true;
+    }
+
+    public boolean isEdited()
+    {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited)
+    {
+        isEdited = edited;
+    }
+
+    @Column(name = "edited_at")
+    private LocalDateTime editedAt;
+
+    @Column(name = "is_edited", nullable = false)
+    private boolean isEdited = false;
 }

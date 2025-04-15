@@ -201,11 +201,103 @@ CREATE TABLE messages (
     project_id INT NOT NULL,
     sender_id VARCHAR(100) NOT NULL,
     content TEXT NULL,
-    channel_id BIGINT NOT NULL DEFAULT 1,
+    channel_id BIGINT NOT NULL,
     timestamp DATETIME NOT NULL,
+    edited_at DATETIME NULL,
+    is_edited BOOLEAN DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT FALSE,
+    deleted_at DATETIME NULL,
+    reply_to_message_id BIGINT NULL,
     FOREIGN KEY (project_id) REFERENCES projects(project_id),
     FOREIGN KEY (sender_id) REFERENCES users(user_id),
-    FOREIGN KEY (channel_id) REFERENCES message_channels(channel_id)
+    FOREIGN KEY (channel_id) REFERENCES message_channels(channel_id),
+    FOREIGN KEY (reply_to_message_id) REFERENCES messages(id)
+);
+
+CREATE TABLE message_reactions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    reaction_type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_message_user_reaction (message_id, user_id, reaction_type)
+);
+
+CREATE TABLE message_attachments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(512) NOT NULL,
+    file_type ENUM('IMAGE', 'DOCUMENT', 'AUDIO', 'VIDEO', 'CODE', 'OTHER') NOT NULL,
+    file_size BIGINT NOT NULL,
+    thumbnail_path VARCHAR(512) NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
+CREATE TABLE polls (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    question TEXT NOT NULL,
+    is_multiple_choice BOOLEAN DEFAULT FALSE,
+    expires_at DATETIME NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
+CREATE TABLE poll_options (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    poll_id BIGINT NOT NULL,
+    option_text TEXT NOT NULL,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE
+);
+
+CREATE TABLE poll_votes (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    poll_id BIGINT NOT NULL,
+    option_id BIGINT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    voted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (poll_id) REFERENCES polls(id) ON DELETE CASCADE,
+    FOREIGN KEY (option_id) REFERENCES poll_options(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_poll_user_vote (poll_id, user_id)
+);
+
+CREATE TABLE message_mentions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    mentioned_user_id VARCHAR(100) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    FOREIGN KEY (mentioned_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE code_snippets (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    language VARCHAR(50) NOT NULL,
+    code_content LONGTEXT NOT NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
+CREATE TABLE voice_messages (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    audio_path VARCHAR(512) NOT NULL,
+    duration_seconds INT NOT NULL,
+    waveform_data TEXT NULL,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
+CREATE TABLE message_read_status (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    message_id BIGINT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    UNIQUE KEY unique_message_user_read (message_id, user_id)
 );
 
 CREATE INDEX idx_message_project_id ON messages(project_id);

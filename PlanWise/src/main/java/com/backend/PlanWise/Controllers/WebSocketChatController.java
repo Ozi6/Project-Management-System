@@ -13,6 +13,7 @@ import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 public class WebSocketChatController
@@ -47,8 +48,36 @@ public class WebSocketChatController
 
         messagingTemplate.convertAndSend(
                 "/topic/project/" + messageDTO.getProjectId() + "/channels",
-                new ChannelUpdate(channelId, savedMessage.getContent(), savedMessage.getTimestamp())
+                new ChannelUpdate(channelId, savedMessage.getContent(), savedMessage.getTimestamp(), savedMessage.getSenderId())
         );
+    }
+
+    @MessageMapping("/chat/{channelId}/edit")
+    public void editMessage(
+            @DestinationVariable Long channelId,
+            @Payload MessageDTO messageDTO)
+    {
+
+        Optional<Message> messageOpt = messageRepository.findById(messageDTO.getId());
+        if (!messageOpt.isPresent())
+            return;
+
+        Message message = messageOpt.get();
+
+        if (!message.getChannelId().equals(channelId))
+            return;
+
+        if(!message.getSenderId().equals(messageDTO.getSenderId()))
+            return;
+
+        message.setContent(messageDTO.getContent());
+        message.setEditedAt(LocalDateTime.now());
+        message.setEdited(true);
+
+        Message updatedMessage = messageRepository.save(message);
+        MessageDTO updatedMessageDTO = convertToDTO(updatedMessage);
+
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/edit", updatedMessageDTO);
     }
 
     private MessageDTO convertToDTO(Message message)
@@ -60,6 +89,8 @@ public class WebSocketChatController
         dto.setContent(message.getContent());
         dto.setTimestamp(message.getTimestamp());
         dto.setChannelId(message.getChannelId());
+        dto.setEditedAt(message.getEditedAt());
+        dto.setEdited(message.isEdited());
 
         var userOpt = userRepository.findById(message.getSenderId());
         if(userOpt.isPresent())
@@ -88,11 +119,14 @@ public class WebSocketChatController
         public Long channelId;
         public String lastMessageContent;
         public LocalDateTime lastMessageTimestamp;
+        public String lastMessageSender;
 
-        public ChannelUpdate(Long channelId, String content, LocalDateTime timestamp) {
+        public ChannelUpdate(Long channelId, String content, LocalDateTime timestamp, String senderId)
+        {
             this.channelId = channelId;
             this.lastMessageContent = content;
             this.lastMessageTimestamp = timestamp;
+            this.lastMessageSender = senderId;
         }
     }
 }

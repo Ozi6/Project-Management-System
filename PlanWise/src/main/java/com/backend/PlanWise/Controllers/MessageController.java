@@ -10,13 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
@@ -523,5 +517,28 @@ public class MessageController {
     public ResponseEntity<Void> prepareProjectChannelsSubscription(@PathVariable Long projectId)
     {
         return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/{messageId}")
+    public ResponseEntity<MessageDTO> editMessage(
+            @PathVariable Long messageId,
+            @RequestBody MessageDTO messageDTO)
+    {
+
+        Optional<Message> messageOpt = messageRepository.findById(messageId);
+        if (!messageOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Message message = messageOpt.get();
+
+        if(!message.getSenderId().equals(messageDTO.getSenderId()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+
+        message.setContent(messageDTO.getContent());
+        message.setEditedAt(LocalDateTime.now());
+
+        Message savedMessage = messageRepository.save(message);
+
+        return ResponseEntity.ok(convertToDTO(savedMessage));
     }
 }

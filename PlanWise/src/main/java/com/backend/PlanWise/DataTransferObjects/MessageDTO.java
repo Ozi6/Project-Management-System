@@ -104,4 +104,26 @@ public class MessageDTO
 
     private String senderName;
     private String senderAvatar;
+    private LocalDateTime editedAt;
+    private boolean isEdited;
+
+    public LocalDateTime getEditedAt()
+    {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt)
+    {
+        this.editedAt = editedAt;
+    }
+
+    public boolean isEdited()
+    {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited)
+    {
+        isEdited = edited;
+    }
 }
