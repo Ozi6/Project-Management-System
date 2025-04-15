@@ -395,6 +395,14 @@ const TempChatPage = () =>
                         );
                     });
 
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/delete`, function (message)
+                    {
+                        const deletedMessage = JSON.parse(message.body);
+                        setMessages((prevMessages) =>
+                            prevMessages.filter((msg) => msg.id !== deletedMessage.id)
+                        );
+                    });
+
                     client.subscribe(`/topic/project/${id}/channels`, function (message)
                     {
                         fetchChannels();
@@ -651,12 +659,46 @@ const TempChatPage = () =>
         }
     };
 
-    const handleDeleteMessage = (messageId) =>
+    const handleDeleteMessage = async (messageId) =>
     {
-        console.log(`Deleted message ${messageId}`);
+        try{
+            const messageToDelete = messages.find((msg) => msg.id === messageId);
+            if(!messageToDelete)
+                return;
 
-        setMessages(prev => prev.filter(msg => msg.id !== messageId));
-        setShowMessageActions(null);
+            setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+
+            const deleteMessageData =
+            {
+                id: messageId,
+                senderId: userId,
+                channelId: selectedChannel.channelId,
+            };
+
+            if(stompClient && connected)
+            {
+                stompClient.publish({
+                    destination: `/app/chat/${selectedChannel.channelId}/delete`,
+                    body: JSON.stringify(deleteMessageData),
+                });
+            }
+            else
+            {
+                const token = await getToken();
+                await axios.delete(`http://localhost:8080/api/messages/${messageId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    data: { senderId: userId },
+                });
+            }
+
+            setShowMessageActions(null);
+        }catch(err){
+            console.error('Error deleting message:', err);
+            const messageToRestore = messages.find((msg) => msg.id === messageId);
+            if(messageToRestore)
+                setMessages((prev) => [...prev, messageToRestore].sort((a, b) => a.id - b.id));
+            alert('Failed to delete message. Please try again.');
+        }
     };
 
     const handleMention = (userId) =>
@@ -1184,18 +1226,16 @@ const TempChatPage = () =>
                                                                 <button
                                                                     onClick={() => handleEditMessage(msg)}
                                                                     className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                    title="Edit"
-                                                                >
-                                                                    <Edit size={16} />
+                                                                    title="Edit">
+                                                                    <Edit size={16}/>
                                                                 </button>
                                                             )}
-                                                            {(isCurrentUser || isOwner) && (
+                                                            {(isCurrentUser) && (
                                                                 <button
                                                                     onClick={() => handleDeleteMessage(msg.id)}
                                                                     className="p-1 rounded-full hover:bg-red-100 text-red-500"
-                                                                    title="Delete"
-                                                                >
-                                                                    <Trash2 size={16} />
+                                                                    title="Delete">
+                                                                    <Trash2 size={16}/>
                                                                 </button>
                                                             )}
                                                         </motion.div>

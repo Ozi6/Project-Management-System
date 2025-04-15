@@ -541,4 +541,19 @@ public class MessageController {
 
         return ResponseEntity.ok(convertToDTO(savedMessage));
     }
+
+    @DeleteMapping("/{messageId}")
+    public ResponseEntity<Void> deleteMessage(
+            @PathVariable Long messageId,
+            @RequestBody MessageDTO messageDTO)
+    {
+        Optional<Message> messageOpt = messageRepository.findById(messageId);
+        if(!messageOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        Message message = messageOpt.get();
+        if(!message.getSenderId().equals(messageDTO.getSenderId()))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        messageRepository.delete(message);
+        return ResponseEntity.ok().build();
+    }
 }

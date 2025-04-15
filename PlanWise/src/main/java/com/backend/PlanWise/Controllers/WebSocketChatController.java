@@ -80,6 +80,29 @@ public class WebSocketChatController
         messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/edit", updatedMessageDTO);
     }
 
+    @MessageMapping("/chat/{channelId}/delete")
+    public void deleteMessage(
+            @DestinationVariable Long channelId,
+            @Payload MessageDTO messageDTO)
+    {
+        Optional<Message> messageOpt = messageRepository.findById(messageDTO.getId());
+        if (!messageOpt.isPresent())
+            return;
+        Message message = messageOpt.get();
+
+        if(!message.getChannelId().equals(channelId))
+            return;
+        if(!message.getSenderId().equals(messageDTO.getSenderId()))
+            return;
+
+        messageRepository.delete(message);
+        MessageDTO deleteDTO = new MessageDTO();
+        deleteDTO.setId(message.getId());
+        deleteDTO.setChannelId(channelId);
+        deleteDTO.setSenderId(message.getSenderId());
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/delete", deleteDTO);
+    }
+
     private MessageDTO convertToDTO(Message message)
     {
         MessageDTO dto = new MessageDTO();
