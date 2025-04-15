@@ -151,8 +151,7 @@ public class MessageController {
         
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedMessage));
     }
-    
-    // Update read status for a user in a channel
+
     @PostMapping("/channel/{channelId}/read")
     public ResponseEntity<Void> markChannelAsRead(
             @PathVariable Long channelId,
@@ -512,5 +511,17 @@ public class MessageController {
         }
         
         return dto;
+    }
+
+    @GetMapping("/channels/{channelId}/subscribe")
+    public ResponseEntity<Void> prepareChannelSubscription(@PathVariable Long channelId)
+    {
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/projects/{projectId}/channels/subscribe")
+    public ResponseEntity<Void> prepareProjectChannelsSubscription(@PathVariable Long projectId)
+    {
+        return ResponseEntity.ok().build();
     }
 }

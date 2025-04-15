@@ -13,6 +13,8 @@ import { SearchProvider } from '../scripts/SearchContext';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 import { ALL_ICONS } from "../components/ICON_CATEGORIES";
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 
 const ProjectChatWrapper = () => {
     return(
@@ -40,7 +42,9 @@ const TempChatPage = () => {
   const [users, setUsers] = useState([]);
   const [isOwner, setIsOwner] = useState(false);
   const {t} = useTranslation();
-  const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef(null);
+  const [stompClient, setStompClient] = useState(null);
+  const [connected, setConnected] = useState(false);
   
   // Fetch project data (for name and check if user is owner)
   useEffect(() => {
@@ -74,81 +78,81 @@ const TempChatPage = () => {
     }
   }, [id, userId, getToken]);
   
-  // Modify the fetchChannels function to include team data
-const fetchChannels = async () => {
-  try {
-    setLoading(true);
-    const token = await getToken();
-    const response = await axios.get(
-      `http://localhost:8080/api/messages/channels/project/${id}`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    );
-    
-    // Get team data for mapping team icons to channels
-    const teamsResponse = await axios.get(
-      `http://localhost:8080/api/projects/${id}/teams`,
-      {
-        headers: { 'Authorization': `Bearer ${token}` }
-      }
-    );
-    
-    // Create a map of teamId -> team data (with icon name)
-    const teamMap = {};
-    teamsResponse.data.forEach(team => {
-      teamMap[team.teamId] = {
-        teamName: team.teamName,
-        iconName: team.iconName
-      };
-    });
-    
-    // For each channel, get unread count and add team data if it's a team channel
-    const channelsWithUnread = await Promise.all(response.data.map(async (channel) => {
-      try {
-        const unreadResponse = await axios.get(
-          `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
-          {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }
-        );
-        
-        // Add team info if it's a team channel
-        let teamData = null;
-        if (channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId]) {
-          teamData = teamMap[channel.teamId];
+    const fetchChannels = async () =>
+    {
+        try{
+            setLoading(true);
+            const token = await getToken();
+
+            const response = await axios.get(
+                `http://localhost:8080/api/messages/channels/project/${id}`,
+                {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+
+            const teamsResponse = await axios.get(
+                `http://localhost:8080/api/projects/${id}/teams`,
+                {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+
+            const teamMap = {};
+            teamsResponse.data.forEach(team =>
+            {
+                teamMap[team.teamId] =
+                {
+                    teamName: team.teamName,
+                    iconName: team.iconName
+                };
+            });
+
+            const channelsWithUnread = await Promise.all(response.data.map(async (channel) =>
+            {
+                try{
+                    const accessResponse = await axios.get(
+                        `http://localhost:8080/api/messages/channel/${channel.channelId}/access/${userId}`,
+                        {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }
+                    );
+
+                    if(!accessResponse.data)
+                        return null;
+
+                    const unreadResponse = await axios.get(
+                        `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
+                        {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }
+                    );
+
+                    let teamData = null;
+                    if(channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId])
+                        teamData = teamMap[channel.teamId];
+
+                    return{
+                        ...channel,
+                        unreadCount: unreadResponse.data,
+                        teamData: teamData
+                    };
+                }catch(err){
+                    console.error(`Error processing channel ${channel.channelId}:`, err);
+                    return null;
+                }
+            }));
+
+            const accessibleChannels = channelsWithUnread.filter(channel => channel !== null);
+
+            setChannels(accessibleChannels);
+            setLoading(false);
+        }catch(err){
+            console.error('Error fetching channels:', err);
+            setError('Failed to load channels');
+            setLoading(false);
         }
-        
-        return {
-          ...channel,
-          unreadCount: unreadResponse.data,
-          teamData: teamData
-        };
-      } catch (err) {
-        console.error('Error getting unread count:', err);
-        
-        // Add team info even if unread count fails
-        let teamData = null;
-        if (channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId]) {
-          teamData = teamMap[channel.teamId];
-        }
-        
-        return {
-          ...channel,
-          unreadCount: 0,
-          teamData: teamData
-        };
-      }
-    }));
-    
-    setChannels(channelsWithUnread);
-    setLoading(false);
-  } catch (err) {
-    console.error('Error fetching channels:', err);
-    setError('Failed to load channels');
-    setLoading(false);
-  }
-};
+    };
   
   // Fetch users in project (for displaying avatars and names)
   useEffect(() => {
@@ -242,29 +246,103 @@ const fetchMessages = async (channelId) => {
     setError('Failed to load messages');
     setLoading(false);
   }
-};
+    };
+
+    useEffect(() =>
+    {
+        if(!userId || !id || !selectedChannel)
+            return;
+
+        const connectWebSocket = () =>
+        {
+            try{
+                const socket = new SockJS('http://localhost:8080/ws');
+                const client = new Client({
+                    webSocketFactory: () => socket,
+                    debug: function (str) {
+                        console.log('STOMP: ' + str);
+                    },
+                    reconnectDelay: 5000,
+                    heartbeatIncoming: 4000,
+                    heartbeatOutgoing: 4000
+                });
+
+                client.onConnect = function (frame)
+                {
+                    setConnected(true);
+                    console.log('Connected to WebSocket');
+
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}`, function (message)
+                    {
+                        const receivedMessage = JSON.parse(message.body);
+                        setMessages(prevMessages => [...prevMessages, receivedMessage]);
+                        scrollToBottom();
+                        updateUnreadCount(receivedMessage);
+                    });
+
+                    client.subscribe(`/topic/project/${id}/channels`, function (message)
+                    {
+                        fetchChannels();
+                    });
+                };
+
+                client.onStompError = function (frame)
+                {
+                    console.error('STOMP error', frame);
+                    setConnected(false);
+                };
+
+                client.onDisconnect = function ()
+                {
+                    setConnected(false);
+                };
+
+                client.activate();
+                setStompClient(client);
+
+                return () =>
+                {
+                    if(client && client.connected)
+                    {
+                        client.deactivate();
+                        setConnected(false);
+                    }
+                };
+            }catch(error){
+                console.error('WebSocket connection error:', error);
+            }
+        };
+
+        connectWebSocket();
+    },[userId, id, selectedChannel?.channelId]);
+
+    const updateUnreadCount = (message) =>
+    {
+        if (message.senderId === userId ||
+            (selectedChannel && message.channelId === selectedChannel.channelId))
+        {
+            return;
+        }
+
+        setChannels(prev =>
+            prev.map(channel =>
+                channel.channelId === message.channelId
+                    ? { ...channel, unreadCount: (channel.unreadCount || 0) + 1 }
+                    : channel
+            )
+        );
+    };
   
-  // When channel changes, fetch messages
-  useEffect(() => {
-    if (selectedChannel) {
-      fetchMessages(selectedChannel.channelId);
-      
-      // Set up polling for message updates (every 10 seconds)
-      const intervalId = setInterval(() => fetchMessages(selectedChannel.channelId), 10000);
-      return () => clearInterval(intervalId);
-    }
-  }, [selectedChannel]);
-  
-  // Add this useEffect after your other useEffects
-useEffect(() => {
-  if (id && userId) {
-    fetchChannels();
-    
-    // Set up polling for channel updates (every 30 seconds)
-    const intervalId = setInterval(fetchChannels, 2000);
-    return () => clearInterval(intervalId);
-  }
-}, [id, userId]);
+    useEffect(() => {
+        if(selectedChannel)
+            fetchMessages(selectedChannel.channelId);
+    },[selectedChannel]);
+
+    useEffect(() =>
+    {
+        if(id && userId)
+            fetchChannels();
+    },[id, userId]);
   
   // Function to scroll to bottom of messages
   const scrollToBottom = () => {
@@ -277,34 +355,63 @@ useEffect(() => {
     }
   };
   
-  // Handle sending a message
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!message.trim() || !selectedChannel) return;
-    
-    try {
-      const token = await getToken();
-      await axios.post(
-        `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`, 
-        {
-          senderId: userId,
-          content: message,
-          projectId: parseInt(id)
-        },
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
+    const handleSendMessage = async (e) =>
+    {
+        e.preventDefault();
+        if(!message.trim() || !selectedChannel)
+            return;
+
+        try{
+            const newMessage =
+            {
+                senderId: userId,
+                content: message,
+                projectId: parseInt(id),
+                channelId: selectedChannel.channelId,
+                senderName: users.find(u => u.id === userId)?.name || 'Unknown User',
+                timestamp: new Date().toISOString()
+            };
+
+            if(stompClient && connected)
+            {
+                stompClient.publish({
+                    destination: `/app/chat/${selectedChannel.channelId}/send`,
+                    body: JSON.stringify(newMessage)
+                });
+            }
+            else
+            {
+                const token = await getToken();
+                await axios.post(
+                    `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                    newMessage,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
+                fetchMessages(selectedChannel.channelId);
+            }
+
+            setMessage('');
+        }catch(err){
+            console.error('Error sending message:', err);
+            alert('Failed to send message. Please try again.');
         }
-      );
-      
-      // Clear input and refetch messages
-      setMessage('');
-      fetchMessages(selectedChannel.channelId);
-    } catch (err) {
-      console.error('Error sending message:', err);
-      alert('Failed to send message. Please try again.');
-    }
-  };
-  
+    };
+
+    useEffect(() =>
+    {
+        if(selectedChannel)
+        {
+            fetchMessages(selectedChannel.channelId);
+            if(stompClient && stompClient.connected)
+            {
+                stompClient.deactivate();
+                setConnected(false);
+            }
+        }
+    }, [selectedChannel?.channelId]);
+
   const formatMessageTime = (timestamp) => {
     return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
   };
