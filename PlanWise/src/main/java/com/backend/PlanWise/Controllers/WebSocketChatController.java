@@ -4,6 +4,7 @@ import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
 import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.model.FileType;
 import com.backend.PlanWise.model.MessageAttachment;
 import com.backend.PlanWise.model.MessageReaction;
 import jakarta.transaction.Transactional;
@@ -49,14 +50,25 @@ public class WebSocketChatController
     @MessageMapping("/chat/{channelId}/send")
     public void sendMessage(
             @DestinationVariable Long channelId,
-            @Payload MessageDTO messageDTO)
-    {
+            @Payload MessageDTO messageDTO) {
         Message message = new Message();
         message.setProjectId(messageDTO.getProjectId());
         message.setSenderId(messageDTO.getSenderId());
         message.setContent(messageDTO.getContent());
         message.setTimestamp(LocalDateTime.now());
         message.setChannelId(channelId);
+
+        if (messageDTO.getAttachmentIds() != null && !messageDTO.getAttachmentIds().isEmpty()) {
+            for (AttachmentDTO attachmentDTO : messageDTO.getAttachmentIds()) {
+                MessageAttachment attachment = new MessageAttachment();
+                attachment.setFileName(attachmentDTO.getFileName());
+                attachment.setFileType(FileType.valueOf(attachmentDTO.getFileType()));
+                attachment.setFileSize(attachmentDTO.getFileSize());
+                attachment.setFileData(attachmentDTO.getFileData());
+                attachment.setUploadedAt(attachmentDTO.getUploadedAt());
+                message.addAttachment(attachment);
+            }
+        }
 
         Message savedMessage = messageRepository.save(message);
 

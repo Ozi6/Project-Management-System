@@ -98,7 +98,7 @@ public class MessageController {
         
         return channelResponse;
     }
-    
+
     // Get all messages for a channel
     @GetMapping("/channel/{channelId}")
     public ResponseEntity<List<MessageDTO>> getChannelMessages(@PathVariable Long channelId)
@@ -245,7 +245,7 @@ public class MessageController {
                 cleanUserId = userId.substring(1, userId.length() - 1);
             }
             cleanUserId = cleanUserId.trim();
-            
+
             // Verify user exists first
             Optional<User> userOpt = userRepository.findById(cleanUserId);
             if (!userOpt.isPresent()) {
@@ -253,7 +253,7 @@ public class MessageController {
                     .header("X-Error-Reason", "User not found")
                     .build();
             }
-            
+
             // Verify channel exists
             Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
             if (!channelOpt.isPresent()) {
@@ -305,7 +305,7 @@ public class MessageController {
             
         return ResponseEntity.ok(messageDTOs);
     }
-    
+
     // Update the existing send message endpoint to include channel ID
     @PostMapping
     public ResponseEntity<MessageDTO> sendMessage(@RequestBody MessageDTO messageDTO) {
@@ -313,36 +313,36 @@ public class MessageController {
         if (messageDTO.getChannelId() != null) {
             return sendChannelMessage(messageDTO.getChannelId(), messageDTO);
         }
-        
+
         // Original implementation for backward compatibility
         // Verify project exists
         Optional<Project> projectOpt = projectRepository.findById(messageDTO.getProjectId().longValue());
         if (!projectOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
+
         // Verify sender exists
         Optional<User> senderOpt = userRepository.findById(String.valueOf(messageDTO.getSenderId()));
         if (!senderOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
+
         // Create and save the message
         Message message = new Message();
         message.setProjectId(messageDTO.getProjectId().intValue());
         message.setSenderId(String.valueOf(messageDTO.getSenderId()));
         message.setContent(messageDTO.getContent());
         message.setTimestamp(LocalDateTime.now());
-        
+
         // Try to find a default channel, or use null
         List<MessageChannel> projectChannels = channelRepository.findByProjectIdAndChannelType(
                 messageDTO.getProjectId().longValue(), "PROJECT");
         if (!projectChannels.isEmpty()) {
             message.setChannelId(projectChannels.get(0).getChannelId());
         }
-        
+
         Message savedMessage = messageRepository.save(message);
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedMessage));
     }
 

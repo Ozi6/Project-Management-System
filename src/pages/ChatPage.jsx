@@ -530,65 +530,62 @@ const TempChatPage = () =>
             messageContainer.scrollTop = messageContainer.scrollHeight;
     };
 
-    const handleSendMessage = async (e) => {
+    const handleSendMessage = async (e) =>
+    {
         e.preventDefault();
-        if (!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio) return;
-        if (!selectedChannel) return;
+        if(!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio)
+            return;
+        if(!selectedChannel)
+            return;
 
-        try {
+        try{
             let content = message;
-            if (showCodeFormatting) {
+
+            if(showCodeFormatting)
                 content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
-            }
 
-            const token = await getToken();
-            const formData = new FormData();
+            const newMessage =
+            {
+                senderId: userId,
+                content: content,
+                projectId: parseInt(id),
+                channelId: selectedChannel.channelId,
+                senderName: users.find(u => u.id === userId)?.name || 'Unknown User',
+                timestamp: new Date().toISOString(),
+                attachment: selectedFile ? {
+                    name: selectedFile.name,
+                    size: `${Math.round(selectedFile.size / 1024)}KB`,
+                    type: selectedFile.type.includes('image') ? 'image' : 'document'
+                } : null
+            };
 
-            // Append message data
-            formData.append('senderId', userId);
-            formData.append('content', content);
-            formData.append('projectId', parseInt(id));
-            formData.append('channelId', selectedChannel.channelId);
-            formData.append('senderName', users.find((u) => u.id === userId)?.name || 'Unknown User');
-            formData.append('timestamp', new Date().toISOString());
-
-            // Append file if selected
-            if (selectedFile) {
-                formData.append('file', selectedFile);
-            }
-
-            // Send the message and file via HTTP POST
-            const response = await axios.post(
-                `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
-                formData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
-                }
-            );
-
-            // If WebSocket is connected, let the backend broadcast the message
-            if (stompClient && connected) {
-                const savedMessageDTO = response.data;
+            if(stompClient && connected)
+            {
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/send`,
-                    body: JSON.stringify(savedMessageDTO),
+                    body: JSON.stringify(newMessage)
                 });
-            } else {
-                // Fetch messages to update the UI
+            }
+            else
+            {
+                const token = await getToken();
+                await axios.post(
+                    `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                    newMessage,
+                    {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }
+                );
                 fetchMessages(selectedChannel.channelId);
             }
 
-            // Reset states
             setMessage('');
             setSelectedFile(null);
             setShowCodeFormatting(false);
             setShowPollCreator(false);
             setPollQuestion('');
             setPollOptions(['', '']);
-        } catch (err) {
+        }catch(err){
             console.error('Error sending message:', err);
             alert('Failed to send message. Please try again.');
         }
@@ -617,15 +614,10 @@ const TempChatPage = () =>
         fileInputRef.current.click();
     };
 
-    const handleFileChange = (e) => {
-        if (e.target.files[0]) {
-            const file = e.target.files[0];
-            if (file.size > 10 * 1024 * 1024) {
-                alert('File size exceeds 15MB limit.');
-                return;
-            }
-            setSelectedFile(file);
-        }
+    const handleFileChange = (e) =>
+    {
+        if(e.target.files[0])
+            setSelectedFile(e.target.files[0]);
     };
 
     const handleEmojiClick = (emoji) =>
