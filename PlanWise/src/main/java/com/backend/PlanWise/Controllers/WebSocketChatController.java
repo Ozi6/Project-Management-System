@@ -4,7 +4,9 @@ import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
 import com.backend.PlanWise.model.MessageReaction;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -14,6 +16,9 @@ import com.backend.PlanWise.DataTransferObjects.MessageDTO;
 import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -184,6 +189,7 @@ public class WebSocketChatController
     }
 
     @MessageMapping("/chat/{channelId}/reaction/remove")
+    @Transactional
     public void removeReaction(
             @DestinationVariable Long channelId,
             @Payload ReactionDTO reactionDTO)
@@ -220,5 +226,14 @@ public class WebSocketChatController
             this.lastMessageTimestamp = timestamp;
             this.lastMessageSender = senderId;
         }
+    }
+
+    @GetMapping("/api/messages/channel/{channelId}/userreactions/{userId}")
+    public ResponseEntity<List<MessageReaction>> getUserReactionsInChannel(
+            @PathVariable Long channelId,
+            @PathVariable String userId)
+    {
+        List<MessageReaction> reactions = reactionRepository.findByUserIdAndChannelId(userId, channelId);
+        return ResponseEntity.ok(reactions);
     }
 }

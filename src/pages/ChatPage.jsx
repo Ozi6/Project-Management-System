@@ -247,6 +247,23 @@ const TempChatPage = () =>
                 }
             );
 
+            const userReactionsResponse = await axios.get(
+                `http://localhost:8080/api/messages/channel/${channelId}/userreactions/${userId}`,
+                {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }
+            );
+
+            const userReactionsMap = {};
+            userReactionsResponse.data.forEach(reaction =>
+            {
+                if(!userReactionsMap[reaction.messageId])
+                    userReactionsMap[reaction.messageId] = [];
+                userReactionsMap[reaction.messageId].push(reaction.reactionType);
+            });
+
+            console.log(userReactionsMap);
+
             const enhancedMessages = response.data.map((msg, index) =>
             {
                 const reactions = msg.reactions;
@@ -300,6 +317,7 @@ const TempChatPage = () =>
                     ...msg,
                     messageId,
                     reactions,
+                    userReactions: userReactionsMap[messageId] || [],
                     isEdited,
                     attachment,
                     codeSnippet,
@@ -426,7 +444,12 @@ const TempChatPage = () =>
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === updatedMessage.id
-                                    ? { ...msg, reactions: updatedMessage.reactions }
+                                    ?
+                                    {
+                                        ...msg,
+                                        reactions: updatedMessage.reactions,
+                                        userReactions: updatedMessage.userReactions || []
+                                    }
                                     : msg
                             )
                         );
@@ -597,24 +620,41 @@ const TempChatPage = () =>
 
     const handleReactionClick = async (messageId, reaction) =>
     {
-        console.log(messageId);
         if(!selectedChannel || !stompClient || !connected)
-        {
-            setMessages(prev =>
-                prev.map(msg =>
+            return;
+
+        try{
+            const message = messages.find(msg => msg.id === messageId);
+            if(!message)
+                return;
+
+            setMessages(prevMessages =>
+                prevMessages.map(msg =>
                 {
                     if(msg.id === messageId)
                     {
-                        const updatedReactions = { ...msg.reactions };
-                        updatedReactions[reaction] = (updatedReactions[reaction] || 0) + 1;
-                        return { ...msg, reactions: updatedReactions };
+                        const updatedMsg =
+                        {
+                            ...msg,
+                            reactions:
+                            {
+                                ...msg.reactions,
+                                [reaction]: hasReacted
+                                    ? (msg.reactions[reaction] || 1) - 1
+                                    : (msg.reactions[reaction] || 0) + 1
+                            },
+                            userReactions: hasReacted
+                                ? msg.userReactions.filter(r => r !== reaction)
+                                : [...(msg.userReactions || []), reaction]
+                        };
+                        return updatedMsg;
                     }
                     return msg;
                 })
             );
-            return;
-        }
-        try{
+
+            const hasReacted = message.userReactions?.includes(reaction);
+
             const reactionDTO =
             {
                 messageId: messageId,
@@ -622,18 +662,26 @@ const TempChatPage = () =>
                 reactionType: reaction,
                 channelId: selectedChannel.channelId
             };
-
-            console.log("aaa", reactionDTO);
-
-            stompClient.publish({
-                destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
-                body: JSON.stringify(reactionDTO)
-            });
-
+            if(hasReacted)
+            {
+                stompClient.publish(
+                    {
+                        destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
+                        body: JSON.stringify(reactionDTO)
+                    });
+            }
+            else
+            {
+                stompClient.publish(
+                    {
+                        destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
+                        body: JSON.stringify(reactionDTO)
+                    });
+            }
             setShowMessageActions(null);
         }catch(err){
-            console.error('Error adding reaction:', err);
-            alert('Failed to add reaction. Please try again.');
+            console.error('Error handling reaction:', err);
+            alert('Failed to update reaction. Please try again.');
         }
     };
 
@@ -643,6 +691,10 @@ const TempChatPage = () =>
             return;
 
         try{
+            const message = messages.find(msg => msg.id === messageId);
+            if(!message)
+                return;
+
             const reactionDTO =
             {
                 messageId: messageId,
@@ -660,6 +712,22 @@ const TempChatPage = () =>
         }catch(err){
             console.error('Error removing reaction:', err);
             alert('Failed to remove reaction. Please try again.');
+            setMessages(prevMessages =>
+                prevMessages.map(msg =>
+                    msg.id === messageId
+                        ?
+                        {
+                            ...msg,
+                            reactions:
+                            {
+                                ...msg.reactions,
+                                [reaction]: (msg.reactions[reaction] || 0) + 1
+                            },
+                            userReactions: [...(msg.userReactions || []), reaction]
+                        }
+                        : msg
+                )
+            );
         }
     };
 
@@ -1212,14 +1280,20 @@ const TempChatPage = () =>
                                                     </div>
                                                     {Object.keys(msg.reactions || {}).length > 0 && (
                                                         <div className={`flex flex-wrap gap-1 mt-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                                                            {Object.entries(msg.reactions).map(([emoji, count]) => (
+                                                            {Object.entries(msg.reactions || {}).map(([emoji, count]) => (
                                                                 count > 0 && (
                                                                     <div
                                                                         key={emoji}
-                                                                        className="bg-[var(--gray-card3)]/50 rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer hover:bg-[var(--gray-card3)]"
-                                                                        onClick={() => {
-                                                                            //I have failed to consider that a user may not be the person that has put this reaction. we have to check this.
-                                                                            handleRemoveReaction(msg.id, emoji);
+                                                                        className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer ${msg.userReactions?.includes(emoji)
+                                                                                ? 'bg-[var(--features-icon-color)]/20 border border-[var(--features-icon-color)]'
+                                                                                : 'bg-[var(--gray-card3)]/50 hover:bg-[var(--gray-card3)]'
+                                                                            }`}
+                                                                        onClick={() =>
+                                                                        {
+                                                                            if(msg.userReactions?.includes(emoji))
+                                                                                handleRemoveReaction(msg.id, emoji);
+                                                                            else
+                                                                                handleReactionClick(msg.id, emoji);
                                                                         }}>
                                                                         <span>{emoji}</span>
                                                                         <span className="text-[var(--features-text-color)]">{count}</span>
@@ -1487,13 +1561,20 @@ const TempChatPage = () =>
                                 <textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
+                                    onKeyDown={(e) =>
+                                    {
+                                        if(e.key === 'Enter' && !e.shiftKey)
+                                        {
+                                            e.preventDefault();
+                                            handleSendMessage(e);
+                                        }
+                                    }}
                                     placeholder={
                                         showCodeFormatting ? "Type or paste code here..." :
                                             "Type a message..."
                                     }
                                     className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[100px] resize-y"
                                     disabled={!selectedChannel}/>
-
                                 {showMentionMenu && (
                                     <div className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
                                         <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
