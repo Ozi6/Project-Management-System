@@ -249,13 +249,9 @@ const TempChatPage = () =>
 
             const enhancedMessages = response.data.map((msg, index) =>
             {
-                const reactions = index % 3 === 0 ?
-                {
-                    '👍': Math.floor(Math.random() * 5) + 1,
-                    '❤️': Math.floor(Math.random() * 3)
-                } : {};
-
+                const reactions = msg.reactions;
                 const isEdited = msg.edited;
+                const messageId = msg.id;
 
                 const hasAttachment = index % 7 === 0;
                 let attachment = null;
@@ -302,6 +298,7 @@ const TempChatPage = () =>
 
                 return{
                     ...msg,
+                    messageId,
                     reactions,
                     isEdited,
                     attachment,
@@ -357,9 +354,6 @@ const TempChatPage = () =>
                 const socket = new SockJS('http://localhost:8080/ws');
                 const client = new Client({
                     webSocketFactory: () => socket,
-                    debug: function (str) {
-                        console.log('STOMP: ' + str);
-                    },
                     reconnectDelay: 5000,
                     heartbeatIncoming: 4000,
                     heartbeatOutgoing: 4000
@@ -368,12 +362,30 @@ const TempChatPage = () =>
                 client.onConnect = function (frame)
                 {
                     setConnected(true);
-                    console.log('Connected to WebSocket');
 
                     client.subscribe(`/topic/channel/${selectedChannel.channelId}`, function (message)
                     {
                         const receivedMessage = JSON.parse(message.body);
-                        setMessages(prevMessages => [...prevMessages, receivedMessage]);
+                        console.log(receivedMessage);
+                        setMessages(prevMessages =>
+                        {
+                            const existingMessage = prevMessages.find(
+                                msg => msg.id &&
+                                    msg.senderId === receivedMessage.senderId &&
+                                    msg.content === receivedMessage.content &&
+                                    msg.timestamp.split('.')[0] === receivedMessage.timestamp.split('.')[0]
+                            );
+                            if(existingMessage)
+                            {
+                                return prevMessages.map(msg =>
+                                    msg.id === existingMessage.id
+                                        ? { ...receivedMessage }
+                                        : msg
+                                );
+                            }
+                            else
+                                return [...prevMessages, receivedMessage];
+                        });
                         scrollToBottom();
                         updateUnreadCount(receivedMessage);
                     });
@@ -406,6 +418,18 @@ const TempChatPage = () =>
                     client.subscribe(`/topic/project/${id}/channels`, function (message)
                     {
                         fetchChannels();
+                    });
+
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/reaction`, function (message)
+                    {
+                        const updatedMessage = JSON.parse(message.body);
+                        setMessages((prevMessages) =>
+                            prevMessages.map((msg) =>
+                                msg.id === updatedMessage.id
+                                    ? { ...msg, reactions: updatedMessage.reactions }
+                                    : msg
+                            )
+                        );
                     });
                 };
 
@@ -571,25 +595,72 @@ const TempChatPage = () =>
         setShowEmojiPicker(false);
     };
 
-    const handleReactionClick = (messageId, reaction) =>
+    const handleReactionClick = async (messageId, reaction) =>
     {
-        setMessages(prev =>
-            prev.map(msg =>
-            {
-                if(msg.id === messageId)
+        console.log(messageId);
+        if(!selectedChannel || !stompClient || !connected)
+        {
+            setMessages(prev =>
+                prev.map(msg =>
                 {
-                    const updatedReactions = { ...msg.reactions };
-                    if(updatedReactions[reaction])
-                        updatedReactions[reaction] += 1;
-                    else
-                        updatedReactions[reaction] = 1;
-                    return { ...msg, reactions: updatedReactions };
-                }
-                return msg;
-            })
-        );
+                    if(msg.id === messageId)
+                    {
+                        const updatedReactions = { ...msg.reactions };
+                        updatedReactions[reaction] = (updatedReactions[reaction] || 0) + 1;
+                        return { ...msg, reactions: updatedReactions };
+                    }
+                    return msg;
+                })
+            );
+            return;
+        }
+        try{
+            const reactionDTO =
+            {
+                messageId: messageId,
+                userId: userId,
+                reactionType: reaction,
+                channelId: selectedChannel.channelId
+            };
 
-        setShowMessageActions(null);
+            console.log("aaa", reactionDTO);
+
+            stompClient.publish({
+                destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
+                body: JSON.stringify(reactionDTO)
+            });
+
+            setShowMessageActions(null);
+        }catch(err){
+            console.error('Error adding reaction:', err);
+            alert('Failed to add reaction. Please try again.');
+        }
+    };
+
+    const handleRemoveReaction = async (messageId, reaction) =>
+    {
+        if(!selectedChannel || !stompClient || !connected)
+            return;
+
+        try{
+            const reactionDTO =
+            {
+                messageId: messageId,
+                userId: userId,
+                reactionType: reaction,
+                channelId: selectedChannel.channelId
+            };
+
+            stompClient.publish({
+                destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
+                body: JSON.stringify(reactionDTO)
+            });
+
+            setShowMessageActions(null);
+        }catch(err){
+            console.error('Error removing reaction:', err);
+            alert('Failed to remove reaction. Please try again.');
+        }
     };
 
     const handleEditMessage = (message) =>
@@ -1069,7 +1140,7 @@ const TempChatPage = () =>
                                             <div
                                                 key={msg.id}
                                                 onMouseEnter={() => setShowMessageActions(msg.id)}
-                                                onMouseLeave={() => setShowMessageActions(null)}
+                                                //onMouseLeave={() => setShowMessageActions(null)}
                                                 className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}>
                                                 {!isCurrentUser && (
                                                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mr-2">
@@ -1146,8 +1217,10 @@ const TempChatPage = () =>
                                                                     <div
                                                                         key={emoji}
                                                                         className="bg-[var(--gray-card3)]/50 rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer hover:bg-[var(--gray-card3)]"
-                                                                        onClick={() => handleReactionClick(msg.id, emoji)}
-                                                                    >
+                                                                        onClick={() => {
+                                                                            //I have failed to consider that a user may not be the person that has put this reaction. we have to check this.
+                                                                            handleRemoveReaction(msg.id, emoji);
+                                                                        }}>
                                                                         <span>{emoji}</span>
                                                                         <span className="text-[var(--features-text-color)]">{count}</span>
                                                                     </div>
@@ -1164,20 +1237,21 @@ const TempChatPage = () =>
                                                             exit={{ opacity: 0, y: -10 }}
                                                             className={`absolute ${isCurrentUser ? 'right-12' : 'left-12'
                                                                 } top-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-1 flex items-center gap-1 z-10 border border-[var(--gray-card3)]`}
-                                                        >
+                                                            onMouseEnter={() => setShowMessageActions(msg.id)}
+                                                            onMouseLeave={() => setShowMessageActions(null)}>
                                                             <div className="relative">
                                                                 <button
                                                                     onClick={() => setShowEmojiPicker(msg.id)}
                                                                     className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                    title="Add reaction"
-                                                                >
+                                                                    title="Add reaction">
                                                                     <Smile size={16} />
                                                                 </button>
                                                                 {showEmojiPicker === msg.id && (
                                                                     <div
                                                                         ref={emojiPickerRef}
                                                                         className="absolute bottom-full mb-2 right-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-20 border border-[var(--gray-card3)]"
-                                                                    >
+                                                                        onMouseEnter={() => setShowEmojiPicker(msg.id)}
+                                                                        onMouseLeave={() => setShowEmojiPicker(null)}>
                                                                         <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
                                                                             Common reactions
                                                                         </div>
@@ -1186,8 +1260,7 @@ const TempChatPage = () =>
                                                                                 <button
                                                                                     key={emoji}
                                                                                     onClick={() => handleReactionClick(msg.id, emoji)}
-                                                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
-                                                                                >
+                                                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
                                                                                     {emoji}
                                                                                 </button>
                                                                             ))}
@@ -1204,8 +1277,7 @@ const TempChatPage = () =>
                                                                                             <button
                                                                                                 key={emoji}
                                                                                                 onClick={() => handleReactionClick(msg.id, emoji)}
-                                                                                                className="w-6 h-6 flex items-center justify-center text-sm hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
-                                                                                            >
+                                                                                                className="w-6 h-6 flex items-center justify-center text-sm hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
                                                                                                 {emoji}
                                                                                             </button>
                                                                                         ))}
@@ -1218,9 +1290,8 @@ const TempChatPage = () =>
                                                             </div>
                                                             <button
                                                                 className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                title="Reply"
-                                                            >
-                                                                <Reply size={16} />
+                                                                title="Reply">
+                                                                <Reply size={16}/>
                                                             </button>
                                                             {isCurrentUser && (
                                                                 <button

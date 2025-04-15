@@ -1,10 +1,15 @@
 package com.backend.PlanWise.Controllers;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.backend.PlanWise.DataPool.MessageReactionRepository;
+import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -17,12 +22,6 @@ import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.MessageChannelDTO;
 import com.backend.PlanWise.DataTransferObjects.MessageDTO;
-import com.backend.PlanWise.model.ChannelReadStatus;
-import com.backend.PlanWise.model.Message;
-import com.backend.PlanWise.model.MessageChannel;
-import com.backend.PlanWise.model.Project;
-import com.backend.PlanWise.model.Team;
-import com.backend.PlanWise.model.User;
 import com.backend.PlanWise.repository.ChannelReadStatusRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import com.backend.PlanWise.repository.MessageRepository;
@@ -101,18 +100,100 @@ public class MessageController {
     
     // Get all messages for a channel
     @GetMapping("/channel/{channelId}")
-    public ResponseEntity<List<MessageDTO>> getChannelMessages(@PathVariable Long channelId) {
-        // Get all messages for the channel
+    public ResponseEntity<List<MessageDTO>> getChannelMessages(@PathVariable Long channelId)
+    {
         List<Message> messages = messageRepository.findByChannelIdOrderByTimestampAsc(channelId);
-        
+
+        List<Long> messageIds = messages.stream().map(Message::getId).collect(Collectors.toList());
+        List<Object[]> reactionCounts = reactionRepository.countReactionsByMessageIds(messageIds);
+
+        Map<Long, Map<String, Integer>> messageReactions = new HashMap<>();
+        for(Object[] result : reactionCounts)
+        {
+            Long messageId = ((Number) result[0]).longValue();
+            String reactionType = (String) result[1];
+            Integer count = ((Long) result[2]).intValue();
+            messageReactions.computeIfAbsent(messageId, k -> new HashMap<>()).put(reactionType, count);
+        }
+
         List<MessageDTO> messageDTOs = messages.stream()
-            .map(this::convertToDTO)
-            .collect(Collectors.toList());
-            
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
         return ResponseEntity.ok(messageDTOs);
     }
-    
-    // Send a new message to a channel
+
+    @Autowired
+    private MessageReactionRepository reactionRepository;
+
+    @PostMapping("/channel/{channelId}/reaction")
+    @Transactional
+    public ResponseEntity<MessageDTO> addReaction(
+            @PathVariable Long channelId,
+            @RequestBody ReactionDTO reactionDTO)
+    {
+        Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
+        if(!channelOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<Message> messageOpt = messageRepository.findById(reactionDTO.getMessageId());
+        if(!messageOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<User> userOpt = userRepository.findById(reactionDTO.getUserId());
+        if(!userOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<MessageReaction> existingReaction = reactionRepository.findByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+
+        if (existingReaction.isPresent())
+            return ResponseEntity.ok(convertToDTO(messageOpt.get()));
+
+        MessageReaction reaction = new MessageReaction();
+        reaction.setMessageId(reactionDTO.getMessageId());
+        reaction.setUserId(reactionDTO.getUserId());
+        reaction.setReactionType(reactionDTO.getReactionType());
+        reaction.setCreatedAt(LocalDateTime.now());
+
+        reactionRepository.save(reaction);
+
+        Message updatedMessage = messageRepository.findById(reactionDTO.getMessageId()).get();
+        return ResponseEntity.ok(convertToDTO(updatedMessage));
+    }
+
+    @DeleteMapping("/channel/{channelId}/reaction")
+    @Transactional
+    public ResponseEntity<MessageDTO> removeReaction(
+            @PathVariable Long channelId,
+            @RequestBody ReactionDTO reactionDTO)
+    {
+
+        Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
+        if (!channelOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<Message> messageOpt = messageRepository.findById(reactionDTO.getMessageId());
+        if(!messageOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<User> userOpt = userRepository.findById(reactionDTO.getUserId());
+        if(!userOpt.isPresent())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        Optional<MessageReaction> existingReaction = reactionRepository.findByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+
+        if(!existingReaction.isPresent())
+            return ResponseEntity.ok(convertToDTO(messageOpt.get()));
+
+        reactionRepository.deleteByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+
+        Message updatedMessage = messageRepository.findById(reactionDTO.getMessageId()).get();
+        return ResponseEntity.ok(convertToDTO(updatedMessage));
+    }
+
     @PostMapping("/channel/{channelId}")
     public ResponseEntity<MessageDTO> sendChannelMessage(
             @PathVariable Long channelId,
@@ -503,6 +584,15 @@ public class MessageController {
                 dto.setSenderAvatar(user.getProfileImageUrl());
             }
         }
+
+        List<Object[]> reactionCounts = reactionRepository.countReactionsByMessageId(message.getId());
+        Map<String, Integer> reactions = new HashMap<>();
+        for (Object[] result : reactionCounts) {
+            String reactionType = (String) result[0];
+            Long count = (Long) result[1];
+            reactions.put(reactionType, count.intValue());
+        }
+        dto.setReactions(reactions);
         
         return dto;
     }

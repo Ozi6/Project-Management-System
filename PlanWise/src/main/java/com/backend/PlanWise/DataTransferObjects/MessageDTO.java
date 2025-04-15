@@ -1,6 +1,7 @@
 package com.backend.PlanWise.DataTransferObjects;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -106,6 +107,18 @@ public class MessageDTO
     private String senderAvatar;
     private LocalDateTime editedAt;
     private boolean isEdited;
+
+    public Map<String, Integer> getReactions()
+    {
+        return reactions;
+    }
+
+    public void setReactions(Map<String, Integer> reactions)
+    {
+        this.reactions = reactions;
+    }
+
+    private Map<String, Integer> reactions;
 
     public LocalDateTime getEditedAt()
     {

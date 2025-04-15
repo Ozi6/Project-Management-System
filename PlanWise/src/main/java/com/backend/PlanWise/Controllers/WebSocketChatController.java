@@ -1,6 +1,9 @@
 package com.backend.PlanWise.Controllers;
 
+import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
+import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.model.MessageReaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -11,8 +14,10 @@ import com.backend.PlanWise.DataTransferObjects.MessageDTO;
 import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
-import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -26,6 +31,9 @@ public class WebSocketChatController
 
     @Autowired
     private MessageChannelRepository channelRepository;
+
+    @Autowired
+    private MessageReactionRepository reactionRepository;
 
     @Autowired
     private UserDataPool userRepository;
@@ -44,7 +52,8 @@ public class WebSocketChatController
 
         Message savedMessage = messageRepository.save(message);
 
-        messagingTemplate.convertAndSend("/topic/channel/" + channelId, messageDTO);
+        MessageDTO savedMessageDTO = convertToDTO(savedMessage);
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId, savedMessageDTO);
 
         messagingTemplate.convertAndSend(
                 "/topic/project/" + messageDTO.getProjectId() + "/channels",
@@ -123,6 +132,16 @@ public class WebSocketChatController
             dto.setSenderAvatar(user.getProfileImageUrl());
         }
 
+        List<Object[]> reactionCounts = reactionRepository.countReactionsByMessageId(message.getId());
+        Map<String, Integer> reactions = new HashMap<>();
+        for(Object[] result : reactionCounts)
+        {
+            String reactionType = (String) result[0];
+            Long count = (Long) result[1];
+            reactions.put(reactionType, count.intValue());
+        }
+        dto.setReactions(reactions);
+
         return dto;
     }
 
@@ -135,6 +154,56 @@ public class WebSocketChatController
             public LocalDateTime lastMessageTimestamp = lastMessage.getTimestamp();
             public String lastMessageSender = lastMessage.getSenderId();
         };
+    }
+
+    @MessageMapping("/chat/{channelId}/reaction/add")
+    public void addReaction(
+            @DestinationVariable Long channelId,
+            @Payload ReactionDTO reactionDTO)
+    {
+        if(!channelRepository.existsById(channelId))
+            return;
+        Optional<Message> messageOpt = messageRepository.findById(reactionDTO.getMessageId());
+        if(!messageOpt.isPresent())
+            return;
+        if(!userRepository.existsById(reactionDTO.getUserId()))
+            return;
+        Optional<MessageReaction> existingReaction = reactionRepository.findByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+        if(existingReaction.isPresent())
+            return;
+        MessageReaction reaction = new MessageReaction();
+        reaction.setMessageId(reactionDTO.getMessageId());
+        reaction.setUserId(reactionDTO.getUserId());
+        reaction.setReactionType(reactionDTO.getReactionType());
+        reaction.setCreatedAt(LocalDateTime.now());
+        reactionRepository.save(reaction);
+        Message updatedMessage = messageOpt.get();
+        MessageDTO updatedMessageDTO = convertToDTO(updatedMessage);
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/reaction", updatedMessageDTO);
+    }
+
+    @MessageMapping("/chat/{channelId}/reaction/remove")
+    public void removeReaction(
+            @DestinationVariable Long channelId,
+            @Payload ReactionDTO reactionDTO)
+    {
+        if(!channelRepository.existsById(channelId))
+            return;
+        Optional<Message> messageOpt = messageRepository.findById(reactionDTO.getMessageId());
+        if(!messageOpt.isPresent())
+            return;
+        if(!userRepository.existsById(reactionDTO.getUserId()))
+            return;
+        Optional<MessageReaction> existingReaction = reactionRepository.findByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+        if(!existingReaction.isPresent())
+            return;
+        reactionRepository.deleteByMessageIdAndUserIdAndReactionType(
+                reactionDTO.getMessageId(), reactionDTO.getUserId(), reactionDTO.getReactionType());
+        Message updatedMessage = messageOpt.get();
+        MessageDTO updatedMessageDTO = convertToDTO(updatedMessage);
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/reaction", updatedMessageDTO);
     }
 
     private static class ChannelUpdate
