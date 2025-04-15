@@ -1,8 +1,10 @@
 package com.backend.PlanWise.DataTransferObjects;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
+import com.backend.PlanWise.model.MessageAttachment;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -107,6 +109,18 @@ public class MessageDTO
     private String senderAvatar;
     private LocalDateTime editedAt;
     private boolean isEdited;
+
+    public List<AttachmentDTO> getAttachmentIds()
+    {
+        return attachments;
+    }
+
+    public void setAttachmentIds(List<AttachmentDTO> attachmentIds)
+    {
+        this.attachments = attachmentIds;
+    }
+
+    private List<AttachmentDTO> attachments;
 
     public Map<String, Integer> getReactions()
     {

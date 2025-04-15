@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
+import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
 import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
 import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,12 @@ public class MessageController {
         }
 
         List<MessageDTO> messageDTOs = messages.stream()
-                .map(this::convertToDTO)
+                .map(message ->
+                {
+                    MessageDTO dto = convertToDTO(message);
+                    dto.setReactions(messageReactions.getOrDefault(message.getId(), new HashMap<>()));
+                    return dto;
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(messageDTOs);
@@ -198,19 +204,19 @@ public class MessageController {
     public ResponseEntity<MessageDTO> sendChannelMessage(
             @PathVariable Long channelId,
             @RequestBody MessageDTO messageDTO) {
-        
+
         // Verify channel exists
         Optional<MessageChannel> channelOpt = channelRepository.findById(channelId);
         if (!channelOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
+
         // Verify sender exists
         Optional<User> senderOpt = userRepository.findById(String.valueOf(messageDTO.getSenderId()));
         if (!senderOpt.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
+
         // Create and save the message
         Message message = new Message();
         message.setProjectId(channelOpt.get().getProjectId().intValue());
@@ -218,12 +224,12 @@ public class MessageController {
         message.setContent(messageDTO.getContent());
         message.setTimestamp(LocalDateTime.now());
         message.setChannelId(channelId);
-        
+
         Message savedMessage = messageRepository.save(message);
-        
+
         // Update read status for sender
         updateReadStatus(channelId, messageDTO.getSenderId(), LocalDateTime.now());
-        
+
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(savedMessage));
     }
 
@@ -587,13 +593,26 @@ public class MessageController {
 
         List<Object[]> reactionCounts = reactionRepository.countReactionsByMessageId(message.getId());
         Map<String, Integer> reactions = new HashMap<>();
-        for (Object[] result : reactionCounts) {
+        for(Object[] result : reactionCounts)
+        {
             String reactionType = (String) result[0];
             Long count = (Long) result[1];
             reactions.put(reactionType, count.intValue());
         }
+
         dto.setReactions(reactions);
-        
+        List<AttachmentDTO> attachmentDTOs = message.getAttachments().stream()
+                .map(attachment -> new AttachmentDTO(
+                        attachment.getId(),
+                        attachment.getFileName(),
+                        attachment.getFileType().name(),
+                        attachment.getFileSize(),
+                        attachment.getUploadedAt(),
+                        attachment.getFileData()
+                ))
+                .collect(Collectors.toList());
+        dto.setAttachmentIds(attachmentDTOs);
+
         return dto;
     }
 
@@ -614,7 +633,6 @@ public class MessageController {
             @PathVariable Long messageId,
             @RequestBody MessageDTO messageDTO)
     {
-
         Optional<Message> messageOpt = messageRepository.findById(messageId);
         if (!messageOpt.isPresent())
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

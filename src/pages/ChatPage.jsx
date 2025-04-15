@@ -4,7 +4,7 @@ import {
     Send, Search, ArrowLeft, Users, Hash, MessageSquare,
     PlusCircle, X, MessageCircle, Settings, Layout, Activity, KanbanSquare, UsersIcon, BookOpen,
     Smile, Paperclip, MoreHorizontal, Edit, Trash2, Reply, ThumbsUp, Heart, Laugh, Frown,
-    Repeat, BarChart2, AtSign, Mic, PauseCircle, Code, CheckCircle, Clock, ChevronDown
+    Repeat, BarChart2, AtSign, Mic, PauseCircle, Code, CheckCircle, Clock, ChevronDown, Download
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
@@ -247,6 +247,8 @@ const TempChatPage = () =>
                 }
             );
 
+            console.log(response);
+
             const userReactionsResponse = await axios.get(
                 `http://localhost:8080/api/messages/channel/${channelId}/userreactions/${userId}`,
                 {
@@ -262,26 +264,24 @@ const TempChatPage = () =>
                 userReactionsMap[reaction.messageId].push(reaction.reactionType);
             });
 
-            console.log(userReactionsMap);
-
             const enhancedMessages = response.data.map((msg, index) =>
             {
                 const reactions = msg.reactions;
                 const isEdited = msg.edited;
                 const messageId = msg.id;
 
-                const hasAttachment = index % 7 === 0;
                 let attachment = null;
-                if(hasAttachment)
+                if(msg.attachments && msg.attachments.length > 0)
                 {
-                    const attachmentTypes = ['image', 'document', 'code'];
-                    const type = attachmentTypes[Math.floor(Math.random() * attachmentTypes.length)];
+                    const firstAttachment = msg.attachments[0];
                     attachment =
                     {
-                        type,
-                        name: type === 'image' ? 'screenshot.png' :
-                            type === 'document' ? 'report.pdf' : 'example.js',
-                        size: '120KB'
+                        type: firstAttachment.fileType.toLowerCase(),
+                        name: firstAttachment.fileName,
+                        size: formatFileSize(firstAttachment.fileSize),
+                        fileData: firstAttachment.fileData,
+                        id: firstAttachment.id,
+                        uploadedAt: firstAttachment.uploadedAt
                     };
                 }
 
@@ -289,8 +289,7 @@ const TempChatPage = () =>
                 let codeSnippet = null;
                 if(hasCodeSnippet)
                 {
-                    codeSnippet =
-                    {
+                    codeSnippet ={
                         language: 'javascript',
                         code: 'function sayHello() {\n  console.log("Hello, world!");\n}'
                     };
@@ -303,8 +302,7 @@ const TempChatPage = () =>
                     poll =
                     {
                         question: 'What feature should we implement next?',
-                        options:
-                        [
+                        options: [
                             { text: 'Dark mode', votes: 5 },
                             { text: 'Mobile app', votes: 3 },
                             { text: 'Voice chat', votes: 2 }
@@ -333,8 +331,7 @@ const TempChatPage = () =>
                     `http://localhost:8080/api/messages/channel/${channelId}/read`,
                     JSON.stringify(userId),
                     {
-                        headers:
-                        {
+                        headers: {
                             'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         }
@@ -360,6 +357,16 @@ const TempChatPage = () =>
             setLoading(false);
         }
     };
+
+    function formatFileSize(bytes)
+    {
+        if(bytes === 0)
+            return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
 
     useEffect(() =>
     {
@@ -525,59 +532,63 @@ const TempChatPage = () =>
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if(!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio)
-            return;
-        if(!selectedChannel)
-            return;
+        if (!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio) return;
+        if (!selectedChannel) return;
 
-        try{
+        try {
             let content = message;
-
-            if(showCodeFormatting)
+            if (showCodeFormatting) {
                 content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
+            }
 
-            const newMessage =
-            {
-                senderId: userId,
-                content: content,
-                projectId: parseInt(id),
-                channelId: selectedChannel.channelId,
-                senderName: users.find(u => u.id === userId)?.name || 'Unknown User',
-                timestamp: new Date().toISOString(),
-                attachment: selectedFile ? {
-                    name: selectedFile.name,
-                    size: `${Math.round(selectedFile.size / 1024)}KB`,
-                    type: selectedFile.type.includes('image') ? 'image' : 'document'
-                } : null
-            };
+            const token = await getToken();
+            const formData = new FormData();
 
-            if(stompClient && connected)
-            {
+            // Append message data
+            formData.append('senderId', userId);
+            formData.append('content', content);
+            formData.append('projectId', parseInt(id));
+            formData.append('channelId', selectedChannel.channelId);
+            formData.append('senderName', users.find((u) => u.id === userId)?.name || 'Unknown User');
+            formData.append('timestamp', new Date().toISOString());
+
+            // Append file if selected
+            if (selectedFile) {
+                formData.append('file', selectedFile);
+            }
+
+            // Send the message and file via HTTP POST
+            const response = await axios.post(
+                `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+
+            // If WebSocket is connected, let the backend broadcast the message
+            if (stompClient && connected) {
+                const savedMessageDTO = response.data;
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/send`,
-                    body: JSON.stringify(newMessage)
+                    body: JSON.stringify(savedMessageDTO),
                 });
-            }
-            else
-            {
-                const token = await getToken();
-                await axios.post(
-                    `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
-                    newMessage,
-                    {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }
-                );
+            } else {
+                // Fetch messages to update the UI
                 fetchMessages(selectedChannel.channelId);
             }
 
+            // Reset states
             setMessage('');
             setSelectedFile(null);
             setShowCodeFormatting(false);
             setShowPollCreator(false);
             setPollQuestion('');
             setPollOptions(['', '']);
-        }catch(err){
+        } catch (err) {
             console.error('Error sending message:', err);
             alert('Failed to send message. Please try again.');
         }
@@ -606,10 +617,15 @@ const TempChatPage = () =>
         fileInputRef.current.click();
     };
 
-    const handleFileChange = (e) =>
-    {
-        if(e.target.files[0])
-            setSelectedFile(e.target.files[0]);
+    const handleFileChange = (e) => {
+        if (e.target.files[0]) {
+            const file = e.target.files[0];
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size exceeds 15MB limit.');
+                return;
+            }
+            setSelectedFile(file);
+        }
     };
 
     const handleEmojiClick = (emoji) =>
@@ -1067,30 +1083,87 @@ const TempChatPage = () =>
         </div>
     );
 
-    const FileAttachment = ({ attachment }) => (
-        <div className="flex items-center gap-2 p-2 mt-2 bg-[var(--gray-card3)]/30 rounded-lg">
-            {attachment.type === 'image' ? (
-                <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                    <img src="/api/placeholder/40/40" alt="Preview" className="w-6 h-6 object-cover" />
+    const FileAttachment = ({ attachment }) =>
+    {
+        const handleDownload = () =>
+        {
+            console.log("Initiating download for attachment:", attachment);
+            if(!attachment)
+            {
+                console.error("No attachment data provided");
+                return;
+            }
+
+            try{
+                if(attachment.fileData)
+                {
+                    let mimeType = 'application/octet-stream';
+                    if (attachment.name.endsWith('.pdf')) mimeType = 'application/pdf';
+                    else if (attachment.name.endsWith('.jpg') || attachment.name.endsWith('.jpeg')) mimeType = 'image/jpeg';
+                    else if (attachment.name.endsWith('.png')) mimeType = 'image/png';
+
+                    if (!/^[A-Za-z0-9+/=]+$/.test(attachment.fileData))
+                    {
+                        console.error("Invalid base64 string for fileData");
+                        return;
+                    }
+                    const link = document.createElement('a');
+                    link.href = `data:${mimeType};base64,${attachment.fileData}`;
+                    link.download = attachment.name || 'download';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    console.log("Download initiated for base64 file");
+                }
+                else if (attachment.blobUrl)
+                {
+                    const link = document.createElement('a');
+                    link.href = attachment.blobUrl;
+                    link.download = attachment.name || 'download';
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => URL.revokeObjectURL(attachment.blobUrl), 100);
+                    document.body.removeChild(link);
+                    console.log("Download initiated for blob URL");
+                }
+                else
+                    console.error("No fileData or blobUrl available for attachment");
+            }catch(error){
+                console.error("Error during file download:", error);
+                alert("Failed to download file. Please try again.");
+            }
+        };
+
+        return(
+            <div className="flex items-center gap-2 p-2 mt-2 bg-[var(--gray-card3)]/30 rounded-lg">
+                {attachment.type === 'image' ? (
+                    <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                        <img src="/api/placeholder/40/40" alt="Preview" className="w-6 h-6 object-cover" />
+                    </div>
+                ) : attachment.type === 'document' ? (
+                    <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center">
+                        <Paperclip size={16} className="text-red-500" />
+                    </div>
+                ) : (
+                    <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
+                        <Code size={16} className="text-purple-500" />
+                    </div>
+                )}
+                <div className="flex-1">
+                    <div className="text-sm font-medium text-[var(--features-title-color)]">{attachment.name}</div>
+                    <div className="text-xs text-[var(--features-text-color)] opacity-70">{attachment.size}</div>
                 </div>
-            ) : attachment.type === 'document' ? (
-                <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center">
-                    <Paperclip size={16} className="text-red-500" />
-                </div>
-            ) : (
-                <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
-                    <Code size={16} className="text-purple-500" />
-                </div>
-            )}
-            <div className="flex-1">
-                <div className="text-sm font-medium text-[var(--features-title-color)]">{attachment.name}</div>
-                <div className="text-xs text-[var(--features-text-color)] opacity-70">{attachment.size}</div>
+                <button
+                    onClick={handleDownload}
+                    className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
+                    title="Download"
+                >
+                    <Download size={16} />
+                </button>
             </div>
-            <button className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
-                <PlusCircle size={16} />
-            </button>
-        </div>
-    );
+        );
+    };
+
     return (
         <div className="flex flex-col h-screen bg-[var(--bg-color)]">
             <Header

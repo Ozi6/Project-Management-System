@@ -229,10 +229,11 @@ CREATE TABLE message_attachments (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     message_id BIGINT NOT NULL,
     file_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(512) NOT NULL,
     file_type ENUM('IMAGE', 'DOCUMENT', 'AUDIO', 'VIDEO', 'CODE', 'OTHER') NOT NULL,
     file_size BIGINT NOT NULL,
-    thumbnail_path VARCHAR(512) NULL,
+    file_data LONGBLOB NOT NULL,
+    thumbnail_data LONGBLOB NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
 );
 

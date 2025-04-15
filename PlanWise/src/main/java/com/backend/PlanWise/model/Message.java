@@ -1,16 +1,10 @@
 package com.backend.PlanWise.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -155,4 +149,29 @@ public class Message
 
     @Column(name = "is_edited", nullable = false)
     private boolean isEdited = false;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageAttachment> attachments = new ArrayList<>();
+
+    public List<MessageAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<MessageAttachment> attachments)
+    {
+        this.attachments = attachments;
+    }
+
+    public void addAttachment(MessageAttachment attachment)
+    {
+        attachments.add(attachment);
+        attachment.setMessage(this);
+    }
+
+    public void removeAttachment(MessageAttachment attachment)
+    {
+        attachments.remove(attachment);
+        attachment.setMessage(null);
+    }
 }

@@ -2,7 +2,9 @@ package com.backend.PlanWise.Controllers;
 
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
+import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
 import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.model.MessageAttachment;
 import com.backend.PlanWise.model.MessageReaction;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 public class WebSocketChatController
@@ -46,8 +49,8 @@ public class WebSocketChatController
     @MessageMapping("/chat/{channelId}/send")
     public void sendMessage(
             @DestinationVariable Long channelId,
-            @Payload MessageDTO messageDTO) {
-
+            @Payload MessageDTO messageDTO)
+    {
         Message message = new Message();
         message.setProjectId(messageDTO.getProjectId());
         message.setSenderId(messageDTO.getSenderId());
@@ -146,6 +149,17 @@ public class WebSocketChatController
             reactions.put(reactionType, count.intValue());
         }
         dto.setReactions(reactions);
+
+        List<AttachmentDTO> attachmentDTOs = message.getAttachments().stream()
+                .map(attachment -> new AttachmentDTO(
+                        attachment.getId(),
+                        attachment.getFileName(),
+                        attachment.getFileType().name(),
+                        attachment.getFileSize(),
+                        attachment.getUploadedAt()
+                ))
+                .collect(Collectors.toList());
+        dto.setAttachmentIds(attachmentDTOs);
 
         return dto;
     }
