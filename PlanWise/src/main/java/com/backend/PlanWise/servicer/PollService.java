@@ -92,6 +92,7 @@ public class PollService
             {
                 existingVote.get().setOption(option);
                 pollVoteRepository.save(existingVote.get());
+                pollVoteRepository.flush();
             }
             return convertToDTO(poll);
         }
@@ -100,6 +101,7 @@ public class PollService
         vote.setOption(option);
         vote.setUserId(userId);
         pollVoteRepository.save(vote);
+        pollVoteRepository.flush();
         return convertToDTO(poll);
     }
 

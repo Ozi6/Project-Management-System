@@ -17,7 +17,6 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class PollWebSocketController
 {
-
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 

@@ -9,14 +9,15 @@ import {
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import Header from "../components/Header";
-import Sidebar from "../components/Sidebar";
+import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
 import { SearchProvider } from '../scripts/SearchContext';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
-import { ALL_ICONS } from "../components/ICON_CATEGORIES";
+import { ALL_ICONS } from '../components/ICON_CATEGORIES';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
+import Message from '../components/Message';
 
 const ProjectChatWrapper = () =>
 {
@@ -35,14 +36,14 @@ const TempChatPage = () =>
     const [message, setMessage] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [channelSearchTerm, setChannelSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState("chat");
+    const [activeTab, setActiveTab] = useState('chat');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [channels, setChannels] = useState([]);
     const [messages, setMessages] = useState([]);
     const [selectedChannel, setSelectedChannel] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [projectName, setProjectName] = useState("");
+    const [projectName, setProjectName] = useState('');
     const [users, setUsers] = useState([]);
     const [isOwner, setIsOwner] = useState(false);
     const { t } = useTranslation();
@@ -67,20 +68,12 @@ const TempChatPage = () =>
     const messageActionsRef = useRef(null);
     const [filesToUpload, setFilesToUpload] = useState(null);
 
-    const commonEmojis = ['👍', '❤️', '😂', '😊', '🎉', '👏', '🙌', '🔥', '✨', '🚀'];
-    const emojiCategories =
-    {
-        'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
-        'Reactions': ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
-        'Objects': ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
-    };
-
     const reactionTypes =
     [
         { emoji: '👍', name: 'thumbs_up', icon: ThumbsUp },
         { emoji: '❤️', name: 'heart', icon: Heart },
         { emoji: '😂', name: 'laugh', icon: Laugh },
-        { emoji: '😔', name: 'sad', icon: Frown }
+        { emoji: '😔', name: 'sad', icon: Frown },
     ];
 
     useEffect(() =>
@@ -92,17 +85,17 @@ const TempChatPage = () =>
                 const projectResponse = await axios.get(`http://localhost:8080/api/projects/${id}`, {
                     headers:
                     {
-                        'Authorization': `Bearer ${token}`,
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
                 setProjectName(projectResponse.data.projectName);
 
                 const ownerResponse = await axios.get(`http://localhost:8080/api/projects/${id}/isOwner`, {
                     headers:
                     {
-                        'Authorization': `Bearer ${token}`,
-                        'userId': userId
-                    }
+                        Authorization: `Bearer ${token}`,
+                        userId: userId,
+                    },
                 });
                 setIsOwner(ownerResponse.data);
             }catch(err){
@@ -111,9 +104,8 @@ const TempChatPage = () =>
             }
         };
 
-        if (id && userId) {
+        if(id && userId)
             fetchProjectData();
-        }
     }, [id, userId, getToken]);
 
     const fetchChannels = async () =>
@@ -125,63 +117,62 @@ const TempChatPage = () =>
             const response = await axios.get(
                 `http://localhost:8080/api/messages/channels/project/${id}`,
                 {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
-            const teamsResponse = await axios.get(
-                `http://localhost:8080/api/projects/${id}/teams`,
-                {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                }
-            );
+            const teamsResponse = await axios.get(`http://localhost:8080/api/projects/${id}/teams`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
 
             const teamMap = {};
-            teamsResponse.data.forEach(team =>
+            teamsResponse.data.forEach((team) =>
             {
                 teamMap[team.teamId] =
                 {
                     teamName: team.teamName,
-                    iconName: team.iconName
+                    iconName: team.iconName,
                 };
             });
 
-            const channelsWithUnread = await Promise.all(response.data.map(async (channel) =>
-            {
-                try{
-                    const accessResponse = await axios.get(
-                        `http://localhost:8080/api/messages/channel/${channel.channelId}/access/${userId}`,
-                        {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        }
-                    );
+            const channelsWithUnread = await Promise.all(
+                response.data.map(async (channel) =>
+                {
+                    try{
+                        const accessResponse = await axios.get(
+                            `http://localhost:8080/api/messages/channel/${channel.channelId}/access/${userId}`,
+                            {
+                                headers: { Authorization: `Bearer ${token}` },
+                            }
+                        );
 
-                    if(!accessResponse.data)
+                        if(!accessResponse.data)
+                            return null;
+
+                        const unreadResponse = await axios.get(
+                            `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
+                            {
+                                headers: { Authorization: `Bearer ${token}` },
+                            }
+                        );
+
+                        let teamData = null;
+                        if(channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId])
+                            teamData = teamMap[channel.teamId];
+
+                        return{
+                            ...channel,
+                            unreadCount: unreadResponse.data,
+                            teamData: teamData,
+                        };
+                    } catch (err) {
+                        console.error(`Error processing channel ${channel.channelId}:`, err);
                         return null;
+                    }
+                })
+            );
 
-                    const unreadResponse = await axios.get(
-                        `http://localhost:8080/api/messages/channel/${channel.channelId}/unread/${userId}`,
-                        {
-                            headers: { 'Authorization': `Bearer ${token}` }
-                        }
-                    );
-
-                    let teamData = null;
-                    if(channel.channelType === 'TEAM' && channel.teamId && teamMap[channel.teamId])
-                        teamData = teamMap[channel.teamId];
-
-                    return{
-                        ...channel,
-                        unreadCount: unreadResponse.data,
-                        teamData: teamData
-                    };
-                }catch(err){
-                    console.error(`Error processing channel ${channel.channelId}:`, err);
-                    return null;
-                }
-            }));
-
-            const accessibleChannels = channelsWithUnread.filter(channel => channel !== null);
+            const accessibleChannels = channelsWithUnread.filter((channel) => channel !== null);
 
             setChannels(accessibleChannels);
             setLoading(false);
@@ -198,17 +189,19 @@ const TempChatPage = () =>
         {
             try{
                 const token = await getToken();
-                const response = await axios.get(
-                    `http://localhost:8080/api/projects/${id}/members`,
-                    {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    }
-                );
+                const response = await axios.get(`http://localhost:8080/api/projects/${id}/members`,
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
 
-                const formattedUsers = response.data.map(user => ({
+                const formattedUsers = response.data.map((user) => ({
                     id: user.userId,
                     name: user.username,
-                    avatar: user.profileImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.username)}&background=0D8ABC&color=fff`
+                    avatar:
+                        user.profileImageUrl ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            user.username
+                        )}&background=0D8ABC&color=fff`,
                 }));
 
                 setUsers(formattedUsers);
@@ -216,10 +209,9 @@ const TempChatPage = () =>
                 console.error('Error fetching users:', err);
             }
         };
-
         if(id)
             fetchUsers();
-    },[id, getToken]);
+    }, [id, getToken]);
 
     const fetchMessages = async (channelId) =>
     {
@@ -230,7 +222,7 @@ const TempChatPage = () =>
             const accessResponse = await axios.get(
                 `http://localhost:8080/api/messages/channel/${channelId}/access/${userId}`,
                 {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
@@ -244,19 +236,19 @@ const TempChatPage = () =>
             const response = await axios.get(
                 `http://localhost:8080/api/messages/channel/${channelId}`,
                 {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
             const userReactionsResponse = await axios.get(
                 `http://localhost:8080/api/messages/channel/${channelId}/userreactions/${userId}`,
                 {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
 
             const userReactionsMap = {};
-            userReactionsResponse.data.forEach(reaction =>
+            userReactionsResponse.data.forEach((reaction) =>
             {
                 if(!userReactionsMap[reaction.messageId])
                     userReactionsMap[reaction.messageId] = [];
@@ -273,14 +265,13 @@ const TempChatPage = () =>
                 if(msg.attachments && msg.attachments.length > 0)
                 {
                     const firstAttachment = msg.attachments[0];
-                    attachment =
-                    {
+                    attachment = {
                         type: firstAttachment.fileType.toLowerCase(),
                         name: firstAttachment.fileName,
                         size: formatFileSize(firstAttachment.fileSize),
                         fileData: firstAttachment.fileData,
                         id: firstAttachment.id,
-                        uploadedAt: firstAttachment.uploadedAt
+                        uploadedAt: firstAttachment.uploadedAt,
                     };
                 }
 
@@ -291,7 +282,7 @@ const TempChatPage = () =>
                     codeSnippet =
                     {
                         language: 'javascript',
-                        code: 'function sayHello() {\n  console.log("Hello, world!");\n}'
+                        code: 'function sayHello() {\n  console.log("Hello, world!");\n}',
                     };
                 }
 
@@ -331,24 +322,22 @@ const TempChatPage = () =>
                     `http://localhost:8080/api/messages/channel/${channelId}/read`,
                     JSON.stringify(userId),
                     {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        }
+                        headers:
+                        {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
                     }
                 );
 
-                setChannels(prev =>
-                    prev.map(channel =>
-                        channel.channelId === channelId
-                            ? { ...channel, unreadCount: 0 }
-                            : channel
+                setChannels((prev) =>
+                    prev.map((channel) =>
+                        channel.channelId === channelId ? { ...channel, unreadCount: 0 } : channel
                     )
                 );
             }catch(markReadErr){
-                console.warn("Could not mark channel as read:", markReadErr);
+                console.warn('Could not mark channel as read:', markReadErr);
             }
-
             setLoading(false);
             scrollToBottom();
         }catch(err){
@@ -381,7 +370,7 @@ const TempChatPage = () =>
                     webSocketFactory: () => socket,
                     reconnectDelay: 5000,
                     heartbeatIncoming: 4000,
-                    heartbeatOutgoing: 4000
+                    heartbeatOutgoing: 4000,
                 });
 
                 client.onConnect = function (frame)
@@ -391,20 +380,19 @@ const TempChatPage = () =>
                     client.subscribe(`/topic/channel/${selectedChannel.channelId}`, function (message)
                     {
                         const receivedMessage = JSON.parse(message.body);
-                        setMessages(prevMessages =>
+                        setMessages((prevMessages) =>
                         {
                             const existingMessage = prevMessages.find(
-                                msg => msg.id &&
+                                (msg) =>
+                                    msg.id &&
                                     msg.senderId === receivedMessage.senderId &&
                                     msg.content === receivedMessage.content &&
                                     msg.timestamp.split('.')[0] === receivedMessage.timestamp.split('.')[0]
                             );
                             if(existingMessage)
                             {
-                                return prevMessages.map(msg =>
-                                    msg.id === existingMessage.id
-                                        ? { ...receivedMessage }
-                                        : msg
+                                return prevMessages.map((msg) =>
+                                    msg.id === existingMessage.id ? { ...receivedMessage } : msg
                                 );
                             }
                             else
@@ -420,7 +408,8 @@ const TempChatPage = () =>
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === editedMessage.id
-                                    ? {
+                                    ?
+                                    {
                                         ...msg,
                                         content: editedMessage.content,
                                         isEdited: true,
@@ -450,11 +439,10 @@ const TempChatPage = () =>
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === updatedMessage.id
-                                    ?
-                                    {
+                                    ? {
                                         ...msg,
                                         reactions: updatedMessage.reactions,
-                                        userReactions: updatedMessage.userReactions || []
+                                        userReactions: updatedMessage.userReactions || [],
                                     }
                                     : msg
                             )
@@ -467,16 +455,18 @@ const TempChatPage = () =>
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === attachmentUpdate.messageId
-                                    ? {
+                                    ?
+                                    {
                                         ...msg,
-                                        attachment: {
+                                        attachment:
+                                        {
                                             type: attachmentUpdate.fileType.toLowerCase(),
                                             name: attachmentUpdate.fileName,
                                             size: formatFileSize(attachmentUpdate.fileSize),
                                             fileData: attachmentUpdate.fileData,
                                             id: attachmentUpdate.id,
-                                            uploadedAt: attachmentUpdate.uploadedAt
-                                        }
+                                            uploadedAt: attachmentUpdate.uploadedAt,
+                                        },
                                     }
                                     : msg
                             )
@@ -538,16 +528,15 @@ const TempChatPage = () =>
         };
 
         connectWebSocket();
-    },[userId, id, selectedChannel?.channelId]);
+    }, [userId, id, selectedChannel?.channelId]);
 
     const updateUnreadCount = (message) =>
     {
-        if(message.senderId === userId ||
-            (selectedChannel && message.channelId === selectedChannel.channelId))
+        if(message.senderId === userId || (selectedChannel && message.channelId === selectedChannel.channelId))
             return;
 
-        setChannels(prev =>
-            prev.map(channel =>
+        setChannels((prev) =>
+            prev.map((channel) =>
                 channel.channelId === message.channelId
                     ? { ...channel, unreadCount: (channel.unreadCount || 0) + 1 }
                     : channel
@@ -559,13 +548,13 @@ const TempChatPage = () =>
     {
         if(selectedChannel)
             fetchMessages(selectedChannel.channelId);
-    },[selectedChannel]);
+    }, [selectedChannel]);
 
     useEffect(() =>
     {
         if(id && userId)
             fetchChannels();
-    },[id, userId]);
+    }, [id, userId]);
 
     const scrollToBottom = () =>
     {
@@ -580,16 +569,12 @@ const TempChatPage = () =>
     const handleSendMessage = async (e) =>
     {
         e.preventDefault();
-
         if(!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio)
             return;
-        if(!selectedChannel)
-            return;
-
+        if(!selectedChannel) return;
         try{
             let content = message;
-            if(showCodeFormatting)
-                content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
+            if (showCodeFormatting) content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
 
             const newMessage =
             {
@@ -597,7 +582,7 @@ const TempChatPage = () =>
                 content: content,
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
-                senderName: users.find(u => u.id === userId)?.name || 'Unknown User',
+                senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
             };
 
@@ -605,14 +590,14 @@ const TempChatPage = () =>
             {
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/send`,
-                    body: JSON.stringify(newMessage)
+                    body: JSON.stringify(newMessage),
                 });
 
                 if(selectedFile)
                 {
                     setFilesToUpload({
                         file: selectedFile,
-                        channelId: selectedChannel.channelId
+                        channelId: selectedChannel.channelId,
                     });
                 }
             }
@@ -623,7 +608,7 @@ const TempChatPage = () =>
                 const messageResponse = await axios.post(
                     `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
                     newMessage,
-                    { headers: { 'Authorization': `Bearer ${token}` } }
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
 
                 if(selectedFile)
@@ -635,17 +620,15 @@ const TempChatPage = () =>
                         selectedChannel.channelId
                     );
                 }
-
                 fetchMessages(selectedChannel.channelId);
             }
-
             setMessage('');
             setSelectedFile(null);
             setShowCodeFormatting(false);
             setShowPollCreator(false);
             setPollQuestion('');
             setPollOptions(['', '']);
-        } catch (err) {
+        }catch(err){
             console.error('Error sending message:', err);
             alert('Failed to send message. Please try again.');
         }
@@ -662,17 +645,14 @@ const TempChatPage = () =>
             formData.append('channelId', channelId);
             formData.append('userId', userId);
 
-            await axios.post(
-                'http://localhost:8080/api/messages/upload-attachment',
-                formData,
+            await axios.post('http://localhost:8080/api/messages/upload-attachment', formData,
+            {
+                headers:
                 {
-                    headers:
-                    {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data'
-                    }
-                }
-            );
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
         }catch(error){
             console.error('Error uploading file:', error);
         }
@@ -687,7 +667,7 @@ const TempChatPage = () =>
 
             const latestMessage = [...messages]
                 .reverse()
-                .find(msg => msg.senderId === userId);
+                .find((msg) => msg.senderId === userId);
 
             if(latestMessage && latestMessage.id)
             {
@@ -716,12 +696,7 @@ const TempChatPage = () =>
                 setConnected(false);
             }
         }
-    },[selectedChannel?.channelId]);
-
-    const formatMessageTime = (timestamp) =>
-    {
-        return formatDistanceToNow(new Date(timestamp), { addSuffix: true });
-    };
+    }, [selectedChannel?.channelId]);
 
     const handleFileSelect = () =>
     {
@@ -730,13 +705,12 @@ const TempChatPage = () =>
 
     const handleFileChange = (e) =>
     {
-        if(e.target.files[0])
-            setSelectedFile(e.target.files[0]);
+        if (e.target.files[0]) setSelectedFile(e.target.files[0]);
     };
 
     const handleEmojiClick = (emoji) =>
     {
-        setMessage(prev => prev + emoji);
+        setMessage((prev) => prev + emoji);
         setShowEmojiPicker(false);
     };
 
@@ -746,16 +720,14 @@ const TempChatPage = () =>
             return;
 
         try{
-            const message = messages.find(msg => msg.id === messageId);
+            const message = messages.find((msg) => msg.id === messageId);
             if(!message)
                 return;
-
-            setMessages(prevMessages =>
-                prevMessages.map(msg =>
-                {
-                    if(msg.id === messageId)
-                    {
-                        const updatedMsg =
+            const hasReacted = message.userReactions?.includes(reaction);
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === messageId
+                        ?
                         {
                             ...msg,
                             reactions:
@@ -763,42 +735,36 @@ const TempChatPage = () =>
                                 ...msg.reactions,
                                 [reaction]: hasReacted
                                     ? (msg.reactions[reaction] || 1) - 1
-                                    : (msg.reactions[reaction] || 0) + 1
+                                    : (msg.reactions[reaction] || 0) + 1,
                             },
                             userReactions: hasReacted
-                                ? msg.userReactions.filter(r => r !== reaction)
-                                : [...(msg.userReactions || []), reaction]
-                        };
-                        return updatedMsg;
-                    }
-                    return msg;
-                })
+                                ? msg.userReactions.filter((r) => r !== reaction)
+                                : [...(msg.userReactions || []), reaction],
+                        }
+                        : msg
+                )
             );
-
-            const hasReacted = message.userReactions?.includes(reaction);
 
             const reactionDTO =
             {
                 messageId: messageId,
                 userId: userId,
                 reactionType: reaction,
-                channelId: selectedChannel.channelId
+                channelId: selectedChannel.channelId,
             };
             if(hasReacted)
             {
-                stompClient.publish(
-                    {
-                        destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
-                        body: JSON.stringify(reactionDTO)
-                    });
+                stompClient.publish({
+                    destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
+                    body: JSON.stringify(reactionDTO),
+                });
             }
             else
             {
-                stompClient.publish(
-                    {
-                        destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
-                        body: JSON.stringify(reactionDTO)
-                    });
+                stompClient.publish({
+                    destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
+                    body: JSON.stringify(reactionDTO),
+                });
             }
             setShowMessageActions(null);
         }catch(err){
@@ -813,7 +779,7 @@ const TempChatPage = () =>
             return;
 
         try{
-            const message = messages.find(msg => msg.id === messageId);
+            const message = messages.find((msg) => msg.id === messageId);
             if(!message)
                 return;
 
@@ -822,20 +788,20 @@ const TempChatPage = () =>
                 messageId: messageId,
                 userId: userId,
                 reactionType: reaction,
-                channelId: selectedChannel.channelId
+                channelId: selectedChannel.channelId,
             };
 
             stompClient.publish({
                 destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
-                body: JSON.stringify(reactionDTO)
+                body: JSON.stringify(reactionDTO),
             });
 
             setShowMessageActions(null);
         }catch(err){
             console.error('Error removing reaction:', err);
             alert('Failed to remove reaction. Please try again.');
-            setMessages(prevMessages =>
-                prevMessages.map(msg =>
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
                     msg.id === messageId
                         ?
                         {
@@ -843,9 +809,9 @@ const TempChatPage = () =>
                             reactions:
                             {
                                 ...msg.reactions,
-                                [reaction]: (msg.reactions[reaction] || 0) + 1
+                                [reaction]: (msg.reactions[reaction] || 0) + 1,
                             },
-                            userReactions: [...(msg.userReactions || []), reaction]
+                            userReactions: [...(msg.userReactions || []), reaction],
                         }
                         : msg
                 )
@@ -913,7 +879,9 @@ const TempChatPage = () =>
             console.error('Error editing message:', err);
             setMessages((prev) =>
                 prev.map((msg) =>
-                    msg.id === editingMessage.id ? { ...msg, content: editingMessage.content, isEdited: editingMessage.isEdited } : msg
+                    msg.id === editingMessage.id
+                        ? { ...msg, content: editingMessage.content, isEdited: editingMessage.isEdited }
+                        : msg
                 )
             );
             alert('Failed to edit message. Please try again.');
@@ -951,7 +919,6 @@ const TempChatPage = () =>
                     data: { senderId: userId },
                 });
             }
-
             setShowMessageActions(null);
         }catch(err){
             console.error('Error deleting message:', err);
@@ -964,9 +931,9 @@ const TempChatPage = () =>
 
     const handleMention = (userId) =>
     {
-        const user = users.find(u => u.id === userId);
+        const user = users.find((u) => u.id === userId);
         if(user)
-            setMessage(prev => `${prev}@${user.name} `);
+            setMessage((prev) => `${prev}@${user.name} `);
         setShowMentionMenu(false);
     };
 
@@ -974,25 +941,22 @@ const TempChatPage = () =>
     {
         if(!pollQuestion.trim() || pollOptions.some((option) => !option.trim()))
         {
-            alert("Please fill in all poll fields");
+            alert('Please fill in all poll fields');
             return;
         }
 
         try{
             const token = await getToken();
 
-            console.log(pollOptions);
-
             const pollMessage =
             {
                 senderId: userId,
-                content: "📊 " + pollQuestion,
+                content: '📊 ' + pollQuestion,
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
-                senderName: users.find((u) => u.id === userId)?.name || "Unknown User",
+                senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
-                poll:
-                {
+                poll: {
                     question: pollQuestion,
                     options: pollOptions.map((opt, index) => ({
                         id: index,
@@ -1000,15 +964,15 @@ const TempChatPage = () =>
                         votes: 0,
                     })),
                     isMultipleChoice: false,
-                    expiresAt: null
-                }
+                    expiresAt: null,
+                },
             };
 
             if(stompClient && connected)
             {
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/send`,
-                    body: JSON.stringify(pollMessage)
+                    body: JSON.stringify(pollMessage),
                 });
             }
             else
@@ -1020,24 +984,24 @@ const TempChatPage = () =>
                 );
             }
 
-            setPollQuestion("");
-            setPollOptions(["", ""]);
+            setPollQuestion('');
+            setPollOptions(['', '']);
             setShowPollCreator(false);
             scrollToBottom();
         }catch(err){
-            console.error("Error creating poll:", err);
-            alert("Failed to create poll. Please try again.");
+            console.error('Error creating poll:', err);
+            alert('Failed to create poll. Please try again.');
         }
     };
 
     const addPollOption = () =>
     {
-        setPollOptions(prev => [...prev, '']);
+        setPollOptions((prev) => [...prev, '']);
     };
 
     const updatePollOption = (index, value) =>
     {
-        setPollOptions(prev =>
+        setPollOptions((prev) =>
         {
             const updated = [...prev];
             updated[index] = value;
@@ -1048,18 +1012,18 @@ const TempChatPage = () =>
     const removePollOption = (index) =>
     {
         if(pollOptions.length <= 2)
-            return; //need at least 2 options for it to be a vote
-        setPollOptions(prev => prev.filter((_, i) => i !== index));
+            return;
+        setPollOptions((prev) => prev.filter((_, i) => i !== index));
     };
 
     const toggleRecordingAudio = () =>
     {
-        setIsRecordingAudio(prev => !prev);
+        setIsRecordingAudio((prev) => !prev);
     };
 
     const toggleCodeFormatting = () =>
     {
-        setShowCodeFormatting(prev => !prev);
+        setShowCodeFormatting((prev) => !prev);
     };
 
     useEffect(() =>
@@ -1078,17 +1042,18 @@ const TempChatPage = () =>
         {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    },[]);
+    }, []);
 
     const filteredMessages = searchTerm
-        ? messages.filter(msg =>
-            msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            msg.senderName?.toLowerCase().includes(searchTerm.toLowerCase())
+        ? messages.filter(
+            (msg) =>
+                msg.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                msg.senderName?.toLowerCase().includes(searchTerm.toLowerCase())
         )
         : messages;
 
     const filteredChannels = channelSearchTerm
-        ? channels.filter(channel =>
+        ? channels.filter((channel) =>
             channel.channelName.toLowerCase().includes(channelSearchTerm.toLowerCase())
         )
         : channels;
@@ -1098,271 +1063,85 @@ const TempChatPage = () =>
         {
             id: 'dashboard',
             icon: Layout,
-            label: t("sidebar.dash"),
+            label: t('sidebar.dash'),
             path: '/dashboard',
             iconColor: 'text-blue-600',
-            defaultColor: true
+            defaultColor: true,
         },
         {
             id: 'projects',
             icon: KanbanSquare,
-            label: t("sidebar.this"),
+            label: t('sidebar.this'),
             path: `/project/${id}`,
             state: { isOwner },
             color: 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]',
-            iconColor: 'text-[var(--sidebar-projects-color)]'
+            iconColor: 'text-[var(--sidebar-projects-color)]',
         },
         {
             id: 'activity',
             icon: Activity,
-            label: t("sidebar.act"),
+            label: t('sidebar.act'),
             path: `/project/${id}/activity`,
             state: { isOwner },
             color: 'bg-yellow-100 text-yellow-600',
-            iconColor: 'text-amber-600'
+            iconColor: 'text-amber-600',
         },
         {
             id: 'teams',
             icon: UsersIcon,
-            label: t("sidebar.team"),
+            label: t('sidebar.team'),
             path: `/project/${id}/teams`,
             state: { isOwner },
             color: 'bg-green-100 text-green-600',
-            iconColor: 'text-green-600'
+            iconColor: 'text-green-600',
         },
         {
             id: 'chat',
             icon: MessageCircle,
-            label: t("sidebar.chat"),
+            label: t('sidebar.chat'),
             path: `/project/${id}/chat`,
             color: 'bg-indigo-100 text-indigo-600',
-            iconColor: 'text-indigo-600'
+            iconColor: 'text-indigo-600',
         },
         {
             id: 'notes',
             icon: BookOpen,
-            label: t("notes.title"),
+            label: t('notes.title'),
             path: `/project/${id}/notes`,
             state: { isOwner },
             color: 'bg-teal-100 text-teal-600',
-            iconColor: 'text-teal-600'
+            iconColor: 'text-teal-600',
         },
         {
             id: 'settings',
             icon: Settings,
-            label: t("sidebar.set"),
+            label: t('sidebar.set'),
             path: `/project/${id}/settings`,
             state: { isOwner },
             color: 'bg-gray-100 text-gray-600',
-            iconColor: 'text-gray-600'
-        }
+            iconColor: 'text-gray-600',
+        },
     ];
 
-    const findUserForMessage = (userId) =>
-    {
-        return users.find(u => u.id === userId) ||
-        {
-            name: 'Unknown User',
-            avatar: `https://ui-avatars.com/api/?name=Unknown+User&background=888888&color=fff`
-        };
-    };
+    const projectChannels = filteredChannels.filter((channel) => channel.channelType === 'PROJECT');
 
-    const projectChannels = filteredChannels
-        .filter(channel => channel.channelType === 'PROJECT');
+    const teamChannels = filteredChannels.filter((channel) => channel.channelType === 'TEAM');
 
-    const teamChannels = filteredChannels
-        .filter(channel => channel.channelType === 'TEAM');
-
-    const CodeSnippet = ({ language, code }) => (
-        <div className="bg-gray-800 rounded-md overflow-hidden my-2">
-            <div className="px-4 py-2 bg-gray-900 text-gray-400 flex justify-between items-center">
-                <span className="text-xs font-mono">{language}</span>
-                <button className="text-xs text-blue-400 hover:text-blue-300">Copy</button>
-            </div>
-            <pre className="p-4 text-gray-300 font-mono text-sm overflow-x-auto">
-                <code>{code}</code>
-            </pre>
-        </div>
-    );
-
-    const PollComponent = ({ poll, messageId }) =>
-    {
-        const { getToken } = useAuth();
-
-        const handleVote = async (optionIndex) =>
-        {
-            try{
-                const optionId = poll.options[optionIndex].id;
-                const pollId = poll.id;
-
-                if(stompClient && connected)
-                {
-                    stompClient.publish({
-                        destination: `/app/poll/${selectedChannel.channelId}/vote`,
-                        body: JSON.stringify({
-                            pollId: pollId,
-                            optionId: optionId,
-                            userId: userId
-                        })
-                    });
-                }
-                else
-                {
-                    const token = await getToken();
-                    await axios.post(
-                        `http://localhost:8080/api/polls/${pollId}/vote`,
-                        {
-                            optionId: optionId,
-                            userId: userId
-                        },
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-
-                    fetchMessages(selectedChannel.channelId);
-                }
-            }catch(err){
-                console.error("Error voting:", err);
-                alert("Failed to vote. You may have already voted or the poll is invalid.");
-            }
-        };
-
-        if(!poll || !poll.options)
-            return null;
-
-        return(
-            <div className="bg-[var(--gray-card3)]/30 rounded-lg p-3 my-2">
-                <div className="font-medium mb-2 text-[var(--features-title-color)]">
-                    {poll.question || "Poll"}
-                </div>
-                <div className="space-y-2">
-                    {poll.options.map((option, index) => {
-                        const percentage = poll.totalVotes > 0
-                            ? Math.round((option.votes / poll.totalVotes) * 100)
-                            : 0;
-                        return (
-                            <div key={index} className="relative">
-                                <div className="flex justify-between mb-1 text-sm">
-                                    <span>{option.optionText || option.text || `Option ${index + 1}`}</span>
-                                    <span>{option.votes || 0} votes ({percentage}%)</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
-                                    <div
-                                        className="bg-[var(--features-icon-color)] h-2.5 rounded-full"
-                                        style={{ width: `${percentage}%` }}></div>
-                                </div>
-                                <button
-                                    onMouseEnter={() => setShowMessageActions(null)}
-                                    onClick={() => handleVote(index)}
-                                    className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
-                                    Vote
-                                </button>
-                            </div>
-                        );
-                    })}
-                </div>
-                <div className="mt-3 text-xs text-[var(--features-text-color)]">
-                    Total votes: {poll.totalVotes || 0} {"\u00A0".repeat(60)}
-                </div>
-            </div>
-        );
-    };
-
-    const FileAttachment = ({ attachment }) =>
-    {
-        const handleDownload = () =>
-        {
-            if(!attachment)
-            {
-                console.error("No attachment data provided");
-                return;
-            }
-
-            try{
-                if(attachment.fileData)
-                {
-                    let mimeType = 'application/octet-stream';
-                    if (attachment.name.endsWith('.pdf')) mimeType = 'application/pdf';
-                    else if (attachment.name.endsWith('.jpg') || attachment.name.endsWith('.jpeg')) mimeType = 'image/jpeg';
-                    else if (attachment.name.endsWith('.png')) mimeType = 'image/png';
-
-                    if(!/^[A-Za-z0-9+/=]+$/.test(attachment.fileData))
-                    {
-                        console.error("Invalid base64 string for fileData");
-                        return;
-                    }
-                    const link = document.createElement('a');
-                    link.href = `data:${mimeType};base64,${attachment.fileData}`;
-                    link.download = attachment.name || 'download';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-                else if(attachment.blobUrl)
-                {
-                    const link = document.createElement('a');
-                    link.href = attachment.blobUrl;
-                    link.download = attachment.name || 'download';
-                    document.body.appendChild(link);
-                    link.click();
-                    setTimeout(() => URL.revokeObjectURL(attachment.blobUrl), 100);
-                    document.body.removeChild(link);
-                }
-                else
-                    console.error("No fileData or blobUrl available for attachment");
-            }catch(error){
-                console.error("Error during file download:", error);
-                alert("Failed to download file. Please try again.");
-            }
-        };
-
-        return(
-            <div className="flex items-center gap-2 p-2 mt-2 bg-[var(--gray-card3)]/30 rounded-lg">
-                {attachment.type === 'image' && attachment.fileData ? (
-                    <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                        <img src={`data:image/jpeg;base64,${attachment.fileData}`} alt="Preview" className="w-6 h-6 object-cover" />
-                    </div>
-                ) : attachment.type === 'document' ? (
-                    <div className="w-8 h-8 bg-red-100 rounded flex items-center justify-center">
-                        <Paperclip size={16} className="text-red-500" />
-                    </div>
-                ) : (
-                    <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center">
-                        <Code size={16} className="text-purple-500" />
-                    </div>
-                )}
-                <div className="flex-1">
-                    <div className="text-sm font-medium text-[var(--features-title-color)]">{attachment.name}</div>
-                    <div className="text-xs text-[var(--features-text-color)] opacity-70">{attachment.size}</div>
-                </div>
-                <button
-                    onMouseEnter={() => setShowMessageActions(null)}
-                    onClick={handleDownload}
-                    className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]"
-                    title="Download">
-                    <Download size={16}/>
-                </button>
-            </div>
-        );
-    };
-
-    return (
+    return(
         <div className="flex flex-col h-screen bg-[var(--bg-color)]">
             <Header
                 title={
                     <div className="flex items-center">
                         <span
                             className="cursor-pointer mr-2"
-                            onClick={() => navigate(`/project/${id || 1}`)}
-                        >
+                            onClick={() => navigate(`/project/${id || 1}`)}>
                             <ArrowLeft size={20} className="text-[var(--features-icon-color)]" />
                         </span>
                         <span className="text-xl font-semibold text-[var(--sidebar-projects-color)]">
                             Chat: {projectName}
                         </span>
                     </div>
-                }
-            />
-
+                }/>
             <div className="flex flex-1 overflow-hidden">
                 <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5 border-r border-[var(--sidebar-projects-bg-color)]">
                     <Sidebar
@@ -1372,18 +1151,91 @@ const TempChatPage = () =>
                         onCollapseChange={setIsSidebarCollapsed}/>
                 </div>
                 <div className="flex-1 flex bg-[var(--projects-bg)] overflow-hidden">
+                    <div className="w-64 bg-[var(--bg-color)] border-r border-[var(--gray-card3)] p-4 overflow-y-auto">
+                        <div className="mb-4">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={channelSearchTerm}
+                                    onChange={(e) => setChannelSearchTerm(e.target.value)}
+                                    placeholder="Search channels..."
+                                    className="w-full py-1 px-3 text-sm border border-[var(--gray-card3)] rounded-lg bg-[var(--bg-color)] text-[var(--features-text-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
+                                <Search
+                                    size={14}
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--features-text-color)] opacity-50"/>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <h3 className="text-xs font-semibold text-[var(--features-text-color)] opacity-70 uppercase">
+                                Project Channels
+                            </h3>
+                            {projectChannels.map((channel) => (
+                                <div
+                                    key={channel.channelId}
+                                    onClick={() => setSelectedChannel(channel)}
+                                    className={`flex items-center gap-2 p-2 rounded-md cursor-pointer ${selectedChannel?.channelId === channel.channelId
+                                            ? 'bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-icon-color)]'
+                                            : 'hover:bg-[var(--gray-card3)]/10 text-[var(--features-text-color)]'
+                                        }`}>
+                                    <Hash size={16} className="text-[var(--features-icon-color)]" />
+                                    <span className="text-sm">{channel.channelName}</span>
+                                    {channel.unreadCount > 0 && (
+                                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                            {channel.unreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-6 space-y-2">
+                            <h3 className="text-xs font-semibold text-[var(--features-text-color)] opacity-70 uppercase">
+                                Team Channels
+                            </h3>
+                            {teamChannels.map((channel) =>
+                            {
+                                let TeamIcon = Users;
+                                if(channel.teamData && channel.teamData.iconName)
+                                {
+                                    const IconComponent =
+                                        ALL_ICONS[channel.teamData.iconName] ||
+                                        ALL_ICONS[`Fa${channel.teamData.iconName}`] ||
+                                        ALL_ICONS[`Md${channel.teamData.iconName}`];
+                                    if(IconComponent)
+                                        TeamIcon = IconComponent;
+                                }
+                                return(
+                                    <div
+                                        key={channel.channelId}
+                                        onClick={() => setSelectedChannel(channel)}
+                                        className={`flex items-center gap-2 p-2 rounded-md cursor-pointer ${selectedChannel?.channelId === channel.channelId
+                                                ? 'bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-icon-color)]'
+                                                : 'hover:bg-[var(--gray-card3)]/10 text-[var(--features-text-color)]'
+                                            }`}>
+                                        <TeamIcon size={16} className="text-[var(--features-icon-color)]"/>
+                                        <span className="text-sm">{channel.channelName}</span>
+                                        {channel.unreadCount > 0 && (
+                                            <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                                {channel.unreadCount}
+                                            </span>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)] bg-[var(--bg-color)] flex items-center justify-between">
                             <div className="flex items-center">
                                 {selectedChannel?.channelType === 'PROJECT' ? (
-                                    <Hash size={18} className="mr-2 text-[var(--features-icon-color)]" />
+                                    <Hash size={18} className="mr-2 text-[var(--features-icon-color)]"/>
                                 ) : (
                                     (() =>
                                     {
                                         let TeamIcon = Users;
-                                        if (selectedChannel?.teamData && selectedChannel.teamData.iconName)
+                                        if(selectedChannel?.teamData && selectedChannel.teamData.iconName)
                                         {
-                                            const IconComponent = ALL_ICONS[selectedChannel.teamData.iconName] ||
+                                            const IconComponent =
+                                                ALL_ICONS[selectedChannel.teamData.iconName] ||
                                                 ALL_ICONS[`Fa${selectedChannel.teamData.iconName}`] ||
                                                 ALL_ICONS[`Md${selectedChannel.teamData.iconName}`];
 
@@ -1405,7 +1257,6 @@ const TempChatPage = () =>
                                     )}
                                 </div>
                             </div>
-
                             <div className="flex items-center space-x-2">
                                 {selectedChannel && (
                                     <>
@@ -1415,24 +1266,21 @@ const TempChatPage = () =>
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 placeholder="Search messages..."
-                                                className="py-1 px-3 text-sm border border-[var(--gray-card3)] rounded-lg bg-[var(--bg-color)] text-[var(--features-text-color)] w-40 focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"
-                                            />
-                                            <Search size={14} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--features-text-color)] opacity-50" />
+                                                className="py-1 px-3 text-sm border border-[var(--gray-card3)] rounded-lg bg-[var(--bg-color)] text-[var(--features-text-color)] w-40 focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
+                                            <Search
+                                                size={14}
+                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--features-text-color)] opacity-50"/>
                                         </div>
-
                                         <button className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]">
-                                            <Users size={18} />
+                                            <Users size={18}/>
                                         </button>
-
                                         <button className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]">
-                                            <MoreHorizontal size={18} />
+                                            <MoreHorizontal size={18}/>
                                         </button>
                                     </>
                                 )}
                             </div>
                         </div>
-
-                        {/* Messages container */}
                         <div className="flex-1 overflow-y-auto p-4 space-y-4">
                             {loading && !messages.length ? (
                                 <div className="flex items-center justify-center h-full">
@@ -1442,224 +1290,49 @@ const TempChatPage = () =>
                                 </div>
                             ) : error ? (
                                 <div className="flex items-center justify-center h-full flex-col">
-                                    <div className="text-red-500 text-center">
-                                        {error}
-                                    </div>
+                                    <div className="text-red-500 text-center">{error}</div>
                                 </div>
                             ) : filteredMessages.length === 0 ? (
                                 <div className="flex items-center justify-center h-full flex-col">
                                     <MessageSquare size={48} className="text-[var(--gray-card3)] mb-4" />
                                     <p className="text-[var(--features-text-color)] text-center">
-                                        {selectedChannel ? "No messages yet. Start the conversation!" : "Select a channel to start chatting"}
+                                        {selectedChannel
+                                            ? 'No messages yet. Start the conversation!'
+                                            : 'Select a channel to start chatting'}
                                     </p>
                                 </div>
                             ) : (
                                 <>
-                                    {filteredMessages.map((msg) => {
-                                        const user = findUserForMessage(msg.senderId);
-                                        const isCurrentUser = msg.senderId === userId;
-                                        return(
-                                            <div
-                                                key={msg.id}
-                                                onMouseEnter={() => setShowMessageActions(msg.id)}
-                                                //onMouseLeave={() => setShowMessageActions(null)}
-                                                className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}>
-                                                {!isCurrentUser && (
-                                                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mr-2">
-                                                        {user?.avatar ? (
-                                                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover"/>
-                                                        ) : (
-                                                            <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
-                                                                {user?.name?.charAt(0) || 'U'}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                <div className="flex flex-col max-w-[75%]">
-                                                    <div
-                                                        className={`rounded-lg px-4 py-3 ${isCurrentUser
-                                                                ? 'bg-[var(--features-icon-color)] text-white rounded-br-none'
-                                                                : 'bg-[var(--gray-card3)] text-[var(--features-title-color)] rounded-bl-none'
-                                                            }`}>
-                                                        {!isCurrentUser && (
-                                                            <div className="font-medium text-xs mb-1 text-[var(--features-icon-color)]">
-                                                                {msg.senderName || user?.name || 'Unknown User'}
-                                                            </div>
-                                                        )}
-                                                        {editingMessage?.id === msg.id ? (
-                                                            <div className="text-[var(--features-text-color)] bg-[var(--bg-color)] -mx-4 -my-3 p-3 rounded-lg">
-                                                                <textarea
-                                                                    value={editedContent}
-                                                                    onChange={(e) => setEditedContent(e.target.value)}
-                                                                    className="w-full p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"
-                                                                    rows={3}/>
-                                                                <div className="flex justify-end mt-2">
-                                                                    <button
-                                                                        onClick={() => setEditingMessage(null)}
-                                                                        className="text-xs mr-2 py-1 px-3 bg-[var(--gray-card3)] text-[var(--features-text-color)] rounded-md hover:bg-[var(--gray-card3)]/80">
-                                                                        Cancel
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={saveEditedMessage}
-                                                                        className="text-xs py-1 px-3 bg-[var(--features-icon-color)] text-white rounded-md hover:bg-[var(--hover-color)]">
-                                                                        Save
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <>
-                                                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                                                                {msg.codeSnippet && (
-                                                                    <CodeSnippet
-                                                                        language={msg.codeSnippet.language}
-                                                                        code={msg.codeSnippet.code}/>
-                                                                )}
-                                                                {msg.attachment && (
-                                                                    <FileAttachment attachment={msg.attachment}/>
-                                                                )}
-                                                                {msg.poll && (
-                                                                    <PollComponent poll={msg.poll}/>
-                                                                )}
-                                                                <div className={`text-[0.65rem] mt-1 flex items-center gap-1 ${isCurrentUser ? 'text-white/70' : 'text-[var(--features-text-color)]'}`}>
-                                                                    {formatMessageTime(msg.timestamp)}
-                                                                    {msg.isEdited && (
-                                                                        <>
-                                                                            <span>•</span>
-                                                                            <span className="italic">edited</span>
-                                                                        </>
-                                                                    )}
-                                                                </div>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                    {Object.keys(msg.reactions || {}).length > 0 && (
-                                                        <div className={`flex flex-wrap gap-1 mt-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                                                            {Object.entries(msg.reactions || {}).map(([emoji, count]) => (
-                                                                count > 0 && (
-                                                                    <div
-                                                                        key={emoji}
-                                                                        className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer ${msg.userReactions?.includes(emoji)
-                                                                                ? 'bg-[var(--features-icon-color)]/20 border border-[var(--features-icon-color)]'
-                                                                                : 'bg-[var(--gray-card3)]/50 hover:bg-[var(--gray-card3)]'
-                                                                            }`}
-                                                                        onClick={() =>
-                                                                        {
-                                                                            if(msg.userReactions?.includes(emoji))
-                                                                                handleRemoveReaction(msg.id, emoji);
-                                                                            else
-                                                                                handleReactionClick(msg.id, emoji);
-                                                                        }}>
-                                                                        <span>{emoji}</span>
-                                                                        <span className="text-[var(--features-text-color)]">{count}</span>
-                                                                    </div>
-                                                                )
-                                                            ))}
-                                                        </div>
-                                                    )}
-
-                                                    {showMessageActions === msg.id && (
-                                                        <motion.div
-                                                            ref={messageActionsRef}
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: -10 }}
-                                                            className={`absolute ${isCurrentUser ? 'right-12' : 'left-12'
-                                                                } top-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-1 flex items-center gap-1 z-10 border border-[var(--gray-card3)]`}
-                                                            onMouseEnter={() => setShowMessageActions(msg.id)}
-                                                            onMouseLeave={() => setShowMessageActions(null)}>
-                                                            <div className="relative">
-                                                                <button
-                                                                    onClick={() => setShowEmojiPicker(msg.id)}
-                                                                    className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                    title="Add reaction">
-                                                                    <Smile size={16} />
-                                                                </button>
-                                                                {showEmojiPicker === msg.id && (
-                                                                    <div
-                                                                        ref={emojiPickerRef}
-                                                                        className="absolute bottom-full mb-2 right-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-20 border border-[var(--gray-card3)]"
-                                                                        onMouseEnter={() => setShowEmojiPicker(msg.id)}
-                                                                        onMouseLeave={() => setShowEmojiPicker(null)}>
-                                                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                                                            Common reactions
-                                                                        </div>
-                                                                        <div className="flex flex-wrap gap-2 mb-2">
-                                                                            {commonEmojis.map((emoji) => (
-                                                                                <button
-                                                                                    key={emoji}
-                                                                                    onClick={() => handleReactionClick(msg.id, emoji)}
-                                                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
-                                                                                    {emoji}
-                                                                                </button>
-                                                                            ))}
-                                                                        </div>
-                                                                        <div className="border-t border-[var(--gray-card3)] pt-2">
-                                                                            <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                                                                Categories
-                                                                            </div>
-                                                                            {Object.entries(emojiCategories).map(([category, emojis]) => (
-                                                                                <div key={category} className="mb-2">
-                                                                                    <div className="text-xs text-[var(--features-text-color)] mb-1">{category}</div>
-                                                                                    <div className="flex flex-wrap gap-1">
-                                                                                        {emojis.map((emoji) => (
-                                                                                            <button
-                                                                                                key={emoji}
-                                                                                                onClick={() => handleReactionClick(msg.id, emoji)}
-                                                                                                className="w-6 h-6 flex items-center justify-center text-sm hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
-                                                                                                {emoji}
-                                                                                            </button>
-                                                                                        ))}
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                            <button
-                                                                className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                title="Reply">
-                                                                <Reply size={16}/>
-                                                            </button>
-                                                            {isCurrentUser && (
-                                                                <button
-                                                                    onClick={() => handleEditMessage(msg)}
-                                                                    className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                                                    title="Edit">
-                                                                    <Edit size={16}/>
-                                                                </button>
-                                                            )}
-                                                            {(isCurrentUser) && (
-                                                                <button
-                                                                    onClick={() => handleDeleteMessage(msg.id)}
-                                                                    className="p-1 rounded-full hover:bg-red-100 text-red-500"
-                                                                    title="Delete">
-                                                                    <Trash2 size={16}/>
-                                                                </button>
-                                                            )}
-                                                        </motion.div>
-                                                    )}
-                                                </div>
-
-                                                {isCurrentUser && (
-                                                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ml-2">
-                                                        {user?.avatar ? (
-                                                            <img src={user.avatar} alt="Your profile" className="w-full h-full object-cover" />
-                                                        ) : (
-                                                            <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
-                                                                {user?.name?.charAt(0) || 'U'}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                    <div ref={messagesEndRef} />
+                                    {filteredMessages.map((msg) => (
+                                        <Message
+                                            key={msg.id}
+                                            msg={msg}
+                                            userId={userId}
+                                            users={users}
+                                            isCurrentUser={msg.senderId === userId}
+                                            showMessageActions={showMessageActions}
+                                            setShowMessageActions={setShowMessageActions}
+                                            handleReactionClick={handleReactionClick}
+                                            handleRemoveReaction={handleRemoveReaction}
+                                            handleEditMessage={handleEditMessage}
+                                            handleDeleteMessage={handleDeleteMessage}
+                                            selectedChannel={selectedChannel}
+                                            setShowEmojiPicker={setShowEmojiPicker}
+                                            editingMessage={editingMessage}
+                                            editedContent={editedContent}
+                                            setEditedContent={setEditedContent}
+                                            saveEditedMessage={saveEditedMessage}
+                                            stompClient={stompClient}
+                                            connected={connected}
+                                            messageActionsRef={messageActionsRef}
+                                            emojiPickerRef={emojiPickerRef}
+                                            setMessages={setMessages}
+                                            showEmojiPicker={showEmojiPicker}/>
+                                    ))}
+                                    <div ref={messagesEndRef}/>
                                 </>
                             )}
                         </div>
-
                         <div className="p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
                             {showPollCreator && (
                                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
@@ -1669,20 +1342,16 @@ const TempChatPage = () =>
                                         </h3>
                                         <button
                                             onClick={() => setShowPollCreator(false)}
-                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]"
-                                        >
-                                            <X size={16} />
+                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                                            <X size={16}/>
                                         </button>
                                     </div>
-
                                     <input
                                         type="text"
                                         value={pollQuestion}
                                         onChange={(e) => setPollQuestion(e.target.value)}
                                         placeholder="Poll question"
-                                        className="w-full p-2 mb-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"
-                                    />
-
+                                        className="w-full p-2 mb-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                                     <div className="space-y-2 mb-3">
                                         {pollOptions.map((option, index) => (
                                             <div key={index} className="flex items-center gap-2">
@@ -1691,40 +1360,32 @@ const TempChatPage = () =>
                                                     value={option}
                                                     onChange={(e) => updatePollOption(index, e.target.value)}
                                                     placeholder={`Option ${index + 1}`}
-                                                    className="flex-1 p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"
-                                                />
-
+                                                    className="flex-1 p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                                                 {pollOptions.length > 2 && (
                                                     <button
                                                         onClick={() => removePollOption(index)}
-                                                        className="text-red-500 hover:text-red-700"
-                                                    >
-                                                        <X size={16} />
+                                                        className="text-red-500 hover:text-red-700">
+                                                        <X size={16}/>
                                                     </button>
                                                 )}
                                             </div>
                                         ))}
                                     </div>
-
                                     <div className="flex justify-between">
                                         <button
                                             onClick={addPollOption}
-                                            className="text-sm text-[var(--features-icon-color)] hover:text-[var(--hover-color)] flex items-center gap-1"
-                                        >
-                                            <PlusCircle size={16} />
+                                            className="text-sm text-[var(--features-icon-color)] hover:text-[var(--hover-color)] flex items-center gap-1">
+                                            <PlusCircle size={16}/>
                                             Add Option
                                         </button>
-
                                         <button
                                             onClick={handleCreatePoll}
-                                            className="text-sm bg-[var(--features-icon-color)] text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]"
-                                        >
+                                            className="text-sm bg-[var(--features-icon-color)] text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]">
                                             Create Poll
                                         </button>
                                     </div>
                                 </div>
                             )}
-
                             {showCodeFormatting && (
                                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
                                     <div className="flex justify-between items-center mb-2">
@@ -1733,19 +1394,16 @@ const TempChatPage = () =>
                                         </h3>
                                         <button
                                             onClick={() => setShowCodeFormatting(false)}
-                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]"
-                                        >
+                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
                                             <X size={16} />
                                         </button>
                                     </div>
-
                                     <div className="flex items-center mb-2">
                                         <span className="text-sm mr-2 text-[var(--features-text-color)]">Language:</span>
                                         <select
                                             value={codeLanguage}
                                             onChange={(e) => setCodeLanguage(e.target.value)}
-                                            className="text-sm p-1 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)]"
-                                        >
+                                            className="text-sm p-1 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)]">
                                             <option value="javascript">JavaScript</option>
                                             <option value="python">Python</option>
                                             <option value="java">Java</option>
@@ -1758,13 +1416,11 @@ const TempChatPage = () =>
                                             <option value="go">Go</option>
                                         </select>
                                     </div>
-
                                     <div className="text-xs text-[var(--features-text-color)] opacity-70">
                                         Add code below and it will be formatted as a code block
                                     </div>
                                 </div>
                             )}
-
                             {isRecordingAudio && (
                                 <div className="mb-4 p-3 bg-red-100 rounded-lg flex items-center justify-between">
                                     <div className="flex items-center gap-2">
@@ -1780,17 +1436,19 @@ const TempChatPage = () =>
                                     </button>
                                 </div>
                             )}
-
                             {selectedFile && (
                                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         {selectedFile.type.includes('image') ? (
                                             <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                                <img src="/api/placeholder/40/40" alt="Preview" className="w-6 h-6 object-cover" />
+                                                <img
+                                                    src="/api/placeholder/40/40"
+                                                    alt="Preview"
+                                                    className="w-6 h-6 object-cover"/>
                                             </div>
                                         ) : (
                                             <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                                <Paperclip size={16} className="text-blue-500" />
+                                                <Paperclip size={16} className="text-blue-500"/>
                                             </div>
                                         )}
                                         <div>
@@ -1804,38 +1462,57 @@ const TempChatPage = () =>
                                     </div>
                                     <button
                                         onClick={() => setSelectedFile(null)}
-                                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]"
-                                    >
-                                        <X size={16} />
+                                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                                        <X size={16}/>
                                     </button>
                                 </div>
                             )}
-
                             <form onSubmit={handleSendMessage} className="relative">
                                 <textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
-                                    onKeyDown={(e) =>
-                                    {
+                                    onKeyDown={(e) => {
                                         if(e.key === 'Enter' && !e.shiftKey)
                                         {
                                             e.preventDefault();
                                             handleSendMessage(e);
                                         }
+                                        if(e.key === '@')
+                                            setShowMentionMenu(true);
                                     }}
-                                    placeholder={
-                                        showCodeFormatting ? "Type or paste code here..." :
-                                            "Type a message..."
+                                    placeholder=
+                                    {
+                                        showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
                                     }
                                     className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[100px] resize-y"
                                     disabled={!selectedChannel}/>
+                                {showEmojiPicker === 'input' && (
+                                    <div
+                                        ref={emojiPickerRef}
+                                        className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
+                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
+                                            Common emojis
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {reactionTypes.map((reaction) => (
+                                                <button
+                                                    key={reaction.name}
+                                                    onClick={() => handleEmojiClick(reaction.emoji)}
+                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
+                                                >
+                                                    {reaction.emoji}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 {showMentionMenu && (
                                     <div className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
                                         <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
                                             Mention a user
                                         </div>
                                         <div className="space-y-1 max-h-40 overflow-y-auto">
-                                            {users.map(user => (
+                                            {users.map((user) => (
                                                 <div
                                                     key={user.id}
                                                     onClick={() => handleMention(user.id)}
@@ -1843,14 +1520,19 @@ const TempChatPage = () =>
                                                 >
                                                     <div className="w-6 h-6 rounded-full overflow-hidden">
                                                         {user.avatar ? (
-                                                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                                            <img
+                                                                src={user.avatar}
+                                                                alt={user.name}
+                                                                className="w-full h-full object-cover"/>
                                                         ) : (
                                                             <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-xs text-[var(--sidebar-projects-color)]">
                                                                 {user.name?.charAt(0) || 'U'}
                                                             </div>
                                                         )}
                                                     </div>
-                                                    <span className="text-sm text-[var(--features-text-color)]">{user.name}</span>
+                                                    <span className="text-sm text-[var(--features-text-color)]">
+                                                        {user.name}
+                                                    </span>
                                                 </div>
                                             ))}
                                         </div>
@@ -1863,7 +1545,7 @@ const TempChatPage = () =>
                                             onClick={() => setShowEmojiPicker('input')}
                                             className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
                                             disabled={!selectedChannel}>
-                                            <Smile size={20} />
+                                            <Smile size={20}/>
                                         </button>
                                         <button
                                             type="button"
@@ -1899,23 +1581,23 @@ const TempChatPage = () =>
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowMentionMenu(prev => !prev)}
+                                            onClick={() => setShowMentionMenu((prev) => !prev)}
                                             className={`p-1 rounded-md ${showMentionMenu
                                                     ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
                                                     : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
                                                 }`}
                                             disabled={!selectedChannel}>
-                                            <AtSign size={20} />
+                                            <AtSign size={20}/>
                                         </button>
                                         <button
                                             type="button"
-                                            onClick={() => setShowPollCreator(prev => !prev)}
+                                            onClick={() => setShowPollCreator((prev) => !prev)}
                                             className={`p-1 rounded-md ${showPollCreator
                                                     ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
                                                     : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
                                                 }`}
-                                            disabled={!selectedChannel}
-                                        ><BarChart2 size={20}/>
+                                            disabled={!selectedChannel}>
+                                            <BarChart2 size={20}/>
                                         </button>
                                     </div>
                                     <motion.button
@@ -1924,159 +1606,17 @@ const TempChatPage = () =>
                                             !selectedChannel ||
                                             (!message.trim() && !selectedFile && !isRecordingAudio && !showPollCreator)
                                         }
-                                        className={`p-3 rounded-lg ${(message.trim() || selectedFile || isRecordingAudio || showPollCreator) && selectedChannel
+                                        className={`p-3 rounded-lg ${(message.trim() || selectedFile || isRecordingAudio || showPollCreator) &&
+                                                selectedChannel
                                                 ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
-                                                : 'bg-[var(--gray-card3)] text-[var(--text-color3)]'
-                                            } transition-colors disabled:opacity-50`}
+                                                : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
+                                            }`}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}>
                                         <Send size={20}/>
                                     </motion.button>
                                 </div>
-                                {showEmojiPicker === 'input' && (
-                                    <div
-                                        ref={emojiPickerRef}
-                                        className="absolute bottom-full mb-2 left-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
-                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                            Common emojis
-                                        </div>
-                                        <div className="flex flex-wrap gap-2 mb-2">
-                                            {commonEmojis.map(emoji => (
-                                                <button
-                                                    key={emoji}
-                                                    onClick={() => handleEmojiClick(emoji)}
-                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
-                                                    {emoji}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <div className="border-t border-[var(--gray-card3)] pt-2">
-                                            <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                                Categories
-                                            </div>
-                                            {Object.entries(emojiCategories).map(([category, emojis]) => (
-                                                <div key={category} className="mb-2">
-                                                    <div className="text-xs text-[var(--features-text-color)] mb-1">{category}</div>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {emojis.map(emoji => (
-                                                            <button
-                                                                key={emoji}
-                                                                onClick={() => handleEmojiClick(emoji)}
-                                                                className="w-6 h-6 flex items-center justify-center text-sm hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
-                                                            >
-                                                                {emoji}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
                             </form>
-                        </div>
-                    </div>
-                    <div className="w-64 bg-[var(--bg-color)] border-l border-[var(--sidebar-projects-bg-color)] flex-shrink-0 flex flex-col">
-                        <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)]">
-                            <h2 className="text-lg font-semibold text-[var(--features-text-color)] mb-3 flex items-center">
-                                <MessageSquare size={18} className="mr-2 text-[var(--features-icon-color)]"/>
-                                Channels
-                            </h2>
-                            <div className="relative mb-4">
-                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                    <Search className="w-3 h-3 text-gray-400"/>
-                                </div>
-                                <input
-                                    type="text"
-                                    className="bg-[var(--bg-color)] border border-[var(--gray-card3)] text-[var(--text-color3)] text-xs rounded-lg focus:ring-[var(--features-icon-color)] focus:border-[var(--features-icon-color)] block w-full pl-8 p-2"
-                                    placeholder="Search channels..."
-                                    value={channelSearchTerm}
-                                    onChange={(e) => setChannelSearchTerm(e.target.value)}/>
-                            </div>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2">
-                            <div className="mb-4">
-                                <div className="flex items-center justify-between px-4 py-2">
-                                    <h3 className="text-xs font-medium text-[var(--features-text-color)]">
-                                        PROJECT
-                                    </h3>
-                                    {isOwner && (
-                                        <button className="text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
-                                            <PlusCircle size={14} />
-                                        </button>
-                                    )}
-                                </div>
-                                {projectChannels.map(channel => (
-                                    <div
-                                        key={channel.channelId}
-                                        onClick={() => setSelectedChannel(channel)}
-                                        className={`flex items-center px-4 py-2 rounded-md cursor-pointer mb-1 ${selectedChannel?.channelId === channel.channelId
-                                                ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
-                                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
-                                            }`}>
-                                        <Hash size={16} className="mr-2 flex-shrink-0" />
-                                        <div className="flex-1 truncate">
-                                            <div className="text-sm font-medium">{channel.channelName}</div>
-                                            {channel.lastMessageContent && (
-                                                <div className="text-xs opacity-70 truncate">
-                                                    {channel.lastMessageSender}: {channel.lastMessageContent}
-                                                </div>
-                                            )}
-                                        </div>
-                                        {channel.unreadCount > 0 && (
-                                            <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
-                                                {channel.unreadCount}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mb-4">
-                                <div className="flex items-center justify-between px-4 py-2">
-                                    <h3 className="text-xs font-medium text-[var(--features-text-color)]">
-                                        TEAM CHATS
-                                    </h3>
-                                </div>
-                                {teamChannels.map(channel =>
-                                {
-                                    let TeamIcon = Users;
-
-                                    if(channel.teamData && channel.teamData.iconName)
-                                    {
-                                        const IconComponent = ALL_ICONS[channel.teamData.iconName] ||
-                                            ALL_ICONS[`Fa${channel.teamData.iconName}`] ||
-                                            ALL_ICONS[`Md${channel.teamData.iconName}`];
-
-                                        if(IconComponent)
-                                            TeamIcon = IconComponent;
-                                    }
-
-                                    return(
-                                        <div
-                                            key={channel.channelId}
-                                            onClick={() => setSelectedChannel(channel)}
-                                            className={`flex items-center px-4 py-2 rounded-md cursor-pointer mb-1 ${selectedChannel?.channelId === channel.channelId
-                                                    ? 'bg-[var(--sidebar-projects-bg-color)] text-[var(--sidebar-projects-color)]'
-                                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-title-color)]'
-                                                }`}>
-                                            <TeamIcon size={16} className="mr-2 flex-shrink-0" />
-                                            <div className="flex-1 truncate">
-                                                <div className="text-sm font-medium">{channel.channelName}</div>
-                                                {channel.lastMessageContent && (
-                                                    <div className="text-xs opacity-70 truncate">
-                                                        {channel.lastMessageSender}: {channel.lastMessageContent}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {channel.unreadCount > 0 && (
-                                                <div className="bg-[var(--features-icon-color)] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ml-2">
-                                                    {channel.unreadCount}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
                         </div>
                     </div>
                 </div>
