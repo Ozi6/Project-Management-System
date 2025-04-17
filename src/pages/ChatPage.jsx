@@ -483,21 +483,25 @@ const TempChatPage = () =>
                         );
                     });
 
-                    stompClient.subscribe(`/topic/channel/${selectedChannel.channelId}/poll`, function (message)
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/poll`, function (message)
                     {
-                        const poll = JSON.parse(message.body);
+                        const pollData = JSON.parse(message.body);
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
-                                msg.id === poll.messageId
-                                    ? {
+                                msg.id === pollData.messageId
+                                    ?
+                                    {
                                         ...msg,
-                                        poll: {
-                                            question: poll.question,
-                                            options: poll.options.map((opt) => ({
+                                        poll:
+                                        {
+                                            id: pollData.id,
+                                            question: pollData.question,
+                                            options: pollData.options.map((opt) => ({
+                                                id: opt.id,
                                                 text: opt.optionText,
                                                 votes: opt.votes,
                                             })),
-                                            totalVotes: poll.totalVotes,
+                                            totalVotes: pollData.totalVotes,
                                         },
                                     }
                                     : msg
@@ -1188,15 +1192,34 @@ const TempChatPage = () =>
         const handleVote = async (optionIndex) =>
         {
             try{
-                const token = await getToken();
-                const pollId = poll.id;
                 const optionId = poll.options[optionIndex].id;
+                const pollId = poll.id;
 
-                await axios.post(
-                    `http://localhost:8080/api/polls/${pollId}/vote`,
-                    { optionId },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
+                if(stompClient && connected)
+                {
+                    stompClient.publish({
+                        destination: `/app/poll/${selectedChannel.channelId}/vote`,
+                        body: JSON.stringify({
+                            pollId: pollId,
+                            optionId: optionId,
+                            userId: userId
+                        })
+                    });
+                }
+                else
+                {
+                    const token = await getToken();
+                    await axios.post(
+                        `http://localhost:8080/api/polls/${pollId}/vote`,
+                        {
+                            optionId: optionId,
+                            userId: userId
+                        },
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
+
+                    fetchMessages(selectedChannel.channelId);
+                }
             }catch(err){
                 console.error("Error voting:", err);
                 alert("Failed to vote. You may have already voted or the poll is invalid.");
@@ -1243,7 +1266,6 @@ const TempChatPage = () =>
             </div>
         );
     };
-
 
     const FileAttachment = ({ attachment }) =>
     {

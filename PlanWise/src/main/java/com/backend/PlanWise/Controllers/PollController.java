@@ -3,6 +3,7 @@ package com.backend.PlanWise.Controllers;
 import com.backend.PlanWise.DataTransferObjects.PollCreationDTO;
 import com.backend.PlanWise.DataTransferObjects.PollDTO;
 import com.backend.PlanWise.DataTransferObjects.PollVoteDTO;
+import com.backend.PlanWise.repository.PollRepository;
 import com.backend.PlanWise.servicer.PollService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,10 +33,10 @@ public class PollController
     @PostMapping("/{pollId}/vote")
     public ResponseEntity<PollDTO> voteOnPoll(
             @PathVariable Long pollId,
-            @RequestBody PollVoteDTO pollVoteDTO,
-            @RequestBody String userId)
+            @RequestBody PollVoteDTO pollVoteDTO)
     {
-        PollDTO poll = pollService.voteOnPoll(pollId, pollVoteDTO.getOptionId(), userId);
+        PollDTO poll = pollService.voteOnPoll(pollId, pollVoteDTO.getOptionId(),
+                pollVoteDTO.getUserId());
         messagingTemplate.convertAndSend("/topic/channel/" + poll.getChannelId() + "/poll", poll);
         return ResponseEntity.ok(poll);
     }

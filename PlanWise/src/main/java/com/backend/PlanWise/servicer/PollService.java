@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,22 +76,30 @@ public class PollService
     {
         Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(() -> new RuntimeException("Poll not found"));
-
         PollOption option = pollOptionRepository.findById(optionId)
                 .orElseThrow(() -> new RuntimeException("Option not found"));
-
         if(!option.getPoll().getId().equals(pollId))
             throw new RuntimeException("Option does not belong to this poll");
-
-        if(pollVoteRepository.existsByPollIdAndUserId(pollId, userId))
-            throw new RuntimeException("User has already voted");
-
+        Optional<PollVote> existingVote = pollVoteRepository.findByPollIdAndUserId(pollId, userId);
+        if(existingVote.isPresent())
+        {
+            if(existingVote.get().getOption().getId().equals(optionId))
+            {
+                pollVoteRepository.delete(existingVote.get());
+                pollVoteRepository.flush();
+            }
+            else
+            {
+                existingVote.get().setOption(option);
+                pollVoteRepository.save(existingVote.get());
+            }
+            return convertToDTO(poll);
+        }
         PollVote vote = new PollVote();
         vote.setPoll(poll);
         vote.setOption(option);
         vote.setUserId(userId);
         pollVoteRepository.save(vote);
-
         return convertToDTO(poll);
     }
 
