@@ -3,10 +3,9 @@ package com.backend.PlanWise.Controllers;
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
+import com.backend.PlanWise.DataTransferObjects.PollOptionDTO;
 import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
-import com.backend.PlanWise.model.FileType;
-import com.backend.PlanWise.model.MessageAttachment;
-import com.backend.PlanWise.model.MessageReaction;
+import com.backend.PlanWise.model.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,17 +15,13 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import com.backend.PlanWise.DataTransferObjects.MessageDTO;
-import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -50,7 +45,8 @@ public class WebSocketChatController
     @MessageMapping("/chat/{channelId}/send")
     public void sendMessage(
             @DestinationVariable Long channelId,
-            @Payload MessageDTO messageDTO) {
+            @Payload MessageDTO messageDTO)
+    {
         Message message = new Message();
         message.setProjectId(messageDTO.getProjectId());
         message.setSenderId(messageDTO.getSenderId());
@@ -58,8 +54,10 @@ public class WebSocketChatController
         message.setTimestamp(LocalDateTime.now());
         message.setChannelId(channelId);
 
-        if (messageDTO.getAttachmentIds() != null && !messageDTO.getAttachmentIds().isEmpty()) {
-            for (AttachmentDTO attachmentDTO : messageDTO.getAttachmentIds()) {
+        if(messageDTO.getAttachmentIds() != null && !messageDTO.getAttachmentIds().isEmpty())
+        {
+            for(AttachmentDTO attachmentDTO : messageDTO.getAttachmentIds())
+            {
                 MessageAttachment attachment = new MessageAttachment();
                 attachment.setFileName(attachmentDTO.getFileName());
                 attachment.setFileType(FileType.valueOf(attachmentDTO.getFileType()));
@@ -68,6 +66,27 @@ public class WebSocketChatController
                 attachment.setUploadedAt(attachmentDTO.getUploadedAt());
                 message.addAttachment(attachment);
             }
+        }
+
+        if(messageDTO.getPoll() != null)
+        {
+            Poll poll = new Poll();
+            poll.setQuestion(messageDTO.getPoll().getQuestion());
+            poll.setMultipleChoice(messageDTO.getPoll().isMultipleChoice());
+            poll.setExpiresAt(messageDTO.getPoll().getExpiresAt());
+
+            List<PollOption> options = new ArrayList<>();
+            for(PollOptionDTO optionDTO : messageDTO.getPoll().getOptions())
+            {
+                PollOption option = new PollOption();
+                option.setOptionText(optionDTO.getOptionText());
+                option.setPoll(poll);
+                options.add(option);
+            }
+            poll.setOptions(options);
+
+            poll.setMessage(message);
+            message.setPoll(poll);
         }
 
         Message savedMessage = messageRepository.save(message);
@@ -172,6 +191,9 @@ public class WebSocketChatController
                 ))
                 .collect(Collectors.toList());
         dto.setAttachmentIds(attachmentDTOs);
+
+        if(message.getPoll() != null)
+            dto.setPoll(message.getPoll().convertToDTO());
 
         return dto;
     }

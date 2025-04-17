@@ -976,6 +976,9 @@ const TempChatPage = () =>
 
         try{
             const token = await getToken();
+
+            console.log(pollOptions);
+
             const pollMessage =
             {
                 senderId: userId,
@@ -984,29 +987,34 @@ const TempChatPage = () =>
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || "Unknown User",
                 timestamp: new Date().toISOString(),
+                poll:
+                {
+                    question: pollQuestion,
+                    options: pollOptions.map((opt, index) => ({
+                        id: index,
+                        optionText: opt,
+                        votes: 0,
+                    })),
+                    isMultipleChoice: false,
+                    expiresAt: null
+                }
             };
 
-            const messageResponse = await axios.post(
-                `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
-                pollMessage,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            const pollCreationDTO =
+            if(stompClient && connected)
             {
-                question: pollQuestion,
-                options: pollOptions,
-                isMultipleChoice: false,
-                expiresAt: null,
-                messageId: messageResponse.data.id,
-                userId: userId
-            };
-
-            await axios.post(
-                `http://localhost:8080/api/polls/channel/${selectedChannel.channelId}/create`,
-                pollCreationDTO,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+                stompClient.publish({
+                    destination: `/app/chat/${selectedChannel.channelId}/send`,
+                    body: JSON.stringify(pollMessage)
+                });
+            }
+            else
+            {
+                await axios.post(
+                    `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                    pollMessage,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            }
 
             setPollQuestion("");
             setPollOptions(["", ""]);
@@ -1195,28 +1203,32 @@ const TempChatPage = () =>
             }
         };
 
+        if(!poll || !poll.options)
+            return null;
+
         return(
             <div className="bg-[var(--gray-card3)]/30 rounded-lg p-3 my-2">
-                <div className="font-medium mb-2 text-[var(--features-title-color)]">{poll.question}</div>
+                <div className="font-medium mb-2 text-[var(--features-title-color)]">
+                    {poll.question || "Poll"}
+                </div>
                 <div className="space-y-2">
                     {poll.options.map((option, index) => {
                         const percentage = poll.totalVotes > 0
                             ? Math.round((option.votes / poll.totalVotes) * 100)
                             : 0;
-
-                        return(
+                        return (
                             <div key={index} className="relative">
                                 <div className="flex justify-between mb-1 text-sm">
-                                    <span>{option.text}</span>
-                                    <span>{option.votes} votes ({percentage}%)</span>
+                                    <span>{option.optionText || option.text || `Option ${index + 1}`}</span>
+                                    <span>{option.votes || 0} votes ({percentage}%)</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
                                     <div
                                         className="bg-[var(--features-icon-color)] h-2.5 rounded-full"
-                                        style={{ width: `${percentage}%` }}
-                                    ></div>
+                                        style={{ width: `${percentage}%` }}></div>
                                 </div>
                                 <button
+                                    onMouseEnter={() => setShowMessageActions(null)}
                                     onClick={() => handleVote(index)}
                                     className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
                                     Vote
@@ -1226,11 +1238,12 @@ const TempChatPage = () =>
                     })}
                 </div>
                 <div className="mt-3 text-xs text-[var(--features-text-color)]">
-                    Total votes: {poll.totalVotes} • Poll created by {poll.creator || "Unknown"}
+                    Total votes: {poll.totalVotes || 0} {"\u00A0".repeat(60)}
                 </div>
             </div>
         );
     };
+
 
     const FileAttachment = ({ attachment }) =>
     {
