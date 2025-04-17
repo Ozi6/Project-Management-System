@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import com.backend.PlanWise.model.MessageAttachment;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -109,6 +108,18 @@ public class MessageDTO
     private String senderAvatar;
     private LocalDateTime editedAt;
     private boolean isEdited;
+
+    public PollDTO getPoll()
+    {
+        return poll;
+    }
+
+    public void setPoll(PollDTO poll)
+    {
+        this.poll = poll;
+    }
+
+    private PollDTO poll;
 
     public List<AttachmentDTO> getAttachmentIds()
     {

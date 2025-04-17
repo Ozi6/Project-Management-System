@@ -288,25 +288,26 @@ const TempChatPage = () =>
                 let codeSnippet = null;
                 if(hasCodeSnippet)
                 {
-                    codeSnippet ={
+                    codeSnippet =
+                    {
                         language: 'javascript',
                         code: 'function sayHello() {\n  console.log("Hello, world!");\n}'
                     };
                 }
 
-                const hasPoll = index % 13 === 0;
                 let poll = null;
-                if(hasPoll)
+                if(msg.poll)
                 {
                     poll =
                     {
-                        question: 'What feature should we implement next?',
-                        options: [
-                            { text: 'Dark mode', votes: 5 },
-                            { text: 'Mobile app', votes: 3 },
-                            { text: 'Voice chat', votes: 2 }
-                        ],
-                        totalVotes: 10
+                        id: msg.poll.id,
+                        question: msg.poll.question,
+                        options: msg.poll.options.map((opt) => ({
+                            id: opt.id,
+                            text: opt.optionText,
+                            votes: opt.votes,
+                        })),
+                        totalVotes: msg.poll.totalVotes,
                     };
                 }
 
@@ -319,7 +320,7 @@ const TempChatPage = () =>
                     attachment,
                     codeSnippet,
                     poll,
-                    mentions: index % 9 === 0 ? [users[0]?.id] : []
+                    mentions: index % 9 === 0 ? [users[0]?.id] : [],
                 };
             });
 
@@ -476,6 +477,28 @@ const TempChatPage = () =>
                                             id: attachmentUpdate.id,
                                             uploadedAt: attachmentUpdate.uploadedAt
                                         }
+                                    }
+                                    : msg
+                            )
+                        );
+                    });
+
+                    stompClient.subscribe(`/topic/channel/${selectedChannel.channelId}/poll`, function (message)
+                    {
+                        const poll = JSON.parse(message.body);
+                        setMessages((prevMessages) =>
+                            prevMessages.map((msg) =>
+                                msg.id === poll.messageId
+                                    ? {
+                                        ...msg,
+                                        poll: {
+                                            question: poll.question,
+                                            options: poll.options.map((opt) => ({
+                                                text: opt.optionText,
+                                                votes: opt.votes,
+                                            })),
+                                            totalVotes: poll.totalVotes,
+                                        },
                                     }
                                     : msg
                             )
@@ -943,35 +966,56 @@ const TempChatPage = () =>
         setShowMentionMenu(false);
     };
 
-    const handleCreatePoll = () => {
-        if(!pollQuestion.trim() || pollOptions.some(option => !option.trim()))
+    const handleCreatePoll = async () =>
+    {
+        if(!pollQuestion.trim() || pollOptions.some((option) => !option.trim()))
         {
             alert("Please fill in all poll fields");
             return;
         }
 
-        const pollMessage =
-        {
-            id: Date.now().toString(),
-            senderId: userId,
-            senderName: users.find(u => u.id === userId)?.name || 'Unknown User',
-            content: "📊 " + pollQuestion,
-            projectId: parseInt(id),
-            channelId: selectedChannel.channelId,
-            timestamp: new Date().toISOString(),
-            poll:
+        try{
+            const token = await getToken();
+            const pollMessage =
+            {
+                senderId: userId,
+                content: "📊 " + pollQuestion,
+                projectId: parseInt(id),
+                channelId: selectedChannel.channelId,
+                senderName: users.find((u) => u.id === userId)?.name || "Unknown User",
+                timestamp: new Date().toISOString(),
+            };
+
+            const messageResponse = await axios.post(
+                `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                pollMessage,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const pollCreationDTO =
             {
                 question: pollQuestion,
-                options: pollOptions.map(option => ({ text: option, votes: 0 })),
-                totalVotes: 0
-            }
-        };
+                options: pollOptions,
+                isMultipleChoice: false,
+                expiresAt: null,
+                messageId: messageResponse.data.id,
+                userId: userId
+            };
 
-        setMessages(prev => [...prev, pollMessage]);
-        setPollQuestion('');
-        setPollOptions(['', '']);
-        setShowPollCreator(false);
-        scrollToBottom();
+            await axios.post(
+                `http://localhost:8080/api/polls/channel/${selectedChannel.channelId}/create`,
+                pollCreationDTO,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setPollQuestion("");
+            setPollOptions(["", ""]);
+            setShowPollCreator(false);
+            scrollToBottom();
+        }catch(err){
+            console.error("Error creating poll:", err);
+            alert("Failed to create poll. Please try again.");
+        }
     };
 
     const addPollOption = () =>
@@ -1129,36 +1173,64 @@ const TempChatPage = () =>
         </div>
     );
 
-    const PollComponent = ({ poll }) => (
-        <div className="bg-[var(--gray-card3)]/30 rounded-lg p-3 my-2">
-            <div className="font-medium mb-2 text-[var(--features-title-color)]">{poll.question}</div>
-            <div className="space-y-2">
-                {poll.options.map((option, index) => {
-                    const percentage = poll.totalVotes > 0
-                        ? Math.round((option.votes / poll.totalVotes) * 100)
-                        : 0;
+    const PollComponent = ({ poll, messageId }) =>
+    {
+        const { getToken } = useAuth();
 
-                    return (
-                        <div key={index} className="relative">
-                            <div className="flex justify-between mb-1 text-sm">
-                                <span>{option.text}</span>
-                                <span>{option.votes} votes ({percentage}%)</span>
+        const handleVote = async (optionIndex) =>
+        {
+            try{
+                const token = await getToken();
+                const pollId = poll.id;
+                const optionId = poll.options[optionIndex].id;
+
+                await axios.post(
+                    `http://localhost:8080/api/polls/${pollId}/vote`,
+                    { optionId },
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+            }catch(err){
+                console.error("Error voting:", err);
+                alert("Failed to vote. You may have already voted or the poll is invalid.");
+            }
+        };
+
+        return(
+            <div className="bg-[var(--gray-card3)]/30 rounded-lg p-3 my-2">
+                <div className="font-medium mb-2 text-[var(--features-title-color)]">{poll.question}</div>
+                <div className="space-y-2">
+                    {poll.options.map((option, index) => {
+                        const percentage = poll.totalVotes > 0
+                            ? Math.round((option.votes / poll.totalVotes) * 100)
+                            : 0;
+
+                        return(
+                            <div key={index} className="relative">
+                                <div className="flex justify-between mb-1 text-sm">
+                                    <span>{option.text}</span>
+                                    <span>{option.votes} votes ({percentage}%)</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
+                                    <div
+                                        className="bg-[var(--features-icon-color)] h-2.5 rounded-full"
+                                        style={{ width: `${percentage}%` }}
+                                    ></div>
+                                </div>
+                                <button
+                                    onClick={() => handleVote(index)}
+                                    className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
+                                    Vote
+                                </button>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1">
-                                <div
-                                    className="bg-[var(--features-icon-color)] h-2.5 rounded-full"
-                                    style={{ width: `${percentage}%` }}
-                                ></div>
-                            </div>
-                        </div>
-                    );
-                })}
+                        );
+                    })}
+                </div>
+                <div className="mt-3 text-xs text-[var(--features-text-color)]">
+                    Total votes: {poll.totalVotes} • Poll created by {poll.creator || "Unknown"}
+                </div>
             </div>
-            <div className="mt-3 text-xs text-[var(--features-text-color)]">
-                Total votes: {poll.totalVotes} • Poll created by {poll.creator || 'Unknown'}
-            </div>
-        </div>
-    );
+        );
+    };
 
     const FileAttachment = ({ attachment }) =>
     {

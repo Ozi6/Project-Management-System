@@ -613,6 +613,9 @@ public class MessageController {
                 .collect(Collectors.toList());
         dto.setAttachmentIds(attachmentDTOs);
 
+        if(message.getPoll() != null)
+            dto.setPoll(message.getPoll().convertToDTO());
+
         return dto;
     }
 

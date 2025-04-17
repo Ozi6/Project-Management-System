@@ -174,4 +174,17 @@ public class Message
         attachments.remove(attachment);
         attachment.setMessage(null);
     }
+
+    public Poll getPoll()
+    {
+        return poll;
+    }
+
+    public void setPoll(Poll poll)
+    {
+        this.poll = poll;
+    }
+
+    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL)
+    private Poll poll;
 }
