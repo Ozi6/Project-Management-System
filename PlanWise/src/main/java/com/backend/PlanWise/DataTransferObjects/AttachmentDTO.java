@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AttachmentDTO
 {
+    private Long messageId;
+
     public byte[] getFileData()
     {
         return fileData;
@@ -94,5 +96,15 @@ public class AttachmentDTO
         this.fileSize = fileSize;
         this.uploadedAt = uploadedAt;
         this.fileData = fileData;
+    }
+
+    public AttachmentDTO(Long id, String fileName, String fileType, Long fileSize, LocalDateTime uploadedAt, byte[] fileData, Long messageId) {
+        this.id = id;
+        this.fileName = fileName;
+        this.fileType = fileType;
+        this.fileSize = fileSize;
+        this.uploadedAt = uploadedAt;
+        this.fileData = fileData;
+        this.messageId = messageId;
     }
 }

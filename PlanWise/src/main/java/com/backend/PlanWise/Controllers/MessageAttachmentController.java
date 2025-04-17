@@ -7,12 +7,12 @@ import com.backend.PlanWise.model.MessageAttachment;
 import com.backend.PlanWise.repository.MessageAttachmentRepository;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.servicer.MessageAttachmentService;
-import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,15 +25,19 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/messages")
-public class MessageAttachmentController
-{
+public class MessageAttachmentController {
+
     @Autowired
     private MessageAttachmentService attachmentService;
 
     @Autowired
-    MessageRepository messageRepository;
+    private MessageRepository messageRepository;
+
     @Autowired
-    MessageAttachmentRepository attachmentRepository;
+    private MessageAttachmentRepository attachmentRepository;
+
+    @Autowired
+    private SimpMessagingTemplate messagingTemplate; // For WebSocket messaging
 
     @PostMapping("/upload-attachment")
     public ResponseEntity<AttachmentDTO> uploadAttachment(
@@ -41,11 +45,11 @@ public class MessageAttachmentController
             @RequestParam("messageId") Long messageId,
             @RequestParam("projectId") Integer projectId,
             @RequestParam("channelId") Long channelId,
-            @RequestParam("userId") String userId)
-    {
-        try{
-            if(file.isEmpty())
+            @RequestParam("userId") String userId) {
+        try {
+            if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body(null);
+            }
 
             MessageAttachment attachment = new MessageAttachment();
             attachment.setFileName(file.getOriginalFilename());
@@ -54,8 +58,7 @@ public class MessageAttachmentController
             attachment.setFileData(file.getBytes());
             attachment.setUploadedAt(LocalDateTime.now());
 
-            if(attachment.getFileType() == FileType.IMAGE)
-            {
+            if (attachment.getFileType() == FileType.IMAGE) {
                 byte[] thumbnailData = generateThumbnail(file);
                 attachment.setThumbnailData(thumbnailData);
             }
@@ -71,20 +74,26 @@ public class MessageAttachmentController
                     savedAttachment.getFileName(),
                     savedAttachment.getFileType().name(),
                     savedAttachment.getFileSize(),
-                    savedAttachment.getUploadedAt()
+                    savedAttachment.getUploadedAt(),
+                    savedAttachment.getFileData(),
+                    messageId // Include messageId
             );
-            attachmentDTO.setFileData(savedAttachment.getFileData());
+
+            // Broadcast attachment update to WebSocket topic
+            messagingTemplate.convertAndSend(
+                    "/topic/channel/" + channelId + "/attachment",
+                    attachmentDTO
+            );
 
             return ResponseEntity.ok(attachmentDTO);
-        }catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("Failed to process file upload", e);
-        }catch(RuntimeException e){
+        } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    private byte[] generateThumbnail(MultipartFile file) throws IOException
-    {
+    private byte[] generateThumbnail(MultipartFile file) throws IOException {
         BufferedImage originalImage = ImageIO.read(file.getInputStream());
         int targetWidth = 100; // Adjust as needed
         int targetHeight = (int) (originalImage.getHeight() * ((double) targetWidth / originalImage.getWidth()));
@@ -101,8 +110,7 @@ public class MessageAttachmentController
     }
 
     @GetMapping("/download-attachment/{attachmentId}")
-    public ResponseEntity<Resource> downloadAttachment(@PathVariable Long attachmentId)
-    {
+    public ResponseEntity<org.springframework.core.io.Resource> downloadAttachment(@PathVariable Long attachmentId) {
         MessageAttachment attachment = attachmentService.getAttachment(attachmentId);
         String contentType = attachment.getFileType().getMimeTypePrefix() + "/" +
                 (attachment.getFileType() == FileType.IMAGE ? "jpeg" :
@@ -111,7 +119,7 @@ public class MessageAttachmentController
                                         attachment.getFileType() == FileType.VIDEO ? "mp4" : "octet-stream");
 
         ByteArrayResource byteArrayResource = new ByteArrayResource(attachment.getFileData());
-        Resource resource = (Resource) byteArrayResource;
+        org.springframework.core.io.Resource resource = byteArrayResource;
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
@@ -121,14 +129,13 @@ public class MessageAttachmentController
     }
 
     @GetMapping("/attachment-thumbnail/{attachmentId}")
-    public ResponseEntity<Resource> getThumbnail(@PathVariable Long attachmentId)
-    {
+    public ResponseEntity<org.springframework.core.io.Resource> getThumbnail(@PathVariable Long attachmentId) {
         MessageAttachment attachment = attachmentService.getAttachment(attachmentId);
         if(attachment.getThumbnailData() == null)
             return ResponseEntity.notFound().build();
 
         ByteArrayResource byteArrayResource = new ByteArrayResource(attachment.getThumbnailData());
-        Resource resource = (Resource) byteArrayResource;
+        org.springframework.core.io.Resource resource = byteArrayResource;
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
