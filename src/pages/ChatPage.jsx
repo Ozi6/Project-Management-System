@@ -57,6 +57,11 @@ const TempChatPage = () =>
     const [editedContent, setEditedContent] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const [isRecordingAudio, setIsRecordingAudio] = useState(false);
+    const [audioBlob, setAudioBlob] = useState(null);
+    const [recordingTime, setRecordingTime] = useState(0);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
+    const timerRef = useRef(null);
     const [showCodeFormatting, setShowCodeFormatting] = useState(false);
     const [codeLanguage, setCodeLanguage] = useState('javascript');
     const [showMentionMenu, setShowMentionMenu] = useState(false);
@@ -569,65 +574,88 @@ const TempChatPage = () =>
     const handleSendMessage = async (e) =>
     {
         e.preventDefault();
-        if(!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !isRecordingAudio)
-            return;
-        if(!selectedChannel) return;
-        try{
+        if (!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !audioBlob) return;
+        if (!selectedChannel) return;
+
+        try {
             let content = message;
             if (showCodeFormatting) content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
 
             const newMessage =
             {
+                id: Date.now(),
                 senderId: userId,
-                content: content,
+                content: content || (audioBlob ? 'Voice message' : ''),
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
+                attachment: audioBlob
+                    ? {
+                        type: 'audio/webm',
+                        name: `voice-message-${Date.now()}.webm`,
+                        size: formatFileSize(audioBlob.size),
+                        fileData: URL.createObjectURL(audioBlob),
+                    }
+                    : selectedFile
+                        ?
+                        {
+                            type: selectedFile.type,
+                            name: selectedFile.name,
+                            size: formatFileSize(selectedFile.size),
+                            fileData: URL.createObjectURL(selectedFile),
+                        }
+                        : null,
             };
 
-            if(stompClient && connected)
-            {
-                stompClient.publish({
-                    destination: `/app/chat/${selectedChannel.channelId}/send`,
-                    body: JSON.stringify(newMessage),
-                });
+            setMessages((prev) => [...prev, newMessage]);
 
-                if(selectedFile)
+            if(!audioBlob)
+            {
+                if(stompClient && connected)
                 {
-                    setFilesToUpload({
-                        file: selectedFile,
-                        channelId: selectedChannel.channelId,
+                    stompClient.publish({
+                        destination: `/app/chat/${selectedChannel.channelId}/send`,
+                        body: JSON.stringify(newMessage),
                     });
+
+                    if(selectedFile)
+                    {
+                        setFilesToUpload({
+                            file: selectedFile,
+                            channelId: selectedChannel.channelId,
+                        });
+                    }
                 }
-            }
-            else
-            {
-                const token = await getToken();
-
-                const messageResponse = await axios.post(
-                    `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
-                    newMessage,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-
-                if(selectedFile)
+                else
                 {
-                    await uploadAttachment(
-                        selectedFile,
-                        messageResponse.data.id,
-                        parseInt(id),
-                        selectedChannel.channelId
+                    const token = await getToken();
+                    const messageResponse = await axios.post(
+                        `http://localhost:8080/api/messages/channel/${selectedChannel.channelId}`,
+                        newMessage,
+                        { headers: { Authorization: `Bearer ${token}` } }
                     );
+
+                    if(selectedFile)
+                    {
+                        await uploadAttachment(
+                            selectedFile,
+                            messageResponse.data.id,
+                            parseInt(id),
+                            selectedChannel.channelId
+                        );
+                    }
+                    fetchMessages(selectedChannel.channelId);
                 }
-                fetchMessages(selectedChannel.channelId);
             }
             setMessage('');
             setSelectedFile(null);
+            setAudioBlob(null);
             setShowCodeFormatting(false);
             setShowPollCreator(false);
             setPollQuestion('');
             setPollOptions(['', '']);
+            scrollToBottom();
         }catch(err){
             console.error('Error sending message:', err);
             alert('Failed to send message. Please try again.');
@@ -1016,9 +1044,47 @@ const TempChatPage = () =>
         setPollOptions((prev) => prev.filter((_, i) => i !== index));
     };
 
-    const toggleRecordingAudio = () =>
+    const toggleRecordingAudio = async () =>
     {
-        setIsRecordingAudio((prev) => !prev);
+        if(!isRecordingAudio)
+        {
+            try{
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorderRef.current = new MediaRecorder(stream);
+                audioChunksRef.current = [];
+
+                mediaRecorderRef.current.ondataavailable = (event) =>
+                {
+                    if(event.data.size > 0)
+                        audioChunksRef.current.push(event.data);
+                };
+
+                mediaRecorderRef.current.onstop = () =>
+                {
+                    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                    setAudioBlob(audioBlob);
+                    stream.getTracks().forEach((track) => track.stop());
+                };
+
+                mediaRecorderRef.current.start();
+                setIsRecordingAudio(true);
+
+                setRecordingTime(0);
+                timerRef.current = setInterval(() =>
+                {
+                    setRecordingTime((prev) => prev + 1);
+                },1000);
+            }catch(err){
+                console.error('Error accessing microphone:', err);
+                alert('Could not access microphone. Please check permissions.');
+            }
+        }
+        else
+        {
+            mediaRecorderRef.current.stop();
+            setIsRecordingAudio(false);
+            clearInterval(timerRef.current);
+        }
     };
 
     const toggleCodeFormatting = () =>
@@ -1126,6 +1192,314 @@ const TempChatPage = () =>
     const projectChannels = filteredChannels.filter((channel) => channel.channelType === 'PROJECT');
 
     const teamChannels = filteredChannels.filter((channel) => channel.channelType === 'TEAM');
+
+    const renderChatInput = () => (
+        <div className="p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
+            {showPollCreator && (
+                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-medium text-[var(--features-text-color)]">
+                            Create Poll
+                        </h3>
+                        <button
+                            onClick={() => setShowPollCreator(false)}
+                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                            <X size={16}/>
+                        </button>
+                    </div>
+                    <input
+                        type="text"
+                        value={pollQuestion}
+                        onChange={(e) => setPollQuestion(e.target.value)}
+                        placeholder="Poll question"
+                        className="w-full p-2 mb-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
+                    <div className="space-y-2 mb-3">
+                        {pollOptions.map((option, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <input
+                                    type="text"
+                                    value={option}
+                                    onChange={(e) => updatePollOption(index, e.target.value)}
+                                    placeholder={`Option ${index + 1}`}
+                                    className="flex-1 p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
+                                {pollOptions.length > 2 && (
+                                    <button
+                                        onClick={() => removePollOption(index)}
+                                        className="text-red-500 hover:text-red-700">
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex justify-between">
+                        <button
+                            onClick={addPollOption}
+                            className="text-sm text-[var(--features-icon-color)] hover:text-[var(--hover-color)] flex items-center gap-1">
+                            <PlusCircle size={16} />
+                            Add Option
+                        </button>
+                        <button
+                            onClick={handleCreatePoll}
+                            className="text-sm bg-[var(--features-icon-color)] text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]">
+                            Create Poll
+                        </button>
+                    </div>
+                </div>
+            )}
+            {showCodeFormatting && (
+                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
+                    <div className="flex justify-between items-center mb-2">
+                        <h3 className="text-sm font-medium text-[var(--features-text-color)]">
+                            Code Formatting
+                        </h3>
+                        <button
+                            onClick={() => setShowCodeFormatting(false)}
+                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                            <X size={16} />
+                        </button>
+                    </div>
+                    <div className="flex items-center mb-2">
+                        <span className="text-sm mr-2 text-[var(--features-text-color)]">Language:</span>
+                        <select
+                            value={codeLanguage}
+                            onChange={(e) => setCodeLanguage(e.target.value)}
+                            className="text-sm p-1 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)]">
+                            <option value="javascript">JavaScript</option>
+                            <option value="python">Python</option>
+                            <option value="java">Java</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="sql">SQL</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="csharp">C#</option>
+                            <option value="php">PHP</option>
+                            <option value="go">Go</option>
+                        </select>
+                    </div>
+                    <div className="text-xs text-[var(--features-text-color)] opacity-70">
+                        Add code below and it will be formatted as a code block
+                    </div>
+                </div>
+            )}
+            {isRecordingAudio && (
+                <div className="mb-4 p-3 bg-red-100 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-red-700">Recording audio...</span>
+                        <span className="text-xs text-red-500">
+                            {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
+                        </span>
+                    </div>
+                    <button
+                        onClick={toggleRecordingAudio}
+                        className="text-red-500 hover:text-red-700">
+                        <PauseCircle size={20} />
+                    </button>
+                </div>
+            )}
+            {audioBlob && !isRecordingAudio && (
+                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                            <Mic size={16} className="text-blue-500"/>
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium text-[var(--features-text-color)]">
+                                Voice Message
+                            </div>
+                            <div className="text-xs text-[var(--features-text-color)] opacity-70">
+                                {(audioBlob.size / 1024).toFixed(1)} KB
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setAudioBlob(null)}
+                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                        <X size={16}/>
+                    </button>
+                </div>
+            )}
+            {selectedFile && (
+                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        {selectedFile.type.includes('image') ? (
+                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                                <img
+                                    src="/api/placeholder/40/40"
+                                    alt="Preview"
+                                    className="w-6 h-6 object-cover"/>
+                            </div>
+                        ) : (
+                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
+                                <Paperclip size={16} className="text-blue-500"/>
+                            </div>
+                        )}
+                        <div>
+                            <div className="text-sm font-medium text-[var(--features-text-color)]">
+                                {selectedFile.name}
+                            </div>
+                            <div className="text-xs text-[var(--features-text-color)] opacity-70">
+                                {Math.round(selectedFile.size / 1024)}KB
+                            </div>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setSelectedFile(null)}
+                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
+                        <X size={16}/>
+                    </button>
+                </div>
+            )}
+            <form onSubmit={handleSendMessage} className="relative">
+                <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    onKeyDown={(e) =>
+                    {
+                        if(e.key === 'Enter' && !e.shiftKey)
+                        {
+                            e.preventDefault();
+                            handleSendMessage(e);
+                        }
+                        if (e.key === '@') setShowMentionMenu(true);
+                    }}
+                    placeholder={
+                        showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
+                    }
+                    className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[100px] resize-y"
+                    disabled={!selectedChannel}/>
+                {showEmojiPicker === 'input' && (
+                    <div
+                        ref={emojiPickerRef}
+                        className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
+                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
+                            Common emojis
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {reactionTypes.map((reaction) => (
+                                <button
+                                    key={reaction.name}
+                                    onClick={() => handleEmojiClick(reaction.emoji)}
+                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
+                                    {reaction.emoji}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {showMentionMenu && (
+                    <div className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
+                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
+                            Mention a user
+                        </div>
+                        <div className="space-y-1 max-h-40 overflow-y-auto">
+                            {users.map((user) => (
+                                <div
+                                    key={user.id}
+                                    onClick={() => handleMention(user.id)}
+                                    className="flex items-center gap-2 p-2 hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded-md cursor-pointer">
+                                    <div className="w-6 h-6 rounded-full overflow-hidden">
+                                        {user.avatar ? (
+                                            <img
+                                                src={user.avatar}
+                                                alt={user.name}
+                                                className="w-full h-full object-cover"/>
+                                        ) : (
+                                            <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-xs text-[var(--sidebar-projects-color)]">
+                                                {user.name?.charAt(0) || 'U'}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className="text-sm text-[var(--features-text-color)]">
+                                        {user.name}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center space-x-2">
+                        <button
+                            type="button"
+                            onClick={() => setShowEmojiPicker('input')}
+                            className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
+                            disabled={!selectedChannel}>
+                            <Smile size={20}/>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleFileSelect}
+                            className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
+                            disabled={!selectedChannel}>
+                            <Paperclip size={20}/>
+                        </button>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            onChange={handleFileChange}/>
+                        <button
+                            type="button"
+                            onClick={toggleCodeFormatting}
+                            className={`p-1 rounded-md ${showCodeFormatting
+                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                                }`}
+                            disabled={!selectedChannel}>
+                            <Code size={20}/>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={toggleRecordingAudio}
+                            className={`p-1 rounded-md ${isRecordingAudio
+                                    ? 'bg-red-100 text-red-500'
+                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                                }`}
+                            disabled={!selectedChannel}>
+                            <Mic size={20}/>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowMentionMenu((prev) => !prev)}
+                            className={`p-1 rounded-md ${showMentionMenu
+                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                                }`}
+                            disabled={!selectedChannel}>
+                            <AtSign size={20}/>
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setShowPollCreator((prev) => !prev)}
+                            className={`p-1 rounded-md ${showPollCreator
+                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                                }`}
+                            disabled={!selectedChannel}>
+                            <BarChart2 size={20}/>
+                        </button>
+                    </div>
+                    <motion.button
+                        type="submit"
+                        disabled=
+                        {
+                            !selectedChannel ||
+                            (!message.trim() && !selectedFile && !isRecordingAudio && !showPollCreator && !audioBlob)
+                        }
+                        className={`p-3 rounded-lg ${(message.trim() || selectedFile || audioBlob || showPollCreator) && selectedChannel
+                                ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
+                                : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
+                            }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}>
+                        <Send size={20}/>
+                    </motion.button>
+                </div>
+            </form>
+        </div>
+    );
 
     return(
         <div className="flex flex-col h-screen bg-[var(--bg-color)]">
@@ -1333,291 +1707,7 @@ const TempChatPage = () =>
                                 </>
                             )}
                         </div>
-                        <div className="p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
-                            {showPollCreator && (
-                                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="text-sm font-medium text-[var(--features-text-color)]">
-                                            Create Poll
-                                        </h3>
-                                        <button
-                                            onClick={() => setShowPollCreator(false)}
-                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
-                                            <X size={16}/>
-                                        </button>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={pollQuestion}
-                                        onChange={(e) => setPollQuestion(e.target.value)}
-                                        placeholder="Poll question"
-                                        className="w-full p-2 mb-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
-                                    <div className="space-y-2 mb-3">
-                                        {pollOptions.map((option, index) => (
-                                            <div key={index} className="flex items-center gap-2">
-                                                <input
-                                                    type="text"
-                                                    value={option}
-                                                    onChange={(e) => updatePollOption(index, e.target.value)}
-                                                    placeholder={`Option ${index + 1}`}
-                                                    className="flex-1 p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
-                                                {pollOptions.length > 2 && (
-                                                    <button
-                                                        onClick={() => removePollOption(index)}
-                                                        className="text-red-500 hover:text-red-700">
-                                                        <X size={16}/>
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <button
-                                            onClick={addPollOption}
-                                            className="text-sm text-[var(--features-icon-color)] hover:text-[var(--hover-color)] flex items-center gap-1">
-                                            <PlusCircle size={16}/>
-                                            Add Option
-                                        </button>
-                                        <button
-                                            onClick={handleCreatePoll}
-                                            className="text-sm bg-[var(--features-icon-color)] text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]">
-                                            Create Poll
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                            {showCodeFormatting && (
-                                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <h3 className="text-sm font-medium text-[var(--features-text-color)]">
-                                            Code Formatting
-                                        </h3>
-                                        <button
-                                            onClick={() => setShowCodeFormatting(false)}
-                                            className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                    <div className="flex items-center mb-2">
-                                        <span className="text-sm mr-2 text-[var(--features-text-color)]">Language:</span>
-                                        <select
-                                            value={codeLanguage}
-                                            onChange={(e) => setCodeLanguage(e.target.value)}
-                                            className="text-sm p-1 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)]">
-                                            <option value="javascript">JavaScript</option>
-                                            <option value="python">Python</option>
-                                            <option value="java">Java</option>
-                                            <option value="html">HTML</option>
-                                            <option value="css">CSS</option>
-                                            <option value="sql">SQL</option>
-                                            <option value="typescript">TypeScript</option>
-                                            <option value="csharp">C#</option>
-                                            <option value="php">PHP</option>
-                                            <option value="go">Go</option>
-                                        </select>
-                                    </div>
-                                    <div className="text-xs text-[var(--features-text-color)] opacity-70">
-                                        Add code below and it will be formatted as a code block
-                                    </div>
-                                </div>
-                            )}
-                            {isRecordingAudio && (
-                                <div className="mb-4 p-3 bg-red-100 rounded-lg flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                        <span className="text-sm text-red-700">Recording audio...</span>
-                                        <span className="text-xs text-red-500">0:12</span>
-                                    </div>
-                                    <button
-                                        onClick={toggleRecordingAudio}
-                                        className="text-red-500 hover:text-red-700"
-                                    >
-                                        <PauseCircle size={20} />
-                                    </button>
-                                </div>
-                            )}
-                            {selectedFile && (
-                                <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        {selectedFile.type.includes('image') ? (
-                                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                                <img
-                                                    src="/api/placeholder/40/40"
-                                                    alt="Preview"
-                                                    className="w-6 h-6 object-cover"/>
-                                            </div>
-                                        ) : (
-                                            <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center">
-                                                <Paperclip size={16} className="text-blue-500"/>
-                                            </div>
-                                        )}
-                                        <div>
-                                            <div className="text-sm font-medium text-[var(--features-text-color)]">
-                                                {selectedFile.name}
-                                            </div>
-                                            <div className="text-xs text-[var(--features-text-color)] opacity-70">
-                                                {Math.round(selectedFile.size / 1024)}KB
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => setSelectedFile(null)}
-                                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]">
-                                        <X size={16}/>
-                                    </button>
-                                </div>
-                            )}
-                            <form onSubmit={handleSendMessage} className="relative">
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if(e.key === 'Enter' && !e.shiftKey)
-                                        {
-                                            e.preventDefault();
-                                            handleSendMessage(e);
-                                        }
-                                        if(e.key === '@')
-                                            setShowMentionMenu(true);
-                                    }}
-                                    placeholder=
-                                    {
-                                        showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
-                                    }
-                                    className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[100px] resize-y"
-                                    disabled={!selectedChannel}/>
-                                {showEmojiPicker === 'input' && (
-                                    <div
-                                        ref={emojiPickerRef}
-                                        className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
-                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                            Common emojis
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {reactionTypes.map((reaction) => (
-                                                <button
-                                                    key={reaction.name}
-                                                    onClick={() => handleEmojiClick(reaction.emoji)}
-                                                    className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
-                                                >
-                                                    {reaction.emoji}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {showMentionMenu && (
-                                    <div className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
-                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                                            Mention a user
-                                        </div>
-                                        <div className="space-y-1 max-h-40 overflow-y-auto">
-                                            {users.map((user) => (
-                                                <div
-                                                    key={user.id}
-                                                    onClick={() => handleMention(user.id)}
-                                                    className="flex items-center gap-2 p-2 hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded-md cursor-pointer"
-                                                >
-                                                    <div className="w-6 h-6 rounded-full overflow-hidden">
-                                                        {user.avatar ? (
-                                                            <img
-                                                                src={user.avatar}
-                                                                alt={user.name}
-                                                                className="w-full h-full object-cover"/>
-                                                        ) : (
-                                                            <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-xs text-[var(--sidebar-projects-color)]">
-                                                                {user.name?.charAt(0) || 'U'}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-sm text-[var(--features-text-color)]">
-                                                        {user.name}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between mt-2">
-                                    <div className="flex items-center space-x-2">
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowEmojiPicker('input')}
-                                            className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                            disabled={!selectedChannel}>
-                                            <Smile size={20}/>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleFileSelect}
-                                            className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                            disabled={!selectedChannel}>
-                                            <Paperclip size={20}/>
-                                        </button>
-                                        <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            className="hidden"
-                                            onChange={handleFileChange}/>
-                                        <button
-                                            type="button"
-                                            onClick={toggleCodeFormatting}
-                                            className={`p-1 rounded-md ${showCodeFormatting
-                                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                                }`}
-                                            disabled={!selectedChannel}>
-                                            <Code size={20}/>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={toggleRecordingAudio}
-                                            className={`p-1 rounded-md ${isRecordingAudio
-                                                    ? 'bg-red-100 text-red-500'
-                                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                                }`}
-                                            disabled={!selectedChannel}>
-                                            <Mic size={20}/>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowMentionMenu((prev) => !prev)}
-                                            className={`p-1 rounded-md ${showMentionMenu
-                                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                                }`}
-                                            disabled={!selectedChannel}>
-                                            <AtSign size={20}/>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => setShowPollCreator((prev) => !prev)}
-                                            className={`p-1 rounded-md ${showPollCreator
-                                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                                }`}
-                                            disabled={!selectedChannel}>
-                                            <BarChart2 size={20}/>
-                                        </button>
-                                    </div>
-                                    <motion.button
-                                        type="submit"
-                                        disabled={
-                                            !selectedChannel ||
-                                            (!message.trim() && !selectedFile && !isRecordingAudio && !showPollCreator)
-                                        }
-                                        className={`p-3 rounded-lg ${(message.trim() || selectedFile || isRecordingAudio || showPollCreator) &&
-                                                selectedChannel
-                                                ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
-                                                : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
-                                            }`}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}>
-                                        <Send size={20}/>
-                                    </motion.button>
-                                </div>
-                            </form>
-                        </div>
+                        {renderChatInput()}
                     </div>
                 </div>
             </div>

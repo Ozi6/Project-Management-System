@@ -39,7 +39,8 @@ const Message = React.memo(
         };
 
         const commonEmojis = ['👍', '❤️', '😂', '😊', '🎉', '👏', '🙌', '🔥', '✨', '🚀'];
-        const emojiCategories = {
+        const emojiCategories =
+        {
             Smileys: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
             Reactions: ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
             Objects: ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑'],
@@ -50,11 +51,12 @@ const Message = React.memo(
                 key={msg.id}
                 onMouseEnter={() => setShowMessageActions(msg.id)}
                 onMouseLeave={() => setShowMessageActions(null)}
-                className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}>
+                className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}
+            >
                 {!isCurrentUser && (
                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mr-2">
                         {user?.avatar ? (
-                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover"/>
+                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
                                 {user?.name?.charAt(0) || 'U'}
@@ -71,7 +73,8 @@ const Message = React.memo(
                         {!isCurrentUser && (
                             <div className="font-medium text-xs mb-1 text-[var(--features-icon-color)]">
                                 {msg.senderName || user?.name || 'Unknown User'}
-                            </div>)}
+                            </div>
+                        )}
                         {editingMessage?.id === msg.id ? (
                             <div className="text-[var(--features-text-color)] bg-[var(--bg-color)] -mx-4 -my-3 p-3 rounded-lg">
                                 <textarea
@@ -98,7 +101,20 @@ const Message = React.memo(
                                 {msg.codeSnippet && (
                                     <CodeSnippet language={msg.codeSnippet.language} code={msg.codeSnippet.code} />
                                 )}
-                                {msg.attachment && <FileAttachment attachment={msg.attachment} />}
+                                {msg.attachment && (
+                                    msg.attachment.type.includes('audio') ? (
+                                        <div className="mt-2">
+                                            <audio controls className="max-w-full" src={msg.attachment.fileData}>
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                            <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
+                                                {msg.attachment.name} ({msg.attachment.size})
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <FileAttachment attachment={msg.attachment} />
+                                    )
+                                )}
                                 {msg.poll && (
                                     <PollComponent
                                         poll={msg.poll}
@@ -134,12 +150,12 @@ const Message = React.memo(
                                                     ? 'bg-[var(--features-icon-color)]/20 border border-[var(--features-icon-color)]'
                                                     : 'bg-[var(--gray-card3)]/50 hover:bg-[var(--gray-card3)]'
                                                 }`}
-                                            onClick={() => {
-                                                if (msg.userReactions?.includes(emoji)) {
+                                            onClick={() =>
+                                            {
+                                                if(msg.userReactions?.includes(emoji))
                                                     handleRemoveReaction(msg.id, emoji);
-                                                } else {
+                                                else
                                                     handleReactionClick(msg.id, emoji);
-                                                }
                                             }}>
                                             <span>{emoji}</span>
                                             <span className="text-[var(--features-text-color)]">{count}</span>
@@ -154,8 +170,7 @@ const Message = React.memo(
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className={`absolute ${isCurrentUser ? 'right-12' : 'left-12'
-                                } top-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-1 flex items-center gap-1 z-10 border border-[var(--gray-card3)]`}
+                            className={`absolute ${isCurrentUser ? 'right-12' : 'left-12'} top-0 bg-[var(--bg-color)] rounded-lg shadow-lg p-1 flex items-center gap-1 z-10 border border-[var(--gray-card3)]`}
                             onMouseEnter={() => setShowMessageActions(msg.id)}
                             onMouseLeave={() => setShowMessageActions(null)}>
                             <div className="relative">
@@ -163,7 +178,7 @@ const Message = React.memo(
                                     onClick={() => setShowEmojiPicker(msg.id)}
                                     className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
                                     title="Add reaction">
-                                    <Smile size={16} />
+                                    <Smile size={16}/>
                                 </button>
                                 {showEmojiPicker === msg.id && (
                                     <div
@@ -234,7 +249,7 @@ const Message = React.memo(
                 {isCurrentUser && (
                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ml-2">
                         {user?.avatar ? (
-                            <img src={user.avatar} alt="Your profile" className="w-full h-full object-cover" />
+                            <img src={user.avatar} alt="Your profile" className="w-full h-full object-cover"/>
                         ) : (
                             <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
                                 {user?.name?.charAt(0) || 'U'}
