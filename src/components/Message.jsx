@@ -101,20 +101,21 @@ const Message = React.memo(
                                 {msg.codeSnippet && (
                                     <CodeSnippet language={msg.codeSnippet.language} code={msg.codeSnippet.code} />
                                 )}
-                                {msg.attachment && (
-                                    msg.attachment.type.includes('audio') ? (
-                                        <div className="mt-2">
-                                            <audio controls className="max-w-full" src={msg.attachment.fileData}>
-                                                Your browser does not support the audio element.
-                                            </audio>
-                                            <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
-                                                {msg.attachment.name} ({msg.attachment.size})
-                                            </div>
+                                {msg.voiceMessage ? (
+                                    <div className="mt-2">
+                                        <audio controls className="max-w-full">
+                                            <source
+                                                src={`data:${msg.voiceMessage.fileType};base64,${msg.voiceMessage.audioData}`}
+                                                type={msg.voiceMessage.fileType}/>
+                                            Your browser does not support the audio element.
+                                        </audio>
+                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
+                                            Voice message ({formatFileSize(msg.voiceMessage.fileSize)})
                                         </div>
-                                    ) : (
-                                        <FileAttachment attachment={msg.attachment} />
-                                    )
-                                )}
+                                    </div>
+                                ) : msg.attachment && !msg.attachment.type.includes('audio') ? (
+                                    <FileAttachment attachment={msg.attachment}/>
+                                ) : null}
                                 {msg.poll && (
                                     <PollComponent
                                         poll={msg.poll}

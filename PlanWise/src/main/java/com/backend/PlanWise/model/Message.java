@@ -187,4 +187,17 @@ public class Message
 
     @OneToOne(mappedBy = "message", cascade = CascadeType.ALL)
     private Poll poll;
+
+    public VoiceMessage getVoiceMessage()
+    {
+        return voiceMessage;
+    }
+
+    public void setVoiceMessage(VoiceMessage voiceMessage)
+    {
+        this.voiceMessage = voiceMessage;
+    }
+
+    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VoiceMessage voiceMessage;
 }

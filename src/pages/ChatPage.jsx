@@ -255,8 +255,7 @@ const TempChatPage = () =>
             const userReactionsMap = {};
             userReactionsResponse.data.forEach((reaction) =>
             {
-                if(!userReactionsMap[reaction.messageId])
-                    userReactionsMap[reaction.messageId] = [];
+                if (!userReactionsMap[reaction.messageId]) userReactionsMap[reaction.messageId] = [];
                 userReactionsMap[reaction.messageId].push(reaction.reactionType);
             });
 
@@ -266,11 +265,25 @@ const TempChatPage = () =>
                 const isEdited = msg.edited;
                 const messageId = msg.id;
 
+                let voiceMessage = null;
+                if(msg.voiceMessage)
+                {
+                    voiceMessage =
+                    {
+                        fileType: msg.voiceMessage.fileType,
+                        audioData: msg.voiceMessage.audioData,
+                        fileSize: msg.voiceMessage.fileSize,
+                        durationSeconds: msg.voiceMessage.durationSeconds,
+                        waveformData: msg.voiceMessage.waveformData,
+                    };
+                }
+
                 let attachment = null;
                 if(msg.attachments && msg.attachments.length > 0)
                 {
                     const firstAttachment = msg.attachments[0];
-                    attachment = {
+                    attachment =
+                    {
                         type: firstAttachment.fileType.toLowerCase(),
                         name: firstAttachment.fileName,
                         size: formatFileSize(firstAttachment.fileSize),
@@ -313,6 +326,7 @@ const TempChatPage = () =>
                     reactions,
                     userReactions: userReactionsMap[messageId] || [],
                     isEdited,
+                    voiceMessage,
                     attachment,
                     codeSnippet,
                     poll,
@@ -327,8 +341,7 @@ const TempChatPage = () =>
                     `http://localhost:8080/api/messages/channel/${channelId}/read`,
                     JSON.stringify(userId),
                     {
-                        headers:
-                        {
+                        headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         },
@@ -376,6 +389,7 @@ const TempChatPage = () =>
                     reconnectDelay: 5000,
                     heartbeatIncoming: 4000,
                     heartbeatOutgoing: 4000,
+                    maxWebSocketFrameSize: 8192 * 1024,
                 });
 
                 client.onConnect = function (frame)
@@ -397,11 +411,11 @@ const TempChatPage = () =>
                             if(existingMessage)
                             {
                                 return prevMessages.map((msg) =>
-                                    msg.id === existingMessage.id ? { ...receivedMessage } : msg
+                                    msg.id === existingMessage.id ? { ...receivedMessage, voiceMessage: receivedMessage.voiceMessage } : msg
                                 );
                             }
                             else
-                                return [...prevMessages, receivedMessage];
+                                return [...prevMessages, { ...receivedMessage, voiceMessage: receivedMessage.voiceMessage }];
                         });
                         scrollToBottom();
                         updateUnreadCount(receivedMessage);
@@ -574,43 +588,29 @@ const TempChatPage = () =>
     const handleSendMessage = async (e) =>
     {
         e.preventDefault();
-        if (!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !audioBlob) return;
-        if (!selectedChannel) return;
+        if(!message.trim() && !selectedFile && !showCodeFormatting && !showPollCreator && !audioBlob)
+            return;
+        if(!selectedChannel)
+            return;
 
-        try {
+        try{
             let content = message;
-            if (showCodeFormatting) content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
+            if(showCodeFormatting)
+                content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
 
             const newMessage =
             {
-                id: Date.now(),
                 senderId: userId,
                 content: content || (audioBlob ? 'Voice message' : ''),
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
-                attachment: audioBlob
-                    ? {
-                        type: 'audio/webm',
-                        name: `voice-message-${Date.now()}.webm`,
-                        size: formatFileSize(audioBlob.size),
-                        fileData: URL.createObjectURL(audioBlob),
-                    }
-                    : selectedFile
-                        ?
-                        {
-                            type: selectedFile.type,
-                            name: selectedFile.name,
-                            size: formatFileSize(selectedFile.size),
-                            fileData: URL.createObjectURL(selectedFile),
-                        }
-                        : null,
             };
 
-            setMessages((prev) => [...prev, newMessage]);
-
-            if(!audioBlob)
+            if (audioBlob)
+                await uploadAudioMessage(audioBlob, selectedChannel.channelId);
+            else
             {
                 if(stompClient && connected)
                 {
@@ -645,9 +645,9 @@ const TempChatPage = () =>
                             selectedChannel.channelId
                         );
                     }
-                    fetchMessages(selectedChannel.channelId);
                 }
             }
+
             setMessage('');
             setSelectedFile(null);
             setAudioBlob(null);
@@ -659,6 +659,56 @@ const TempChatPage = () =>
         }catch(err){
             console.error('Error sending message:', err);
             alert('Failed to send message. Please try again.');
+        }
+    };
+
+    const uploadAudioMessage = async (audioBlob, channelId) =>
+    {
+        if(!stompClient || !connected)
+        {
+            alert('WebSocket not connected. Please try again.');
+            return;
+        }
+
+        try{
+            const base64Audio = await new Promise((resolve) =>
+            {
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = () =>
+                {
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+            });
+
+            console.log(base64Audio);
+
+            const audioMessage =
+            {
+                senderId: userId,
+                channelId: channelId,
+                projectId: parseInt(id),
+                content: 'Voice message',
+                audioDataBase64: base64Audio,
+                fileType: 'audio/webm',
+                fileSize: audioBlob.size,
+                durationSeconds: recordingTime,
+                waveformData: null,
+            };
+
+            console.log(audioMessage);
+            console.log("a", connected);
+
+            stompClient.publish({
+                destination: `/app/audio/${channelId}/send`,
+                body: JSON.stringify(audioMessage),
+            });
+
+            console.log("b", connected);
+        }catch(err){
+            console.error('Error uploading audio message:', err);
+            alert('Failed to upload audio message. Please try again.');
         }
     };
 

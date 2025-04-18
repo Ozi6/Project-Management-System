@@ -34,7 +34,6 @@ public class PollWebSocketController
             @DestinationVariable Long channelId,
             @Payload PollVoteDTO voteDTO)
     {
-
         try{
             PollDTO updatedPoll = pollService.voteOnPoll(
                     voteDTO.getPollId(),

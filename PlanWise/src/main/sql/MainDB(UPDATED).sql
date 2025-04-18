@@ -285,9 +285,12 @@ CREATE TABLE code_snippets (
 CREATE TABLE voice_messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     message_id BIGINT NOT NULL,
-    audio_path VARCHAR(512) NOT NULL,
+    audio_data LONGBLOB NOT NULL,
+    file_type VARCHAR(50) NOT NULL,
+    file_size BIGINT NOT NULL,
     duration_seconds INT NOT NULL,
     waveform_data TEXT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
 );
 
