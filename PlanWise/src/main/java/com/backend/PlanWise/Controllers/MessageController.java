@@ -1,15 +1,11 @@
 package com.backend.PlanWise.Controllers;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
-import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
-import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.DataTransferObjects.*;
 import com.backend.PlanWise.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -21,8 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import com.backend.PlanWise.DataPool.ProjectDataPool;
 import com.backend.PlanWise.DataPool.TeamDataPool;
 import com.backend.PlanWise.DataPool.UserDataPool;
-import com.backend.PlanWise.DataTransferObjects.MessageChannelDTO;
-import com.backend.PlanWise.DataTransferObjects.MessageDTO;
 import com.backend.PlanWise.repository.ChannelReadStatusRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import com.backend.PlanWise.repository.MessageRepository;
@@ -122,6 +116,20 @@ public class MessageController {
                 {
                     MessageDTO dto = convertToDTO(message);
                     dto.setReactions(messageReactions.getOrDefault(message.getId(), new HashMap<>()));
+                    if (message.getVoiceMessage() != null) {
+                        VoiceMessage voiceMessage = message.getVoiceMessage();
+                        AudioMessageDTO voiceMessageDTO = new AudioMessageDTO();
+                        voiceMessageDTO.setId(voiceMessage.getId());
+                        voiceMessageDTO.setMessageId(voiceMessage.getMessage().getId());
+                        byte[] audioData = voiceMessage.getAudioData();
+                        String base64Audio = audioData != null ? Base64.getEncoder().encodeToString(audioData) : null;
+                        voiceMessageDTO.setAudioDataBase64(base64Audio);
+                        voiceMessageDTO.setFileType(voiceMessage.getFileType());
+                        voiceMessageDTO.setFileSize(voiceMessage.getFileSize());
+                        voiceMessageDTO.setDurationSeconds(voiceMessage.getDurationSeconds());
+                        voiceMessageDTO.setWaveformData(voiceMessage.getWaveformData());
+                        dto.setVoiceMessage(voiceMessageDTO);
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());

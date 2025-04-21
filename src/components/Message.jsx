@@ -29,7 +29,8 @@ const Message = React.memo(
         connected,
         messageActionsRef,
         emojiPickerRef,
-        setMessages
+        setMessages,
+        formatFileSize
     }) =>
     {
         const user = users.find((u) => u.id === msg.senderId) ||

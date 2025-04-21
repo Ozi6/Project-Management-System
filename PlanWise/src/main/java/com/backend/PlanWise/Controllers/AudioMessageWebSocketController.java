@@ -1,6 +1,8 @@
 package com.backend.PlanWise.Controllers;
 
+import com.backend.PlanWise.DataTransferObjects.AudioChunkDTO;
 import com.backend.PlanWise.DataTransferObjects.AudioMessageDTO;
+import com.backend.PlanWise.servicer.AudioChunkService;
 import com.backend.PlanWise.servicer.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -12,18 +14,22 @@ import org.springframework.stereotype.Controller;
 public class AudioMessageWebSocketController
 {
     @Autowired
-    private MessageService messageService;
+    private AudioChunkService audioChunkService;
 
     @MessageMapping("/audio/{channelId}/send")
-    public void processAudioMessage(
+    public void processAudioChunk(
             @DestinationVariable Long channelId,
-            @Payload AudioMessageDTO audioMessageDTO)
+            @Payload AudioChunkDTO chunkDTO)
     {
         try{
-            audioMessageDTO.setChannelId(channelId);
-            messageService.createAudioMessage(audioMessageDTO);
+            System.out.println("Received chunk for channel " + channelId +
+                    ", messageId: " + chunkDTO.getMessageId() +
+                    ", chunkIndex: " + chunkDTO.getChunkIndex() +
+                    ", chunkSize: " + chunkDTO.getAudioDataChunk().length());
+
+            audioChunkService.processAudioChunk(channelId, chunkDTO);
         }catch(Exception e){
-            System.err.println("Error processing audio message: " + e.getMessage());
+            System.err.println("Error processing audio chunk for messageId " + chunkDTO.getMessageId() + ": " + e.getMessage());
         }
     }
 }

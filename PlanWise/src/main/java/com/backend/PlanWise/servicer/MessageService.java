@@ -9,9 +9,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Base64;
 
@@ -44,6 +41,7 @@ public class MessageService
         message.setProjectId(audioMessageDTO.getProjectId());
         message.setContent(audioMessageDTO.getContent() != null ? audioMessageDTO.getContent() : "Voice message");
         message.setTimestamp(LocalDateTime.now());
+        message.setSenderId(audioMessageDTO.getSenderId());
         message = messageRepository.save(message);
 
         VoiceMessage voiceMessage = new VoiceMessage();

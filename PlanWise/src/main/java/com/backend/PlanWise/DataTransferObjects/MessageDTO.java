@@ -109,6 +109,26 @@ public class MessageDTO
     private LocalDateTime editedAt;
     private boolean isEdited;
 
+    public AudioMessageDTO getVoiceMessage()
+    {
+        return voiceMessage;
+    }
+
+    public void setVoiceMessage(AudioMessageDTO voiceMessage)
+    {
+        this.voiceMessage = voiceMessage;
+    }
+
+    public List<AttachmentDTO> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<AttachmentDTO> attachments) {
+        this.attachments = attachments;
+    }
+
+    private AudioMessageDTO voiceMessage;
+
     public PollDTO getPoll()
     {
         return poll;

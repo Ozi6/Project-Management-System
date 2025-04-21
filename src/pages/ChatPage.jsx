@@ -268,6 +268,7 @@ const TempChatPage = () =>
                 let voiceMessage = null;
                 if(msg.voiceMessage)
                 {
+                    console.log(msg.voiceMessage);
                     voiceMessage =
                     {
                         fileType: msg.voiceMessage.fileType,
@@ -675,14 +676,18 @@ const TempChatPage = () =>
             {
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
-                reader.onloadend = () =>
-                {
+                reader.onloadend = () => {
                     const base64 = reader.result.split(',')[1];
                     resolve(base64);
                 };
             });
 
-            console.log(base64Audio);
+            const chunkSize = 10000;
+            const chunks = [];
+            for(let i = 0; i < base64Audio.length; i += chunkSize)
+                chunks.push(base64Audio.substring(i, i + chunkSize));
+
+            const messageId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
             const audioMessage =
             {
@@ -690,22 +695,30 @@ const TempChatPage = () =>
                 channelId: channelId,
                 projectId: parseInt(id),
                 content: 'Voice message',
-                audioDataBase64: base64Audio,
                 fileType: 'audio/webm',
                 fileSize: audioBlob.size,
                 durationSeconds: recordingTime,
-                waveformData: null,
+                waveformData: '',
+                messageId: messageId,
+                totalChunks: chunks.length,
             };
 
-            console.log(audioMessage);
-            console.log("a", connected);
-
-            stompClient.publish({
-                destination: `/app/audio/${channelId}/send`,
-                body: JSON.stringify(audioMessage),
+            const destination = `/app/audio/${channelId}/send`;
+            chunks.forEach((chunk, index) =>
+            {
+                const payload = JSON.stringify({
+                    ...audioMessage,
+                    audioDataChunk: chunk,
+                    chunkIndex: index,
+                });
+                console.log(`Sending chunk ${index + 1}/${chunks.length}, size: ${chunk.length} chars`);
+                stompClient.publish({
+                    destination: destination,
+                    body: payload,
+                });
             });
 
-            console.log("b", connected);
+            console.log('All chunks sent successfully to', destination);
         }catch(err){
             console.error('Error uploading audio message:', err);
             alert('Failed to upload audio message. Please try again.');
@@ -1751,7 +1764,8 @@ const TempChatPage = () =>
                                             messageActionsRef={messageActionsRef}
                                             emojiPickerRef={emojiPickerRef}
                                             setMessages={setMessages}
-                                            showEmojiPicker={showEmojiPicker}/>
+                                            showEmojiPicker={showEmojiPicker}
+                                            formatFileSize={formatFileSize}/>
                                     ))}
                                     <div ref={messagesEndRef}/>
                                 </>
