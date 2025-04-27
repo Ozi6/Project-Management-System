@@ -1,6 +1,8 @@
 package com.backend.PlanWise.DataTransferObjects;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -104,4 +106,94 @@ public class MessageDTO
 
     private String senderName;
     private String senderAvatar;
+    private LocalDateTime editedAt;
+    private boolean isEdited;
+
+    public AudioMessageDTO getVoiceMessage()
+    {
+        return voiceMessage;
+    }
+
+    public void setVoiceMessage(AudioMessageDTO voiceMessage)
+    {
+        this.voiceMessage = voiceMessage;
+    }
+
+    public List<AttachmentDTO> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<AttachmentDTO> attachments) {
+        this.attachments = attachments;
+    }
+
+    private AudioMessageDTO voiceMessage;
+
+    public PollDTO getPoll()
+    {
+        return poll;
+    }
+
+    public void setPoll(PollDTO poll)
+    {
+        this.poll = poll;
+    }
+
+    private PollDTO poll;
+
+    public List<AttachmentDTO> getAttachmentIds()
+    {
+        return attachments;
+    }
+
+    public void setAttachmentIds(List<AttachmentDTO> attachmentIds)
+    {
+        this.attachments = attachmentIds;
+    }
+
+    private List<AttachmentDTO> attachments;
+
+    public Map<String, Integer> getReactions()
+    {
+        return reactions;
+    }
+
+    public void setReactions(Map<String, Integer> reactions)
+    {
+        this.reactions = reactions;
+    }
+
+    private Map<String, Integer> reactions;
+
+    public LocalDateTime getEditedAt()
+    {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt)
+    {
+        this.editedAt = editedAt;
+    }
+
+    public boolean isEdited()
+    {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited)
+    {
+        isEdited = edited;
+    }
+
+    public CodeSnippetDTO getCodeSnippet()
+    {
+        return codeSnippet;
+    }
+
+    public void setCodeSnippet(CodeSnippetDTO codeSnippet)
+    {
+        this.codeSnippet = codeSnippet;
+    }
+
+    private CodeSnippetDTO codeSnippet;
 }

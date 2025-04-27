@@ -41,6 +41,7 @@
     "react-i18next": "^15.4.1",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.2.0",
+    "simple-peer": "^9.11.1",
     "sockjs-client": "^1.6.1",
     "tailwindcss": "^4.0.14",
     "uay-react-tailwind-gantt": "^1.0.0",

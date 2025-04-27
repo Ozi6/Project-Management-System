@@ -1,16 +1,10 @@
 package com.backend.PlanWise.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -128,4 +122,82 @@ public class Message
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "channel_id", referencedColumnName = "channel_id", insertable = false, updatable = false)
     private MessageChannel channel;
+
+    public LocalDateTime getEditedAt()
+    {
+        return editedAt;
+    }
+
+    public void setEditedAt(LocalDateTime editedAt)
+    {
+        this.editedAt = editedAt;
+        this.isEdited = true;
+    }
+
+    public boolean isEdited()
+    {
+        return isEdited;
+    }
+
+    public void setEdited(boolean edited)
+    {
+        isEdited = edited;
+    }
+
+    @Column(name = "edited_at")
+    private LocalDateTime editedAt;
+
+    @Column(name = "is_edited", nullable = false)
+    private boolean isEdited = false;
+
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MessageAttachment> attachments = new ArrayList<>();
+
+    public List<MessageAttachment> getAttachments()
+    {
+        return attachments;
+    }
+
+    public void setAttachments(List<MessageAttachment> attachments)
+    {
+        this.attachments = attachments;
+    }
+
+    public void addAttachment(MessageAttachment attachment)
+    {
+        attachments.add(attachment);
+        attachment.setMessage(this);
+    }
+
+    public void removeAttachment(MessageAttachment attachment)
+    {
+        attachments.remove(attachment);
+        attachment.setMessage(null);
+    }
+
+    public Poll getPoll()
+    {
+        return poll;
+    }
+
+    public void setPoll(Poll poll)
+    {
+        this.poll = poll;
+    }
+
+    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL)
+    private Poll poll;
+
+    public VoiceMessage getVoiceMessage()
+    {
+        return voiceMessage;
+    }
+
+    public void setVoiceMessage(VoiceMessage voiceMessage)
+    {
+        this.voiceMessage = voiceMessage;
+    }
+
+    @OneToOne(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    private VoiceMessage voiceMessage;
 }
