@@ -2,13 +2,12 @@ package com.backend.PlanWise.servicer;
 
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
-import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
-import com.backend.PlanWise.DataTransferObjects.AudioChunkDTO;
-import com.backend.PlanWise.DataTransferObjects.AudioMessageDTO;
-import com.backend.PlanWise.DataTransferObjects.MessageDTO;
+import com.backend.PlanWise.DataTransferObjects.*;
 import com.backend.PlanWise.model.AudioChunk;
+import com.backend.PlanWise.model.CodeSnippet;
 import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.model.VoiceMessage;
+import com.backend.PlanWise.repository.CodeSnippetRepository;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.VoiceMessageRepository;
 import jakarta.transaction.Transactional;
@@ -149,6 +148,9 @@ public class AudioChunkService
     @Autowired
     MessageReactionRepository reactionRepository;
 
+    @Autowired
+    CodeSnippetRepository codeSnippetRepository;
+
     private MessageDTO convertToDTO(Message message)
     {
         MessageDTO dto = new MessageDTO();
@@ -205,6 +207,17 @@ public class AudioChunkService
             voiceMessageDTO.setWaveformData(voiceMessage.getWaveformData());
             dto.setVoiceMessage(voiceMessageDTO);
         }
+
+        Optional<CodeSnippet> codeSnippetOpt = codeSnippetRepository.findByMessageId(message.getId());
+        codeSnippetOpt.ifPresent(snippet ->
+        {
+            CodeSnippetDTO snippetDTO = new CodeSnippetDTO();
+            snippetDTO.setId(snippet.getId());
+            snippetDTO.setMessageId(snippet.getMessageId());
+            snippetDTO.setLanguage(snippet.getLanguage());
+            snippetDTO.setCodeContent(snippet.getCodeContent());
+            dto.setCodeSnippet(snippetDTO);
+        });
 
         return dto;
     }

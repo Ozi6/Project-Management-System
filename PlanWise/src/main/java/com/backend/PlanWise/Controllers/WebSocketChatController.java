@@ -4,6 +4,7 @@ import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
 import com.backend.PlanWise.DataTransferObjects.*;
 import com.backend.PlanWise.model.*;
+import com.backend.PlanWise.repository.CodeSnippetRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,9 @@ public class WebSocketChatController
 
     @Autowired
     private UserDataPool userRepository;
+
+    @Autowired
+    private CodeSnippetRepository codeSnippetRepository;
 
     @MessageMapping("/chat/{channelId}/send")
     public void sendMessage(
@@ -87,6 +91,16 @@ public class WebSocketChatController
         }
 
         Message savedMessage = messageRepository.save(message);
+
+
+        if (messageDTO.getCodeSnippet() != null)
+        {
+            CodeSnippet codeSnippet = new CodeSnippet();
+            codeSnippet.setMessageId(savedMessage.getId());
+            codeSnippet.setLanguage(messageDTO.getCodeSnippet().getLanguage());
+            codeSnippet.setCodeContent(messageDTO.getCodeSnippet().getCodeContent());
+            codeSnippetRepository.save(codeSnippet);
+        }
 
         MessageDTO savedMessageDTO = convertToDTO(savedMessage);
         messagingTemplate.convertAndSend("/topic/channel/" + channelId, savedMessageDTO);
@@ -205,6 +219,17 @@ public class WebSocketChatController
             dto.setVoiceMessage(voiceMessageDTO);
         }
 
+        Optional<CodeSnippet> codeSnippetOpt = codeSnippetRepository.findByMessageId(message.getId());
+        codeSnippetOpt.ifPresent(snippet ->
+        {
+            CodeSnippetDTO snippetDTO = new CodeSnippetDTO();
+            snippetDTO.setId(snippet.getId());
+            snippetDTO.setMessageId(snippet.getMessageId());
+            snippetDTO.setLanguage(snippet.getLanguage());
+            snippetDTO.setCodeContent(snippet.getCodeContent());
+            dto.setCodeSnippet(snippetDTO);
+        });
+
         return dto;
     }
 
@@ -293,5 +318,32 @@ public class WebSocketChatController
     {
         List<MessageReaction> reactions = reactionRepository.findByUserIdAndChannelId(userId, channelId);
         return ResponseEntity.ok(reactions);
+    }
+
+    @MessageMapping("/chat/{channelId}/codesnippet")
+    public void updateCodeSnippet(@DestinationVariable Long channelId, @Payload CodeSnippetDTO codeSnippetDTO)
+    {
+        Optional<Message> messageOpt = messageRepository.findById(codeSnippetDTO.getMessageId());
+        if(!messageOpt.isPresent() || !messageOpt.get().getChannelId().equals(channelId))
+            return;
+
+        Optional<CodeSnippet> existingSnippet = codeSnippetRepository.findByMessageId(codeSnippetDTO.getMessageId());
+        CodeSnippet codeSnippet;
+
+        if(existingSnippet.isPresent())
+            codeSnippet = existingSnippet.get();
+        else
+        {
+            codeSnippet = new CodeSnippet();
+            codeSnippet.setMessageId(codeSnippetDTO.getMessageId());
+        }
+        codeSnippet.setLanguage(codeSnippetDTO.getLanguage());
+        codeSnippet.setCodeContent(codeSnippetDTO.getCodeContent());
+
+        codeSnippetRepository.save(codeSnippet);
+
+        Message updatedMessage = messageOpt.get();
+        MessageDTO updatedMessageDTO = convertToDTO(updatedMessage);
+        messagingTemplate.convertAndSend("/topic/channel/" + channelId + "/codesnippet", updatedMessageDTO);
     }
 }

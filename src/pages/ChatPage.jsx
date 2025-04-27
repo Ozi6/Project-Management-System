@@ -309,15 +309,16 @@ const TempChatPage = () =>
                     };
                 }
 
-                const hasCodeSnippet = index % 11 === 0;
                 let codeSnippet = null;
-                if(hasCodeSnippet)
+                if(msg.codeSnippet)
                 {
+                    console.log(msg);
                     codeSnippet =
                     {
-                        language: 'javascript',
-                        code: 'function sayHello() {\n  console.log("Hello, world!");\n}',
+                        language: msg.codeSnippet.language,
+                        code: msg.codeSnippet.codeContent,
                     };
+                    msg.content = "";
                 }
 
                 let poll = null;
@@ -590,6 +591,24 @@ const TempChatPage = () =>
                         scrollToBottom();
                         updateUnreadCount(receivedMessage);
                     });
+
+
+
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message)
+                    {
+                        const updatedMessage = JSON.parse(message.body);
+                        setMessages((prevMessages) =>
+                            prevMessages.map((msg) =>
+                                msg.id === updatedMessage.id
+                                    ?
+                                    {
+                                        ...msg,
+                                        codeSnippet: updatedMessage.codeSnippet
+                                    }
+                                    : msg
+                            )
+                        );
+                    });
                 };
 
                 client.onStompError = function (frame)
@@ -668,8 +687,16 @@ const TempChatPage = () =>
 
         try{
             let content = message;
+            let codeSnippet = null;
             if(showCodeFormatting)
+            {
+                codeSnippet =
+                {
+                    language: codeLanguage,
+                    codeContent: message
+                };
                 content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
+            }
 
             const newMessage =
             {
@@ -679,6 +706,7 @@ const TempChatPage = () =>
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
+                codeSnippet: codeSnippet
             };
 
             if(audioBlob)

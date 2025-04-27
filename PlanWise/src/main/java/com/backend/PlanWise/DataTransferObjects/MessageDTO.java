@@ -184,4 +184,16 @@ public class MessageDTO
     {
         isEdited = edited;
     }
+
+    public CodeSnippetDTO getCodeSnippet()
+    {
+        return codeSnippet;
+    }
+
+    public void setCodeSnippet(CodeSnippetDTO codeSnippet)
+    {
+        this.codeSnippet = codeSnippet;
+    }
+
+    private CodeSnippetDTO codeSnippet;
 }
