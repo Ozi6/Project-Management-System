@@ -4,7 +4,7 @@ import {
     Send, Search, ArrowLeft, Users, Hash, MessageSquare,
     PlusCircle, X, MessageCircle, Settings, Layout, Activity, KanbanSquare, UsersIcon, BookOpen,
     Smile, Paperclip, MoreHorizontal, Edit, Trash2, Reply, ThumbsUp, Heart, Laugh, Frown,
-    Repeat, BarChart2, AtSign, Mic, PauseCircle, Code, CheckCircle, Clock, ChevronDown, Download
+    Repeat, BarChart2, AtSign, Mic, PauseCircle, Code, CheckCircle, Clock, ChevronDown, Download, MicOff, PhoneCall, PhoneOff, Volume2, User
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
@@ -18,6 +18,7 @@ import { ALL_ICONS } from '../components/ICON_CATEGORIES';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import Message from '../components/Message';
+import SimplePeer from 'simple-peer';
 
 const ProjectChatWrapper = () =>
 {
@@ -72,6 +73,15 @@ const TempChatPage = () =>
     const emojiPickerRef = useRef(null);
     const messageActionsRef = useRef(null);
     const [filesToUpload, setFilesToUpload] = useState(null);
+
+    const [voiceChannels, setVoiceChannels] = useState([]);
+    const [activeVoiceChannel, setActiveVoiceChannel] = useState(null);
+    const [isInVoiceChannel, setIsInVoiceChannel] = useState(false);
+    const [peers, setPeers] = useState({});
+    const [localStream, setLocalStream] = useState(null);
+    const [isMuted, setIsMuted] = useState(false);
+    const [voiceUsers, setVoiceUsers] = useState({});
+    const audioRef = useRef(null);
 
     const reactionTypes =
     [
@@ -170,7 +180,7 @@ const TempChatPage = () =>
                             unreadCount: unreadResponse.data,
                             teamData: teamData,
                         };
-                    } catch (err) {
+                    }catch(err){
                         console.error(`Error processing channel ${channel.channelId}:`, err);
                         return null;
                     }
@@ -185,6 +195,223 @@ const TempChatPage = () =>
             console.error('Error fetching channels:', err);
             setError('Failed to load channels');
             setLoading(false);
+        }
+    };
+
+    useEffect(() =>
+    {
+        const fetchVoiceChannels = async () =>
+        {
+            try{
+                setLoading(true);
+                const token = await getToken();
+
+                const response = await axios.get(
+                    `http://localhost:8080/api/messages/channels/project/${id}?type=VOICE`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+
+                const mockVoiceChannels = channels
+                    .filter(channel => channel.channelType === 'TEAM')
+                    .map(channel => ({
+                        channelId: `voice-${channel.channelId}`,
+                        channelName: `${channel.channelName} (Voice)`,
+                        channelType: 'VOICE',
+                        teamId: channel.teamId,
+                        teamData: channel.teamData,
+                        participants: []
+                    }));
+
+                mockVoiceChannels.unshift({
+                    channelId: `voice-project-${id}`,
+                    channelName: `${projectName} (Voice)`,
+                    channelType: 'VOICE',
+                    participants: []
+                });
+
+                setVoiceChannels(mockVoiceChannels);
+                setLoading(false);
+            }catch(err){
+                console.error('Error fetching voice channels:', err);
+                setError('Failed to load voice channels');
+                setLoading(false);
+            }
+        };
+
+        if(id && userId && channels.length > 0)
+            fetchVoiceChannels();
+    }, [id, userId, channels, projectName]);
+
+    const joinVoiceChannel = async (channel) =>
+    {
+        try{
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: false
+            });
+
+            setLocalStream(stream);
+            setActiveVoiceChannel(channel);
+            setIsInVoiceChannel(true);
+
+            console.log('Joining voice channel:', channel.channelId);
+            console.log('Local stream:', stream);
+            console.log(users);
+
+            if(stompClient && connected)
+            {
+                stompClient.publish({
+                    destination: `/app/voice/${channel.channelId}/join`,
+                    body: JSON.stringify({
+                        userId,
+                        username: users.find(u => u.id === userId)?.name || 'Unknown User',
+                        channelId: channel.channelId
+                    }),
+                });
+            }
+
+            if(stompClient)
+            {
+                stompClient.subscribe(`/topic/voice/${channel.channelId}/signal`, handleVoiceSignal);
+                stompClient.subscribe(`/topic/voice/${channel.channelId}/users`, handleVoiceUsers);
+            }
+        }catch(err){
+            console.error('Error accessing microphone:', err);
+            alert('Could not access microphone. Please check permissions.');
+        }
+    };
+
+    const leaveVoiceChannel = () =>
+    {
+        if(activeVoiceChannel && stompClient && connected)
+        {
+            stompClient.publish({
+                destination: `/app/voice/${activeVoiceChannel.channelId}/leave`,
+                body: JSON.stringify({
+                    userId,
+                    channelId: activeVoiceChannel.channelId
+                }),
+            });
+
+            stompClient.unsubscribe(`/topic/voice/${activeVoiceChannel.channelId}/signal`);
+            stompClient.unsubscribe(`/topic/voice/${activeVoiceChannel.channelId}/users`);
+        }
+
+        if(localStream)
+            localStream.getTracks().forEach(track => track.stop());
+
+        Object.values(peers).forEach(peer =>
+        {
+            if (peer) peer.destroy();
+        });
+
+        setPeers({});
+        setLocalStream(null);
+        setActiveVoiceChannel(null);
+        setIsInVoiceChannel(false);
+        setVoiceUsers({});
+    };
+
+    const handleVoiceSignal = (message) =>
+    {
+        const data = JSON.parse(message.body);
+        const { from, to, signal, type } = data;
+
+        if(to !== userId)
+            return;
+
+        if(type === 'offer')
+        {
+            const peer = new SimplePeer({
+                initiator: false,
+                trickle: false,
+                stream: localStream
+            });
+
+            peer.on('signal', signal =>
+            {
+                stompClient.publish({
+                    destination: `/app/voice/${activeVoiceChannel.channelId}/signal`,
+                    body: JSON.stringify({
+                        from: userId,
+                        to: from,
+                        signal,
+                        type: 'answer'
+                    }),
+                });
+            });
+
+            peer.on('stream', stream =>
+            {
+                const audio = new Audio();
+                audio.srcObject = stream;
+                audio.play();
+            });
+            peer.signal(signal);
+            setPeers(prev => ({ ...prev, [from]: peer }));
+        }
+        else if(type === 'answer')
+        {
+            const peer = peers[from];
+            if(peer)
+                peer.signal(signal);
+        }
+    };
+
+    const handleVoiceUsers = (message) =>
+    {
+        const data = JSON.parse(message.body);
+        setVoiceUsers(data);
+
+        Object.keys(data).forEach(remoteUserId =>
+        {
+            if(
+                remoteUserId !== userId &&
+                !peers[remoteUserId] &&
+                localStream)
+            {
+                const peer = new SimplePeer({
+                    initiator: true,
+                    trickle: false,
+                    stream: localStream
+                });
+
+                peer.on('signal', signal =>
+                {
+                    stompClient.publish({
+                        destination: `/app/voice/${activeVoiceChannel.channelId}/signal`,
+                        body: JSON.stringify({
+                            from: userId,
+                            to: remoteUserId,
+                            signal,
+                            type: 'offer'
+                        }),
+                    });
+                });
+
+                peer.on('stream', stream =>
+                {
+                    const audio = new Audio();
+                    audio.srcObject = stream;
+                    audio.play();
+                });
+
+                setPeers(prev => ({ ...prev, [remoteUserId]: peer }));
+            }
+        });
+    };
+
+    const toggleMute = () =>
+    {
+        if(localStream)
+        {
+            localStream.getAudioTracks().forEach(track =>
+            {
+                track.enabled = !track.enabled;
+            });
+            setIsMuted(!isMuted);
         }
     };
 
@@ -592,7 +819,11 @@ const TempChatPage = () =>
                         updateUnreadCount(receivedMessage);
                     });
 
-
+                    if(activeVoiceChannel)
+                    {
+                        client.subscribe(`/topic/voice/${activeVoiceChannel.channelId}/signal`, handleVoiceSignal);
+                        client.subscribe(`/topic/voice/${activeVoiceChannel.channelId}/users`, handleVoiceUsers);
+                    }
 
                     client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message)
                     {
@@ -639,7 +870,7 @@ const TempChatPage = () =>
         };
 
         connectWebSocket();
-    }, [userId, id, selectedChannel?.channelId]);
+    }, [userId, id, selectedChannel?.channelId, activeVoiceChannel?.channelId]);
 
     const updateUnreadCount = (message) =>
     {
@@ -1287,6 +1518,101 @@ const TempChatPage = () =>
         )
         : channels;
 
+    const renderVoiceChannels = () => (
+        <div className="mt-4">
+            <h3 className="text-sm font-semibold mb-2 text-gray-500">VOICE CHANNELS</h3>
+            <ul>
+                {voiceChannels.map((channel) =>(
+                    <li
+                        key={channel.channelId}
+                        className={`flex items-center justify-between p-2 rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${activeVoiceChannel?.channelId === channel.channelId ? 'bg-gray-200 dark:bg-gray-700' : ''
+                            }`}
+                        onClick={() =>
+                        {
+                            if(isInVoiceChannel && activeVoiceChannel?.channelId !== channel.channelId)
+                            {
+                                leaveVoiceChannel();
+                                setTimeout(() => joinVoiceChannel(channel), 500);
+                            }
+                            else if(!isInVoiceChannel)
+                                joinVoiceChannel(channel);
+                        }}>
+                        <div className="flex items-center">
+                            <Volume2 size={16} className="mr-2 text-gray-500" />
+                            <span>{channel.channelName}</span>
+                        </div>
+                        {activeVoiceChannel?.channelId === channel.channelId && (
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        toggleMute();
+                                    }}
+                                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                                    {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+                                </button>
+                                <button
+                                    onClick={(e) =>
+                                    {
+                                        e.stopPropagation();
+                                        leaveVoiceChannel();
+                                    }}
+                                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
+                                    <PhoneOff size={16} className="text-red-500" />
+                                </button>
+                            </div>
+                        )}
+                    </li>
+                ))}
+            </ul>
+        </div>
+    );
+
+    const renderVoiceParticipants = () =>
+    {
+        if(!isInVoiceChannel || !activeVoiceChannel)
+            return null;
+
+        return(
+            <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg z-50">
+                <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium">{activeVoiceChannel.channelName}</h3>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={toggleMute}
+                            className={`p-1 rounded-full ${isMuted ? 'bg-red-500' : 'bg-green-500'}`}>
+                            {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+                        </button>
+                        <button
+                            onClick={leaveVoiceChannel}
+                            className="p-1 rounded-full bg-red-500">
+                            <PhoneOff size={16}/>
+                        </button>
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <div className="flex items-center bg-gray-700 rounded-full px-2 py-1">
+                        <User size={14} className="mr-1" />
+                        <span className="text-xs">{users.find(u => u.id === userId)?.name || 'You'}</span>
+                        {isMuted && <MicOff size={12} className="ml-1 text-red-500" />}
+                    </div>
+
+                    {Object.entries(voiceUsers || {}).map(([id, username]) =>
+                    {
+                        if(id === userId)
+                            return null;
+                        return(
+                            <div key={id} className="flex items-center bg-gray-700 rounded-full px-2 py-1">
+                                <User size={14} className="mr-1" />
+                                <span className="text-xs">{username}</span>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    };
+
     const customNavItems =
     [
         {
@@ -1759,6 +2085,7 @@ const TempChatPage = () =>
                                 );
                             })}
                         </div>
+                        {renderVoiceChannels()}
                     </div>
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)] bg-[var(--bg-color)] flex items-center justify-between">
@@ -1875,6 +2202,7 @@ const TempChatPage = () =>
                     </div>
                 </div>
             </div>
+            {renderVoiceParticipants()}
         </div>
     );
 };
