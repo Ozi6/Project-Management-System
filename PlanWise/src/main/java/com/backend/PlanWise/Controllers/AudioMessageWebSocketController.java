@@ -1,9 +1,7 @@
 package com.backend.PlanWise.Controllers;
 
 import com.backend.PlanWise.DataTransferObjects.AudioChunkDTO;
-import com.backend.PlanWise.DataTransferObjects.AudioMessageDTO;
 import com.backend.PlanWise.servicer.AudioChunkService;
-import com.backend.PlanWise.servicer.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;

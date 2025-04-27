@@ -1,7 +1,11 @@
 package com.backend.PlanWise.servicer;
 
+import com.backend.PlanWise.DataPool.MessageReactionRepository;
+import com.backend.PlanWise.DataPool.UserDataPool;
+import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
 import com.backend.PlanWise.DataTransferObjects.AudioChunkDTO;
 import com.backend.PlanWise.DataTransferObjects.AudioMessageDTO;
+import com.backend.PlanWise.DataTransferObjects.MessageDTO;
 import com.backend.PlanWise.model.AudioChunk;
 import com.backend.PlanWise.model.Message;
 import com.backend.PlanWise.model.VoiceMessage;
@@ -15,9 +19,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
-public class AudioChunkService {
+public class AudioChunkService
+{
 
     @Autowired
     private MessageRepository messageRepository;
@@ -128,11 +134,78 @@ public class AudioChunkService {
         message.setVoiceMessage(voiceMessage);
         messageRepository.save(message);
 
+        MessageDTO messageDTO = convertToDTO(message);
         messagingTemplate.convertAndSend(
                 "/topic/channel/" + audioMessageDTO.getChannelId(),
-                message
+                messageDTO
         );
 
         return message;
+    }
+
+    @Autowired
+    UserDataPool userRepository;
+
+    @Autowired
+    MessageReactionRepository reactionRepository;
+
+    private MessageDTO convertToDTO(Message message)
+    {
+        MessageDTO dto = new MessageDTO();
+        dto.setId(message.getId());
+        dto.setProjectId(message.getProjectId());
+        dto.setSenderId(message.getSenderId());
+        dto.setContent(message.getContent());
+        dto.setTimestamp(message.getTimestamp());
+        dto.setChannelId(message.getChannelId());
+        dto.setEditedAt(message.getEditedAt());
+        dto.setEdited(message.isEdited());
+
+        var userOpt = userRepository.findById(message.getSenderId());
+        if(userOpt.isPresent())
+        {
+            var user = userOpt.get();
+            dto.setSenderName(user.getUsername());
+            dto.setSenderAvatar(user.getProfileImageUrl());
+        }
+
+        List<Object[]> reactionCounts = reactionRepository.countReactionsByMessageId(message.getId());
+        Map<String, Integer> reactions = new HashMap<>();
+        for(Object[] result : reactionCounts)
+        {
+            String reactionType = (String) result[0];
+            Long count = (Long) result[1];
+            reactions.put(reactionType, count.intValue());
+        }
+        dto.setReactions(reactions);
+
+        List<AttachmentDTO> attachmentDTOs = message.getAttachments().stream()
+                .map(attachment -> new AttachmentDTO(
+                        attachment.getId(),
+                        attachment.getFileName(),
+                        attachment.getFileType().name(),
+                        attachment.getFileSize(),
+                        attachment.getUploadedAt()
+                ))
+                .collect(Collectors.toList());
+        dto.setAttachmentIds(attachmentDTOs);
+
+        if(message.getPoll() != null)
+            dto.setPoll(message.getPoll().convertToDTO());
+
+        if(message.getVoiceMessage() != null)
+        {
+            VoiceMessage voiceMessage = message.getVoiceMessage();
+            AudioMessageDTO voiceMessageDTO = new AudioMessageDTO();
+            voiceMessageDTO.setId(voiceMessage.getId());
+            voiceMessageDTO.setFileType(voiceMessage.getFileType());
+            voiceMessageDTO.setAudioDataBase64(Base64.getEncoder().encodeToString(voiceMessage.getAudioData()));
+            voiceMessageDTO.setFileSize(voiceMessage.getFileSize());
+            voiceMessageDTO.setDurationSeconds(voiceMessage.getDurationSeconds());
+            voiceMessageDTO.setWaveformData(voiceMessage.getWaveformData());
+            dto.setVoiceMessage(voiceMessageDTO);
+        }
+
+        return dto;
     }
 }

@@ -33,8 +33,7 @@ const Message = React.memo(
         formatFileSize
     }) =>
     {
-        const user = users.find((u) => u.id === msg.senderId) ||
-        {
+        const user = users.find((u) => u.id === msg.senderId) || {
             name: 'Unknown User',
             avatar: `https://ui-avatars.com/api/?name=Unknown+User&background=888888&color=fff`,
         };
@@ -52,12 +51,11 @@ const Message = React.memo(
                 key={msg.id}
                 onMouseEnter={() => setShowMessageActions(msg.id)}
                 onMouseLeave={() => setShowMessageActions(null)}
-                className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}
-            >
+                className={`group flex ${isCurrentUser ? 'justify-end' : 'justify-start'} relative`}>
                 {!isCurrentUser && (
-                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 mr-2">
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0සින් flex-shrink-0 mr-2">
                         {user?.avatar ? (
-                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover" />
+                            <img src={user.avatar} alt="Profile" className="w-full h-full object-cover"/>
                         ) : (
                             <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
                                 {user?.name?.charAt(0) || 'U'}
@@ -100,23 +98,38 @@ const Message = React.memo(
                             <>
                                 <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                                 {msg.codeSnippet && (
-                                    <CodeSnippet language={msg.codeSnippet.language} code={msg.codeSnippet.code} />
+                                    <CodeSnippet language={msg.codeSnippet.language} code={msg.codeSnippet.code}/>
                                 )}
-                                {msg.voiceMessage ? (
+                                {msg.voiceMessage && (
                                     <div className="mt-2">
-                                        <audio controls className="max-w-full">
+                                        <audio
+                                            controls
+                                            className="max-w-full"
+                                            style={{
+                                                background: isCurrentUser ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+                                                borderRadius: '8px',
+                                            }}>
                                             <source
-                                                src={`data:${msg.voiceMessage.fileType};base64,${msg.voiceMessage.audioData}`}
-                                                type={msg.voiceMessage.fileType}/>
+                                                src={msg.voiceMessage.audioSrc}
+                                                type={msg.voiceMessage.fileType || 'audio/webm'}/>
                                             Your browser does not support the audio element.
                                         </audio>
                                         <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
                                             Voice message ({formatFileSize(msg.voiceMessage.fileSize)})
+                                            {msg.voiceMessage.durationSeconds && (
+                                                <span> • {msg.voiceMessage.durationSeconds}s</span>
+                                            )}
                                         </div>
+                                        {msg.voiceMessage.waveformData && (
+                                            <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
+                                                Waveform data available (visualization not implemented)
+                                            </div>
+                                        )}
                                     </div>
-                                ) : msg.attachment && !msg.attachment.type.includes('audio') ? (
+                                )}
+                                {msg.attachment && !msg.attachment.type.includes('audio') && (
                                     <FileAttachment attachment={msg.attachment}/>
-                                ) : null}
+                                )}
                                 {msg.poll && (
                                     <PollComponent
                                         poll={msg.poll}
@@ -251,7 +264,7 @@ const Message = React.memo(
                 {isCurrentUser && (
                     <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 ml-2">
                         {user?.avatar ? (
-                            <img src={user.avatar} alt="Your profile" className="w-full h-full object-cover"/>
+                            <img src={user.avatar} alt="Your profile" className="w-full h-full object-cover" />
                         ) : (
                             <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-[var(--sidebar-projects-color)]">
                                 {user?.name?.charAt(0) || 'U'}

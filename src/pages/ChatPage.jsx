@@ -268,11 +268,26 @@ const TempChatPage = () =>
                 let voiceMessage = null;
                 if(msg.voiceMessage)
                 {
-                    console.log(msg.voiceMessage);
+                    let audioSrc = null;
+                    if(msg.voiceMessage.audioData)
+                    {
+                        try{
+                            const byteCharacters = atob(msg.voiceMessage.audioData);
+                            const byteNumbers = new Array(byteCharacters.length);
+                            for(let i = 0; i < byteCharacters.length; i++)
+                                byteNumbers[i] = byteCharacters.charCodeAt(i);
+                            const byteArray = new Uint8Array(byteNumbers);
+                            const blob = new Blob([byteArray], { type: msg.voiceMessage.fileType || 'audio/webm' });
+                            audioSrc = URL.createObjectURL(blob);
+                        }catch(error){
+                            console.error('Error converting audio data:', error);
+                        }
+                    }
+
                     voiceMessage =
                     {
                         fileType: msg.voiceMessage.fileType,
-                        audioData: msg.voiceMessage.audioData,
+                        audioSrc,
                         fileSize: msg.voiceMessage.fileSize,
                         durationSeconds: msg.voiceMessage.durationSeconds,
                         waveformData: msg.voiceMessage.waveformData,
@@ -342,7 +357,8 @@ const TempChatPage = () =>
                     `http://localhost:8080/api/messages/channel/${channelId}/read`,
                     JSON.stringify(userId),
                     {
-                        headers: {
+                        headers:
+                        {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'application/json',
                         },
@@ -518,6 +534,62 @@ const TempChatPage = () =>
                             )
                         );
                     });
+
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}`, function (message)
+                    {
+                        const receivedMessage = JSON.parse(message.body);
+
+                        let enhancedMessage = { ...receivedMessage };
+                        if(receivedMessage.voiceMessage)
+                        {
+                            const audioData = receivedMessage.voiceMessage.audioData;
+                            let audioSrc = null;
+                            if(audioData)
+                            {
+                                try{
+                                    const byteCharacters = atob(audioData);
+                                    const byteNumbers = new Array(byteCharacters.length);
+                                    for(let i = 0; i < byteCharacters.length; i++)
+                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                    const byteArray = new Uint8Array(byteNumbers);
+                                    const blob = new Blob([byteArray], { type: receivedMessage.voiceMessage.fileType || 'audio/webm' });
+                                    audioSrc = URL.createObjectURL(blob);
+                                }catch(error){
+                                    console.error('Error converting audio data:', error);
+                                }
+                            }
+
+                            enhancedMessage.voiceMessage =
+                            {
+                                fileType: receivedMessage.voiceMessage.fileType,
+                                audioSrc,
+                                fileSize: receivedMessage.voiceMessage.fileSize,
+                                durationSeconds: receivedMessage.voiceMessage.durationSeconds,
+                                waveformData: receivedMessage.voiceMessage.waveformData,
+                            };
+                        }
+
+                        setMessages((prevMessages) =>
+                        {
+                            const existingMessage = prevMessages.find(
+                                (msg) =>
+                                    msg.id &&
+                                    msg.senderId === receivedMessage.senderId &&
+                                    msg.content === receivedMessage.content &&
+                                    msg.timestamp.split('.')[0] === receivedMessage.timestamp.split('.')[0]
+                            );
+                            if(existingMessage)
+                            {
+                                return prevMessages.map((msg) =>
+                                    msg.id === existingMessage.id ? enhancedMessage : msg
+                                );
+                            }
+                            else
+                                return [...prevMessages, enhancedMessage];
+                        });
+                        scrollToBottom();
+                        updateUnreadCount(receivedMessage);
+                    });
                 };
 
                 client.onStompError = function (frame)
@@ -609,7 +681,7 @@ const TempChatPage = () =>
                 timestamp: new Date().toISOString(),
             };
 
-            if (audioBlob)
+            if(audioBlob)
                 await uploadAudioMessage(audioBlob, selectedChannel.channelId);
             else
             {

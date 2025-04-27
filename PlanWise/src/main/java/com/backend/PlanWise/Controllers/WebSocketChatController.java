@@ -2,9 +2,7 @@ package com.backend.PlanWise.Controllers;
 
 import com.backend.PlanWise.DataPool.MessageReactionRepository;
 import com.backend.PlanWise.DataPool.UserDataPool;
-import com.backend.PlanWise.DataTransferObjects.AttachmentDTO;
-import com.backend.PlanWise.DataTransferObjects.PollOptionDTO;
-import com.backend.PlanWise.DataTransferObjects.ReactionDTO;
+import com.backend.PlanWise.DataTransferObjects.*;
 import com.backend.PlanWise.model.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import com.backend.PlanWise.DataTransferObjects.MessageDTO;
 import com.backend.PlanWise.repository.MessageRepository;
 import com.backend.PlanWise.repository.MessageChannelRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -194,6 +191,19 @@ public class WebSocketChatController
 
         if(message.getPoll() != null)
             dto.setPoll(message.getPoll().convertToDTO());
+
+        if (message.getVoiceMessage() != null)
+        {
+            VoiceMessage voiceMessage = message.getVoiceMessage();
+            AudioMessageDTO voiceMessageDTO = new AudioMessageDTO();
+            voiceMessageDTO.setId(voiceMessage.getId());
+            voiceMessageDTO.setFileType(voiceMessage.getFileType());
+            voiceMessageDTO.setAudioDataBase64(Base64.getEncoder().encodeToString(voiceMessage.getAudioData()));
+            voiceMessageDTO.setFileSize(voiceMessage.getFileSize());
+            voiceMessageDTO.setDurationSeconds(voiceMessage.getDurationSeconds());
+            voiceMessageDTO.setWaveformData(voiceMessage.getWaveformData());
+            dto.setVoiceMessage(voiceMessageDTO);
+        }
 
         return dto;
     }
