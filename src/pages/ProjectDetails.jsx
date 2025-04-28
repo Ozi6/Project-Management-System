@@ -1353,7 +1353,7 @@ const ProjectDetails = () => {
                 <motion.div
                     className="flex-1 overflow-auto"
                     animate={{
-                        marginLeft: isSidebarCollapsed ? '12rem' : '2rem'
+                        marginLeft: window.innerWidth > 768 && isSidebarCollapsed ? '12rem' : '1rem'
                     }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     onAnimationComplete={() =>
