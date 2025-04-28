@@ -17,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import { useUser, useAuth } from "@clerk/clerk-react";
 import axios from "axios";
 import { generateActivityMessage } from '../utils/activityUtils';
-import ChatBox from './ChatBox';
 
 const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategorizer, zoomLevel = 1, onZoomChange, projectId }) => {
     const { t } = useTranslation();
@@ -333,31 +332,6 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         );
     };
 
-    const renderChatButton = () => {
-        return (
-          <div className="relative">
-            <button
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className="p-2 rounded-full hover:bg-[var(--hover-color)]/20 transition-colors duration-200"
-              aria-label="Project Chat"
-            >
-              <MessageSquare size={windowWidth < 640 ? 18 : 22} />
-            </button>
-            
-            {isChatOpen && projectId && (
-              <div className="absolute right-0 mt-2 z-50">
-                <ChatBox 
-                  projectId={projectId} 
-                  isInitiallyOpen={true}
-                  inHeader={true}
-                  onClose={() => setIsChatOpen(false)}
-                />
-              </div>
-            )}
-          </div>
-        );
-    };
-
     const isLandingPage =
     [
         '/login',
@@ -631,7 +605,6 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 {renderMobileMenuButton()}
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-4 ml-auto mr-2 sm:mr-4 flex-shrink-0">
                     {renderActivitiesButton()}
-                    {projectId && renderChatButton()} {/* Only show chat button if projectId exists */}
                     <ThemeSwitcher />
                     {onAddCategorizer && (
                         <button

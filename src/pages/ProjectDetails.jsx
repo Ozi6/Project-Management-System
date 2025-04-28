@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import ChatBox from "../components/ChatBox";
 
 const ProjectDetailsWrapper = () => {
     return(
