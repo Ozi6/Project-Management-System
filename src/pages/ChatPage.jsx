@@ -522,7 +522,7 @@ const TempChatPage = () =>
                 }
 
                 let attachment = null;
-                if(msg.attachments && msg.attachments.length > 0)
+                if(!msg.voiceMessage && msg.attachments && msg.attachments.length > 0)
                 {
                     const firstAttachment = msg.attachments[0];
                     attachment =
