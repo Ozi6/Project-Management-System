@@ -68,15 +68,30 @@ function ThemeSwitcher() {
                     />
                 ))}
                 {themes.map((themeKey) => (
-                    <label 
-                        key={themeKey} 
-                        htmlFor={`theme-${themeKey}`} 
+                    <label
+                        key={themeKey}
+                        htmlFor={`theme-${themeKey}`}
                         title={t(`theme.${themeKey}`)}
-                        className={`theme-star theme-${themeKey}`}
+                        className={`theme-icon theme-${themeKey}`}
                         style={{ "--theme-color": getThemeColor(themeKey) }}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512">
-                            <path d="M256 448l-30.164-27.211C118.718 322.442 48 258.61 48 179.095 48 114.221 97.918 64 162.4 64c36.399 0 70.717 16.742 93.6 43.947C278.882 80.742 313.199 64 349.6 64 414.082 64 464 114.221 464 179.095c0 79.516-70.719 143.348-177.836 241.694L256 448z"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 24 24">
+                            {/* Heart for Pink theme */}
+                            {themeKey === "pink" && (
+                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                            )}
+                            {/* Moon for Dark theme */}
+                            {themeKey === "dark" && (
+                                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1-8.313-12.454z"/>
+                            )}
+                            {/* Star for Light/Default theme */}
+                            {(themeKey === "light" || themeKey === "default") && (
+                                <>
+                                    <path d="M12 3V2M12 22V21M21 12H22M2 12H3M18.5 5.5L20 4M4 20L5.5 18.5M4 4L5.5 5.5M18.5 18.5L20 20" stroke="#888888" strokeWidth="2" strokeLinecap="round"/>
+                                    <circle cx="12" cy="12" r="5" />
+                                </>
+                            )}
+
                         </svg>
                     </label>
                 ))}
