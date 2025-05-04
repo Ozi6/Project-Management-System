@@ -197,7 +197,7 @@ const TempChatPage = () =>
             setLoading(false);
         }
     };
-
+    /*
     useEffect(() =>
     {
         const fetchVoiceChannels = async () =>
@@ -414,6 +414,7 @@ const TempChatPage = () =>
             setIsMuted(!isMuted);
         }
     };
+    */
 
     useEffect(() =>
     {
@@ -818,12 +819,13 @@ const TempChatPage = () =>
                         scrollToBottom();
                         updateUnreadCount(receivedMessage);
                     });
-
+                    /*
                     if(activeVoiceChannel)
                     {
                         client.subscribe(`/topic/voice/${activeVoiceChannel.channelId}/signal`, handleVoiceSignal);
                         client.subscribe(`/topic/voice/${activeVoiceChannel.channelId}/users`, handleVoiceUsers);
                     }
+                    */
 
                     client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message)
                     {
@@ -1517,7 +1519,7 @@ const TempChatPage = () =>
             channel.channelName.toLowerCase().includes(channelSearchTerm.toLowerCase())
         )
         : channels;
-
+/*
     const renderVoiceChannels = () => (
         <div className="mt-4">
             <h3 className="text-sm font-semibold mb-2 text-gray-500">VOICE CHANNELS</h3>
@@ -1612,6 +1614,7 @@ const TempChatPage = () =>
             </div>
         );
     };
+    */
 
     const customNavItems =
     [
@@ -2085,7 +2088,6 @@ const TempChatPage = () =>
                                 );
                             })}
                         </div>
-                        {renderVoiceChannels()}
                     </div>
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)] bg-[var(--bg-color)] flex items-center justify-between">
@@ -2202,7 +2204,6 @@ const TempChatPage = () =>
                     </div>
                 </div>
             </div>
-            {renderVoiceParticipants()}
         </div>
     );
 };
