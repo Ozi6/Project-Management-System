@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
-import ChatBox from "../components/ChatBox";
 
 const ProjectDetailsWrapper = () => {
     return(
@@ -1353,7 +1352,7 @@ const ProjectDetails = () => {
                 <motion.div
                     className="flex-1 overflow-auto"
                     animate={{
-                        marginLeft: isSidebarCollapsed ? '12rem' : '2rem'
+                        marginLeft: window.innerWidth > 768 && isSidebarCollapsed ? '12rem' : '1rem'
                     }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     onAnimationComplete={() =>

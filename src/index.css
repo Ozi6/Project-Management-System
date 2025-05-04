@@ -80,6 +80,8 @@ html {
 
   --dashboard-bg: #1E1E1E; /* Dark gray background */
 
+  --just-gray:#3B3B3B;
+
   --scrollbar-drag-1: #2D3748; /* Darker gray */
   --scrollbar-drag-2: #4A5568; /* Medium gray */
 
@@ -161,6 +163,8 @@ html {
     cursor: pointer;
   }
     --dashboard-bg: #FEEBF6;
+
+    --just-gray:#3B3B3B;
   
     --scrollbar-drag-1: #f48fb1;  /* Light pink */
     --scrollbar-drag-2: #f06292;  /* Medium pink */
@@ -219,6 +223,9 @@ html {
     --bug-report: #d00079;
     --bug-report-bg: #fae2ef;
 
+
+
+
   body { /*changes everything that is in body*/
     background-color: #ffccd5;
     color: #ffccd5; /*this one changes the color of the theme button text*/
@@ -229,6 +236,8 @@ html {
 
 [data-theme="light"] {
   background-color: white;
+
+  --just-gray:#3B3B3B;
   
   --dashboard-bg: #F0F6FE;
 
