@@ -395,21 +395,21 @@ const Notes = () =>
                     onClick={onClose}
                     style={{ zIndex: 1000 }} />
                 <motion.div
-                    className="fixed inset-0 flex items-center justify-center px-4"
+                    className="fixed inset-0 flex items-center justify-center px-3 sm:px-4"
                     initial={{ y: "-20%", opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: "100%", opacity: 0 }}
                     transition={{ type: "spring", stiffness: 150, damping: 15 }}
                     style={{ zIndex: 1001 }}>
-                    <div className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-auto border ${colorVariants[note.color]?.border || colorVariants.default.border}`}>
-                        <div className="flex justify-between items-center p-5 border-b border-gray-200">
-                            <div className="flex items-center gap-2">
+                    <div className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] overflow-auto border ${colorVariants[note.color]?.border || colorVariants.default.border}`}>
+                        <div className="flex justify-between items-center p-3 sm:p-5 border-b border-gray-200">
+                            <div className="flex items-center gap-2 flex-wrap max-w-[75%]">
                                 {note.pinned ? (
-                                    <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
+                                    <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={18} />
                                 ) : (
-                                    <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={20} />
+                                    <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} size={18} />
                                 )}
-                                <h3 className="text-xl font-semibold text-gray-800">{note.title}</h3>
+                                <h3 className="text-lg sm:text-xl font-semibold text-gray-800 break-words">{note.title}</h3>
                                 {note.pinned && (
                                     <FaThumbtack className="text-amber-500" size={16} />
                                 )}
@@ -417,10 +417,10 @@ const Notes = () =>
                             <button
                                 onClick={onClose}
                                 className="p-1 rounded-full hover:bg-gray-200 transition-colors">
-                                <X size={24} />
+                                <X size={22} />
                             </button>
                         </div>
-                        <div className="p-6"
+                        <div className="p-4 sm:p-6"
                             style={{
                                 backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                 backgroundSize: "100% 32px",
@@ -800,9 +800,8 @@ const Notes = () =>
             <div className="flex flex-1 overflow-hidden relative">
                 <button
                     onClick={toggleMobileSidebar}
-                    className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
-                    aria-label="Toggle menu">
-                    <FaBars size={24}/>
+                    className="md:hidden fixed bottom-6 right-6 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors">
+                    {isMobileSidebarOpen ? <FaTimes size={24}/> : <FaBars size={24}/>}
                 </button>
                 <div className="hidden md:block bg-white shadow-md z-5 border-r border-blue-100">
                     <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} customNavItems={customNavItems} />
@@ -813,7 +812,7 @@ const Notes = () =>
                     </div>
                 )}
                 <div className="flex-1 overflow-auto bg-indigo-50 flex flex-col">
-                    <div className="sticky top-0 z-10 bg-white shadow-sm px-6 py-3">
+                    <div className="sticky top-0 z-10 bg-white shadow-sm px-3 sm:px-6 py-3">
                         <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
                             <div className="relative w-full sm:max-w-md">
                                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
@@ -824,52 +823,52 @@ const Notes = () =>
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)} />
                             </div>
-                            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto justify-center sm:justify-end">
                                 <div className="inline-flex rounded-md shadow-sm" role="group">
                                     <button
                                         type="button"
                                         onClick={() => setNoteType("personal")}
-                                        className={`px-4 py-2 text-sm font-medium rounded-l-lg border border-gray-200 ${noteType === "personal" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-l-lg border border-gray-200 ${noteType === "personal" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.personal")}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setNoteType("shared")}
-                                        className={`px-4 py-2 text-sm font-medium rounded-r-lg border border-gray-200 ${noteType === "shared" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-r-lg border border-gray-200 ${noteType === "shared" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.shared")}
                                     </button>
                                 </div>
-                                <div className="inline-flex rounded-md shadow-sm ml-2" role="group">
+                                <div className="inline-flex rounded-md shadow-sm" role="group">
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("updated")}
-                                        className={`px-3 py-2 text-xs font-medium rounded-l-lg border border-gray-200 ${sortBy === "updated" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
-                                        {t("notes.recent") }
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-l-lg border border-gray-200 ${sortBy === "updated" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        {t("notes.recent")}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("title")}
-                                        className={`px-3 py-2 text-xs font-medium border-t border-b border-gray-200 ${sortBy === "title" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium border-t border-b border-gray-200 ${sortBy === "title" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         A-Z
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("color")}
-                                        className={`px-3 py-2 text-xs font-medium rounded-r-lg border border-gray-200 ${sortBy === "color" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-r-lg border border-gray-200 ${sortBy === "color" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.color")}
                                     </button>
                                 </div>
                                 <button
                                     onClick={() => setShowAddNoteModal(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 !text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm">
-                                    <FaPlus size={16} />
-                                    <span className="hidden sm:inline">{t("notes.newnote")}</span>
+                                    className="flex items-center gap-1 px-3 sm:px-4 py-2 bg-indigo-600 !text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm">
+                                    <FaPlus size={14} />
+                                    <span className="text-xs sm:text-sm">{t("notes.newnote")}</span>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div className="p-6 flex-grow">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="p-3 sm:p-6 flex-grow">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
                             {noteType === "personal" ? (
                                 sortedPersonalNotes.length > 0 ? (
                                     <>
@@ -885,21 +884,21 @@ const Notes = () =>
                                                 {note.pinned && (
                                                     <div className="absolute -top-3 -right-3 w-6 h-6 bg-amber-500 rounded-full z-10 shadow-md" />
                                                 )}
-                                                <div className="p-5 relative z-0"
+                                                <div className="p-3 sm:p-5 relative z-0"
                                                     style={{
                                                         backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                                         backgroundSize: "100% 32px",
                                                         lineHeight: "32px"
                                                     }}>
-                                                    <div className="flex justify-between items-center mb-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
-                                                            <h3 className="font-semibold text-gray-800 text-lg"
+                                                    <div className="flex justify-between items-center mb-2 sm:mb-4">
+                                                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                                            <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon} text-sm sm:text-base`} />
+                                                            <h3 className="font-semibold text-gray-800 text-base sm:text-lg"
                                                                 style={{
                                                                     textShadow: "1px 1px 1px rgba(255,255,255,0.8)",
                                                                     lineHeight: "normal"
                                                                 }}>
-                                                                {note.title}
+                                                                {note.title.length > 20 ? `${note.title.substring(0, 20)}...` : note.title}
                                                             </h3>
                                                         </div>
                                                         <div className="flex gap-1">
@@ -967,16 +966,16 @@ const Notes = () =>
                                             <div
                                                 key={note.id}
                                                 className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}>
-                                                <div className="p-5"
+                                                <div className="p-3 sm:p-5"
                                                     style={{
                                                         backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                                         backgroundSize: "100% 32px",
                                                         lineHeight: "32px",
                                                     }}>
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
-                                                            <h3 className="font-semibold text-gray-800">{note.title}</h3>
+                                                    <div className="flex justify-between items-center mb-2 sm:mb-4">
+                                                        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                                            <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon} text-sm sm:text-base`} />
+                                                            <h3 className="font-semibold text-gray-800 text-base sm:text-lg">{note.title.length > 20 ? `${note.title.substring(0, 20)}...` : note.title}</h3>
                                                         </div>
                                                         <div className="flex gap-1">
                                                             <button
@@ -1062,17 +1061,17 @@ const Notes = () =>
                                                     className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}
                                                 >
                                                     <div
-                                                        className="p-5"
+                                                        className="p-3 sm:p-5"
                                                         style={{
                                                             backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                                             backgroundSize: "100% 32px",
                                                             lineHeight: "32px",
                                                         }}
                                                     >
-                                                        <div className="flex justify-between items-center mb-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
-                                                                <h3 className="font-semibold text-gray-800">{note.title}</h3>
+                                                        <div className="flex justify-between items-center mb-2 sm:mb-4">
+                                                            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                                                <FaStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon} text-sm sm:text-base`} />
+                                                                <h3 className="font-semibold text-gray-800 text-base sm:text-lg">{note.title.length > 20 ? `${note.title.substring(0, 20)}...` : note.title}</h3>
                                                             </div>
                                                             <div className="flex gap-1">
                                                                 {isOwner ? (
@@ -1155,16 +1154,16 @@ const Notes = () =>
                                                     className={`${colorVariants[note.color]?.bg || colorVariants.default.bg} ${colorVariants[note.color]?.border || colorVariants.default.border} border rounded-xl overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md`}
                                                 >
                                                     <div
-                                                        className="p-5"
+                                                        className="p-3 sm:p-5"
                                                         style={{
                                                             backgroundImage: "repeating-linear-gradient(transparent, transparent 31px, #e5e5f7 31px, #e5e5f7 32px)",
                                                             backgroundSize: "100% 32px",
                                                             lineHeight: "32px",
                                                         }}>
-                                                        <div className="flex justify-between items-center mb-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon}`} />
-                                                                <h3 className="font-semibold text-gray-800">{note.title}</h3>
+                                                        <div className="flex justify-between items-center mb-2 sm:mb-4">
+                                                            <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
+                                                                <FaRegStickyNote className={`${colorVariants[note.color]?.icon || colorVariants.default.icon} text-sm sm:text-base`} />
+                                                                <h3 className="font-semibold text-gray-800 text-base sm:text-lg">{note.title.length > 20 ? `${note.title.substring(0, 20)}...` : note.title}</h3>
                                                             </div>
                                                             <div className="flex gap-1">
                                                                 {isOwner && (
@@ -1266,13 +1265,13 @@ const Notes = () =>
                                 onClick={() => setShowAddNoteModal(false)}
                                 style={{ zIndex: 1000 }}/>
                             <motion.div
-                                className="fixed inset-0 flex items-center justify-center px-4"
+                                className="fixed inset-0 flex items-center justify-center px-3 sm:px-4"
                                 initial={{ y: "-20%", opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: "100%", opacity: 0 }}
                                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
                                 style={{ zIndex: 1001 }}>
-                                <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
+                                <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[85vh] overflow-auto">
                                     <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
                                         <h3 className="text-xl font-semibold">{t("notes.createnote")}</h3>
                                         <button
@@ -1281,7 +1280,7 @@ const Notes = () =>
                                             <X size={24} />
                                         </button>
                                     </div>
-                                    <div className="p-6">
+                                    <div className="p-4 sm:p-6">
                                         <div className="mb-4">
                                             <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
@@ -1369,13 +1368,13 @@ const Notes = () =>
                                 onClick={() => setShowEditNoteModal(false)}
                                 style={{ zIndex: 10000 }} />
                             <motion.div
-                                className="fixed inset-0 flex items-center justify-center px-4"
+                                className="fixed inset-0 flex items-center justify-center px-3 sm:px-4"
                                 initial={{ y: "-20%", opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 exit={{ y: "100%", opacity: 0 }}
                                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
                                 style={{ zIndex: 10001 }}>
-                                <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-auto">
+                                <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[85vh] overflow-auto">
                                     <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
                                         <h3 className="text-xl font-semibold">{t("notes.editnotecptl")}</h3>
                                         <button
@@ -1384,7 +1383,7 @@ const Notes = () =>
                                             <X size={24} />
                                         </button>
                                     </div>
-                                    <div className="p-6">
+                                    <div className="p-4 sm:p-6">
                                         <div className="mb-4">
                                             <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
