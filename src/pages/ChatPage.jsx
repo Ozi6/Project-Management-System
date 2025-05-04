@@ -18,7 +18,7 @@ import { ALL_ICONS } from '../components/ICON_CATEGORIES';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import Message from '../components/Message';
-import SimplePeer from 'simple-peer';
+//import SimplePeer from 'simple-peer';
 import { FaBars } from 'react-icons/fa';
 
 const ProjectChatWrapper = () =>
@@ -590,7 +590,7 @@ const TempChatPage = () =>
                     attachment,
                     codeSnippet,
                     poll,
-                    mentions: index % 9 === 0 ? [users[0]?.id] : [],
+                    repliedMessage: msg.repliedMessage,
                 };
             });
 
@@ -889,6 +889,14 @@ const TempChatPage = () =>
         connectWebSocket();
     }, [userId, id, selectedChannel?.channelId, activeVoiceChannel?.channelId]);
 
+    const [replyingTo, setReplyingTo] = useState(null);
+
+    const handleReplyMessage = (message) =>
+    {
+        setReplyingTo(message);
+        document.querySelector('textarea').focus();
+    };
+
     const updateUnreadCount = (message) =>
     {
         if(message.senderId === userId || (selectedChannel && message.channelId === selectedChannel.channelId))
@@ -954,7 +962,8 @@ const TempChatPage = () =>
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
                 timestamp: new Date().toISOString(),
-                codeSnippet: codeSnippet
+                codeSnippet: codeSnippet,
+                replyToMessageId: replyingTo?.id || null
             };
 
             if(audioBlob)
@@ -1694,6 +1703,29 @@ const TempChatPage = () =>
 
     const renderChatInput = () => (
         <div className="p-2 md:p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
+            {replyingTo && (
+                <div className="mb-2 p-2 bg-[var(--gray-card3)]/30 rounded-md flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Reply size={16} className="text-[var(--features-icon-color)]" />
+                        <div>
+                            <div className="text-xs font-medium text-[var(--features-text-color)]">
+                                Replying to {users.find((u) => u.id === replyingTo.senderId)?.name || 'Unknown User'}
+                            </div>
+                            <p className="text-xs text-[var(--features-text-color)] truncate">
+                                {replyingTo.content.length > 50
+                                    ? `${replyingTo.content.substring(0, 50)}...`
+                                    : replyingTo.content}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setReplyingTo(null)}
+                        className="text-[var(--features-text-color)] hover:text-[var(--hover-color)]"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+            )}
             {showPollCreator && (
                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
@@ -2190,7 +2222,10 @@ const TempChatPage = () =>
                                             emojiPickerRef={emojiPickerRef}
                                             setMessages={setMessages}
                                             showEmojiPicker={showEmojiPicker}
-                                            formatFileSize={formatFileSize}/>
+                                            formatFileSize={formatFileSize}
+                                            handleReplyMessage={handleReplyMessage}
+                                            messages = { messages }
+                                        />
                                     ))}
                                     <div ref={messagesEndRef}/>
                                 </>

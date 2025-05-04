@@ -219,6 +219,9 @@ public class AudioChunkService
             dto.setCodeSnippet(snippetDTO);
         });
 
+        if(message.getReplyToMessageId() != null)
+            dto.setReplyToMessageId(message.getReplyToMessageId());
+
         return dto;
     }
 }

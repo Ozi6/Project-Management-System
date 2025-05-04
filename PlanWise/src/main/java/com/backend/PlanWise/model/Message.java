@@ -200,4 +200,31 @@ public class Message
 
     @OneToOne(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
     private VoiceMessage voiceMessage;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reply_to_message_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Message replyToMessage;
+
+    public Long getReplyToMessageId()
+    {
+        return replyToMessageId;
+    }
+
+    public void setReplyToMessageId(Long replyToMessageId)
+    {
+        this.replyToMessageId = replyToMessageId;
+    }
+
+    public Message getReplyToMessage()
+    {
+        return replyToMessage;
+    }
+
+    public void setReplyToMessage(Message replyToMessage)
+    {
+        this.replyToMessage = replyToMessage;
+    }
+
+    @Column(name = "reply_to_message_id")
+    private Long replyToMessageId;
 }

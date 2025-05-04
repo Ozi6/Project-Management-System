@@ -55,6 +55,13 @@ public class WebSocketChatController
         message.setTimestamp(LocalDateTime.now());
         message.setChannelId(channelId);
 
+        if(messageDTO.getReplyToMessageId() != null)
+        {
+            Optional<Message> replyToMessage = messageRepository.findById(messageDTO.getReplyToMessageId());
+            if(replyToMessage.isPresent() && replyToMessage.get().getChannelId().equals(channelId))
+                message.setReplyToMessageId(messageDTO.getReplyToMessageId());
+        }
+
         if(messageDTO.getAttachmentIds() != null && !messageDTO.getAttachmentIds().isEmpty())
         {
             for(AttachmentDTO attachmentDTO : messageDTO.getAttachmentIds())
@@ -229,6 +236,9 @@ public class WebSocketChatController
             snippetDTO.setCodeContent(snippet.getCodeContent());
             dto.setCodeSnippet(snippetDTO);
         });
+
+        if(message.getReplyToMessageId() != null)
+            dto.setReplyToMessageId(message.getReplyToMessageId());
 
         return dto;
     }

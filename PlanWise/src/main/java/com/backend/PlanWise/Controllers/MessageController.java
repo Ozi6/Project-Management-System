@@ -653,6 +653,9 @@ public class MessageController {
             dto.setCodeSnippet(snippetDTO);
         });
 
+        if(message.getReplyToMessageId() != null)
+            dto.setReplyToMessageId(message.getReplyToMessageId());
+
         return dto;
     }
 

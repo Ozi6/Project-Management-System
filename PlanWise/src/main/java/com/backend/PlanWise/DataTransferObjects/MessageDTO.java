@@ -196,4 +196,16 @@ public class MessageDTO
     }
 
     private CodeSnippetDTO codeSnippet;
+
+    public Long getReplyToMessageId()
+    {
+        return replyToMessageId;
+    }
+
+    public void setReplyToMessageId(Long replyToMessageId)
+    {
+        this.replyToMessageId = replyToMessageId;
+    }
+
+    private Long replyToMessageId;
 }
