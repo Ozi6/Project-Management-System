@@ -66,7 +66,6 @@ const TempChatPage = () =>
     const timerRef = useRef(null);
     const [showCodeFormatting, setShowCodeFormatting] = useState(false);
     const [codeLanguage, setCodeLanguage] = useState('javascript');
-    const [showMentionMenu, setShowMentionMenu] = useState(false);
     const [showPollCreator, setShowPollCreator] = useState(false);
     const [pollQuestion, setPollQuestion] = useState('');
     const [pollOptions, setPollOptions] = useState(['', '']);
@@ -1369,14 +1368,6 @@ const TempChatPage = () =>
         }
     };
 
-    const handleMention = (userId) =>
-    {
-        const user = users.find((u) => u.id === userId);
-        if(user)
-            setMessage((prev) => `${prev}@${user.name} `);
-        setShowMentionMenu(false);
-    };
-
     const handleCreatePoll = async () =>
     {
         if(!pollQuestion.trim() || pollOptions.some((option) => !option.trim()))
@@ -1870,7 +1861,6 @@ const TempChatPage = () =>
                             e.preventDefault();
                             handleSendMessage(e);
                         }
-                        if (e.key === '@') setShowMentionMenu(true);
                     }}
                     placeholder={
                         showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
@@ -1892,37 +1882,6 @@ const TempChatPage = () =>
                                     className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded">
                                     {reaction.emoji}
                                 </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-                {showMentionMenu && (
-                    <div className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
-                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                            Mention a user
-                        </div>
-                        <div className="space-y-1 max-h-40 overflow-y-auto">
-                            {users.map((user) => (
-                                <div
-                                    key={user.id}
-                                    onClick={() => handleMention(user.id)}
-                                    className="flex items-center gap-2 p-2 hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded-md cursor-pointer">
-                                    <div className="w-6 h-6 rounded-full overflow-hidden">
-                                        {user.avatar ? (
-                                            <img
-                                                src={user.avatar}
-                                                alt={user.name}
-                                                className="w-full h-full object-cover"/>
-                                        ) : (
-                                            <div className="w-full h-full bg-[var(--sidebar-projects-bg-color)] flex items-center justify-center text-xs text-[var(--sidebar-projects-color)]">
-                                                {user.name?.charAt(0) || 'U'}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span className="text-sm text-[var(--features-text-color)]">
-                                        {user.name}
-                                    </span>
-                                </div>
                             ))}
                         </div>
                     </div>
@@ -1963,18 +1922,6 @@ const TempChatPage = () =>
                             }`}
                             disabled={!selectedChannel}>
                             <Mic size={18}/>
-                        </button>
-                        
-                        {/* Additional buttons that should remain visible */}
-                        <button
-                            type="button"
-                            onClick={() => setShowMentionMenu((prev) => !prev)}
-                            className={`p-1 rounded-md ${showMentionMenu
-                                ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                            }`}
-                            disabled={!selectedChannel}>
-                            <AtSign size={18}/>
                         </button>
                         <button
                             type="button"
