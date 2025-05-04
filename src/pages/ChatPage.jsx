@@ -245,7 +245,7 @@ const TempChatPage = () =>
         if(id && userId && channels.length > 0)
             fetchVoiceChannels();
     }, [id, userId, channels, projectName]);
-
+    */
     // Add a state to manage channel sidebar visibility on mobile
     const [showChannelSidebar, setShowChannelSidebar] = useState(false);
     
@@ -259,7 +259,7 @@ const TempChatPage = () =>
     const toggleMobileSidebar = () => {
         setIsMobileSidebarOpen((prev) => !prev);
     };
-
+    /*
     const joinVoiceChannel = async (channel) =>
     {
         try{
