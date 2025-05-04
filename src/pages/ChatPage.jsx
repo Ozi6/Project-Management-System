@@ -19,6 +19,7 @@ import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import Message from '../components/Message';
 import SimplePeer from 'simple-peer';
+import { FaBars } from 'react-icons/fa';
 
 const ProjectChatWrapper = () =>
 {
@@ -73,6 +74,7 @@ const TempChatPage = () =>
     const emojiPickerRef = useRef(null);
     const messageActionsRef = useRef(null);
     const [filesToUpload, setFilesToUpload] = useState(null);
+
 
     const [voiceChannels, setVoiceChannels] = useState([]);
     const [activeVoiceChannel, setActiveVoiceChannel] = useState(null);
@@ -243,6 +245,20 @@ const TempChatPage = () =>
         if(id && userId && channels.length > 0)
             fetchVoiceChannels();
     }, [id, userId, channels, projectName]);
+
+    // Add a state to manage channel sidebar visibility on mobile
+    const [showChannelSidebar, setShowChannelSidebar] = useState(false);
+    
+    // Function to toggle channels sidebar on mobile
+    const toggleChannelSidebar = () => {
+        setShowChannelSidebar(prev => !prev);
+    };
+
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+    const toggleMobileSidebar = () => {
+        setIsMobileSidebarOpen((prev) => !prev);
+    };
 
     const joinVoiceChannel = async (channel) =>
     {
@@ -1574,9 +1590,9 @@ const TempChatPage = () =>
             return null;
 
         return(
-            <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg z-50">
+            <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg z-50 max-w-[calc(100%-32px)] md:max-w-xs">
                 <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium">{activeVoiceChannel.channelName}</h3>
+                    <h3 className="font-medium text-sm truncate mr-2">{activeVoiceChannel.channelName}</h3>
                     <div className="flex items-center space-x-2">
                         <button
                             onClick={toggleMute}
@@ -1604,7 +1620,7 @@ const TempChatPage = () =>
                         return(
                             <div key={id} className="flex items-center bg-gray-700 rounded-full px-2 py-1">
                                 <User size={14} className="mr-1" />
-                                <span className="text-xs">{username}</span>
+                                <span className="text-xs truncate max-w-[80px]">{username}</span>
                             </div>
                         );
                     })}
@@ -1683,7 +1699,7 @@ const TempChatPage = () =>
     const teamChannels = filteredChannels.filter((channel) => channel.channelType === 'TEAM');
 
     const renderChatInput = () => (
-        <div className="p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
+        <div className="p-2 md:p-4 border-t border-[var(--gray-card3)] bg-[var(--bg-color)]">
             {showPollCreator && (
                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
@@ -1856,7 +1872,7 @@ const TempChatPage = () =>
                     placeholder={
                         showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
                     }
-                    className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[100px] resize-y"
+                    className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[80px] md:min-h-[100px] resize-y"
                     disabled={!selectedChannel}/>
                 {showEmojiPicker === 'input' && (
                     <div
@@ -1909,65 +1925,63 @@ const TempChatPage = () =>
                     </div>
                 )}
                 <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center gap-1 md:space-x-2 overflow-x-auto">
+                        {/* Essential buttons always visible */}
                         <button
                             type="button"
                             onClick={() => setShowEmojiPicker('input')}
                             className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
                             disabled={!selectedChannel}>
-                            <Smile size={20}/>
+                            <Smile size={18}/>
                         </button>
                         <button
                             type="button"
                             onClick={handleFileSelect}
                             className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
                             disabled={!selectedChannel}>
-                            <Paperclip size={20}/>
+                            <Paperclip size={18}/>
                         </button>
-                        <input
-                            type="file"
-                            ref={fileInputRef}
-                            className="hidden"
-                            onChange={handleFileChange}/>
                         <button
                             type="button"
                             onClick={toggleCodeFormatting}
                             className={`p-1 rounded-md ${showCodeFormatting
-                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                }`}
+                                ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                            }`}
                             disabled={!selectedChannel}>
-                            <Code size={20}/>
+                            <Code size={18}/>
                         </button>
                         <button
                             type="button"
                             onClick={toggleRecordingAudio}
                             className={`p-1 rounded-md ${isRecordingAudio
-                                    ? 'bg-red-100 text-red-500'
-                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                }`}
+                                ? 'bg-red-100 text-red-500'
+                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                            }`}
                             disabled={!selectedChannel}>
-                            <Mic size={20}/>
+                            <Mic size={18}/>
                         </button>
+                        
+                        {/* Additional buttons that should remain visible */}
                         <button
                             type="button"
                             onClick={() => setShowMentionMenu((prev) => !prev)}
                             className={`p-1 rounded-md ${showMentionMenu
-                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                }`}
+                                ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                            }`}
                             disabled={!selectedChannel}>
-                            <AtSign size={20}/>
+                            <AtSign size={18}/>
                         </button>
                         <button
                             type="button"
                             onClick={() => setShowPollCreator((prev) => !prev)}
                             className={`p-1 rounded-md ${showPollCreator
-                                    ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
-                                    : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
-                                }`}
+                                ? 'bg-[var(--features-icon-color)]/20 text-[var(--features-icon-color)]'
+                                : 'hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]'
+                            }`}
                             disabled={!selectedChannel}>
-                            <BarChart2 size={20}/>
+                            <BarChart2 size={18}/>
                         </button>
                     </div>
                     <motion.button
@@ -1977,10 +1991,10 @@ const TempChatPage = () =>
                             !selectedChannel ||
                             (!message.trim() && !selectedFile && !isRecordingAudio && !showPollCreator && !audioBlob)
                         }
-                        className={`p-3 rounded-lg ${(message.trim() || selectedFile || audioBlob || showPollCreator) && selectedChannel
-                                ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
-                                : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
-                            }`}
+                        className={`ml-2 p-2 md:p-3 rounded-lg ${(message.trim() || selectedFile || audioBlob || showPollCreator) && selectedChannel
+                            ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
+                            : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
+                        }`}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}>
                         <Send size={20}/>
@@ -2005,7 +2019,13 @@ const TempChatPage = () =>
                         </span>
                     </div>
                 }/>
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-1 overflow-hidden relative">
+                <button
+                    onClick={toggleMobileSidebar}
+                    className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+                    aria-label="Toggle menu">
+                    <FaBars size={24}/>
+                </button>
                 <div className="hidden md:block bg-[var(--bg-color)] shadow-md z-5 border-r border-[var(--sidebar-projects-bg-color)]">
                     <Sidebar
                         activeTab={activeTab}
@@ -2013,8 +2033,27 @@ const TempChatPage = () =>
                         customNavItems={customNavItems}
                         onCollapseChange={setIsSidebarCollapsed}/>
                 </div>
+                {isMobileSidebarOpen && (
+                    <div className="md:hidden fixed inset-0 z-40 bg-white">
+                        <Sidebar 
+                            activeTab={activeTab} 
+                            setActiveTab={setActiveTab} 
+                            customNavItems={customNavItems} 
+                            isMobile={true} 
+                            closeMobileMenu={() => setIsMobileSidebarOpen(false)} />
+                    </div>
+                )}
                 <div className="flex-1 flex bg-[var(--projects-bg)] overflow-hidden">
-                    <div className="w-64 bg-[var(--bg-color)] border-r border-[var(--gray-card3)] p-4 overflow-y-auto">
+                    {/* Mobile channel toggle button */}
+                    <button 
+                        className="md:hidden fixed bottom-4 left-4 z-40 bg-[var(--features-icon-color)] text-white p-3 rounded-full shadow-lg"
+                        onClick={toggleChannelSidebar}
+                    >
+                        {showChannelSidebar ? <X size={20} /> : <MessageCircle size={20} />}
+                    </button>
+                    
+                    {/* Channel sidebar with mobile responsiveness */}
+                    <div className={`${showChannelSidebar ? 'absolute inset-0 z-30' : 'hidden'} md:static md:block md:w-64 bg-[var(--bg-color)] border-r border-[var(--gray-card3)] p-4 overflow-y-auto`}>
                         <div className="mb-4">
                             <div className="relative">
                                 <input
@@ -2090,6 +2129,14 @@ const TempChatPage = () =>
                     <div className="flex-1 flex flex-col overflow-hidden">
                         <div className="p-4 border-b border-[var(--sidebar-projects-bg-color)] bg-[var(--bg-color)] flex items-center justify-between">
                             <div className="flex items-center">
+                                {/* Mobile channel toggle button inside header */}
+                                <button 
+                                    className="mr-2 md:hidden"
+                                    onClick={toggleChannelSidebar}
+                                >
+                                    <MessageCircle size={18} className="text-[var(--features-icon-color)]" />
+                                </button>
+                                
                                 {selectedChannel?.channelType === 'PROJECT' ? (
                                     <Hash size={18} className="mr-2 text-[var(--features-icon-color)]"/>
                                 ) : (
@@ -2111,20 +2158,22 @@ const TempChatPage = () =>
                                     })()
                                 )}
                                 <div>
-                                    <h2 className="text-lg font-medium text-[var(--features-text-color)]">
+                                    <h2 className="text-lg font-medium text-[var(--features-text-color)] truncate max-w-[150px] md:max-w-full">
                                         {selectedChannel?.channelName || 'Select a channel'}
                                     </h2>
                                     {selectedChannel?.channelType === 'TEAM' && (
-                                        <div className="text-xs text-[var(--features-text-color)] opacity-70">
+                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 truncate max-w-[150px] md:max-w-full">
                                             Team Channel • {selectedChannel.teamData?.teamName || 'Team'} • Members only
                                         </div>
                                     )}
                                 </div>
                             </div>
+                            
                             <div className="flex items-center space-x-2">
                                 {selectedChannel && (
                                     <>
-                                        <div className="relative">
+                                        {/* Search is hidden on smallest screens */}
+                                        <div className="relative hidden sm:block">
                                             <input
                                                 type="text"
                                                 value={searchTerm}
