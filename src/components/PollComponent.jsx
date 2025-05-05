@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@clerk/clerk-react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const PollComponent = React.memo(
     ({ poll, messageId, selectedChannel, userId, stompClient, connected, setMessages }) =>
@@ -9,6 +10,7 @@ const PollComponent = React.memo(
         const { getToken } = useAuth();
         const [votedOption, setVotedOption] = useState(null);
         const [percentages, setPercentages] = useState([]);
+        const {t} = useTranslation();
 
         useEffect(() =>
         {
@@ -94,7 +96,7 @@ const PollComponent = React.memo(
                                 <div className="flex justify-between mb-1 text-sm">
                                     <span>{option.optionText || option.text || `Option ${index + 1}`}</span>
                                     <span>
-                                        {option.votes || 0} votes ({percentage}%)
+                                        {option.votes || 0} {t("chat.votes")} ({percentage}%)
                                     </span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2.5 mb-1 overflow-hidden">
@@ -119,15 +121,15 @@ const PollComponent = React.memo(
                                 </div>
                                 <button
                                     onClick={() => handleVote(index)}
-                                    className="text-xs text-[var(--features-icon-color)] hover:text-[var(--hover-color)]">
-                                    Vote
+                                    className="text-xs text-white hover:text-[var(--hover-color)]">
+                                    {t("chat.vote")}
                                 </button>
                             </div>
                         );
                     })}
                 </div>
                 <div className="mt-3 text-xs text-[var(--features-text-color)]">
-                    Total votes: {poll.totalVotes || 0} {'\u00A0'.repeat(60)}
+                    {t("chat.total")} {poll.totalVotes || 0} {'\u00A0'.repeat(60)}
                 </div>
             </div>
         );

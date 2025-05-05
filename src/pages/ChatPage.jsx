@@ -615,13 +615,13 @@ const TempChatPage = () =>
                     )
                 );
             }catch(markReadErr){
-                console.warn('Could not mark channel as read:', markReadErr);
+                console.warn(t("chat.reaf"), markReadErr);
             }
             setLoading(false);
             scrollToBottom();
         }catch(err){
-            console.error('Error fetching messages:', err);
-            setError('Failed to load messages');
+            console.error(t("chat.fetcherr"), err);
+            setError(t("chat.loaderr"));
             setLoading(false);
         }
     };
@@ -957,7 +957,7 @@ const TempChatPage = () =>
             const newMessage =
             {
                 senderId: userId,
-                content: content || (audioBlob ? 'Voice message' : ''),
+                content: content || (audioBlob ? t("chat.voice") : ''),
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
                 senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
@@ -1015,8 +1015,8 @@ const TempChatPage = () =>
             setPollOptions(['', '']);
             scrollToBottom();
         }catch(err){
-            console.error('Error sending message:', err);
-            alert('Failed to send message. Please try again.');
+            console.error(t("chat.messerr"), err);
+            alert(t("chat.messerr2"));
         }
     };
 
@@ -1051,7 +1051,7 @@ const TempChatPage = () =>
                 senderId: userId,
                 channelId: channelId,
                 projectId: parseInt(id),
-                content: 'Voice message',
+                content: t("chat.voice"),
                 fileType: 'audio/webm',
                 fileSize: audioBlob.size,
                 durationSeconds: recordingTime,
@@ -1075,10 +1075,10 @@ const TempChatPage = () =>
                 });
             });
 
-            console.log('All chunks sent successfully to', destination);
+            console.log(t("chat.chunk"), destination);
         }catch(err){
-            console.error('Error uploading audio message:', err);
-            alert('Failed to upload audio message. Please try again.');
+            console.error(t("chat.chunkerr"), err);
+            alert(t("chat.chunkerr2"));
         }
     };
 
@@ -1102,7 +1102,7 @@ const TempChatPage = () =>
                 },
             });
         }catch(error){
-            console.error('Error uploading file:', error);
+            console.error(t("chat.fileerr"), error);
         }
     };
 
@@ -1216,8 +1216,8 @@ const TempChatPage = () =>
             }
             setShowMessageActions(null);
         }catch(err){
-            console.error('Error handling reaction:', err);
-            alert('Failed to update reaction. Please try again.');
+            console.error(t("chat.reacterr3"), err);
+            alert(t("chat.reacterr4"));
         }
     };
 
@@ -1246,8 +1246,8 @@ const TempChatPage = () =>
 
             setShowMessageActions(null);
         }catch(err){
-            console.error('Error removing reaction:', err);
-            alert('Failed to remove reaction. Please try again.');
+            console.error(t("chat.reacterr"), err);
+            alert(t("chat.reacterr2"));
             setMessages((prevMessages) =>
                 prevMessages.map((msg) =>
                     msg.id === messageId
@@ -1324,7 +1324,7 @@ const TempChatPage = () =>
             setEditingMessage(null);
             setEditedContent('');
         }catch(err){
-            console.error('Error editing message:', err);
+            console.error(t("chat.editerr"), err);
             setMessages((prev) =>
                 prev.map((msg) =>
                     msg.id === editingMessage.id
@@ -1332,7 +1332,7 @@ const TempChatPage = () =>
                         : msg
                 )
             );
-            alert('Failed to edit message. Please try again.');
+            alert(t("chat.editerr2"));
         }
     };
 
@@ -1369,11 +1369,11 @@ const TempChatPage = () =>
             }
             setShowMessageActions(null);
         }catch(err){
-            console.error('Error deleting message:', err);
+            console.error(t("chat.delerr"), err);
             const messageToRestore = messages.find((msg) => msg.id === messageId);
             if(messageToRestore)
                 setMessages((prev) => [...prev, messageToRestore].sort((a, b) => a.id - b.id));
-            alert('Failed to delete message. Please try again.');
+            alert(t("chat.delerr2"));
         }
     };
 
@@ -1381,7 +1381,7 @@ const TempChatPage = () =>
     {
         if(!pollQuestion.trim() || pollOptions.some((option) => !option.trim()))
         {
-            alert('Please fill in all poll fields');
+            alert(t("chat.fill"));
             return;
         }
 
@@ -1394,7 +1394,7 @@ const TempChatPage = () =>
                 content: '📊 ' + pollQuestion,
                 projectId: parseInt(id),
                 channelId: selectedChannel.channelId,
-                senderName: users.find((u) => u.id === userId)?.name || 'Unknown User',
+                senderName: users.find((u) => u.id === userId)?.name || t("chat.unknown"),
                 timestamp: new Date().toISOString(),
                 poll: {
                     question: pollQuestion,
@@ -1429,8 +1429,8 @@ const TempChatPage = () =>
             setShowPollCreator(false);
             scrollToBottom();
         }catch(err){
-            console.error('Error creating poll:', err);
-            alert('Failed to create poll. Please try again.');
+            console.error(t("chat.errpoll"), err);
+            alert(t("chat.errpoll2"));
         }
     };
 
@@ -1487,8 +1487,8 @@ const TempChatPage = () =>
                     setRecordingTime((prev) => prev + 1);
                 },1000);
             }catch(err){
-                console.error('Error accessing microphone:', err);
-                alert('Could not access microphone. Please check permissions.');
+                console.error(t("chat.error"), err);
+                alert(t("chat.error2"));
             }
         }
         else
@@ -1674,8 +1674,8 @@ const TempChatPage = () =>
             icon: MessageCircle,
             label: t('sidebar.chat'),
             path: `/project/${id}/chat`,
-            color: 'bg-indigo-100 text-indigo-600',
-            iconColor: 'text-indigo-600',
+            color: 'bg-[var(--features-icon-color)]/10 text-[var(--features-icon-color)]',
+            iconColor: 'text-[var(--features-icon-color)]',
         },
         {
             id: 'notes',
@@ -1709,7 +1709,7 @@ const TempChatPage = () =>
                         <Reply size={16} className="text-[var(--features-icon-color)]" />
                         <div>
                             <div className="text-xs font-medium text-[var(--features-text-color)]">
-                                Replying to {users.find((u) => u.id === replyingTo.senderId)?.name || 'Unknown User'}
+                                {t("chat.reply")} {users.find((u) => u.id === replyingTo.senderId)?.name || 'Unknown User'}
                             </div>
                             <p className="text-xs text-[var(--features-text-color)] truncate">
                                 {replyingTo.content.length > 50
@@ -1730,7 +1730,7 @@ const TempChatPage = () =>
                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-medium text-[var(--features-text-color)]">
-                            Create Poll
+                            {t("chat.poll")}
                         </h3>
                         <button
                             onClick={() => setShowPollCreator(false)}
@@ -1742,7 +1742,7 @@ const TempChatPage = () =>
                         type="text"
                         value={pollQuestion}
                         onChange={(e) => setPollQuestion(e.target.value)}
-                        placeholder="Poll question"
+                        placeholder={t("chat.poll2")}
                         className="w-full p-2 mb-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                     <div className="space-y-2 mb-3">
                         {pollOptions.map((option, index) => (
@@ -1751,7 +1751,7 @@ const TempChatPage = () =>
                                     type="text"
                                     value={option}
                                     onChange={(e) => updatePollOption(index, e.target.value)}
-                                    placeholder={`Option ${index + 1}`}
+                                    placeholder={`${t("chat.option")} ${index + 1}`}
                                     className="flex-1 p-2 border border-[var(--gray-card3)] rounded-md text-[var(--features-text-color)] bg-[var(--bg-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                                 {pollOptions.length > 2 && (
                                     <button
@@ -1768,12 +1768,12 @@ const TempChatPage = () =>
                             onClick={addPollOption}
                             className="text-sm text-[var(--features-icon-color)] hover:text-[var(--hover-color)] flex items-center gap-1">
                             <PlusCircle size={16} />
-                            Add Option
+                            {t("chat.opp")}
                         </button>
                         <button
                             onClick={handleCreatePoll}
-                            className="text-sm bg-[var(--features-icon-color)] text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]">
-                            Create Poll
+                            className="text-sm bg-[var(--features-icon-color)] !text-white px-3 py-1 rounded-md hover:bg-[var(--hover-color)]">
+                                {t("chat.create")}
                         </button>
                     </div>
                 </div>
@@ -1782,7 +1782,7 @@ const TempChatPage = () =>
                 <div className="mb-4 p-3 bg-[var(--gray-card3)]/30 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                         <h3 className="text-sm font-medium text-[var(--features-text-color)]">
-                            Code Formatting
+                            {t("chat.format")}
                         </h3>
                         <button
                             onClick={() => setShowCodeFormatting(false)}
@@ -1791,7 +1791,7 @@ const TempChatPage = () =>
                         </button>
                     </div>
                     <div className="flex items-center mb-2">
-                        <span className="text-sm mr-2 text-[var(--features-text-color)]">Language:</span>
+                        <span className="text-sm mr-2 text-[var(--features-text-color)]">{t("chat.language")}:</span>
                         <select
                             value={codeLanguage}
                             onChange={(e) => setCodeLanguage(e.target.value)}
@@ -1809,7 +1809,7 @@ const TempChatPage = () =>
                         </select>
                     </div>
                     <div className="text-xs text-[var(--features-text-color)] opacity-70">
-                        Add code below and it will be formatted as a code block
+                        {t("chat.text")}
                     </div>
                 </div>
             )}
@@ -1817,7 +1817,7 @@ const TempChatPage = () =>
                 <div className="mb-4 p-3 bg-red-100 rounded-lg flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-sm text-red-700">Recording audio...</span>
+                        <span className="text-sm text-red-700">{t("chat.record")}...</span>
                         <span className="text-xs text-red-500">
                             {Math.floor(recordingTime / 60)}:{(recordingTime % 60).toString().padStart(2, '0')}
                         </span>
@@ -1837,7 +1837,7 @@ const TempChatPage = () =>
                         </div>
                         <div>
                             <div className="text-sm font-medium text-[var(--features-text-color)]">
-                                Voice Message
+                                {t("chat.voice")}
                             </div>
                             <div className="text-xs text-[var(--features-text-color)] opacity-70">
                                 {(audioBlob.size / 1024).toFixed(1)} KB
@@ -1895,7 +1895,7 @@ const TempChatPage = () =>
                         }
                     }}
                     placeholder={
-                        showCodeFormatting ? 'Type or paste code here...' : 'Type a message...'
+                        showCodeFormatting ? t("chat.paste") : t("chat.type")
                     }
                     className="w-full p-3 rounded-lg border border-[var(--gray-card3)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] bg-[var(--bg-color)] text-[var(--features-text-color)] min-h-[80px] md:min-h-[100px] resize-y"
                     disabled={!selectedChannel}/>
@@ -1904,7 +1904,7 @@ const TempChatPage = () =>
                         ref={emojiPickerRef}
                         className="absolute bottom-full left-0 mb-2 bg-[var(--bg-color)] rounded-lg shadow-lg p-2 w-64 z-10">
                         <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-2">
-                            Common emojis
+                            {t("chat.emoji")}
                         </div>
                         <div className="flex flex-wrap gap-2">
                             {reactionTypes.map((reaction) => (
@@ -1974,7 +1974,7 @@ const TempChatPage = () =>
                             (!message.trim() && !selectedFile && !isRecordingAudio && !showPollCreator && !audioBlob)
                         }
                         className={`ml-2 p-2 md:p-3 rounded-lg ${(message.trim() || selectedFile || audioBlob || showPollCreator) && selectedChannel
-                            ? 'bg-[var(--features-icon-color)] text-white hover:bg-[var(--hover-color)]'
+                            ? 'bg-[var(--features-icon-color)] !text-white hover:bg-[var(--hover-color)]'
                             : 'bg-[var(--gray-card3)] text-[var(--features-text-color)]/50 cursor-not-allowed'
                         }`}
                         whileHover={{ scale: 1.05 }}
@@ -1997,14 +1997,14 @@ const TempChatPage = () =>
                             <ArrowLeft size={20} className="text-[var(--features-icon-color)]" />
                         </span>
                         <span className="text-xl font-semibold text-[var(--sidebar-projects-color)]">
-                            Chat: {projectName}
+                            {t("chat.chat")}: {projectName}
                         </span>
                     </div>
                 }/>
             <div className="flex flex-1 overflow-hidden relative">
                 <button
                     onClick={toggleMobileSidebar}
-                    className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
+                    className="md:hidden fixed bottom-4 right-4 z-50 bg-green-600 !text-white p-3 rounded-full shadow-lg hover:bg-green-700 transition-colors"
                     aria-label="Toggle menu">
                     <FaBars size={24}/>
                 </button>
@@ -2028,7 +2028,7 @@ const TempChatPage = () =>
                 <div className="flex-1 flex bg-[var(--projects-bg)] overflow-hidden">
                     {/* Mobile channel toggle button */}
                     <button 
-                        className="md:hidden fixed bottom-4 left-4 z-40 bg-[var(--features-icon-color)] text-white p-3 rounded-full shadow-lg"
+                        className="md:hidden fixed bottom-4 left-4 z-40 bg-[var(--features-icon-color)] !text-white p-3 rounded-full shadow-lg"
                         onClick={toggleChannelSidebar}
                     >
                         {showChannelSidebar ? <X size={20} /> : <MessageCircle size={20} />}
@@ -2042,7 +2042,7 @@ const TempChatPage = () =>
                                     type="text"
                                     value={channelSearchTerm}
                                     onChange={(e) => setChannelSearchTerm(e.target.value)}
-                                    placeholder="Search channels..."
+                                    placeholder={t("chat.search")}
                                     className="w-full py-1 px-3 text-sm border border-[var(--gray-card3)] rounded-lg bg-[var(--bg-color)] text-[var(--features-text-color)] focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                                 <Search
                                     size={14}
@@ -2051,7 +2051,7 @@ const TempChatPage = () =>
                         </div>
                         <div className="space-y-2">
                             <h3 className="text-xs font-semibold text-[var(--features-text-color)] opacity-70 uppercase">
-                                Project Channels
+                                {t("chat.channels")}
                             </h3>
                             {projectChannels.map((channel) => (
                                 <div
@@ -2064,7 +2064,7 @@ const TempChatPage = () =>
                                     <Hash size={16} className="text-[var(--features-icon-color)]" />
                                     <span className="text-sm">{channel.channelName}</span>
                                     {channel.unreadCount > 0 && (
-                                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                        <span className="ml-auto bg-red-500 !text-white text-xs rounded-full px-2 py-0.5">
                                             {channel.unreadCount}
                                         </span>
                                     )}
@@ -2073,7 +2073,7 @@ const TempChatPage = () =>
                         </div>
                         <div className="mt-6 space-y-2">
                             <h3 className="text-xs font-semibold text-[var(--features-text-color)] opacity-70 uppercase">
-                                Team Channels
+                                {t("chat.teamchan")}
                             </h3>
                             {teamChannels.map((channel) =>
                             {
@@ -2098,7 +2098,7 @@ const TempChatPage = () =>
                                         <TeamIcon size={16} className="text-[var(--features-icon-color)]"/>
                                         <span className="text-sm">{channel.channelName}</span>
                                         {channel.unreadCount > 0 && (
-                                            <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                            <span className="ml-auto bg-red-500 !text-white text-xs rounded-full px-2 py-0.5">
                                                 {channel.unreadCount}
                                             </span>
                                         )}
@@ -2140,11 +2140,11 @@ const TempChatPage = () =>
                                 )}
                                 <div>
                                     <h2 className="text-lg font-medium text-[var(--features-text-color)] truncate max-w-[150px] md:max-w-full">
-                                        {selectedChannel?.channelName || 'Select a channel'}
+                                        {selectedChannel?.channelName || t("chat.select")}
                                     </h2>
                                     {selectedChannel?.channelType === 'TEAM' && (
                                         <div className="text-xs text-[var(--features-text-color)] opacity-70 truncate max-w-[150px] md:max-w-full">
-                                            Team Channel • {selectedChannel.teamData?.teamName || 'Team'} • Members only
+                                            Team Channel • {selectedChannel.teamData?.teamName || 'Team'} • {t("chat.only")}
                                         </div>
                                     )}
                                 </div>
@@ -2159,7 +2159,7 @@ const TempChatPage = () =>
                                                 type="text"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                                placeholder="Search messages..."
+                                                placeholder={t("chat.searchmess")}
                                                 className="py-1 px-3 text-sm border border-[var(--gray-card3)] rounded-lg bg-[var(--bg-color)] text-[var(--features-text-color)] w-40 focus:outline-none focus:ring-1 focus:ring-[var(--features-icon-color)]"/>
                                             <Search
                                                 size={14}
@@ -2179,7 +2179,7 @@ const TempChatPage = () =>
                             {loading && !messages.length ? (
                                 <div className="flex items-center justify-center h-full">
                                     <div className="text-[var(--features-text-color)] text-center">
-                                        Loading messages...
+                                        {t("chat.loading")}...
                                     </div>
                                 </div>
                             ) : error ? (
@@ -2191,8 +2191,8 @@ const TempChatPage = () =>
                                     <MessageSquare size={48} className="text-[var(--gray-card3)] mb-4" />
                                     <p className="text-[var(--features-text-color)] text-center">
                                         {selectedChannel
-                                            ? 'No messages yet. Start the conversation!'
-                                            : 'Select a channel to start chatting'}
+                                            ? t("chat.empty")
+                                            : t("chat.select")}
                                     </p>
                                 </div>
                             ) : (

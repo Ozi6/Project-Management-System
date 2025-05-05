@@ -5,6 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import CodeSnippet from './CodeSnippet';
 import FileAttachment from './FileAttachment';
 import PollComponent from './PollComponent';
+import { useTranslation } from 'react-i18next';
 
 const Message = React.memo(
     ({
@@ -34,6 +35,7 @@ const Message = React.memo(
         handleReplyMessage,
         messages
     }) => {
+        const {t} = useTranslation();
         const user = users.find((u) => u.id === msg.senderId) || {
             name: 'Unknown User',
             avatar: `https://ui-avatars.com/api/?name=Unknown+User&background=888888&color=fff`,
@@ -71,7 +73,7 @@ const Message = React.memo(
                 <div className="flex flex-col max-w-[75%]">
                     <div
                         className={`rounded-lg px-4 py-3 ${isCurrentUser
-                                ? 'bg-[var(--features-icon-color)] text-white rounded-br-none'
+                                ? 'bg-[var(--features-icon-color)] !text-white rounded-br-none'
                                 : 'bg-[var(--gray-card3)] text-[var(--features-title-color)] rounded-bl-none'
                             }`}
                     >
@@ -106,13 +108,13 @@ const Message = React.memo(
                                         onClick={() => setEditingMessage(null)}
                                         className="text-xs mr-2 py-1 px-3 bg-[var(--gray-card3)] text-[var(--features-text-color)] rounded-md hover:bg-[var(--gray-card3)]/80"
                                     >
-                                        Cancel
+                                        {t("chat.cancel")}
                                     </button>
                                     <button
                                         onClick={saveEditedMessage}
-                                        className="text-xs py-1 px-3 bg-[var(--features-icon-color)] text-white rounded-md hover:bg-[var(--hover-color)]"
+                                        className="text-xs py-1 px-3 bg-[var(--features-icon-color)] !text-white rounded-md hover:bg-[var(--hover-color)]"
                                     >
-                                        Save
+                                        {t("chat.save")}
                                     </button>
                                 </div>
                             </div>
@@ -138,8 +140,8 @@ const Message = React.memo(
                                             />
                                             Your browser does not support the audio element.
                                         </audio>
-                                        <div className="text-xs text-[var(--features-text-color)] opacity-70 mt-1">
-                                            Voice message ({formatFileSize(msg.voiceMessage.fileSize)})
+                                        <div className="text-xs text-white opacity-70 mt-1">
+                                        {t("chat.voicemess")} ({formatFileSize(msg.voiceMessage.fileSize)})
                                             {msg.voiceMessage.durationSeconds && (
                                                 <span> • {msg.voiceMessage.durationSeconds}s</span>
                                             )}
