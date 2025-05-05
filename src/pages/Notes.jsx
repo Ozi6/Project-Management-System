@@ -666,8 +666,8 @@ const Notes = () =>
             label: t("notes.title"),
             path: `/project/${projectId}/notes`,
             state: { isOwner },
-            color: 'bg-teal-100 text-teal-600',
-            iconColor: 'text-teal-600'
+            color: 'bg-[var(--features-title-color)]/20 text-[var(--features-icon-color)]',
+            iconColor: 'text-[var(--features-icon-color)]'
         },
         {
             id: 'settings',
@@ -706,10 +706,10 @@ const Notes = () =>
                             style={{ zIndex: 10003 }}>
                             <div className="bg-white rounded-md w-80 flex flex-col shadow-lg overflow-hidden">
                                 <div className="bg-[var(--bug-report)] p-4 shadow-md">
-                                    <h3 className="text-xl font-bold !text-white text-center">Confirmation</h3>
+                                    <h3 className="text-xl font-bold !text-white text-center">{t("notes.confirm")}</h3>
                                 </div>
                                 <div className="p-6 flex flex-col gap-4">
-                                    <p className="text-gray-700 text-center">Are you sure you want to delete "{noteTitle}"?</p>
+                                    <p className="text-gray-700 text-center">{t("notes.conMess")} "{noteTitle}"?</p>
                                     <div className="flex justify-between">
                                         <button
                                             className="bg-gray-500 !text-white py-2 px-6 rounded-md hover:bg-gray-700 transition-all duration-200 hover:scale-105 w-32"
@@ -765,7 +765,7 @@ const Notes = () =>
         return(
             <div className="flex items-center justify-center h-screen">
                 <div className="text-center p-6 bg-red-50 rounded-lg">
-                    <h2 className="text-xl font-semibold text-red-600 mb-2">Error Loading Notes</h2>
+                    <h2 className="text-xl font-semibold text-red-600 mb-2">{t("notes.error")}</h2>
                     <p className="text-red-500">{error}</p>
                     <button
                         onClick={fetchNotes}
@@ -788,9 +788,9 @@ const Notes = () =>
 
     return(
         <div className="flex flex-col h-screen bg-gray-50">
-            <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-indigo-300">
+            <div className="w-full bg-[var(--bg-color)] shadow-sm z-10 border-b border-[var(--features-icon-color)]">
                 <Header
-                    title={<span className="text-xl font-semibold text-indigo-600">{t("notes.title")}</span>}
+                    title={<span className="text-xl font-semibold text-[var(--features-icon-color)]">{t("notes.title")}</span>}
                     action={{
                         onClick: () => setShowAddNoteModal(true),
                         icon: <FaPlus size={16} className="mr-2" />,
@@ -811,15 +811,15 @@ const Notes = () =>
                         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} customNavItems={customNavItems} isMobile={true} closeMobileMenu={() => setIsMobileSidebarOpen(false)} />
                     </div>
                 )}
-                <div className="flex-1 overflow-auto bg-indigo-50 flex flex-col">
-                    <div className="sticky top-0 z-10 bg-white shadow-sm px-3 sm:px-6 py-3">
+                <div className="flex-1 overflow-auto bg-[var(--bg-color)] flex flex-col">
+                    <div className="sticky top-0 z-10 bg-[var(--gray-card1)] shadow-sm px-3 sm:px-6 py-3">
                         <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
                             <div className="relative w-full sm:max-w-md">
-                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--features-icon-color)]/70" size={18} />
                                 <input
                                     type="text"
                                     placeholder={t("notes.search")}
-                                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                                    className="w-full pl-10 pr-4 py-2 border bg-[var(--bg-color)] border-[var(--features-icon-color)]/30 rounded-lg text-[var(--features-text-color)] focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)] text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)} />
                             </div>
@@ -828,13 +828,13 @@ const Notes = () =>
                                     <button
                                         type="button"
                                         onClick={() => setNoteType("personal")}
-                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-l-lg border border-gray-200 ${noteType === "personal" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-l-lg border border-gray-200 ${noteType === "personal" ? "bg-[var(--features-icon-color)] !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.personal")}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setNoteType("shared")}
-                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-r-lg border border-gray-200 ${noteType === "shared" ? "bg-indigo-600 !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-r-lg border border-gray-200 ${noteType === "shared" ? "bg-[var(--features-icon-color)] !text-white" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.shared")}
                                     </button>
                                 </div>
@@ -842,25 +842,25 @@ const Notes = () =>
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("updated")}
-                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-l-lg border border-gray-200 ${sortBy === "updated" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-l-lg border border-gray-200 ${sortBy === "updated" ? "bg-[var(--gray-card2)] text-[var(--features-text-color)]" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.recent")}
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("title")}
-                                        className={`px-2 sm:px-3 py-2 text-xs font-medium border-t border-b border-gray-200 ${sortBy === "title" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium border-t border-b border-gray-200 ${sortBy === "title" ? "bg-[var(--gray-card2)] text-[var(--features-text-color)]" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         A-Z
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setSortBy("color")}
-                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-r-lg border border-gray-200 ${sortBy === "color" ? "bg-gray-200 text-gray-800" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
+                                        className={`px-2 sm:px-3 py-2 text-xs font-medium rounded-r-lg border border-gray-200 ${sortBy === "color" ? "bg-[var(--gray-card2)] text-[var(--features-text-color)]" : "bg-white text-gray-700 hover:bg-gray-100"}`}>
                                         {t("notes.color")}
                                     </button>
                                 </div>
                                 <button
                                     onClick={() => setShowAddNoteModal(true)}
-                                    className="flex items-center gap-1 px-3 sm:px-4 py-2 bg-indigo-600 !text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm">
+                                    className="flex items-center gap-1 px-3 sm:px-4 py-2 bg-[var(--features-icon-color)] !text-white rounded-lg hover:bg-opacity-90 transition-all shadow-sm">
                                     <FaPlus size={14} />
                                     <span className="text-xs sm:text-sm">{t("notes.newnote")}</span>
                                 </button>
@@ -1038,12 +1038,12 @@ const Notes = () =>
                                         ))}
                                     </>
                                 ) : (
-                                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
-                                        <FileText size={48} className="mb-4 opacity-50" />
+                                    <div className="col-span-full flex flex-col items-center justify-center py-12 text-[var(--features-text-color)]">
+                                        <FileText size={48} className="mb-4 opacity-50 text-[var(--features-text-color)]" />
                                         <p>{t("notes.nopersonal")}</p>
                                         <button
                                             onClick={() => setShowAddNoteModal(true)}
-                                            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors">
+                                            className="mt-4 px-4 py-2 bg-[var(--features-icon-color)] !text-white rounded-lg hover:bg-[var(--hover-color)] transition-colors">
                                             {t("notes.createnote")}
                                         </button>
                                     </div>
@@ -1232,16 +1232,16 @@ const Notes = () =>
                                 ) : (
                                     <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
                                         <div className="relative">
-                                            <FileText size={64} className="mb-4 opacity-30" />
+                                            <FileText size={64} className="mb-4 opacity-30 text-[var(--features-icon-color)]/80 " />
                                             <div className="absolute top-0 right-0 w-full h-full flex items-center justify-center">
-                                                <X size={32} className="text-gray-400 opacity-70" />
+                                                <X size={32} className="text-[var(--features-icon-color)] opacity-70" />
                                             </div>
                                         </div>
-                                        <p className="text-lg mb-2">{t("notes.nonotesttl")}</p>
-                                        <p className="text-sm text-gray-400 mb-4">{t("notes.nonotes")}</p>
+                                        <p className="text-lg text-[var(--features-text-color)] mb-2">{t("notes.nonotesttl")}</p>
+                                        <p className="text-sm text-[var(--features-text-color)] mb-4">{t("notes.nonotes")}</p>
                                         <button
                                             onClick={() => setShowAddNoteModal(true)}
-                                            className="mt-4 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors shadow-md flex items-center gap-2"
+                                            className="mt-4 px-6 py-3 bg-[var(--features-icon-color)] !text-white rounded-lg hover:bg-[var(--hover-color)] transition-colors shadow-md flex items-center gap-2"
                                         >
                                             <FaPlus size={16} />
                                             {t("notes.createnote") }
@@ -1272,33 +1272,33 @@ const Notes = () =>
                                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
                                 style={{ zIndex: 1001 }}>
                                 <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[85vh] overflow-auto">
-                                    <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
+                                    <div className="flex justify-between items-center p-5 bg-[var(--features-icon-color)] !text-white rounded-t-lg">
                                         <h3 className="text-xl font-semibold">{t("notes.createnote")}</h3>
                                         <button
                                             onClick={() => setShowAddNoteModal(false)}
-                                            className="p-1 rounded-full hover:bg-indigo-700 transition-colors">
+                                            className="p-1 rounded-full hover:bg-[var(--hover-color)] transition-colors">
                                             <X size={24} />
                                         </button>
                                     </div>
-                                    <div className="p-4 sm:p-6">
+                                    <div className="p-4 sm:p-6 bg-[var(--bg-color)]">
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
                                                 type="text"
                                                 value={newNoteTitle}
                                                 onChange={(e) => setNewNoteTitle(e.target.value)}
                                                 placeholder={t("notes.editttlfield")}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+                                                className="w-full px-3 py-2 border border-[var(--features-icon-color)] text-[var(--features-text-color)]/70 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-text-color)]/50"/>
                                         </div>
                                         <div className="mb-6">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.notecolor")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("notes.notecolor")}</label>
                                             <div className="flex gap-2 flex-wrap">
                                                 {Object.keys(colorVariants).filter(color => color !== 'default').map((color) => (
                                                     <button
                                                         key={color}
                                                         type="button"
                                                         onClick={() => setNewNoteColor(color)}
-                                                        className={`w-8 h-8 rounded-full border-2 ${newNoteColor === color ? 'border-gray-800' : 'border-transparent'}`}
+                                                        className={`w-8 h-8 rounded-full border-2 ${newNoteColor === color ? 'border-[var(--features-icon-color)]' : 'border-[var(--features-text-color)]/30'}`}
                                                         style={{ backgroundColor: colorVariants[color].noteColor }}
                                                         title={color.charAt(0).toUpperCase() + color.slice(1)}
                                                     />
@@ -1306,12 +1306,12 @@ const Notes = () =>
                                             </div>
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
                                             <textarea
                                                 value={newNoteContent}
                                                 onChange={(e) => setNewNoteContent(e.target.value)}
                                                 placeholder={t("notes.content")}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[150px]"></textarea>
+                                                className="w-full px-3 py-2 border border-[var(--features-icon-color)] text-[var(--features-text-color)]/70 rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50 min-h-[150px]"></textarea>
                                         </div>
                                         <div className="flex items-center gap-6 mb-6">
                                             <div className="flex items-center">
@@ -1320,8 +1320,8 @@ const Notes = () =>
                                                     id="pin-note"
                                                     checked={newNotePinned}
                                                     onChange={() => setNewNotePinned(!newNotePinned)}
-                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/>
-                                                <label htmlFor="pin-note" className="text-gray-700 text-sm">{t("notes.pinnote")}</label>
+                                                    className="mr-2 h-4 w-4 text-[var(--features-icon-color)] focus:ring-[var(--features-icon-color)]/70 border-gray-300 rounded"/>
+                                                <label htmlFor="pin-note" className="text-[var(--features-text-color)] text-sm">{t("notes.pinnote")}</label>
                                             </div>
                                             <div className="flex items-center">
                                                 <input
@@ -1329,22 +1329,22 @@ const Notes = () =>
                                                     id="share-note"
                                                     checked={newNoteShared}
                                                     onChange={() => setNewNoteShared(!newNoteShared)}
-                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"/>
-                                                <label htmlFor="share-note" className="text-gray-700 text-sm">{t("notes.sharewteam")}</label>
+                                                    className="mr-2 h-4 w-4 text-[var(--features-text-color)] focus:ring-[var(--features-text-color)]/70 border-gray-300 rounded"/>
+                                                <label htmlFor="share-note" className="text-[var(--features-text-color)] text-sm">{t("notes.sharewteam")}</label>
                                             </div>
                                         </div>
                                         <div className="flex justify-end gap-3">
                                             <button
                                                 onClick={() => setShowAddNoteModal(false)}
-                                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                                className="px-4 py-2 text-sm font-medium text-[var(--features-text-color2)] bg-[var(--gray-card3)] rounded-md hover:bg-[var(--gray-card2)] focus:outline-none focus:ring-2 focus:ring-gray-500">
                                                 {t("prode.can")}
                                             </button>
                                             <button
                                                 onClick={addNote}
                                                 disabled={!newNoteTitle.trim()}
-                                                className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${newNoteTitle.trim()
-                                                        ? "bg-indigo-600 hover:bg-indigo-700"
-                                                        : "bg-indigo-400 cursor-not-allowed"
+                                                className={`px-4 py-2 text-sm font-medium !text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--features-icon-color)]/50 ${newNoteTitle.trim()
+                                                        ? "bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)]"
+                                                        : "bg-[var(--features-icon-color)]/50 cursor-not-allowed"
                                                     }`}>
                                                 {t("notes.create")}
                                             </button>
@@ -1374,34 +1374,34 @@ const Notes = () =>
                                 exit={{ y: "100%", opacity: 0 }}
                                 transition={{ type: "spring", stiffness: 150, damping: 15 }}
                                 style={{ zIndex: 10001 }}>
-                                <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[85vh] overflow-auto">
-                                    <div className="flex justify-between items-center p-5 bg-indigo-600 text-white rounded-t-lg">
+                                <div className="bg-[var(--bg-color)] rounded-lg shadow-xl w-full max-w-md max-h-[85vh] overflow-auto">
+                                    <div className="flex justify-between items-center p-5 bg-[var(--features-icon-color)] text-white rounded-t-lg">
                                         <h3 className="text-xl font-semibold">{t("notes.editnotecptl")}</h3>
                                         <button
                                             onClick={() => setShowEditNoteModal(false)}
-                                            className="p-1 rounded-full hover:bg-indigo-700 transition-colors">
-                                            <X size={24} />
+                                            className="p-1 rounded-full hover:bg-[var(--hover-color)] transition-colors">
+                                            <X size={24} className="text-white" />
                                         </button>
                                     </div>
                                     <div className="p-4 sm:p-6">
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.ttl")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("notes.ttl")}</label>
                                             <input
                                                 type="text"
                                                 value={editNoteData.title}
                                                 onChange={(e) => setEditNoteData({ ...editNoteData, title: e.target.value })}
                                                 placeholder={t("notes.editttlfield")}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                                                className="w-full px-3 py-2 border text-[var(--features-text-color)]/70 border-[var(--features-icon-color)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50" />
                                         </div>
                                         <div className="mb-6">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("notes.notecolor")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("notes.notecolor")}</label>
                                             <div className="flex gap-2 flex-wrap">
                                                 {Object.keys(colorVariants).filter(color => color !== 'default').map((color) => (
                                                     <button
                                                         key={color}
                                                         type="button"
                                                         onClick={() => setEditNoteData({ ...editNoteData, color })}
-                                                        className={`w-8 h-8 rounded-full border-2 ${editNoteData.color === color ? 'border-gray-800' : 'border-transparent'}`}
+                                                        className={`w-8 h-8 rounded-full border-2 ${editNoteData.color === color ? 'border-[var(--features-icon-color)]' : 'border-[var(--features-text-color)]/30'}`}
                                                         style={{ backgroundColor: colorVariants[color].noteColor }}
                                                         title={color.charAt(0).toUpperCase() + color.slice(1)}
                                                     />
@@ -1409,12 +1409,12 @@ const Notes = () =>
                                             </div>
                                         </div>
                                         <div className="mb-4">
-                                            <label className="block text-gray-700 text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
+                                            <label className="block text-[var(--features-text-color)] text-sm font-medium mb-2">{t("TCM.MarkCon")}</label>
                                             <textarea
                                                 value={editNoteData.content}
                                                 onChange={(e) => setEditNoteData({ ...editNoteData, content: e.target.value })}
                                                 placeholder={t("notes.content")}
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 min-h-[150px]"></textarea>
+                                                className="w-full px-3 py-2 border text-[var(--features-text-color)]/50 border-[var(--features-icon-color)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--features-icon-color)]/50 min-h-[150px]"></textarea>
                                         </div>
                                         <div className="flex items-center gap-6 mb-6">
                                             <div className="flex items-center">
@@ -1423,8 +1423,8 @@ const Notes = () =>
                                                     id="edit-pin-note"
                                                     checked={editNoteData.pinned}
                                                     onChange={() => setEditNoteData({ ...editNoteData, pinned: !editNoteData.pinned })}
-                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                                                <label htmlFor="edit-pin-note" className="text-gray-700 text-sm">{t("notes.pin")}</label>
+                                                    className="mr-2 h-4 w-4 text-[var(--features-icon-color)] focus:ring-[var(--features-icon-color)]/70 border-[var(--features-icon-color)]/30 rounded" />
+                                                <label htmlFor="edit-pin-note" className="text-[var(--features-text-color)] text-sm">{t("notes.pin")}</label>
                                             </div>
                                             <div className="flex items-center">
                                                 <input
@@ -1432,22 +1432,22 @@ const Notes = () =>
                                                     id="edit-share-note"
                                                     checked={editNoteData.shared}
                                                     onChange={() => setEditNoteData({ ...editNoteData, shared: !editNoteData.shared })}
-                                                    className="mr-2 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded" />
-                                                <label htmlFor="edit-share-note" className="text-gray-700 text-sm">{t("notes.sharewteam")}</label>
+                                                    className="mr-2 h-4 w-4 text-[var(--features-icon-color)] focus:ring-[var(--features-icon-color)]/50 border-[var(--features-icon-color)]/30 rounded" />
+                                                <label htmlFor="edit-share-note" className="text-[var(--features-text-color)] text-sm">{t("notes.sharewteam")}</label>
                                             </div>
                                         </div>
                                         <div className="flex justify-end gap-3">
                                             <button
                                                 onClick={() => setShowEditNoteModal(false)}
-                                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                                className="px-4 py-2 text-sm font-medium text-[var(--features-text-color2)] bg-[var(--gray-card3)] rounded-md hover:bg-[var(--gray-card3)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--features-text-color)]/50">
                                                 {t("prode.can")}
                                             </button>
                                             <button
                                                 onClick={editNote}
                                                 disabled={!editNoteData.title.trim()}
-                                                className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${editNoteData.title.trim()
-                                                        ? "bg-indigo-600 hover:bg-indigo-700"
-                                                        : "bg-indigo-400 cursor-not-allowed"
+                                                className={`px-4 py-2 text-sm font-medium !text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--features-icon-color)]/50 ${editNoteData.title.trim()
+                                                        ? "bg-[var(--features-icon-color)] hover:bg-[var(--hover-color)]"
+                                                        : "bg-[var(--features-icon-color)]/50 cursor-not-allowed"
                                                     }`}>
                                                 {t("prode.edit.save")}
                                             </button>

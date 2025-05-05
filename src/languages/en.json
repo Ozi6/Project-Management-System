@@ -17,6 +17,12 @@
     "track": "On Track"
   },
 
+  "notes":{
+    "error":"Error loading notes",
+    "confirm":"Confirmation",
+    "conMess":"Are you sure you want to delete"
+  },
+
   "cal": {
     "due_in": "due in",
     "days": "days",

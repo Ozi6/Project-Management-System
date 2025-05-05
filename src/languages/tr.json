@@ -17,6 +17,12 @@
     "track": "Takip Ediliyor"
   },
 
+  "notes":{
+    "error":"Notları yüklerken hata oluştu",
+    "confirm":"Onay",
+    "conMess":"Silmek istediğinizden emin misiniz:"
+  },
+
   "cal": {
     "due_in": "",
     "days": "gün içinde teslim",
