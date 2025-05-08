@@ -1,6 +1,8 @@
 ﻿import React from 'react';
 import { motion } from 'framer-motion';
-import { Smile, Reply, Edit, Trash2 } from 'lucide-react';
+import {
+    Smile, ThumbsUp, Heart, Laugh, Frown, Reply, Edit, Trash2
+} from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import CodeSnippet from './CodeSnippet';
 import FileAttachment from './FileAttachment';
@@ -35,6 +37,50 @@ const Message = React.memo(
         handleReplyMessage,
         messages
     }) => {
+
+        const commonEmojis = ['👍', '❤️', '😂', '😊', '🎉', '👏', '🙌', '🔥', '✨', '🚀'];
+        const emojiCategories = {
+            'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
+            'Reactions': ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
+            'Objects': ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
+        };
+        const reactionTypes = [
+            { emoji: '👍', name: 'thumbs_up', icon: ThumbsUp },
+            { emoji: '❤️', name: 'heart', icon: Heart },
+            { emoji: '😂', name: 'laugh', icon: Laugh },
+            { emoji: '😔', name: 'sad', icon: Frown },
+            { emoji: '😊', name: 'smile', icon: Smile },
+            { emoji: '🎉', name: 'party', icon: null },
+            { emoji: '👏', name: 'clap', icon: null },
+            { emoji: '🙌', name: 'hands', icon: null },
+            { emoji: '🔥', name: 'fire', icon: null },
+            { emoji: '✨', name: 'sparkles', icon: null },
+            { emoji: '🚀', name: 'rocket', icon: null },
+            { emoji: '😀', name: 'grinning', icon: null },
+            { emoji: '😃', name: 'smiley', icon: null },
+            { emoji: '😄', name: 'smile_open', icon: null },
+            { emoji: '😁', name: 'beam', icon: null },
+            { emoji: '😆', name: 'laughing', icon: null },
+            { emoji: '😅', name: 'sweat_smile', icon: null },
+            { emoji: '🤣', name: 'rofl', icon: null },
+            { emoji: '🙂', name: 'slight_smile', icon: null },
+            { emoji: '😉', name: 'wink', icon: null },
+            { emoji: '👎', name: 'thumbs_down', icon: null },
+            { emoji: '💯', name: 'hundred', icon: null },
+            { emoji: '✅', name: 'check', icon: null },
+            { emoji: '❌', name: 'cross', icon: null },
+            { emoji: '💻', name: 'laptop', icon: null },
+            { emoji: '📱', name: 'phone', icon: null },
+            { emoji: '📄', name: 'document', icon: null },
+            { emoji: '📌', name: 'pin', icon: null },
+            { emoji: '⚙️', name: 'gear', icon: null },
+            { emoji: '🔧', name: 'wrench', icon: null },
+            { emoji: '📦', name: 'package', icon: null },
+            { emoji: '📚', name: 'books', icon: null },
+            { emoji: '🔍', name: 'search', icon: null },
+            { emoji: '🔑', name: 'key', icon: null },
+        ];
+
         const {t} = useTranslation();
         const user = users.find((u) => u.id === msg.senderId) || {
             name: 'Unknown User',
@@ -183,31 +229,91 @@ const Message = React.memo(
                             </>
                         )}
                     </div>
-                    {/* Existing reactions and actions remain unchanged */}
                     {Object.keys(msg.reactions || {}).length > 0 && (
                         <div className={`flex flex-wrap gap-1 mt-1 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                            {Object.entries(msg.reactions || {}).map(
-                                ([emoji, count]) =>
+                            {Object.entries(msg.reactions || {}).map(([reactionName, count]) => {
+                                const reaction = reactionTypes.find((r) => r.name === reactionName);
+                                const emoji = reaction ? reaction.emoji : reactionName;
+                                return (
                                     count > 0 && (
                                         <div
-                                            key={emoji}
-                                            className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer ${msg.userReactions?.includes(emoji)
+                                            key={reactionName}
+                                            className={`rounded-full px-2 py-0.5 text-xs flex items-center gap-1 cursor-pointer ${msg.userReactions?.includes(reactionName)
                                                     ? 'bg-[var(--features-icon-color)]/20 border border-[var(--features-icon-color)]'
                                                     : 'bg-[var(--gray-card3)]/50 hover:bg-[var(--gray-card3)]'
                                                 }`}
                                             onClick={() => {
-                                                if (msg.userReactions?.includes(emoji))
-                                                    handleRemoveReaction(msg.id, emoji);
-                                                else
-                                                    handleReactionClick(msg.id, emoji);
+                                                if (msg.userReactions?.includes(reactionName))
+                                                    handleRemoveReaction(msg.id, reactionName);
+                                                else handleReactionClick(msg.id, reactionName);
                                             }}
                                         >
                                             <span>{emoji}</span>
                                             <span className="text-[var(--features-text-color)]">{count}</span>
                                         </div>
                                     )
-                            )}
+                                );
+                            })}
                         </div>
+                    )}
+                    {showEmojiPicker.context === 'message' && showEmojiPicker.messageId === msg.id && (
+                        <motion.div
+                            ref={emojiPickerRef}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className={`absolute ${isCurrentUser ? 'right-12' : 'left-12'} top-8 bg-[var(--bg-color)] rounded-lg shadow-lg p-4 w-80 z-10 border border-[var(--gray-card3)]`}
+                        >
+                            <div className="text-sm font-medium text-[var(--features-text-color)] mb-2">
+                                {t("chat.emoji")}
+                            </div>
+                            {/* Common Emojis */}
+                            <div className="mb-4">
+                                <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-1">
+                                    {t("chat.common")}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {commonEmojis.map((emoji) => (
+                                        <button
+                                            key={emoji}
+                                            onClick={() => {
+                                                // Map emoji to reaction name for handleReactionClick
+                                                const reactionName = reactionTypes.find((r) => r.emoji === emoji)?.name || emoji;
+                                                handleReactionClick(msg.id, reactionName);
+                                                setShowEmojiPicker({ context: null, messageId: null });
+                                            }}
+                                            className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            {/* Categorized Emojis */}
+                            {Object.entries(emojiCategories).map(([category, emojis]) => (
+                                <div key={category} className="mb-4">
+                                    <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-1">
+                                        {category}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {emojis.map((emoji) => (
+                                            <button
+                                                key={emoji}
+                                                onClick={() => {
+                                                    // Map emoji to reaction name for handleReactionClick
+                                                    const reactionName = reactionTypes.find((r) => r.emoji === emoji)?.name || emoji;
+                                                    handleReactionClick(msg.id, reactionName);
+                                                    setShowEmojiPicker({ context: null, messageId: null });
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center text-lg hover:bg-[var(--sidebar-projects-bg-color)]/20 rounded"
+                                            >
+                                                {emoji}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </motion.div>
                     )}
                     {showMessageActions === msg.id && (
                         <motion.div
@@ -219,11 +325,10 @@ const Message = React.memo(
                         >
                             {/* Existing action buttons */}
                             <button
-                                onClick={() => setShowEmojiPicker(msg.id)}
+                                onClick={() => setShowEmojiPicker({ context: 'message', messageId: msg.id })}
                                 className="p-1 rounded-full hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]"
-                                title="Add reaction"
-                            >
-                                <Smile size={16} />
+                                title="Add reaction">
+                                <Smile size={16}/>
                             </button>
                             <button
                                 onClick={() => handleReplyMessage(msg)}

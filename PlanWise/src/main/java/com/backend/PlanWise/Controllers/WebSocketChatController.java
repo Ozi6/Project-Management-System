@@ -99,7 +99,6 @@ public class WebSocketChatController
 
         Message savedMessage = messageRepository.save(message);
 
-
         if (messageDTO.getCodeSnippet() != null)
         {
             CodeSnippet codeSnippet = new CodeSnippet();
