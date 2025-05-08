@@ -254,6 +254,7 @@ public class WebSocketChatController
     }
 
     @MessageMapping("/chat/{channelId}/reaction/add")
+    @Transactional
     public void addReaction(
             @DestinationVariable Long channelId,
             @Payload ReactionDTO reactionDTO)
