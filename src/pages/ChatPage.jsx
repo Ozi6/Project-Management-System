@@ -1067,7 +1067,8 @@ const TempChatPage = () =>
             {
                 const reader = new FileReader();
                 reader.readAsDataURL(audioBlob);
-                reader.onloadend = () => {
+                reader.onloadend = () =>
+                {
                     const base64 = reader.result.split(',')[1];
                     resolve(base64);
                 };
@@ -1095,19 +1096,37 @@ const TempChatPage = () =>
             };
 
             const destination = `/app/audio/${channelId}/send`;
-            chunks.forEach((chunk, index) =>
+
+            const sendChunksSequentially = async (index = 0) =>
             {
+                if(index >= chunks.length)
+                {
+                    console.log('All chunks sent successfully');
+                    return;
+                }
+
                 const payload = JSON.stringify({
                     ...audioMessage,
-                    audioDataChunk: chunk,
+                    audioDataChunk: chunks[index],
                     chunkIndex: index,
                 });
-                console.log(`Sending chunk ${index + 1}/${chunks.length}, size: ${chunk.length} chars`);
-                stompClient.publish({
-                    destination: destination,
-                    body: payload,
+
+                console.log(`Sending chunk ${index + 1}/${chunks.length}, size: ${chunks[index].length} chars`);
+
+                await new Promise((resolve) => {
+                    stompClient.publish({
+                        destination: destination,
+                        body: payload,
+                        headers: {},
+                        skipContentLengthHeader: true,
+                    });
+                    resolve();
                 });
-            });
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                await sendChunksSequentially(index + 1);
+            };
+            await sendChunksSequentially();
 
             console.log(t("chat.chunk"), destination);
         }catch(err){
