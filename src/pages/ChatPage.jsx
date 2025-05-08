@@ -842,16 +842,15 @@ const TempChatPage = () =>
                     }
                     */
 
-                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message)
-                    {
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message) {
                         const updatedMessage = JSON.parse(message.body);
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === updatedMessage.id
-                                    ?
-                                    {
+                                    ? {
                                         ...msg,
-                                        codeSnippet: updatedMessage.codeSnippet
+                                        codeSnippet: updatedMessage.codeSnippet,
+                                        content: "",
                                     }
                                     : msg
                             )

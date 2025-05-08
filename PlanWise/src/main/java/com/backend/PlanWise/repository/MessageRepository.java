@@ -28,4 +28,12 @@ public interface MessageRepository extends JpaRepository<Message, Long>
             "FROM MessageReaction r WHERE r.messageId = m.id) as reactions " +
             "FROM Message m WHERE m.channelId = :channelId ORDER BY m.timestamp ASC")
     List<Object[]> findByChannelIdWithReactions(Long channelId);
+
+    Message findBySenderIdAndChannelIdAndProjectIdAndContentAndTimestamp(
+            String senderId,
+            Long channelId,
+            Integer projectId,
+            String content,
+            LocalDateTime timestamp
+    );
 }

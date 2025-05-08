@@ -16,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -111,6 +112,17 @@ public class AudioChunkService
         }catch(IllegalArgumentException e){
             throw new RuntimeException("Invalid base64 audio data", e);
         }
+
+        Message existingMessage = messageRepository.findBySenderIdAndChannelIdAndProjectIdAndContentAndTimestamp(
+                audioMessageDTO.getSenderId(),
+                audioMessageDTO.getChannelId(),
+                audioMessageDTO.getProjectId(),
+                audioMessageDTO.getContent() != null ? audioMessageDTO.getContent() : "Voice message",
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)
+        );
+
+        if(existingMessage != null)
+            return existingMessage;
 
         Message message = new Message();
         message.setSenderId(audioMessageDTO.getSenderId());
