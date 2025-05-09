@@ -17,10 +17,14 @@
     "track": "Takip Ediliyor"
   },
 
-  "notes":{
-    "error":"Notları yüklerken hata oluştu",
-    "confirm":"Onay",
-    "conMess":"Silmek istediğinizden emin misiniz:"
+  "notes": {
+    "error": "Notları yüklerken hata oluştu",
+    "confirm": "Onay",
+    "conMess": "Silmek istediğinizden emin misiniz:",
+    "errshare": "Not paylaşılamadı",
+    "errupdt": "Not güncellenemedi",
+    "errdel": "Not silinemedi",
+    "errpin": "Failed to update pin status"
   },
 
 

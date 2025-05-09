@@ -183,7 +183,7 @@ const Notes = () =>
             });
 
             if(!response.ok)
-                throw new Error('Failed to update note');
+                throw new Error(t("notes.errupdt"));
 
             const updatedNote = await response.json();
 
@@ -242,7 +242,7 @@ const Notes = () =>
             }
 
             setShowEditNoteModal(false);
-            setEditNoteData({ id: null, title: "", content: "", pinned: editNoteData.pinned, shared: false, color: editNoteData.color || yellow });
+            setEditNoteData({ id: null, title: "", content: "", pinned: editNoteData.pinned, shared: false, color: editNoteData.color || "yellow" });
         }catch(err){
             setError(err.message);
         }
@@ -263,7 +263,7 @@ const Notes = () =>
             });
 
             if(!response.ok)
-                throw new Error('Failed to delete note');
+                throw new Error(t("notes.errdel"));
 
             if(shared)
                 setSharedNotes(prev => prev.filter(note => note.id !== noteId));
@@ -531,8 +531,6 @@ const Notes = () =>
                     note.id === noteId ? { ...note, pinned: !note.pinned } : note
                 ));
             }
-
-            console.log(note);
             
             const response = await fetch(`http://localhost:8080/api/notes/${noteId}`,
             {
@@ -549,7 +547,7 @@ const Notes = () =>
             });
 
             if(!response.ok)
-                throw new Error('Failed to update pin status');
+                throw new Error(t("notes.errpin"));
 
         }catch(err){
             if(shared)
@@ -568,21 +566,20 @@ const Notes = () =>
         }
     };
 
-    const toggleShareStatus = async (noteId) =>
-    {
-        try{
+    const toggleShareStatus = async (noteId) => {
+        let noteToShare = null;
+        try {
             const token = await getToken();
-            const noteToShare = notes.find(note => note.id === noteId);
-            if(!noteToShare)
-                return;
+            noteToShare = notes.find(note => note.id === noteId);
+            if (!noteToShare) {
+                throw new Error('Note not found');
+            }
 
             setNotes(prev => prev.filter(note => note.id !== noteId));
-            const sharedNote =
-            {
+            const sharedNote = {
                 ...noteToShare,
                 shared: true,
-                author:
-                {
+                author: {
                     name: user.fullName || "Current User",
                     email: user.primaryEmailAddress?.emailAddress || "user@example.com",
                     image: user.imageUrl || "https://api.dicebear.com/7.x/avataaars/svg?seed=user@example.com"
@@ -590,11 +587,9 @@ const Notes = () =>
             };
             setSharedNotes(prev => [...prev, sharedNote]);
 
-            const response = await fetch(`http://localhost:8080/api/notes/${noteId}`,
-            {
+            const response = await fetch(`http://localhost:8080/api/notes/${noteId}`, {
                 method: 'PATCH',
-                headers:
-                {
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                     'userId': user.id
@@ -604,12 +599,14 @@ const Notes = () =>
                 })
             });
 
-            if(!response.ok)
-                throw new Error('Failed to share note');
-
-        }catch(err){
-            setSharedNotes(prev => prev.filter(note => note.id !== noteId));
-            setNotes(prev => [...prev, noteToShare]);
+            if (!response.ok) {
+                throw new Error(t("notes.errshare"));
+            }
+        } catch (err) {
+            if (noteToShare) {
+                setSharedNotes(prev => prev.filter(note => note.id !== noteId));
+                setNotes(prev => [...prev, noteToShare]);
+            }
             setError(err.message);
         }
     };
@@ -760,23 +757,6 @@ const Notes = () =>
         setIsMobileSidebarOpen(false);
     }, [location.pathname]);
 
-    if(error)
-    {
-        return(
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-center p-6 bg-red-50 rounded-lg">
-                    <h2 className="text-xl font-semibold text-red-600 mb-2">{t("notes.error")}</h2>
-                    <p className="text-red-500">{error}</p>
-                    <button
-                        onClick={fetchNotes}
-                        className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
-                        Retry
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     if(isLoading)
     {
         return(
@@ -812,6 +792,12 @@ const Notes = () =>
                     </div>
                 )}
                 <div className="flex-1 overflow-auto bg-[var(--bg-color)] flex flex-col">
+                    {error && (
+                        <div className="p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 mx-3 sm:mx-6 mt-3 rounded-r">
+                            <p className="font-medium">{t("notes.error")}</p>
+                            <p>{error}</p>
+                        </div>
+                    )}
                     <div className="sticky top-0 z-10 bg-[var(--gray-card1)] shadow-sm px-3 sm:px-6 py-3">
                         <div className="flex flex-col sm:flex-row gap-3 justify-between items-center">
                             <div className="relative w-full sm:max-w-md">
@@ -1000,7 +986,7 @@ const Notes = () =>
 
                                                         {note.content.length > 160 && (
                                                             <button
-                                                                onClick={() => openViewNoteModal(note, false)} // Set shared to true for shared notes
+                                                                onClick={() => openViewNoteModal(note, false)}
                                                                 className={`${colorVariants[note.color]?.text || colorVariants.default.text} hover:underline text-xs ml-2 flex items-center`}>
                                                                 <span>{t("notes.readmore")}</span>
                                                                 <FaChevronDown className="ml-1" size={12} />
