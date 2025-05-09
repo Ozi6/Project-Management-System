@@ -225,6 +225,13 @@ const TempChatPage = () =>
             const accessibleChannels = channelsWithUnread.filter((channel) => channel !== null);
 
             setChannels(accessibleChannels);
+
+            const generalChannel = accessibleChannels.find(
+                (channel) => channel.channelName.toLowerCase() === 'general'
+            );
+            if(generalChannel && !selectedChannel)
+                setSelectedChannel(generalChannel);
+
             setLoading(false);
         }catch(err){
             console.error('Error fetching channels:', err);
