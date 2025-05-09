@@ -37,6 +37,7 @@
     "chat": "Sohbet",
     "channels": "Proje Kanalları",
     "teamchan": "Takım Kanalları",
+    "teamchati": "Sohbeti", 
     "loading": "Mesajlar yükleniyor",
     "reply": "Yanıtlanıyor",
     "error": "Mikrofona erişim hatası:",

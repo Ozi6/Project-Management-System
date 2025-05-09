@@ -2245,6 +2245,13 @@ const TempChatPage = () =>
                                     if(IconComponent)
                                         TeamIcon = IconComponent;
                                 }
+
+                                const teamName = channel.channelName.endsWith(' Chat')
+                                    ? channel.channelName.slice(0, -5)
+                                    : channel.channelName;
+
+                                const displayName = `${teamName} ${t("chat.teamchati")}`;
+
                                 return(
                                     <div
                                         key={channel.channelId}
@@ -2254,7 +2261,7 @@ const TempChatPage = () =>
                                                 : 'hover:bg-[var(--gray-card3)]/10 text-[var(--features-text-color)]'
                                             }`}>
                                         <TeamIcon size={16} className="text-[var(--features-icon-color)]"/>
-                                        <span className="text-sm">{channel.channelName}</span>
+                                        <span className="text-sm">{displayName}</span>
                                         {channel.unreadCount > 0 && (
                                             <span className="ml-auto bg-red-500 !text-white text-xs rounded-full px-2 py-0.5">
                                                 {channel.unreadCount}
