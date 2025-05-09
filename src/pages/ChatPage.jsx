@@ -1159,19 +1159,24 @@ const TempChatPage = () =>
         }
     };
 
-    useEffect(() =>
-    {
-        const handlePendingFileUploads = async () =>
-        {
-            if(!filesToUpload || !messages.length)
+    const uploadCallCount = useRef(0);
+
+    useEffect(() => {
+        const handlePendingFileUploads = async () => {
+            uploadCallCount.current += 1;
+
+            if (uploadCallCount.current % 2 !== 0) {
+                console.log(`Skipping odd call #${uploadCallCount.current} to handlePendingFileUploads`);
                 return;
+            }
+
+            if (!filesToUpload || !messages.length) return;
 
             const latestMessage = [...messages]
                 .reverse()
                 .find((msg) => msg.senderId === userId);
 
-            if(latestMessage && latestMessage.id)
-            {
+            if (latestMessage && latestMessage.id) {
                 await uploadAttachment(
                     filesToUpload.file,
                     latestMessage.id,
