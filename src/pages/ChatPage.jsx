@@ -2251,12 +2251,7 @@ const TempChatPage = () =>
                                                 size={14}
                                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--features-text-color)] opacity-50"/>
                                         </div>
-                                        <button className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]">
-                                            <Users size={18}/>
-                                        </button>
-                                        <button className="p-1 rounded-md hover:bg-[var(--sidebar-projects-bg-color)]/20 text-[var(--features-text-color)]">
-                                            <MoreHorizontal size={18}/>
-                                        </button>
+                                        
                                     </>
                                 )}
                             </div>
