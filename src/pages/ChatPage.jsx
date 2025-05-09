@@ -1059,6 +1059,7 @@ const TempChatPage = () =>
             setAudioBlob(null);
             setShowCodeFormatting(false);
             setShowPollCreator(false);
+            setReplyingTo(null);
             setPollQuestion('');
             setPollOptions(['', '']);
             scrollToBottom();
