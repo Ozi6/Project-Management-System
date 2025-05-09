@@ -4,6 +4,7 @@ import {
     Smile, ThumbsUp, Heart, Laugh, Frown, Reply, Edit, Trash2
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { enUS, tr } from 'date-fns/locale';
 import CodeSnippet from './CodeSnippet';
 import FileAttachment from './FileAttachment';
 import PollComponent from './PollComponent';
@@ -37,12 +38,19 @@ const Message = React.memo(
         handleReplyMessage,
         messages
     }) => {
+        const {i18n} = useTranslation();
+        const {t} = useTranslation();
+        const localeMap = {
+            en: enUS,
+            tr: tr,
+            // Add more locales as needed
+        };
 
         const commonEmojis = ['👍', '❤️', '😂', '😊', '🎉', '👏', '🙌', '🔥', '✨', '🚀'];
         const emojiCategories = {
-            'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
-            'Reactions': ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
-            'Objects': ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
+            [t("chat.smile")]: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
+            [t("chat.react")]: ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
+            [t("chat.obj")]: ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
         };
         const reactionTypes = [
             { emoji: '👍', name: 'thumbs_up', icon: ThumbsUp },
@@ -81,7 +89,7 @@ const Message = React.memo(
             { emoji: '🔑', name: 'key', icon: null },
         ];
 
-        const {t} = useTranslation();
+        
         const user = users.find((u) => u.id === msg.senderId) || {
             name: 'Unknown User',
             avatar: `https://ui-avatars.com/api/?name=Unknown+User&background=888888&color=fff`,
@@ -208,21 +216,24 @@ const Message = React.memo(
                                         setMessages={setMessages}
                                     />
                                 )}
-                                <div
+                                 <div
                                     className={`text-[0.65rem] mt-1 flex items-center gap-1 ${isCurrentUser ? 'text-white/70' : 'text-[var(--features-text-color)]'
                                         }`}
                                 >
-                                    {formatDistanceToNow(new Date(msg.timestamp), { addSuffix: true })}
+                                    {formatDistanceToNow(new Date(msg.timestamp), {
+                                        addSuffix: true,
+                                        locale: localeMap[i18n.language] || enUS
+                                    })}
                                     {msg.isEdited && (
                                         <>
                                             <span>•</span>
-                                            <span className="italic">edited</span>
+                                            <span className="italic">{t("chat.edited")}</span>
                                         </>
                                     )}
                                     {msg.replyToMessageId && (
                                         <>
                                             <span>•</span>
-                                            <span className="italic">replied</span>
+                                            <span className="italic">{t("chat.replied")}</span>
                                         </>
                                     )}
                                 </div>

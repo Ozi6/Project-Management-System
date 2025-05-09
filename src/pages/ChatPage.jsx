@@ -48,7 +48,7 @@ const TempChatPage = () =>
     const [projectName, setProjectName] = useState('');
     const [users, setUsers] = useState([]);
     const [isOwner, setIsOwner] = useState(false);
-    const { t } = useTranslation();
+    
     const messagesEndRef = useRef(null);
     const [stompClient, setStompClient] = useState(null);
     const [connected, setConnected] = useState(false);
@@ -83,11 +83,13 @@ const TempChatPage = () =>
     const [voiceUsers, setVoiceUsers] = useState({});
     const audioRef = useRef(null);
 
+    const { t } = useTranslation();
+
     const commonEmojis = ['👍', '❤️', '😂', '😊', '🎉', '👏', '🙌', '🔥', '✨', '🚀'];
     const emojiCategories = {
-        'Smileys': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
-        'Reactions': ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
-        'Objects': ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
+        [t("chat.smile")]: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉'],
+        [t("chat.react")]: ['👍', '👎', '❤️', '🔥', '🎉', '👏', '🙌', '💯', '✅', '❌'],
+        [t("chat.obj")]: ['💻', '📱', '📄', '📌', '⚙️', '🔧', '📦', '📚', '🔍', '🔑']
     };
     const reactionTypes = [
         { emoji: '👍', name: 'thumbs_up', icon: ThumbsUp },
@@ -2041,7 +2043,7 @@ const TempChatPage = () =>
                         {/* Common Emojis */}
                         <div className="mb-4">
                             <div className="text-xs text-[var(--features-text-color)] opacity-70 mb-1">
-                                {t("chat.common")}
+                                {t("chat.emoji")}
                             </div>
                             <div className="flex flex-wrap gap-2">
                                 {commonEmojis.map((emoji) => (

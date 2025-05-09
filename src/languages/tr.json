@@ -33,7 +33,11 @@
     "text": "Aşağıya kod ekleyin, kod bloğu olarak biçimlendirilecektir",
     "record": "Ses kaydı",
     "voice": "Sesli Mesaj",
-    "emoji": "Yaygın emojiler",
+    "emoji":"Emojiler",
+    "common":"Yaygın emojiler",
+    "smile":"Gülücükler",
+    "react":"Tepkiler",
+    "obj":"Objeler",
     "chat": "Sohbet",
     "channels": "Proje Kanalları",
     "teamchan": "Takım Kanalları",
@@ -77,7 +81,9 @@
     "votes": "oy",
     "vote": "Oyla",
     "total": "Toplam oy:",
-    "voicemess": "Sesli mesaj"
+    "voicemess": "Sesli mesaj",
+    "copy":"Kopyala",
+    "copied":"Kopyalandı!"
   },
 
 
@@ -89,6 +95,11 @@
     "due_tomorrow": "Yarına",
     "due_today": "Bugüne",
     "days_overdue": "gün geç kalındı"
+  },
+
+  "project": {
+    "entry": "Yeni Girdi",
+    "list": "Görev Listesi"
   },
 
   "sidebar.user": "Kullanıcı",

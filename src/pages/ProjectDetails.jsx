@@ -464,7 +464,7 @@ const ProjectDetails = () => {
                 const token = await getToken();
                 const newEntryData =
                 {
-                    entryName: `New Entry ${taskList.entries.length + 1}`,
+                    entryName: `${t("project.entry")} ${taskList.entries.length + 1}`,
                     isChecked: false,
                     dueDate: null
                 };
@@ -577,8 +577,8 @@ const ProjectDetails = () => {
         const newList =
         {
             id: uuidv4(),
-            title: `Task List ${category.taskLists.length + 1}`,
-            taskListName: `Task List ${category.taskLists.length + 1}`,
+            title: `${t("project.list")} ${category.taskLists.length + 1}`,
+            taskListName: `${t("project.list")} ${category.taskLists.length + 1}`,
             color: category.tagColor,
             tagColor: category.tagColor,
             entries: []

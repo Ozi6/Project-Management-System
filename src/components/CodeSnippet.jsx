@@ -1,9 +1,11 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const CodeSnippet = ({ language, code }) =>
 {
+    const {t} = useTranslation();
     const [showCopied, setShowCopied] = useState(false);
 
     const handleCopy = () =>
@@ -25,7 +27,7 @@ const CodeSnippet = ({ language, code }) =>
                 <button
                     onClick={handleCopy}
                     className="text-xs text-blue-400 hover:text-blue-300">
-                    Copy
+                    {t("chat.copy")}
                 </button>
             </div>
             <SyntaxHighlighter
@@ -37,7 +39,7 @@ const CodeSnippet = ({ language, code }) =>
             </SyntaxHighlighter>
             {showCopied && (
                 <div className="absolute top-2 right-2 bg-gray-700 text-white text-xs px-2 py-1 rounded-md opacity-90">
-                    Copied!
+                   {t("chat.copied")}
                 </div>
             )}
         </div>
