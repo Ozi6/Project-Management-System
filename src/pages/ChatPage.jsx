@@ -1942,6 +1942,13 @@ const TempChatPage = () =>
                 </div>
             )}
             <form onSubmit={handleSendMessage} className="relative">
+                <input 
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept="image/*, application/pdf, text/plain, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                />
                 <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
