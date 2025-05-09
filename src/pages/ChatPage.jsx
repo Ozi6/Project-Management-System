@@ -598,7 +598,6 @@ const TempChatPage = () =>
                 let codeSnippet = null;
                 if(msg.codeSnippet)
                 {
-                    console.log(msg);
                     codeSnippet =
                     {
                         language: msg.codeSnippet.language,
@@ -714,6 +713,7 @@ const TempChatPage = () =>
                             );
                             if(existingMessage)
                             {
+                                receivedMessage.codeSnippet = existingMessage.codeSnippet;
                                 return prevMessages.map((msg) =>
                                     msg.id === existingMessage.id ? { ...receivedMessage, voiceMessage: receivedMessage.voiceMessage } : msg
                                 );
@@ -832,7 +832,16 @@ const TempChatPage = () =>
                         const receivedMessage = JSON.parse(message.body);
 
                         let enhancedMessage = { ...receivedMessage };
-                        if(receivedMessage.voiceMessage)
+                        if(receivedMessage.codeSnippet)
+                        {
+                            enhancedMessage.codeSnippet =
+                            {
+                                language: receivedMessage.codeSnippet.language,
+                                code: receivedMessage.codeSnippet.codeContent,
+                            };
+                            enhancedMessage.content = '';
+                        }
+                        else if(receivedMessage.voiceMessage)
                         {
                             const audioData = receivedMessage.voiceMessage.audioData;
                             let audioSrc = null;
@@ -863,17 +872,11 @@ const TempChatPage = () =>
 
                         setMessages((prevMessages) =>
                         {
-                            const existingMessage = prevMessages.find(
-                                (msg) =>
-                                    msg.id &&
-                                    msg.senderId === receivedMessage.senderId &&
-                                    msg.content === receivedMessage.content &&
-                                    msg.timestamp.split('.')[0] === receivedMessage.timestamp.split('.')[0]
-                            );
+                            const existingMessage = prevMessages.find((msg) => msg.id === receivedMessage.id);
                             if(existingMessage)
                             {
                                 return prevMessages.map((msg) =>
-                                    msg.id === existingMessage.id ? enhancedMessage : msg
+                                    msg.id === receivedMessage.id ? enhancedMessage : msg
                                 );
                             }
                             else
@@ -892,7 +895,6 @@ const TempChatPage = () =>
 
                     client.subscribe(`/topic/channel/${selectedChannel.channelId}/codesnippet`, function (message) {
                         const updatedMessage = JSON.parse(message.body);
-                        console.log(updatedMessage);
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === updatedMessage.id
@@ -992,14 +994,27 @@ const TempChatPage = () =>
         try{
             let content = message;
             let codeSnippet = null;
-            if(showCodeFormatting)
+            if (showCodeFormatting)
             {
-                codeSnippet =
-                {
-                    language: codeLanguage,
-                    codeContent: message
+                const normalizedLanguage =
+                    {
+                    csharp: 'csharp',
+                    typescript: 'typescript',
+                    css: 'css',
+                    javascript: 'javascript',
+                    python: 'python',
+                    java: 'java',
+                    html: 'html',
+                    sql: 'sql',
+                    php: 'php',
+                    go: 'go',
+                }[codeLanguage.toLowerCase()] || codeLanguage.toLowerCase();
+
+                codeSnippet = {
+                    language: normalizedLanguage,
+                    codeContent: message,
                 };
-                content = `\`\`\`${codeLanguage}\n${message}\n\`\`\``;
+                content = '';
             }
 
             const newMessage =
