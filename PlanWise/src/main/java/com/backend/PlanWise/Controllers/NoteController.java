@@ -204,7 +204,7 @@ public class NoteController
         }
 
         boolean isOwner = projectService.isProjectOwner(projectId, userId);
-        if(!note.getUserId().equals(userId) && !isOwner)
+        if(!note.getUserId().equals(userId) && !isOwner && note.shared())
         {
             logger.warn("Permission denied: User {} is not the creator or project owner for note ID: {}", userId, id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to update this note");
@@ -255,7 +255,7 @@ public class NoteController
         }
 
         boolean isOwner = projectService.isProjectOwner(projectId, userId);
-        if(!note.getUserId().equals(userId) && !isOwner)
+        if(!note.getUserId().equals(userId) && !isOwner && note.shared())
         {
             logger.warn("Permission denied: User {} is not the creator or project owner for note ID: {}", userId, id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to delete this note");
@@ -352,7 +352,7 @@ public class NoteController
         }
 
         boolean isOwner = projectService.isProjectOwner(projectId, userId);
-        if(!note.getUserId().equals(userId) && !isOwner)
+        if(!note.getUserId().equals(userId) && !isOwner && note.shared())
         {
             logger.warn("Permission denied: User {} is not the creator or project owner for note ID: {}", userId, id);
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to update this note");
