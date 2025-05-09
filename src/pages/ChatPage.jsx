@@ -747,16 +747,21 @@ const TempChatPage = () =>
                         fetchChannels();
                     });
 
-                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/reaction`, function (message)
-                    {
+                    client.subscribe(`/topic/channel/${selectedChannel.channelId}/reaction`, function (message) {
                         const updatedMessage = JSON.parse(message.body);
                         setMessages((prevMessages) =>
                             prevMessages.map((msg) =>
                                 msg.id === updatedMessage.id
                                     ? {
                                         ...msg,
-                                        reactions: updatedMessage.reactions,
-                                        userReactions: updatedMessage.userReactions || [],
+                                        reactions: updatedMessage.reactions || msg.reactions,
+                                        userReactions: updatedMessage.userReactions ||
+                                            (updatedMessage.userId === userId && updatedMessage.reactionType
+                                                ? updatedMessage.action === 'remove'
+                                                    ? msg.userReactions.filter((r) => r !== updatedMessage.reactionType)
+                                                    : [...(msg.userReactions || []), updatedMessage.reactionType]
+                                                : msg.userReactions || []),
+                                        isProcessingReaction: false,
                                     }
                                     : msg
                             )
@@ -1220,24 +1225,29 @@ const TempChatPage = () =>
         setShowEmojiPicker({ context: null, messageId: null });
     };
 
-    const handleReactionClick = async (messageId, reaction) =>
-    {
-        if(!selectedChannel || !stompClient || !connected)
-            return;
+    const handleReactionClick = async (messageId, reaction) => {
+        if (!selectedChannel || !stompClient || !connected) return;
 
-        try{
+        try {
             const message = messages.find((msg) => msg.id === messageId);
-            if(!message)
-                return;
+            if (!message) return;
+
             const hasReacted = message.userReactions?.includes(reaction);
+
+            if (message.isProcessingReaction) return;
+
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === messageId ? { ...msg, isProcessingReaction: true } : msg
+                )
+            );
+
             setMessages((prevMessages) =>
                 prevMessages.map((msg) =>
                     msg.id === messageId
-                        ?
-                        {
+                        ? {
                             ...msg,
-                            reactions:
-                            {
+                            reactions: {
                                 ...msg.reactions,
                                 [reaction]: hasReacted
                                     ? (msg.reactions[reaction] || 1) - 1
@@ -1251,31 +1261,45 @@ const TempChatPage = () =>
                 )
             );
 
-            const reactionDTO =
-            {
+            const reactionDTO = {
                 messageId: messageId,
                 userId: userId,
                 reactionType: reaction,
                 channelId: selectedChannel.channelId,
             };
-            if(hasReacted)
-            {
+
+            if (hasReacted) {
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/reaction/remove`,
                     body: JSON.stringify(reactionDTO),
                 });
-            }
-            else
-            {
+            } else {
                 stompClient.publish({
                     destination: `/app/chat/${selectedChannel.channelId}/reaction/add`,
                     body: JSON.stringify(reactionDTO),
                 });
             }
-            setShowMessageActions(null);
-        }catch(err){
+
+            setTimeout(() => {
+                setMessages((prevMessages) =>
+                    prevMessages.map((msg) =>
+                        msg.id === messageId ? { ...msg, isProcessingReaction: false } : msg
+                    )
+                );
+            }, 1000);
+        } catch (err) {
             console.error(t("chat.reacterr3"), err);
             alert(t("chat.reacterr4"));
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === messageId
+                        ? {
+                            ...msg,
+                            isProcessingReaction: false,
+                        }
+                        : msg
+                )
+            );
         }
     };
 
@@ -1286,8 +1310,32 @@ const TempChatPage = () =>
 
         try{
             const message = messages.find((msg) => msg.id === messageId);
-            if(!message)
+            if(!message || !message.userReactions?.includes(reaction))
                 return;
+
+            if(message.isProcessingReaction)
+                return;
+
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === messageId ? { ...msg, isProcessingReaction: true } : msg
+                )
+            );
+
+            setMessages((prevMessages) =>
+                prevMessages.map((msg) =>
+                    msg.id === messageId
+                        ? {
+                            ...msg,
+                            reactions: {
+                                ...msg.reactions,
+                                [reaction]: Math.max((msg.reactions[reaction] || 1) - 1, 0),
+                            },
+                            userReactions: msg.userReactions.filter((r) => r !== reaction),
+                        }
+                        : msg
+                )
+            );
 
             const reactionDTO =
             {
@@ -1302,22 +1350,27 @@ const TempChatPage = () =>
                 body: JSON.stringify(reactionDTO),
             });
 
-            setShowMessageActions(null);
+            setTimeout(() => {
+                setMessages((prevMessages) =>
+                    prevMessages.map((msg) =>
+                        msg.id === messageId ? { ...msg, isProcessingReaction: false } : msg
+                    )
+                );
+            }, 1000);
         }catch(err){
             console.error(t("chat.reacterr"), err);
             alert(t("chat.reacterr2"));
             setMessages((prevMessages) =>
                 prevMessages.map((msg) =>
                     msg.id === messageId
-                        ?
-                        {
+                        ? {
                             ...msg,
-                            reactions:
-                            {
+                            isProcessingReaction: false,
+                            userReactions: [...(msg.userReactions || []), reaction],
+                            reactions: {
                                 ...msg.reactions,
                                 [reaction]: (msg.reactions[reaction] || 0) + 1,
                             },
-                            userReactions: [...(msg.userReactions || []), reaction],
                         }
                         : msg
                 )

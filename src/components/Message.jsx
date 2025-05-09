@@ -245,7 +245,8 @@ const Message = React.memo(
                                             onClick={() => {
                                                 if (msg.userReactions?.includes(reactionName))
                                                     handleRemoveReaction(msg.id, reactionName);
-                                                else handleReactionClick(msg.id, reactionName);
+                                                else
+                                                    handleReactionClick(msg.id, reactionName);
                                             }}
                                         >
                                             <span>{emoji}</span>
