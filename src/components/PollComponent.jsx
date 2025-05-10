@@ -121,7 +121,12 @@ const PollComponent = React.memo(
                                 </div>
                                 <button
                                     onClick={() => handleVote(index)}
-                                    className="text-xs text-white hover:text-[var(--hover-color)]">
+                                    className={`text-xs px-2 py-1 rounded-md transition-colors duration-200
+                                        ${votedOption === index
+                                            ? 'bg-[var(--features-icon-color)] text-white'
+                                            : 'bg-[var(--gray-card3)] text-[var(--features-text-color)] hover:bg-[var(--hover-color)] hover:text-white'
+                                        }`}
+                                >
                                     {t("chat.vote")}
                                 </button>
                             </div>

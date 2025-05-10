@@ -272,6 +272,8 @@ const Notes = () =>
             setNoteToDelete(null);
         }catch(err){
             setError(err.message);
+        }finally{
+            setNoteToDelete(null);
         }
     };
 

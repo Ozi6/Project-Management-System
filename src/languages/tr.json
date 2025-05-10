@@ -43,6 +43,8 @@
     "react":"Tepkiler",
     "obj":"Objeler",
     "chat": "Sohbet",
+    "edited": "Düzenlendi",
+    "replied": "Yanıtlandı",
     "channels": "Proje Kanalları",
     "teamchan": "Takım Kanalları",
     "teamchati": "Sohbeti", 
