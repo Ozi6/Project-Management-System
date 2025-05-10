@@ -592,9 +592,11 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                     </Link>
                 </div>
                 <div className="hidden sm:block h-6 w-px bg-gray-300 mx-2 sm:mx-4" />
-                <div onClick={() => toggleLayout(!isHorizontalLayout)} className="mr-2 flex-shrink-0">
-                    <ToggleButton isChecked={isHorizontalLayout} />
-                </div>
+                {windowWidth >= 768 && (
+                    <div onClick={() => toggleLayout(!isHorizontalLayout)} className="mr-2 flex-shrink-0">
+                        <ToggleButton isChecked={isHorizontalLayout} />
+                    </div>
+                )}
                 {isLandingPage ? renderDesktopNavigation() : (
                     <div className="hidden md:flex flex-1 justify-between items-center overflow-hidden">
                         <h2 className="text-xl lg:text-3xl font-semibold text-gray-900 truncate">
