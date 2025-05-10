@@ -240,6 +240,32 @@ const Header = ({ title, action, rightContent }) => {
                         </div>
                     )}
                     
+                    {/* Theme and Language Controls */}
+                    <div className="py-3 mb-2 border-b border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-lg font-medium">Theme</span>
+                            <ThemeSwitcher />
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                            <span className="text-lg font-medium">Language</span>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => i18n.changeLanguage("en")} 
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium ${i18n.language === "en" ? "bg-[var(--features-icon-color)] text-white" : "border border-gray-300"}`}
+                                >
+                                    English
+                                </button>
+                                <button 
+                                    onClick={() => i18n.changeLanguage("tr")} 
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium ${i18n.language === "tr" ? "bg-[var(--features-icon-color)] text-white" : "border border-gray-300"}`}
+                                >
+                                    Türkçe
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
                     {isLandingPage ? (
                         // Landing page mobile menu
                         <>
