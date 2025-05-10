@@ -2,7 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SignedIn, SignedOut, UserButton, SignInButton } from "@clerk/clerk-react";
-import { Menu, X, PlusCircle, Moon, Sun, Bell, MessageSquare } from 'lucide-react';
+import { Menu, X, PlusCircle, Moon, Sun, Bell, MessageSquare, ChevronDown } from 'lucide-react';
 import logoLight from '../assets/logo5.png';
 import logoDark from '../assets/logodark.png';
 import logoPink from '../assets/logopink.png';
@@ -34,10 +34,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
     const { getToken } = useAuth();
     const [currentTheme, setCurrentTheme] = useState(localStorage.getItem("theme") || "light");
     const [isChatOpen, setIsChatOpen] = useState(false);
+    const [isThemeDropdownOpen, setIsThemeDropdownOpen] = useState(false);
+    const themeDropdownRef = useRef(null);
 
     // Get the appropriate logo based on the current theme
     const getLogoByTheme = () => {
-        switch(currentTheme) {
+        switch (currentTheme) {
             case "dark":
                 return logoDark;
             case "pink":
@@ -60,14 +62,14 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
 
         // Listen for theme changes from localStorage
         window.addEventListener('storage', handleThemeChange);
-        
+
         // Create a custom event listener for theme changes
         const themeChangeListener = (e) => {
             if (e.detail && e.detail.theme) {
                 setCurrentTheme(e.detail.theme);
             }
         };
-        
+
         // Add the custom event listener
         window.addEventListener('themeChanged', themeChangeListener);
 
@@ -77,10 +79,109 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         };
     }, []);
 
-    const fetchRecentActivities = async () =>
-    {
+    // Close theme dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (themeDropdownRef.current && !themeDropdownRef.current.contains(event.target)) {
+                setIsThemeDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const changeTheme = (theme) => {
+        localStorage.setItem("theme", theme);
+        document.documentElement.setAttribute("data-theme", theme);
+        setCurrentTheme(theme);
+
+        // Dispatch a custom event for theme change
+        window.dispatchEvent(new CustomEvent('themeChanged', {
+            detail: { theme }
+        }));
+
+        // Close the dropdown after selection
+        setIsThemeDropdownOpen(false);
+    };
+
+    const renderThemeToggle = () => {
+        // For desktop view, use the existing ThemeSwitcher component
+        if (windowWidth >= 640) {
+            return <ThemeSwitcher />;
+        }
+
+        // For mobile view, create a dropdown
+        return (
+            <div className="relative" ref={themeDropdownRef}>
+                <button
+                    onClick={() => setIsThemeDropdownOpen(!isThemeDropdownOpen)}
+                    className="p-2 rounded-full hover:bg-[var(--hover-color)]/20 transition-colors duration-200 flex items-center"
+                    aria-label="Theme options"
+                >
+                    {currentTheme === 'light' ? (
+                        <Sun size={18} />
+                    ) : currentTheme === 'dark' ? (
+                        <Moon size={18} />
+                    ) : (
+                        <div className="w-[18px] h-[18px] rounded-full bg-pink-500"></div>
+                    )}
+                    <ChevronDown size={14} className="ml-1" />
+                </button>
+
+                {isThemeDropdownOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="absolute right-0 mt-2 w-36 rounded-lg shadow-lg overflow-hidden z-50 border"
+                        style={{
+                            backgroundColor: "var(--bg-color)",
+                            borderColor: "var(--features-border)"
+                        }}
+                    >
+                        <div className="py-1">
+                            <button
+                                onClick={() => changeTheme('light')}
+                                className="flex items-center px-4 py-2 w-full text-left hover:bg-[var(--hover-color)]/10 transition-colors"
+                                style={{
+                                    backgroundColor: currentTheme === 'light' ? 'var(--hover-color)/10' : 'transparent'
+                                }}
+                            >
+                                <Sun size={16} className="mr-2" />
+                                <span>Light</span>
+                            </button>
+                            <button
+                                onClick={() => changeTheme('dark')}
+                                className="flex items-center px-4 py-2 w-full text-left hover:bg-[var(--hover-color)]/10 transition-colors"
+                                style={{
+                                    backgroundColor: currentTheme === 'dark' ? 'var(--hover-color)/10' : 'transparent'
+                                }}
+                            >
+                                <Moon size={16} className="mr-2" />
+                                <span>Dark</span>
+                            </button>
+                            <button
+                                onClick={() => changeTheme('pink')}
+                                className="flex items-center px-4 py-2 w-full text-left hover:bg-[var(--hover-color)]/10 transition-colors"
+                                style={{
+                                    backgroundColor: currentTheme === 'pink' ? 'var(--hover-color)/10' : 'transparent'
+                                }}
+                            >
+                                <div className="w-4 h-4 rounded-full bg-pink-500 mr-2"></div>
+                                <span>Pink</span>
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </div>
+        );
+    };
+
+    const fetchRecentActivities = async () => {
         setIsLoadingActivities(true);
-        try{
+        try {
             const token = await getToken();
 
             const projectResponse = await axios.get(
@@ -115,52 +216,44 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 .sort((a, b) => new Date(b.activityTime) - new Date(a.activityTime))
                 .slice(0, 5);
             setRecentActivities(sortedActivities);
-        }catch(error){
+        } catch (error) {
             console.error('Error fetching recent activities:', error);
-        }finally{
+        } finally {
             setIsLoadingActivities(false);
         }
     };
 
-    useEffect(() =>
-    {
-        if(projectId)
+    useEffect(() => {
+        if (projectId)
             fetchRecentActivities();
     }, [projectId]);
 
-    const handleActivityClick = async (activityId) =>
-    {
+    const handleActivityClick = async (activityId) => {
         await markActivityAsSeen(activityId);
     };
 
-    const handleSeeAllClick = async () =>
-    {
+    const handleSeeAllClick = async () => {
         await markAllActivitiesAsSeen();
     };
 
-    useEffect(() =>
-    {
-        const handleClickOutside = (event) =>
-        {
-            if(activitiesRef.current && !activitiesRef.current.contains(event.target))
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (activitiesRef.current && !activitiesRef.current.contains(event.target))
                 setShowActivities(false);
         };
 
         document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-        {
+        return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
 
-    const formatActivityTime = (timeString) =>
-    {
+    const formatActivityTime = (timeString) => {
         const time = new Date(timeString);
         return time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const getActivityIcon = (actionType) =>
-    {
+    const getActivityIcon = (actionType) => {
         const icons =
         {
             CREATE: '+',
@@ -173,14 +266,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         return icons[actionType] || '•';
     };
 
-    const handleSearch = (term) =>
-    {
+    const handleSearch = (term) => {
         performSearch(term);
         filterColumns(columns, term);
     };
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         const handleResize = () => {
             setWindowWidth(window.innerWidth);
             if (window.innerWidth >= 768) {
@@ -192,43 +283,37 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() =>
-    {
-        const handleClickOutside = (event) =>
-        {
-            if(notificationsRef.current && !notificationsRef.current.contains(event.target))
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (notificationsRef.current && !notificationsRef.current.contains(event.target))
                 setShowNotifications(false);
         };
 
         document.addEventListener('mousedown', handleClickOutside);
-        return () =>
-        {
+        return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
 
-    const handleDropdownToggle = (dropdownName) =>
-    {
-        if(activeDropdown === dropdownName)
+    const handleDropdownToggle = (dropdownName) => {
+        if (activeDropdown === dropdownName)
             setActiveDropdown(null);
         else
             setActiveDropdown(dropdownName);
     };
 
-    const toggleMobileMenu = () =>
-    {
+    const toggleMobileMenu = () => {
         setIsMobileMenuOpen(!isMobileMenuOpen);
         setActiveDropdown(null);
     };
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
     const renderActivitiesButton = () => {
         const unseenCount = recentActivities.filter(activity => !activity.seen).length;
-        
+
         return (
             <div className="relative" ref={activitiesRef}>
                 <button
@@ -262,13 +347,13 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                 borderColor: "var(--features-border)"
                             }}
                         >
-                            <h3 className="font-medium" style={{color: "var(--features-title-color)"}}>
+                            <h3 className="font-medium" style={{ color: "var(--features-title-color)" }}>
                                 {t('activity.notifications.title')}
                             </h3>
-                            <button 
+                            <button
                                 onClick={handleSeeAllClick}
                                 className="text-sm hover:opacity-80 transition-opacity"
-                                style={{color: "var(--features-icon-color)"}}
+                                style={{ color: "var(--features-icon-color)" }}
                             >
                                 {t('activity.notifications.mark_all_read')}
                             </button>
@@ -278,9 +363,9 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                             {isLoadingActivities ? (
                                 <div className="flex justify-center items-center h-32">
                                     <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"
-                                        style={{borderColor: "var(--features-icon-color)"}}
+                                        style={{ borderColor: "var(--features-icon-color)" }}
                                     ></div>
-                                    <span className="ml-2" style={{color: "var(--features-text-color)"}}>
+                                    <span className="ml-2" style={{ color: "var(--features-text-color)" }}>
                                         {t('activity.notifications.loading')}
                                     </span>
                                 </div>
@@ -289,9 +374,8 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                     <div
                                         key={activity.activityId}
                                         onClick={() => handleActivityClick(activity.activityId)}
-                                        className={`px-4 py-3 border-b cursor-pointer transition-colors ${
-                                            !activity.seen ? 'bg-opacity-10' : ''
-                                        }`}
+                                        className={`px-4 py-3 border-b cursor-pointer transition-colors ${!activity.seen ? 'bg-opacity-10' : ''
+                                            }`}
                                         style={{
                                             borderColor: "var(--features-border)",
                                             backgroundColor: !activity.seen ? "var(--gray-card3)" : "transparent",
@@ -300,19 +384,19 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                     >
                                         <div className="flex items-start gap-3">
                                             <div className="flex-shrink-0">
-                                                <span className="text-lg" style={{color: "var(--features-icon-color)"}}>
+                                                <span className="text-lg" style={{ color: "var(--features-icon-color)" }}>
                                                     {getActivityIcon(activity.actionType)}
                                                 </span>
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-sm font-medium" style={{color: "var(--features-title-color)"}}>
+                                                <p className="text-sm font-medium" style={{ color: "var(--features-title-color)" }}>
                                                     {generateActivityMessage(activity, t)}
                                                 </p>
-                                                <p className="text-xs mt-1" style={{color: "var(--features-text-color)"}}>
+                                                <p className="text-xs mt-1" style={{ color: "var(--features-text-color)" }}>
                                                     {formatActivityTime(activity.activityTime)}
                                                 </p>
                                                 {activity.entityName && (
-                                                    <p className="text-xs mt-1 truncate" style={{color: "var(--features-text-color)"}}>
+                                                    <p className="text-xs mt-1 truncate" style={{ color: "var(--features-text-color)" }}>
                                                         {activity.entityName}
                                                     </p>
                                                 )}
@@ -321,7 +405,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                                     </div>
                                 ))
                             ) : (
-                                <div className="px-4 py-6 text-center" style={{color: "var(--features-text-color)"}}>
+                                <div className="px-4 py-6 text-center" style={{ color: "var(--features-text-color)" }}>
                                     {t('activity.notifications.no_activities')}
                                 </div>
                             )}
@@ -333,15 +417,15 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
     };
 
     const isLandingPage =
-    [
-        '/login',
-        '/signup',
-        '/',
-        '/features/project-management',
-        '/features/team-collaboration',
-        '/features/task-tracking',
-        '/about'
-    ].includes(location.pathname) || location.pathname.startsWith('/features/');
+        [
+            '/login',
+            '/signup',
+            '/',
+            '/features/project-management',
+            '/features/team-collaboration',
+            '/features/task-tracking',
+            '/about'
+        ].includes(location.pathname) || location.pathname.startsWith('/features/');
 
     const renderDesktopNavigation = () => (
         <div className="hidden md:flex flex-1 justify-between items-center">
@@ -381,9 +465,8 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         </div>
     );
 
-    const markActivityAsSeen = async (activityId) =>
-    {
-        try{
+    const markActivityAsSeen = async (activityId) => {
+        try {
             const token = await getToken();
             await axios.patch(
                 `http://localhost:8080/api/projects/${projectId}/activities/${activityId}/seen`,
@@ -400,14 +483,13 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
             setRecentActivities(prev => prev.map(activity =>
                 activity.activityId === activityId ? { ...activity, seen: true } : activity
             ));
-        }catch(error){
+        } catch (error) {
             console.error('Error marking activity as seen:', error);
         }
     };
 
-    const markAllActivitiesAsSeen = async () =>
-    {
-        try{
+    const markAllActivitiesAsSeen = async () => {
+        try {
             const token = await getToken();
             await axios.patch(
                 `http://localhost:8080/api/projects/${projectId}/activities/mark-all-seen`,
@@ -424,12 +506,12 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
             setRecentActivities(prev => prev.map(activity =>
                 ({ ...activity, seen: true })
             ));
-        }catch(error){
+        } catch (error) {
             console.error('Error marking all activities as seen:', error);
         }
     };
 
-    const renderMobileMenuButton = () =>(
+    const renderMobileMenuButton = () => (
         <button
             className="md:hidden ml-auto p-2"
             onClick={toggleMobileMenu}
@@ -439,9 +521,8 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         </button>
     );
 
-    const renderMobileMenu = () =>
-    {
-        if(!isMobileMenuOpen)
+    const renderMobileMenu = () => {
+        if (!isMobileMenuOpen)
             return null;
         return (
             <div className="md:hidden fixed inset-0 bg-white z-50 pt-16 overflow-y-auto">
@@ -579,7 +660,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
         );
     };
 
-    return(
+    return (
         <div className="relative">
             <header className="fixed top-0 left-0 right-0 px-2 sm:px-4 md:px-6 py-2 flex items-center w-full box-border h-16 bg-[var(--bg-color)]/95 shadow-md backdrop-blur-sm z-[1000]">
                 <div className="flex items-center  rounded-lg px-3 h-full ">
@@ -607,7 +688,7 @@ const Header = ({ title, action, isHorizontalLayout, toggleLayout, onAddCategori
                 {renderMobileMenuButton()}
                 <div className="flex items-center gap-1 sm:gap-2 md:gap-4 ml-auto mr-2 sm:mr-4 flex-shrink-0">
                     {renderActivitiesButton()}
-                    <ThemeSwitcher />
+                    {renderThemeToggle()}
                     {onAddCategorizer && (
                         <button
                             onClick={onAddCategorizer}
