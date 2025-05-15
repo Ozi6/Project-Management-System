@@ -1,32 +1,24 @@
-Project Management System
-A modern web-based project management application designed to help teams efficiently plan, track, and manage their projects. Built with a focus on simplicity and performance, this system offers essential features to streamline project workflows.
+# 🧠 Project Management System
 
-🚀 Features
-Project Management: Create, update, and delete projects with ease.
+A modern, web-based Project Management application that empowers teams to efficiently plan, track, and manage their work. This system is inspired by tools like Trello and Notion and provides a user-friendly interface for managing projects, tasks, and teams.
 
-Task Management: Assign, prioritize, and track tasks within projects.
+## ✨ Features
 
-Team Collaboration: Add and manage team members for seamless collaboration.
+- 🗂️ Create and manage multiple projects
+- ✅ Add, update, and track tasks within a Kanban-style board
+- 👥 Manage teams and assign members to projects
+- 🔒 User authentication with Clerk
+- 📅 Calendar view integration for deadlines
+- 💻 Clean, responsive UI using Tailwind CSS
+- ⚡ Built with modern tools like React and Vite
 
-Responsive Design: Fully responsive interface built with Tailwind CSS.
+## 🧰 Tech Stack
 
-Authentication: Secure user authentication using Clerk.
-
-🛠️ Tech Stack
-Frontend: React, Vite
-
-Styling: Tailwind CSS
-
-Authentication: Clerk
-
-Calendar Integration: React Big Calendar
-
-Date Handling: date-fns, moment.js
-
-Icons: Lucide React, Heroicons
-
-Animations: Framer Motion
-
-Linting: ESLint
-
-Package Management: npm
+- **Frontend**: [React](https://reactjs.org/), [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Authentication**: [Clerk](https://clerk.dev/)
+- **Calendar**: [React Big Calendar](https://github.com/jquense/react-big-calendar)
+- **Icons**: [Lucide React](https://lucide.dev/), [Heroicons](https://heroicons.com/)
+- **Date Handling**: [date-fns](https://date-fns.org/), [moment.js](https://momentjs.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Linting**: [ESLint](https://eslint.org/)
