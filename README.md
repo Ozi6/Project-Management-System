@@ -1,36 +1,32 @@
-Required Packages to Run PlanWise
+Project Management System
+A modern web-based project management application designed to help teams efficiently plan, track, and manage their projects. Built with a focus on simplicity and performance, this system offers essential features to streamline project workflows.
 
-+-- @clerk/clerk-react@5.23.0
-+-- @clerk/themes@2.2.19
-+-- @eslint/js@9.20.0
-+-- @headlessui/react@2.2.0
-+-- @heroicons/react@2.2.0
-+-- @tailwindcss/vite@4.0.8
-+-- @types/react-dom@19.0.3
-+-- @types/react@19.0.8
-+-- @vitejs/plugin-react@4.3.4
-+-- clerk@0.8.3
-+-- date-fns@4.1.0
-+-- emoji-mart@5.6.0
-+-- eslint-plugin-react-hooks@5.1.0
-+-- eslint-plugin-react-refresh@0.4.19
-+-- eslint-plugin-react@7.37.4
-+-- eslint@9.20.1
-+-- framer-motion@12.4.7
-+-- globals@15.15.0
-+-- lucide-react@0.475.0
-+-- moment@2.30.1
-+-- prop-types@15.8.1
-+-- react-big-calendar@1.18.0
-+-- react-calendar@5.1.0
-+-- react-color@2.19.3
-+-- react-confetti@6.4.0
-+-- react-dom@18.3.1
-+-- react-emoji-picker@1.0.13
-+-- react-icons@5.5.0
-+-- react-router-dom@7.2.0
-+-- react@18.3.1
-+-- tailwindcss@4.0.10
-+-- uay-react-tailwind-gantt@1.0.0
-+-- uuid@11.1.0
-`-- vite@6.2.0
+🚀 Features
+Project Management: Create, update, and delete projects with ease.
+
+Task Management: Assign, prioritize, and track tasks within projects.
+
+Team Collaboration: Add and manage team members for seamless collaboration.
+
+Responsive Design: Fully responsive interface built with Tailwind CSS.
+
+Authentication: Secure user authentication using Clerk.
+
+🛠️ Tech Stack
+Frontend: React, Vite
+
+Styling: Tailwind CSS
+
+Authentication: Clerk
+
+Calendar Integration: React Big Calendar
+
+Date Handling: date-fns, moment.js
+
+Icons: Lucide React, Heroicons
+
+Animations: Framer Motion
+
+Linting: ESLint
+
+Package Management: npm
