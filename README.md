@@ -43,4 +43,32 @@ Built with a **modern full-stack architecture**, it supports features such as Ka
 
 ---
 
+## 📸 Showcase
+
+<p align="center">
+  <img src="src/assets/webp/1.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/2.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/3.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/4.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/5.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/6.gif" width="600"><br>
+  <img src="src/assets/webp/7.gif" width="600">
+</p>
+
+
 
