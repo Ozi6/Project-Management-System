@@ -1,36 +1,74 @@
-Required Packages to Run PlanWise
+# 📌 PlanWise – Project Management System
 
-+-- @clerk/clerk-react@5.23.0
-+-- @clerk/themes@2.2.19
-+-- @eslint/js@9.20.0
-+-- @headlessui/react@2.2.0
-+-- @heroicons/react@2.2.0
-+-- @tailwindcss/vite@4.0.8
-+-- @types/react-dom@19.0.3
-+-- @types/react@19.0.8
-+-- @vitejs/plugin-react@4.3.4
-+-- clerk@0.8.3
-+-- date-fns@4.1.0
-+-- emoji-mart@5.6.0
-+-- eslint-plugin-react-hooks@5.1.0
-+-- eslint-plugin-react-refresh@0.4.19
-+-- eslint-plugin-react@7.37.4
-+-- eslint@9.20.1
-+-- framer-motion@12.4.7
-+-- globals@15.15.0
-+-- lucide-react@0.475.0
-+-- moment@2.30.1
-+-- prop-types@15.8.1
-+-- react-big-calendar@1.18.0
-+-- react-calendar@5.1.0
-+-- react-color@2.19.3
-+-- react-confetti@6.4.0
-+-- react-dom@18.3.1
-+-- react-emoji-picker@1.0.13
-+-- react-icons@5.5.0
-+-- react-router-dom@7.2.0
-+-- react@18.3.1
-+-- tailwindcss@4.0.10
-+-- uay-react-tailwind-gantt@1.0.0
-+-- uuid@11.1.0
-`-- vite@6.2.0
+PlanWise is a **web-based Project Management System** designed to provide teams with powerful collaboration, task management, and real-time communication tools.  
+Built with a **modern full-stack architecture**, it supports features such as Kanban boards, Gantt charts, multilingual UI, issue tracking, and integrated real-time chat.  
+
+---
+
+## 🚀 Features
+
+- **Dashboard Overview** – Recent activities, deadlines, and project summaries.  
+- **Project & Task Management** – Create projects, categories, task lists, and entries.  
+- **Kanban & Gantt Charts** – Visualize workflows and project timelines.  
+- **Issue Reporting System** – Bug/feature/enhancement reporting with admin moderation.  
+- **Notes System** – Personal and collaborative notes with color-coding & sharing.  
+- **Real-time Chat** – WebSocket-based messaging with file sharing, reactions, polls, voice messages, and code snippets.  
+- **Team Collaboration** – Create teams, assign roles, manage members, and coordinate workspaces.  
+- **Multilingual & Theming** – English/Turkish support, light/dark/pink themes.  
+- **Authentication & Security** – Clerk authentication + JWT-based secure API.  
+
+---
+
+## 🏗️ Tech Stack
+
+### Frontend
+- [React](https://reactjs.org/)  
+- [Tailwind CSS](https://tailwindcss.com/)  
+- React Router, Context API  
+- Clerk Authentication  
+
+### Backend
+- [Spring Boot](https://spring.io/projects/spring-boot) (Java)  
+- Spring Security + JWT  
+- WebSocket + STOMP (SockJS, stomp.js)  
+
+### Database
+- [MySQL](https://www.mysql.com/)  
+- Spring Data JPA (ORM)  
+
+### DevOps & Tools
+- Git, GitHub Projects & Issues  
+- IntelliJ IDEA, Visual Studio Code  
+- Maven & npm  
+
+---
+
+## 📸 Showcase
+
+<p align="center">
+  <img src="src/assets/webp/1.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/2.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/3.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/4.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/5.webp" width="600">
+</p>
+
+<p align="center">
+  <img src="src/assets/webp/6.gif" width="600"><br>
+  <img src="src/assets/webp/7.gif" width="600">
+</p>
+
+
+
